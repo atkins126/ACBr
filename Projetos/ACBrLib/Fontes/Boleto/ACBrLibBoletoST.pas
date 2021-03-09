@@ -79,11 +79,16 @@ function Boleto_Imprimir(eNomeImpressora: PChar): longint; {$IfDef STDCALL} stdc
 function Boleto_ImprimirBoleto(eIndice: longint; eNomeImpressora: PChar): longint;
   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 function Boleto_GerarPDF: longint; {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
+function Boleto_GerarPDFBoleto(eIndice: longint): longint; {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 function Boleto_GerarHTML: longint; {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 function Boleto_GerarRemessa(eDir: PChar; eNumArquivo: longInt; eNomeArq: PChar): longint;
   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 function Boleto_LerRetorno(eDir, eNomeArq: PChar): longint; {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
+function Boleto_ObterRetorno(eDir, eNomeArq: PChar; const sResposta: PChar; var esTamanho: longint): longint;
+  {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 function Boleto_EnviarEmail(ePara, eAssunto, eMensagem, eCC: PChar): longint;
+  {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
+function Boleto_EnviarEmailBoleto(eIndice: longint; ePara, eAssunto, eMensagem, eCC: PChar): longint;
   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 function Boleto_SetDiretorioArquivo(eDir, eArq: PChar; const sResposta: PChar; var esTamanho: longint): longint;
   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
@@ -290,6 +295,20 @@ begin
   end;
 end;
 
+function Boleto_GerarPDFBoleto(eIndice: longint): longint; {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
+begin
+  try
+    VerificarLibInicializada(pLib);
+    Result := TACBrLibBoleto(pLib^.Lib).GerarPDFBoleto(eIndice);
+  except
+    on E: EACBrLibException do
+      Result := E.Erro;
+
+    on E: Exception do
+      Result := ErrExecutandoMetodo;
+  end;
+end;
+
 function Boleto_GerarHTML: longint; {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 begin
   try
@@ -333,12 +352,42 @@ begin
   end;
 end;
 
+function Boleto_ObterRetorno(eDir, eNomeArq: PChar; const sResposta: PChar;
+  var esTamanho: longint): longint; {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
+begin
+  try
+    VerificarLibInicializada(pLib);
+    Result := TACBrLibBoleto(pLib^.Lib).ObterRetorno(eDir, eNomeArq, sResposta, esTamanho);
+  except
+    on E: EACBrLibException do
+      Result := E.Erro;
+
+    on E: Exception do
+      Result := ErrExecutandoMetodo;
+  end;
+end;
+
 function Boleto_EnviarEmail(ePara, eAssunto, eMensagem, eCC: PChar): longint;
   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 begin
   try
     VerificarLibInicializada(pLib);
     Result := TACBrLibBoleto(pLib^.Lib).EnviarEmail(ePara, eAssunto, eMensagem, eCC);
+  except
+    on E: EACBrLibException do
+      Result := E.Erro;
+
+    on E: Exception do
+      Result := ErrExecutandoMetodo;
+  end;
+end;
+
+function Boleto_EnviarEmailBoleto(eIndice: longint; ePara, eAssunto, eMensagem, eCC: PChar): longint;
+  {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
+begin
+  try
+    VerificarLibInicializada(pLib);
+    Result := TACBrLibBoleto(pLib^.Lib).EnviarEmailBoleto(eIndice, ePara, eAssunto, eMensagem, eCC);
   except
     on E: EACBrLibException do
       Result := E.Erro;

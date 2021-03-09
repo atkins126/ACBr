@@ -1056,7 +1056,6 @@ begin
       end
       else if copy(Linha, 14, 1) = 'U' then
       begin
-        ValorDocumento      := max(ValorDocumento,StrToFloatDef(copy(Linha, 78, 15), 0) / 100);
         ValorMoraJuros      := StrToFloatDef(copy(Linha, 18, 15), 0) / 100;
         ValorDesconto       := StrToFloatDef(copy(Linha, 33, 15), 0) / 100;
         ValorAbatimento     := StrToFloatDef(copy(Linha, 48, 15), 0) / 100;
@@ -1118,6 +1117,7 @@ begin
       Cedente.AgenciaDigito:= '0';
       Cedente.Conta   := rConta;
       Cedente.ContaDigito:= rDigitoConta;
+      Cedente.CodigoCedente := Copy(ARetorno[0], 109, 9);
 
       DataArquivo   := StringToDateTimeDef(Copy(ARetorno[0],95,2)+'/'+
                                            Copy(ARetorno[0],97,2)+'/'+

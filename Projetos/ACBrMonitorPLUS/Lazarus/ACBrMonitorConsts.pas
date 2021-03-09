@@ -84,6 +84,9 @@ ResourceString
 const
   CMonitorIni = 'ACBrMonitor.ini';
   _C = 'tYk*5W@';
+  C_LEVEL0 = 0;
+  C_LEVEL1 = 1;
+  C_LEVEL2 = 2;
 
   CModeloNFe55 = 55;
   CModeloNFe65 = 65;
@@ -124,6 +127,7 @@ const
   CMetodoImprimirExtratoCancelamento = 'imprimirextratocancelamento';
   CMetodoGerarImpressaoFiscalMFe =     'gerarimpressaofiscalmfe';
   CMetodoGerarPDFExtratoVenda =        'gerarpdfextratovenda';
+  CMetodoGerarPDFExtratoCancelamento = 'gerarpdfextratocancelamento';
   CMetodoExtrairLogs =                 'extrairlogs';
   CMetodoTesteFimaFim =                'testefimafim';
   CMetodoSetNumeroSessao =             'setnumerosessao';
@@ -860,6 +864,7 @@ const
   CKeyXmlSignLib =                   'XmlSignLib';
   CKeySSLType =                      'SSLType';
   CKeyArquivoPFX =                   'ArquivoPFX';
+  CKeyURLPFX =                       'URLPFX';
   CKeyNumeroSerie =                  'NumeroSerie';
   CKeySenha =                        'Senha';
   CKeyExibeRazaoSocialCertificado =  'ExibeRazaoSocialCertificado';
@@ -1226,6 +1231,7 @@ const
   CKeyBOLETOLogradouro =                    'Logradouro';
   CKeyBOLETONumero =                        'Numero';
   CKeyBOLETOBairro =                        'Bairro';
+  CKeyBOLETOCodCidade =                     'CodCidade';
   CKeyBOLETOCidade =                        'Cidade';
   CKeyBOLETOCEP =                           'CEP';
   CKeyBOLETOComplemento =                   'Complemento';
@@ -1260,6 +1266,7 @@ const
   CKeyBOLETOLogoEmpresa =                   'LogoEmpresa';
   CKeyBOLETOEmailAssuntoBoleto =            'EmailAssuntoBoleto';
   CKeyBOLETOEmailMensagemBoleto =           'EmailMensagemBoleto';
+  CKeyBOLETOEmailFormatoHTML =              'EmailFormatoHTML';
   CKeyBOLETOImpressora =                    'Impressora';
   CKeyBOLETONomeArquivoBoleto =             'NomeArquivoBoleto';
   //Manter Compatibilidade

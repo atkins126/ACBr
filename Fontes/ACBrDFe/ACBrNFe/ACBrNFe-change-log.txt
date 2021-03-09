@@ -44,6 +44,51 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+26/02/2021
+--ACBrNFeNotasFiscais--
+[*] Adicionado sessão InfRespTec na função GerarNFeIn
+
+19/02/2021
+-- pcnNFeW/ACBrNFeXMLWriter --
+[*] Ajuste para o tamanho mínimo da tag "veicProd.cCor".
+  Por: BigWings
+
+-- ACBrNFeXMLWriter --
+[*] Ajuste do namespace e melhorias de código.
+  Por: BigWings
+
+16/02/2021
+-- ACBrNFeWebServices --
+[*] Em TNFeEnvEvento.DefinirURL foi removido o enumerador teAtoInteressadoNFe da lista,
+    pois esse evento passará a usar o Ambiente Nacional
+   Por: Italo Giurizzato Junior
+
+15/02/2021
+-- pcnNFeR --
+[*] https://www.projetoacbr.com.br/forum/topic/61232-nitem-incorreto-nfe/
+   Por: João Paulo Müller
+
+27/01/2021
+-- pcnEnvEventoNFe --
+[*] Incluido a leitura de arquivo INI do evento de cancelamento de comprovante 
+    de entrega.
+   Por: Italo Giurizzato Junior
+
+25/01/2021
+-- Diversos --
+[*] Alterações visando atender as NT 2020/006 e 2020/007.
+   Por: Italo Giurizzato Junior
+
+13/01/2021
+pcnNFeRTXT.pas
+[*] Ajuste leitura dos campos pDif, vICMSDif, vICMSOp
+   Por: José M S Junior
+
+07/01/2021
+-- ACBrNFeXmlWriter, pcnNFeW --
+[*] Ajuste de conversão de retorno na função ValidarGTIN ao preencher mensagens de Alerta 
+   Por: José M S Junior
+
 13/11/2020
 -- ACBrNFeNotasFiscais --
 [*] Uso da função ObterDFeXML nos métodos Validar e VerificarAssinatura

@@ -171,6 +171,9 @@ type
     ACBr_NF3e_dpk: TCheckBox;
     ACBr_NF3eDANF3eESCPOS_dpk: TCheckBox;
     ACBr_ADRCST_dpk: TCheckBox;
+    Label28: TLabel;
+    ACBr_SATExtratoFR_dpk: TCheckBox;
+    ACBr_PagFor_dpk: TCheckBox;
     procedure btnPacotesMarcarTodosClick(Sender: TObject);
     procedure btnPacotesDesmarcarTodosClick(Sender: TObject);
     procedure VerificarCheckboxes(Sender: TObject);
@@ -327,6 +330,7 @@ begin
       if not ACBr_SAT_dpk.Checked then
       begin
         ACBr_SATExtratoRL_dpk.Checked := False;
+        ACBr_SATExtratoFR_dpk.Checked := False;
       end;
 
       // quando não for selecionado o GNRE devemos desmarcar
@@ -368,7 +372,9 @@ begin
         ACBr_SAT_dpk.Checked    := True;
       end;
 
-      if (ACBr_SATExtratoRL_dpk.Checked) and not(ACBr_SAT_dpk.Checked) then
+      if (ACBr_SATExtratoRL_dpk.Checked or
+          ACBr_SATExtratoFR_dpk.Checked)
+        and not(ACBr_SAT_dpk.Checked) then
         ACBr_SAT_dpk.Checked := True;
 
       //2) Segundo Verificar dependência de outros pacotes marcados...

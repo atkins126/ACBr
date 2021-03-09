@@ -42,6 +42,21 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+01/03/2021
+--- ACBrLiGRNeResposta ---
+[+] Adicionado classe para obter retorno e path do arquivo gerado sendo TXT ou XML
+	Por: José M S Junior
+
+12/02/2021
+--- ACBrLiGRNeBase ---
+[-] Correção no metodo Validar o mesmo estava fazendo o retorno errado.
+	Por: Rafael Dias
+
+30/12/2020
+--- ACBrLibGNReConfig ---
+[-] Corrigido possível problema ao ler senha do certificado.
+    (Por: Rafael Dias)
+
 19/10/2020
 --- ACBrLibGNReBase, ACBrLibGNReDataModule ---
 [-] Corrigindo retornos da ACBrLibGNRe.

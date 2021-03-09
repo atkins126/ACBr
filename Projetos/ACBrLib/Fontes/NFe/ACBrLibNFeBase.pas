@@ -548,11 +548,11 @@ begin
     try
       try
         NFeDM.ACBrNFe1.NotasFiscais.Validar;
+        Result := SetRetornoNFeCarregadas(NFeDM.ACBrNFe1.NotasFiscais.Count);
       except
         on E: EACBrNFeException do
           Result := SetRetorno(ErrValidacaoNFe, E.Message);
       end;
-      Result := SetRetornoNFeCarregadas(NFeDM.ACBrNFe1.NotasFiscais.Count);
     finally
       NFeDM.Destravar;
     end;
@@ -949,7 +949,16 @@ begin
         WebServices.Retorno.Clear;
 
         NotasFiscais.Assinar;
-        NotasFiscais.Validar;
+
+        try
+          NotasFiscais.Validar;
+        except
+          on E: EACBrNFeException do
+          begin
+            Result := SetRetorno(ErrValidacaoNFe, E.Message);
+            Exit;
+          end;
+        end;
 
         if (ALote = 0) then
           WebServices.Enviar.Lote := '1'

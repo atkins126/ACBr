@@ -81,9 +81,6 @@ type
 
   end;
 
-
-
-
 implementation
 
 uses
@@ -368,11 +365,11 @@ begin
     try
       try
         GNReDM.ACBrGNRe1.Guias.Validar;
+        Result := SetRetornoGNReCarregados(GNReDM.ACBrGNRe1.Guias.Count);
       except
         on E: EACBrGNReException do
           Result := SetRetorno(ErrValidacaoGNRe, E.Message);
       end;
-      Result := SetRetornoGNReCarregados(GNReDM.ACBrGNRe1.Guias.Count);
     finally
       GNReDM.Destravar;
     end;
@@ -457,7 +454,16 @@ begin
           raise EACBrLibException.Create(ErrEnvio, Format(SInfGNReCarregados, [Guias.Count]));
 
         Guias.Assinar;
-        Guias.Validar;
+
+        try
+          Guias.Validar;
+        except
+          on E: EACBrGNReException do
+          begin
+            Result := SetRetorno(ErrValidacaoGNRe, E.Message);
+            Exit;
+          end;
+        end;
 
         Resp := TLibGNReEnvio.Create(Config.TipoResposta, Config.CodResposta);
 

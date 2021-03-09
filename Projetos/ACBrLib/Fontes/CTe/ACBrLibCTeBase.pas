@@ -515,12 +515,11 @@ begin
     try
       try
         CTeDM.ACBrCTe1.Conhecimentos.Validar;
+        Result := SetRetornoCTesCarregados(CTeDM.ACBrCTe1.Conhecimentos.Count);
       except
         on E: EACBrCTeException do
           Result := SetRetorno(ErrValidacaoCTe, E.Message);
       end;
-
-      Result := SetRetornoCTesCarregados(CTeDM.ACBrCTe1.Conhecimentos.Count);
     finally
       CTeDM.Destravar;
     end;
@@ -907,7 +906,16 @@ begin
                                                    ' excedido. Quantidade atual: ' + IntToStr(Conhecimentos.Count));
 
         Conhecimentos.Assinar;
-        Conhecimentos.Validar;
+
+        try
+          Conhecimentos.Validar;
+        except
+          on E: EACBrCTeException do
+          begin
+            Result := SetRetorno(ErrValidacaoCTe, E.Message);
+            Exit;
+          end;
+        end;
 
         if (ALote = 0) then
           WebServices.Enviar.Lote := '1'

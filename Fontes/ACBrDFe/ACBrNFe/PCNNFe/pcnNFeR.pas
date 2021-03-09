@@ -164,6 +164,9 @@ begin
       (*B25b*)NFe.ide.indPres  := StrToPresencaComprador(ok, Leitor.rCampo(tcStr, 'indPres'));
      end;
 
+    if NFe.infNFe.Versao >= 4 then
+      NFe.ide.indIntermed := StrToIndIntermed(ok, Leitor.rCampo(tcStr, 'indIntermed'));
+
     (*B26*) NFe.Ide.procEmi := StrToProcEmi(ok, Leitor.rCampo(tcStr, 'procEmi'));
     (*B27*) NFe.Ide.verProc := Leitor.rCampo(tcStr, 'verProc');
     (*B28*) NFe.Ide.dhCont  := Leitor.rCampo(tcDatHor, 'dhCont');
@@ -397,7 +400,7 @@ begin
 
     Leitor.rExtrai(1, 'det nItem=' + Aspas + IntToStr(nItem) + Aspas, 'det');
     NFe.Det.New;
-    (*   *)NFe.Det[i].prod.nItem := i + 1;
+    (*   *)NFe.Det[i].prod.nItem := nItem;
     (*V01*)NFe.Det[i].infAdProd  := Leitor.rCampo(tcStr, 'infAdProd');
 
     (* Grupo da TAG <det><prod> *)
@@ -991,6 +994,12 @@ begin
       inc(i);
     end;
    end;
+
+  if Leitor.rExtrai(1, 'infIntermed') <> '' then
+  begin
+    NFe.infIntermed.CNPJ         := Leitor.rCampo(tcStr, 'CNPJ');
+    NFe.infIntermed.idCadIntTran := Leitor.rCampo(tcStr, 'idCadIntTran');
+  end;
 
   (* Grupo da TAG <InfAdic> ***************************************************)
 

@@ -44,6 +44,46 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+01/03/2021
+-- DoACBrNFeUnit --
+[*] Melhorias na geração respostas para componente NFe
+
+01/03/2021
+-- DoACBrBoleto --
+[*] Adicionado parâmetro no método LerRetorno para obter Retorno como Resposta
+
+01/03/2021
+-- DoACBrGNReUnit --
+[*] Ajuste na geração Respostas do componente GNRe adicionando campos com path do arquivo gerado e o XML
+
+15/02/2021
+-- ACBrMonitor --
+[*] Ajuste Descrição em Tela
+
+12/02/2021
+-- ACBrMonitor --
+[+] Adicionado Validação para gerar log em tela
+
+04/02/2021
+-- ACBrMonitor --
+[+] Melhorias no Menu de Acesso e validaçoes de erros em tela
+   Por: José M S Junior
+
+13/01/2021
+-- ACBrMonitor1 --
+[*] Ajustes de posicionamento de campos em tela
+   Por: José M S Junior
+
+08/01/2021
+-- ACBrMonitor1, DoACBrSATUnit, DoACBrBoletoUnit, DoACBrNFeUnit, ACBrMonitorConsts, ACBrMonitorConfig --
+[+] Melhorias e validações nas configurações em Tela: DFe, SAT, Boleto, e-mail
+   Por: José M S Junior
+
+   08/01/2021
+-- ACBrMonitor1, DoACBrSATUnit --
+[+] Adicionado Método SAT.GerarPDFExtratoCancelamento
+   Por: José M S Junior
+
 24/11/2020
 -- DoSATUnit --
 [*] Ajuste no método ConsultarModeloSat

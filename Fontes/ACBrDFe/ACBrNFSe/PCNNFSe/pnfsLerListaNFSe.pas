@@ -340,7 +340,7 @@ begin
       Nivel1 := (leitor.rExtrai(1, 'ConsultarNfseFaixaResposta') <> '');
     if not Nivel1 then
       Nivel1 := (leitor.rExtrai(1, 'ConsultarNfseServicoPrestadoResponse') <> '');
-      
+
     if not Nivel1 then
       Nivel1 := (leitor.rExtrai(1, 'resPedidoLoteNFSe') <> '');
 
@@ -351,11 +351,18 @@ begin
       Nivel1 := (leitor.rExtrai(1, 'RetornoConsultaRPS') <> '');
 
     if not Nivel1 then
+      Nivel1 := (leitor.rExtrai(1, 'Enviarloterpssincronoresposta') <> '');
+
+    if not Nivel1 then
       Nivel1 := (leitor.rExtrai(1, 'listaNfse') <> '');
     if not Nivel1 then
       Nivel1 := (leitor.rExtrai(1, 'ListaNfse') <> '');
     if not Nivel1 then
       Nivel1 := (leitor.rExtrai(1, 'nfse') <> '');
+
+    // Adm notas
+    if not Nivel1 then
+      Nivel1 := (leitor.rExtrai(1, 'Nfse') <> '');
 
     // Assessor Publico
     if not Nivel1 then
@@ -457,7 +464,11 @@ begin
       if trim(NumeroLoteTemp) = '' then
         NumeroLoteTemp := '0';
 
-      DataRecebimentoTemp:= Leitor.rCampo(tcDatHor, 'DataRecebimento');
+      if (Provedor in [proElotech]) then
+        DataRecebimentoTemp:= Leitor.rCampo(tcDat, 'DataRecebimento')
+      else
+        DataRecebimentoTemp:= Leitor.rCampo(tcDatHor, 'DataRecebimento');
+
       if (DataRecebimentoTemp = 0) then
         DataRecebimentoTemp:= Leitor.rCampo(tcDatHor, 'DataEnvioLote');
 
@@ -515,14 +526,15 @@ begin
             (leitor.rExtrai(Nivel, 'RetornoConsultaRPS', '', i + 1) <> '') or
             (leitor.rExtrai(Nivel, 'NFe', '', i + 1) <> '') or
             (leitor.rExtrai(Nivel, 'Reg20Item', '', i + 1) <> '') or
-            (leitor.rExtrai(Nivel, 'NfseSubstituida', '', i + 1) <> '') or
+            (leitor.rExtrai(Nivel, 'NfseSubstituidora', '', i + 1) <> '') or
+//            (leitor.rExtrai(Nivel, 'NfseSubstituida', '', i + 1) <> '') or
             ((Provedor in [proActcon]) and (Leitor.rExtrai(Nivel + 1, 'Nfse', '', i + 1) <> '')) or
             ((Provedor in [proAgili, proAgiliv2, proDataSmart]) and (Leitor.rExtrai(Nivel, 'Nfse', '', i + 1) <> '')) or
             ((Provedor in [proEquiplano, proIPM]) and (Leitor.rExtrai(Nivel, 'nfse', '', i + 1) <> '')) or
             ((Provedor in [proNFSeBrasil, proISSJoinville]) and (Leitor.rExtrai(Nivel, 'nota', '', i + 1) <> '')) or
             ((Provedor in [proISSJoinville]) and (Leitor.rExtrai(Nivel, 'nota_recebida', '', i + 1) <> '')) or
-            ((Provedor in [proISSDSF, proSiat]) and (Leitor.rExtrai(Nivel, 'ConsultaNFSe', '', i + 1) <> '')) or     // ConsultaLote  
-            ((Provedor in [proISSDSF, proSiat]) and (Leitor.rExtrai(Nivel, 'NotasConsultadas', '', i + 1) <> '')) or // ConsultaNFSePorRPS 
+            ((Provedor in [proISSDSF, proSiat]) and (Leitor.rExtrai(Nivel, 'ConsultaNFSe', '', i + 1) <> '')) or     // ConsultaLote
+            ((Provedor in [proISSDSF, proSiat]) and (Leitor.rExtrai(Nivel, 'NotasConsultadas', '', i + 1) <> '')) or // ConsultaNFSePorRPS
             ((Provedor in [proInfisc, proInfiscv11]) and (Leitor.rExtrai(Nivel, 'resPedidoLoteNFSe', '', i + 1) <> '')) or
             ((Provedor in [proGoverna]) and (Leitor.rExtrai(Nivel, 'InfRetConsultaNotCan', '', i + 1) <> '')) or
             ((Provedor in [proCTA, proISSDSF]) and (Leitor.rExtrai(Nivel, 'Nota', '', i + 1) <> '')) or
@@ -540,6 +552,9 @@ begin
           NFSeLida.Provedor       := Provedor;
           NFSeLida.TabServicosExt := TabServicosExt;
           NFSeLida.PathIniCidades := PathIniCidades;
+
+          if Pos('<CompNfse>', Leitor.Grupo) > 0 then
+            Leitor.rExtrai(Nivel+1, 'CompNfse', '', 1);
 
           NFSeLida.Leitor.Arquivo := Leitor.Grupo;
 
@@ -670,8 +685,10 @@ begin
               if FNFSe.Protocolo = '0' then
                 FNFSe.Protocolo := Protocolo;
 
-              // Retorno do ConsultarLoteRps
-              FNFSe.Situacao := SituacaoTemp;
+              if Provedor = proCONAM then
+                FNFSe.Situacao := NFSeLida.NFSe.Situacao
+              else
+                FNFSe.Situacao := SituacaoTemp;
 
               {Márcio - Se tiver link na NFSeLida, então deve ser tratado lá, e aqui simplesmente pega o valor }
               FNFSe.Link              := NFSeLida.NFSe.Link;
@@ -793,6 +810,16 @@ begin
               FNFSe.NFSeCancelamento.Pedido.CodigoCancelamento := NFSeLida.NFSe.NFSeCancelamento.Pedido.CodigoCancelamento;
               FNFSe.Cancelada := NFSeLida.NFSe.Cancelada;
               FNFSe.Status := NFSeLida.NFSe.Status;
+
+              if Provedor = proCONAM then
+              begin
+                if NFSe.Situacao = '2' then
+                  NFSe.Cancelada := snSim
+                else
+                  NFSe.Cancelada := snNao;
+
+                NFSe.MotivoCancelamento := NFSeLida.NFSe.MotivoCancelamento;
+              end;
 
               FNFSe.NFSeSubstituidora := NFSeLida.NFSe.NFSeSubstituidora;
             end;
@@ -1464,6 +1491,21 @@ begin
 
             inc(i);
           end;
+        end;
+      end;
+    end;
+
+    if FProvedor = proAssessorPublico then
+    begin
+      i := 0;
+      if (leitor.rExtrai(2, 'INCONSISTENCIA') <> '') then
+      begin
+        while Leitor.rExtrai(3, 'ERRO', '', i + 1) <> '' do
+        begin
+          ListaNfse.FMsgRetorno.New;
+          ListaNfse.FMsgRetorno[i].FMensagem := Leitor.rCampo(tcStr, 'ERRO');
+
+          inc(i);
         end;
       end;
     end;

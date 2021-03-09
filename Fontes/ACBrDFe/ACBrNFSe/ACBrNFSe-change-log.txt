@@ -42,6 +42,164 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+04/03/2021
+-- pnfsNFSeW_ABRASFv2/ACBrNFSeWebServices --
+[*] Possível correção para o provedor VersaTecnologia.
+  Por: Italo Giurizzato Junior
+
+03/03/2021
+-- pnfsNFSeW_Agili --
+[*] Possível correção para o provedor Agili.
+  Por: Italo Giurizzato Junior
+
+02/03/2021
+-- pnfsNFSeR --
+[*] https://www.projetoacbr.com.br/forum/topic/61425-troca-de-sistema-prefeitura-de-vila-velhaes/?do=findComment&comment=403318&_rid=63
+  Por: Luiz Vaz
+
+-- pnfsNFSeR --
+[*] https://www.projetoacbr.com.br/forum/topic/59632-t%C3%B3pico-exclusivo-para-troca-de-provedor-e-novas-cidades/?do=findComment&comment=403324&_rid=63
+  Por: Matheus Rodrigo Koch
+-- pnfsNFSeG --
+[*] Correções para gerar e enviar corretamente o pedido de cancelamento - Provedor Elotech.
+  Por: Italo Giurizzato Junior
+[*] https://www.projetoacbr.com.br/forum/topic/61482-tags-de-local-de-presta%C3%A7%C3%A3o-no-provedor-conam/
+  Por: Thiagond
+-- ACBrNFSeNotasFiscais/ACBrNFSeWebServices --
+[*] Possível correção para o provedor Actconv202.
+  Por: Italo Giurizzato Junior
+
+26/02/2021
+-- pnfsLerListaNFSe/ pnfsNFSeW_ABRASFv2 --
+[*] https://www.projetoacbr.com.br/forum/topic/61449-sugest%C3%A3o-alteracao-para-provedor-elotech/
+  Por: arrobba
+-- pnfsNFSeW_IPM --
+[*] Correção na geração da tag estado quando o tomador é estrangeiro.
+    Essa tag sempre é gerada vazia, agora vai utilizar o conteúdo do 
+    campo Tomador.Endereco.UF
+  Por: Italo Giurizzato Junior
+
+25/02/2021
+-- Diversos --
+[+] Implementado o provedor SmarAPDv23 para atender a cidade de Vila Velha/ES.
+  Por: Italo Giurizzato Junior
+
+23/02/2021
+-- pnfsLerListaNFSe --
+[-] Correção na sub string do Pos ao checar se ainda tem o grupo CompNfse.
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeNotasFiscais --
+[-] Correção para o Provedor ISSJoinville, não estava considerando de forma correta
+    o Namespace ao gerar o XML do Rps.
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeWebServices --
+[-] Possível correção no tratamento do retorno do envio de lote - provedor Elotech.
+  Por: Italo Giurizzato Junior
+
+19/02/2021
+-- pnfsLerListaNFSe --
+[*] Possível correção na leitura do retorno do método Substituição NFSe.
+  Por: Italo Giurizzato Junior
+-- pnfsNFSeW_GeisWeb --
+[*] Alterações para adequar a geração do Rps conforme consta no manual do provedor
+  Por: Josue Ervino
+
+15/02/2021
+-- pnfsNFSeW_ISSDSF --
+[*] https://www.projetoacbr.com.br/forum/topic/61296-provedor-issdsf-uberlandia/
+  Por: Antonio Gomes
+
+12/02/2021
+-- ACBrNFSeWebServices --
+[-] Possível correção na montagem do lote de envio do RPS (provedor GeisWeb).
+  Por: Italo Giurizzato Junior
+
+11/02/2021
+-- Diversos --
+[+] Alterado a assinatura do método CancelarNFSe, agora ele tem os seguintes parâmetros: 
+    SerieNFSe (string), NumeroRps (string), SerieRps (string), ValorNFSe (Double).
+    Esses parâmetros são necessários para o provedor Conam.
+  Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Criado a propriedade: SubstituirRps (Boolean) que determina se o Rps a ser enviado
+    através do método SubstituirNFSe deve ser assinado ou não.
+[*] Realizado alterações em diversas units para usar essa nova propriedade.
+  Por: Italo Giurizzato Junior
+
+10/02/2021
+-- pnfsConversao --
+[*] https://www.projetoacbr.com.br/forum/topic/61206-unit-pnfsconversao-sugest%C3%A3o/
+  Por: Graça
+-- ACBrNFSe --
+[*] https://www.projetoacbr.com.br/forum/topic/61117-cancelamento-de-nfse-sem-xml-provedor-ipm/
+  Por: Douglas Joel Dapper
+
+04/02/2021
+-- pnfsLerListaNFSe --
+[*] Possível correção na leitura do XML de uma NFS-e cancelada - Provedor Conam.
+  Por: Italo Giurizzato Junior
+
+27/01/2021
+-- ACBrNFSeWebServices --
+[*] Removido o provedor NFSeBrasil da lista dos que existem senha do usuário.
+  Por: Thiagfb / Italo Giurizzato Junior
+-- ACBrNFSeNotasFiscais --
+[-] Possivel correção para não ocorrer mais erro de falta de memória ao ler o
+    XML de um RPS.
+  Por: Paulo C. L. Vicente / Italo Giurizzato Junior
+
+22/01/2021
+-- ACBrNFSeNotasFiscais/pnfsNFSeR --
+[*] Ajustes para ler o XML do RPS de forma correta - Provedor Governa.
+  Por: Italo Giurizzato Junior
+
+21/01/2021
+-- pnfsLerListaNFSe --
+[*] https://www.projetoacbr.com.br/forum/topic/60925-tratamento-de-retorno-da-nfs-e-provedor-assessorpublico/?_rid=63
+  Por: Paulo Henrique Panico
+
+20/01/2021
+-- ACBrNFSeWebServices --
+[*] Ajuste para atender todas as cidades que se utilizam do provedor Centi
+  Por: Italo Giurizzato Junior
+
+15/01/2021
+-- ACBrNFSeConfiguracoes --
+[*] Correção no nome da propriedade que contem a URL de produção do serviço:
+    ConsultaURL.
+  Por: Lucio Bittes
+
+13/01/2021
+-- Diversos --
+[+] Implementação do novo provedor: Adm
+  Por: Antonio Gomes
+
+07/01/2021
+-- ACBrNFSeWebServices/ACBrNFSeNotasFiscais/pnfsNFSeW_ABRASFv2 --
+[*] Alterações visando o provedor Goiania.
+  Por: Italo Giurizzato Junior
+
+05/01/2021
+-- ACBrNFSeWebServices --
+[*] Alterações visando o provedor Tinus.
+  Por: Guilherme Martin Ewz
+-- pnfsLerListaNFSe --
+[*] Alterações visando a leitura do XML da NFS-e do provedor SiapSistemas.
+  Por: Eliezer F.B.
+
+30/12/2020
+-- pnfsNFSeW_ABRASFv2 --
+[*] Possivel correção na geração da tag Competencia, provedor Digifred.
+  Por: Italo Giurizzato Junior
+
+24/12/2020
+-- pnfsNFSeW_ABRASFv2 --
+[*] https://www.projetoacbr.com.br/forum/topic/60663-falha-de-valida%C3%A7%C3%A3o-nfse-safeweb-campo-competencia/
+  Por: M Bortolini
+-- pnfsNFSeW_AssessorPublico --
+[*] https://www.projetoacbr.com.br/forum/topic/59634-nfse-provedor-assessor-publico-sem-c%C3%B3digo-de-verifica%C3%A7%C3%A3o-no-retorno/?tab=comments#comment-398159
+  Por: José Jair de Oliveira
+
 17/12/2020
 -- pnfsNFSeW_ABRASFv2 --
 [*] Alteração visando o provedor Tecnos
@@ -4356,5 +4514,3 @@ Versão 0.01a
 
 [+] Doação do componente ao projeto ACBr
    Por: Juaumkiko
-
-

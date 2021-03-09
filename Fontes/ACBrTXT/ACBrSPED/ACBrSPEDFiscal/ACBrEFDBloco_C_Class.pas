@@ -168,8 +168,8 @@ type
     procedure WriteRegistroC177(RegC170: TRegistroC170);
     procedure WriteRegistroC178(RegC170: TRegistroC170);
     procedure WriteRegistroC179(RegC170: TRegistroC170);
-    procedure WriteRegistroC180(RegC170: TRegistroC170);
-    procedure WriteRegistroC181(RegC170: TRegistroC170);
+    procedure WriteRegistroC180(RegC100: TRegistroC100; RegC170: TRegistroC170);
+    procedure WriteRegistroC181(RegC100: TRegistroC100; RegC170: TRegistroC170);
     procedure WriteRegistroC185(RegC100: TRegistroC100);
     procedure WriteRegistroC186(RegC100: TRegistroC100);
     procedure WriteRegistroC190(RegC100: TRegistroC100);
@@ -1978,8 +1978,8 @@ begin
     		  WriteRegistroC177( RegC100.RegistroC170.Items[intFor] ) ;
         WriteRegistroC178( RegC100.RegistroC170.Items[intFor] ) ;
         WriteRegistroC179( RegC100.RegistroC170.Items[intFor] ) ;
-        WriteRegistroC180( RegC100.RegistroC170.Items[intFor] ) ;
-        WriteRegistroC181( RegC100.RegistroC170.Items[intFor] ) ;
+        WriteRegistroC180( RegC100, RegC100.RegistroC170.Items[intFor] ) ;
+        WriteRegistroC181( RegC100, RegC100.RegistroC170.Items[intFor] ) ;
 
         RegistroC990.QTD_LIN_C := RegistroC990.QTD_LIN_C + 1;
      end;
@@ -2142,12 +2142,12 @@ begin
                ifthen(DT_INI >= EncodeDate(2017,01,01),
                LFill( CHAVE_NFE_ULT_E ) +
                LFill( NUM_ITEM_ULT_E ) +
-               DFill( VL_UNIT_BC_ICMS_ULT_E,2 ) +
-               DFill( ALIQ_ICMS_ULT_E,2 ) +
-               DFill( VL_UNIT_LIMITE_BC_ICMS_ULT_E,2 ) +
-               DFill( VL_UNIT_ICMS_ULT_E,3 ) +
-               DFill( ALIQ_ST_ULT_E,2 ) +
-               DFill( VL_UNIT_RES,3 ) +
+               DFill( VL_UNIT_BC_ICMS_ULT_E,2, True ) +
+               DFill( ALIQ_ICMS_ULT_E,2, True ) +
+               DFill( VL_UNIT_LIMITE_BC_ICMS_ULT_E,2, True ) +
+               DFill( VL_UNIT_ICMS_ULT_E,3, True ) +
+               DFill( ALIQ_ST_ULT_E,2, True ) +
+               DFill( VL_UNIT_RES,3, True ) +
                LFill( COD_RESP_RET ) +
                LFill( MotivoRessarcimentoToStr(COD_MOT_RES) ) +
                LFill( CHAVE_NFE_RET ) +
@@ -2237,7 +2237,7 @@ begin
   end;
 end;
 
-procedure TBloco_C.WriteRegistroC180(RegC170: TRegistroC170);
+procedure TBloco_C.WriteRegistroC180(RegC100: TRegistroC100; RegC170: TRegistroC170);
 var
   intFor: integer;
 begin
@@ -2245,9 +2245,8 @@ begin
   begin
      if RegC170.RegistroC180.Count > 0 then
      begin
-        if FBloco_0.Registro0000.IND_PERFIL in [pfPerfilA] then
-           Check(False, 'O RegistroC180, não deve ser gerado em movimentações de saída, no %s, conforme ATO COTEPE 09/08', ['PerfilA']);
-
+        if (RegC100.IND_OPER = tpSaidaPrestacao) or (FBloco_0.Registro0000.IND_PERFIL in [pfPerfilC]) then
+           Check(False, 'O RegistroC180, não deve ser gerado em movimentações de saída ou %s, conforme ATO COTEPE 09/08', ['PerfilC']);
      end;
      for intFor := 0 to RegC170.RegistroC180.Count - 1 do
      begin
@@ -2273,7 +2272,7 @@ begin
   end;
 end;
 
-procedure TBloco_C.WriteRegistroC181(RegC170: TRegistroC170);
+procedure TBloco_C.WriteRegistroC181(RegC100: TRegistroC100; RegC170: TRegistroC170);
 var
   intFor: integer;
 begin
@@ -2281,9 +2280,8 @@ begin
   begin
      if RegC170.RegistroC181.Count > 0 then
      begin
-        if FBloco_0.Registro0000.IND_PERFIL in [pfPerfilA] then
-           Check(False, 'O RegistroC181, não deve ser gerado em movimentações de saída, no %s, conforme ATO COTEPE 09/08', ['PerfilA']);
-
+        if (RegC100.IND_OPER = tpSaidaPrestacao) or (FBloco_0.Registro0000.IND_PERFIL in [pfPerfilC]) then
+           Check(False, 'O RegistroC181, não deve ser gerado em movimentações de saída ou %s, conforme ATO COTEPE 09/08', ['PerfilC']);
      end;
      for intFor := 0 to RegC170.RegistroC181.Count - 1 do
      begin
@@ -2300,16 +2298,16 @@ begin
                LFill( CHV_DFE_SAIDA) +
                LFill( DT_DOC_SAIDA, 'ddmmyyyy' ) +
                LFill( NUM_ITEM_SAIDA) +
-               LFill( VL_UNIT_CONV_SAIDA,0,6 ) +
-               LFill( VL_UNIT_ICMS_OP_ESTOQUE_CONV_SAIDA,0,6 ) +
-               LFill( VL_UNIT_ICMS_ST_ESTOQUE_CONV_SAIDA,0,6 ) +
-               LFill( VL_UNIT_FCP_ICMS_ST_ESTOQUE_CONV_SAIDA,0,6 ) +
-               LFill( VL_UNIT_ICMS_NA_OPERACAO_CONV_SAIDA,0,6 ) +
-               LFill( VL_UNIT_ICMS_OP_CONV_SAIDA,0,6 ) +
-               LFill( VL_UNIT_ICMS_ST_CONV_REST,0,6 ) +
-               LFill( VL_UNIT_FCP_ST_CONV_REST,0,6 ) +
-               LFill( VL_UNIT_ICMS_ST_CONV_COMPL,0,6 ) +
-               LFill( VL_UNIT_FCP_ST_CONV_COMPL,0,6 ));
+               DFill( VL_UNIT_CONV_SAIDA,0,True ) +
+               DFill( VL_UNIT_ICMS_OP_ESTOQUE_CONV_SAIDA,0,True ) +
+               DFill( VL_UNIT_ICMS_ST_ESTOQUE_CONV_SAIDA,0,True ) +
+               DFill( VL_UNIT_FCP_ICMS_ST_ESTOQUE_CONV_SAIDA,0,True ) +
+               DFill( VL_UNIT_ICMS_NA_OPERACAO_CONV_SAIDA,0,True ) +
+               DFill( VL_UNIT_ICMS_OP_CONV_SAIDA,0,True ) +
+               DFill( VL_UNIT_ICMS_ST_CONV_REST,0,True ) +
+               DFill( VL_UNIT_FCP_ST_CONV_REST,0,True ) +
+               DFill( VL_UNIT_ICMS_ST_CONV_COMPL,0,True ) +
+               DFill( VL_UNIT_FCP_ST_CONV_COMPL,0,True ));
         end;
         RegistroC990.QTD_LIN_C := RegistroC990.QTD_LIN_C + 1;
      end;

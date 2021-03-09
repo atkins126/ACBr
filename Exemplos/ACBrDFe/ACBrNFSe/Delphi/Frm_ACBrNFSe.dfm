@@ -1715,22 +1715,13 @@ object frmACBrNFSe: TfrmACBrNFSe
       object tsCancelamento: TTabSheet
         Caption = 'Cancelamento'
         ImageIndex = 4
-        object btnCancNFSe: TButton
-          Left = 3
-          Top = 3
-          Width = 177
-          Height = 25
-          Caption = 'Cancelar NFSe (Com XML)'
-          TabOrder = 0
-          OnClick = btnCancNFSeClick
-        end
         object btnCancelarNFSeSemXML: TButton
-          Left = 186
-          Top = 3
+          Left = 3
+          Top = 11
           Width = 177
           Height = 25
-          Caption = 'Cancelar NFSe (Sem XML)'
-          TabOrder = 1
+          Caption = 'Cancelar NFSe'
+          TabOrder = 0
           OnClick = btnCancelarNFSeSemXMLClick
         end
       end
@@ -1851,6 +1842,7 @@ object frmACBrNFSe: TfrmACBrNFSe
     Configuracoes.Geral.CodigoMunicipio = 0
     Configuracoes.Geral.ConsultaLoteAposEnvio = False
     Configuracoes.Geral.Emitente.DadosSenhaParams = <>
+    Configuracoes.Geral.Resposta = 0
     Configuracoes.Arquivos.OrdenacaoPath = <>
     Configuracoes.WebServices.UF = 'SP'
     Configuracoes.WebServices.AguardarConsultaRet = 0

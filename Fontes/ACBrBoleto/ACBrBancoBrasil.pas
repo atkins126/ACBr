@@ -273,7 +273,7 @@ end;
 
 function TACBrBancoBrasil.GerarRegistroHeader240(NumeroRemessa : Integer): String;
 var
-  ATipoInscricao, aConta, aAgencia, aModalidade, aCSP :String;
+  ATipoInscricao, aConta, aAgencia, aModalidade, aCSP, str0: String;
   VersaoArquivo, VersaoLote: Integer;
 begin
 
@@ -300,10 +300,16 @@ begin
       pode ser informado 'CSP' nas posições 223 a 225.
       }
 
-      if VersaoArquivo = 030 then
-        aCSP := 'CSP'
-      else
+      if VersaoArquivo = 030 then 
+      begin
+        aCSP := 'CSP';
+        str0 := '0';
+      end 
+      else 
+      begin
         aCSP := '';
+        str0 := '';
+      end;
 
       { GERAR REGISTRO-HEADER DO ARQUIVO }
 
@@ -334,7 +340,7 @@ begin
                StringOfChar('0', 20)                           + // 192 a 211 - Uso reservado da empresa
                StringOfChar(' ', 11)                           + // 212 a 222 - 11 brancos
                PadLeft(aCSP, 3, ' ')                           + // 223 a 225 - Informar 'CSP' se a versão for 030, caso contrario informar branco
-               StringOfChar('0', 3)                            + // 226 a 228 - Uso exclusivo de Vans
+               PadLeft(str0, 3, ' ')                            + // 226 a 228 - Uso exclusivo de Vans
                StringOfChar(' ', 2)                            + // 229 a 230 - Tipo de servico
                StringOfChar(' ', 10);                            // 231 a 240 - titulo em carteira de cobranca
 
@@ -369,7 +375,7 @@ begin
                '1'                                             + // 8 - Tipo de registro - Registro header de arquivo
                'R'                                             + // 9 - Tipo de operação: R (Remessa) ou T (Retorno)
                '01'                                            + // 10 a 11 - Tipo de serviço: 01 (Cobrança)
-               '00'                                            + // 12 a 13 - Forma de lançamento: preencher com ZEROS no caso de cobrança
+               '  '                                            + // 12 a 13 - Forma de lançamento: preencher com ZEROS no caso de cobrança
                PadLeft(IntToStr(VersaoLote), 3, '0')           + // 14 a 16 - Número da versão do layout do lote
                ' '                                             + // 17 - Uso exclusivo FEBRABAN/CNAB
                ATipoInscricao                                  + // 18 - Tipo de inscrição do cedente

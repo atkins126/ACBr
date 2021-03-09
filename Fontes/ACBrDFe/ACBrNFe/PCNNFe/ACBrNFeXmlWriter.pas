@@ -134,6 +134,7 @@ type
     function GerarTranspReboque: TACBrXmlNodeArray;
     function GerarTranspVol: TACBrXmlNodeArray;
     function GerarTranspVolLacres(i: integer): TACBrXmlNodeArray;
+    function GerarInfIntermed: TACBrXmlNode;
     function GerarInfAdic: TACBrXmlNode;
     function GerarInfAdicObsCont: TACBrXmlNodeArray;
     function GerarInfAdicObsFisco: TACBrXmlNodeArray;
@@ -174,27 +175,26 @@ implementation
 uses
   variants, dateutils,
   pcnConversaoNFe, ACBrValidador, pcnAuxiliar,
-  ACBrDFeUtil, pcnConsts, ACBrUtil;
+  ACBrDFeUtil, pcnConsts, ACBrUtil,
+  ACBrNFe;
 
 constructor TNFeXmlWriter.Create(AOwner: TNFe);
 begin
   inherited Create;
-
-  TNFeXmlWriterOptions(Opcoes).AjustarTagNro := True;
-  TNFeXmlWriterOptions(Opcoes).GerarTagIPIparaNaoTributado := True;
-  TNFeXmlWriterOptions(Opcoes).NormatizarMunicipios := False;
-  TNFeXmlWriterOptions(Opcoes).PathArquivoMunicipios := '';
-  TNFeXmlWriterOptions(Opcoes).GerarTagAssinatura := taSomenteSeAssinada;
-  TNFeXmlWriterOptions(Opcoes).ValidarInscricoes := False;
-  TNFeXmlWriterOptions(Opcoes).ValidarListaServicos := False;
-  TNFeXmlWriterOptions(Opcoes).CamposFatObrigatorios := True;
-  TNFeXmlWriterOptions(Opcoes).FForcarGerarTagRejeicao938 := fgtNunca;
+  Opcoes.AjustarTagNro := True;
+  Opcoes.GerarTagIPIparaNaoTributado := True;
+  Opcoes.NormatizarMunicipios := False;
+  Opcoes.PathArquivoMunicipios := '';
+  Opcoes.GerarTagAssinatura := taSomenteSeAssinada;
+  Opcoes.ValidarInscricoes := False;
+  Opcoes.ValidarListaServicos := False;
+  Opcoes.CamposFatObrigatorios := True;
+  Opcoes.FForcarGerarTagRejeicao938 := fgtNunca;
   FNFe := AOwner;
 end;
 
 destructor TNFeXmlWriter.Destroy;
 begin
-  Opcoes.Free;
   inherited Destroy;
 end;
 
@@ -263,11 +263,11 @@ begin
   NFe.Ide.cNF := ExtrairCodigoChaveAcesso(NFe.infNFe.ID);
 
   FDocument.Clear();
-  nfeNode := FDocument.CreateElement('NFe', 'http://www.portalfiscal.inf.br/NFe');
+  nfeNode := FDocument.CreateElement('NFe', ACBRNFE_NAMESPACE);
 
   if NFe.procNFe.nProt <> '' then
   begin
-    xmlNode := FDocument.CreateElement('nfeProc', 'http://www.portalfiscal.inf.br/NFe');
+    xmlNode := FDocument.CreateElement('nfeProc', ACBRNFE_NAMESPACE);
     xmlNode.SetAttribute('versao', FloatToString(NFe.infNFe.Versao, '.', '#0.00'));
     xmlNode.AppendChild(nfeNode);
     FDocument.Root := xmlNode;
@@ -291,24 +291,25 @@ begin
                                   85, 1, NFe.infNFeSupl.urlChave, DSC_URLCHAVE, False));
   end;
 
-  if Opcoes.GerarTagAssinatura <> taNunca then
-  begin
-    Gerar := True;
-    if Opcoes.GerarTagAssinatura = taSomenteSeAssinada then
-      Gerar := ((NFe.signature.DigestValue <> '') and
-                (NFe.signature.SignatureValue <> '') and
-                (NFe.signature.X509Certificate <> ''));
+  Gerar := (Opcoes.GerarTagAssinatura = taSempre) or
+    (
+      (Opcoes.GerarTagAssinatura = taSomenteSeAssinada) and
+        (NFe.signature.DigestValue <> '') and
+        (NFe.signature.SignatureValue <> '') and
+        (NFe.signature.X509Certificate <> '')
+    ) or
+    (
+      (Opcoes.GerarTagAssinatura = taSomenteParaNaoAssinada) and
+        (NFe.signature.DigestValue = '') and
+        (NFe.signature.SignatureValue = '') and
+        (NFe.signature.X509Certificate = '')
+    );
 
-    if Opcoes.GerarTagAssinatura = taSomenteParaNaoAssinada then
-       Gerar := ((NFe.signature.DigestValue = '') and
-                 (NFe.signature.SignatureValue = '') and
-                 (NFe.signature.X509Certificate = ''));
-    if Gerar then
-    begin
-      FNFe.signature.URI := '#NFe' + OnlyNumber(NFe.infNFe.ID);
-      xmlNode := GerarSignature(FNFe.signature);
-      nfeNode.AppendChild(xmlNode);
-    end;
+  if Gerar then
+  begin
+    FNFe.signature.URI := '#NFe' + OnlyNumber(NFe.infNFe.ID);
+    xmlNode := GerarSignature(FNFe.signature);
+    nfeNode.AppendChild(xmlNode);
   end;
 
   if NFe.procNFe.nProt <> '' then
@@ -369,6 +370,7 @@ begin
     end;
   end;
 
+  Result.AppendChild(GerarInfIntermed);
   Result.AppendChild(GerarInfAdic);
   Result.AppendChild(GerarExporta);
   Result.AppendChild(GerarCompra);
@@ -467,6 +469,10 @@ begin
     Result.AppendChild(AddNode(tcStr, 'B25b', 'indPres ', 01, 01, 1,
       PresencaCompradorToStr(NFe.Ide.indPres), DSC_INDPRES));
   end;
+
+  if nfe.infNFe.Versao >= 4 then
+    Result.AppendChild(AddNode(tcStr, 'B25b', 'indIntermed', 01, 01, 0,
+      IndIntermedToStr(NFe.Ide.indIntermed), DSC_INDINTERMED));
 
   Result.AppendChild(AddNode(tcStr, 'B26', 'procEmi', 01, 01, 1,
     procEmiToStr(NFe.Ide.procEmi), DSC_PROCEMI));
@@ -982,7 +988,7 @@ begin
 
   if (NFe.Det[i].Prod.cEAN <> SEMGTIN) and (NFe.Det[i].Prod.cEAN <> '') then
   begin
-    ErroValidarGTIN := ACBrValidador.ValidarGTIN(NFe.Det[i].Prod.cEAN);
+    ErroValidarGTIN := ACBrStrToAnsi( ACBrValidador.ValidarGTIN(NFe.Det[i].Prod.cEAN) );
     if ErroValidarGTIN <> '' then
       wAlerta('I03', 'cEAN', DSC_CEAN, ErroValidarGTIN);
   end;
@@ -1044,7 +1050,7 @@ begin
 
   if (NFe.Det[i].Prod.cEANTrib <> SEMGTIN) and (NFe.Det[i].Prod.cEANTrib <> '') then
   begin
-    ErroValidarGTIN := ACBrValidador.ValidarGTIN(NFe.Det[i].Prod.cEANTrib);
+    ErroValidarGTIN := ACBrStrToAnsi( ACBrValidador.ValidarGTIN(NFe.Det[i].Prod.cEANTrib) );
     if ErroValidarGTIN <> '' then
       wAlerta('I12', 'cEANTrib', DSC_CEANTRIB, ErroValidarGTIN);
   end;
@@ -1309,7 +1315,7 @@ begin
       tpOPToStr(NFe.Det[i].Prod.veicProd.tpOP), DSC_TPOP));
     Result.AppendChild(AddNode(tcStr, 'J03', 'chassi  ', 17, 17, 1,
       NFe.Det[i].Prod.veicProd.chassi, DSC_CHASSI));
-    Result.AppendChild(AddNode(tcStr, 'J04', 'cCor    ', 04, 04, 1,
+    Result.AppendChild(AddNode(tcStr, 'J04', 'cCor    ', 01, 04, 1,
       NFe.Det[i].Prod.veicProd.cCor, DSC_CCOR));
     Result.AppendChild(AddNode(tcStr, 'J05', 'xCor    ', 01, 40, 1,
       NFe.Det[i].Prod.veicProd.xCor, DSC_XCOR));
@@ -3311,6 +3317,22 @@ begin
       Result[i] := FDocument.CreateElement('procRef');
       Result[i].AppendChild(AddNode(tcStr, 'Z11', 'nProc  ', 01, 60, 1, NFe.InfAdic.procRef[i].nProc, DSC_NPROC));
       Result[i].AppendChild(AddNode(tcStr, 'Z12', 'indProc', 01, 01, 1, indProcToStr(NFe.InfAdic.procRef[i].indProc), DSC_INDPROC));
+    end;
+  end;
+end;
+
+function TNFeXmlWriter.GerarInfIntermed: TACBrXmlNode;
+begin
+  Result := nil;
+
+  if NFe.infNFe.Versao >= 4 then
+  begin
+    if trim(NFe.infIntermed.CNPJ) + trim(NFe.infIntermed.idCadIntTran) <> '' then
+    begin
+      Result := FDocument.CreateElement('infIntermed');
+
+      Result.AppendChild(AddNode(tcStr, 'YB02', 'CNPJ        ', 14, 14, 1, NFe.infIntermed.CNPJ, DSC_CNPJINTERM));
+      Result.AppendChild(AddNode(tcStr, 'YB03', 'idCadIntTran', 02, 60, 1, NFe.infIntermed.idCadIntTran, DSC_IDCADINTERM));
     end;
   end;
 end;

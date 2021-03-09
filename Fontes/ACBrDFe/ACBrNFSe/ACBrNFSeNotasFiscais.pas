@@ -294,7 +294,7 @@ begin
     if Configuracoes.Geral.ConfigAssinar.URI then
       IdAttr := Configuracoes.Geral.ConfigGeral.Identificador
     else
-      IdAttr := '';
+      IdAttr := 'ID';
 
     if Assina then
       FXMLAssinado := SSL.Assinar(String(XMLUTF8), DocElemento, InfElemento,
@@ -479,6 +479,23 @@ begin
     FNFSeW.NFSeWClass.Identificador := Configuracoes.Geral.ConfigGeral.Identificador;
     FNFSeW.NFSeWClass.QuebradeLinha := Configuracoes.Geral.ConfigGeral.QuebradeLinha;
     FNFSeW.NFSeWClass.URL           := Configuracoes.Geral.ConfigXML.NameSpace;
+
+    if Pos('%NomeURL_HP%', FNFSeW.NFSeWClass.URL) > 0 then
+    begin
+      if Configuracoes.WebServices.Ambiente = taHomologacao then
+        FNFSeW.NFSeWClass.URL := StringReplace(FNFSeW.NFSeWClass.URL, '%NomeURL_HP%', Configuracoes.Geral.xNomeURL_H, [rfReplaceAll])
+      else
+        FNFSeW.NFSeWClass.URL := StringReplace(FNFSeW.NFSeWClass.URL, '%NomeURL_HP%', Configuracoes.Geral.xNomeURL_P, [rfReplaceAll]);
+    end;
+
+    if Configuracoes.Geral.Provedor = proActconv202 then
+    begin
+      if Configuracoes.WebServices.Ambiente = taProducao then
+        FNFSeW.NFSeWClass.URL := StringReplace(FNFSeW.NFSeWClass.URL, '%Ambiente%', 'nfseserv', [rfReplaceAll])
+      else
+        FNFSeW.NFSeWClass.URL := StringReplace(FNFSeW.NFSeWClass.URL, '%Ambiente%', 'homologacao', [rfReplaceAll]);
+    end;
+
     FNFSeW.NFSeWClass.VersaoNFSe    := StrToVersaoNFSe(Ok, Configuracoes.Geral.ConfigXML.VersaoXML);
     FNFSeW.NFSeWClass.DefTipos      := Configuracoes.Geral.ConfigSchemas.DefTipos;
     FNFSeW.NFSeWClass.ServicoEnviar := Configuracoes.Geral.ConfigSchemas.ServicoEnviar;
@@ -727,7 +744,7 @@ begin
     if Configuracoes.Geral.ConfigAssinar.URI then
       IdAttr := Configuracoes.Geral.ConfigGeral.Identificador
     else
-      IdAttr := '';
+      IdAttr := 'ID';
 
     if Assina then
     begin
@@ -759,7 +776,7 @@ begin
     if Configuracoes.Geral.ConfigAssinar.URI then
       IdAttr := Configuracoes.Geral.ConfigGeral.Identificador
     else
-      IdAttr := '';
+      IdAttr := 'ID';
 
     if Assina then
     begin
@@ -979,20 +996,23 @@ var
     TamTAG := 5;
     if (VersaoNFSe < ve200) and (AProvedor <> proAgili) then
     begin
-      Result := Pos('</Rps>', AXMLString);
+      Result := 0;
+
+      if AProvedor = proGoverna then
+      begin
+        Result := Pos('</LoteRps>', AXMLString);
+        TamTAG := 9;
+      end;
+
+      if Result = 0 then
+        Result := Pos('</Rps>', AXMLString);
+
       // Provedor ISSDSF
       if Result = 0 then
         Result := Pos('</RPS>', AXMLString);
 
       if Result = 0 then  //Equiplano
         Result := Pos('</rps>', AXMLString);
-
-      // Provedor Governa
-      if ((Result = 0) and (AProvedor = proGoverna)) then
-      begin
-        Result := Pos('</LoteRps>', AXMLString);
-        TamTAG := 9;
-      end;
     end
     else
     begin

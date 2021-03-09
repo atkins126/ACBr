@@ -84,6 +84,7 @@ type
     Cancelar: Boolean;
     RpsGerar: Boolean;
     LoteGerar: Boolean;
+    SubstituirRps: Boolean;
     Substituir: Boolean;
     AbrirSessao: Boolean;
     FecharSessao: Boolean;
@@ -377,6 +378,10 @@ type
     FConfigRemover: TConfigRemover;
     FBanco_P: String;
     FBanco_H: String;
+    FKey: String;
+    FAuth: String;
+    FRequestId: String;
+    FResposta: Integer;
 
     procedure SetCodigoMunicipio(const Value: Integer);
   public
@@ -418,6 +423,12 @@ type
     property Emitente: TEmitenteConfNFSe read FEmitente write FEmitente;
     property Banco_P: String read FBanco_P;
     property Banco_H: String read FBanco_H;
+
+    // provedor AdmNotas
+    property Key: String read FKey write FKey;
+    property Auth: String read FAuth write FAuth;
+    property RequestId: String read FRequestId write FRequestId;
+    property Resposta: Integer read FResposta write FResposta; // Resposta para envio de lote se for = 0 = Sem | 1 = Devolve NumeroDanota, CodigoDeVerificacao
   end;
 
   { TArquivosConfNFSe }
@@ -707,8 +718,6 @@ begin
   FConfigAssinar.Lote := FPIniParams.ReadBool('Assinar', 'Lote', False);
   FConfigAssinar.URI := FPIniParams.ReadBool('Assinar', 'URI', False);
 
-//  FConfigAssinar.URI := (SSLLib <> libCapicom) and (FConfigGeral.Identificador = 'id');
-
   FConfigAssinar.ConsSit := FPIniParams.ReadBool('Assinar', 'ConsSit', False);
   FConfigAssinar.ConsLote := FPIniParams.ReadBool('Assinar', 'ConsLote', False);
   FConfigAssinar.ConsNFSeRps := FPIniParams.ReadBool('Assinar', 'ConsNFSeRps', False);
@@ -716,6 +725,7 @@ begin
   FConfigAssinar.Cancelar := FPIniParams.ReadBool('Assinar', 'Cancelar', False);
   FConfigAssinar.RpsGerar := FPIniParams.ReadBool('Assinar', 'RpsGerar', False);
   FConfigAssinar.LoteGerar := FPIniParams.ReadBool('Assinar', 'LoteGerar', False);
+  FConfigAssinar.SubstituirRps := FPIniParams.ReadBool('Assinar', 'SubstituirRps', False);
   FConfigAssinar.Substituir := FPIniParams.ReadBool('Assinar', 'Substituir', False);
   FConfigAssinar.AbrirSessao := FPIniParams.ReadBool('Assinar', 'AbrirSessao', False);
   FConfigAssinar.FecharSessao := FPIniParams.ReadBool('Assinar', 'FecharSessao', False);
@@ -863,7 +873,7 @@ begin
     FConfigURL.ProSubstituiNFSe      := StringReplace(FPIniParams.ReadString('URL_P', 'SubstituiNFSe_' + CodIBGE     , FConfigURL.ProRecepcaoLoteRPS), '%NomeURL_P%', FxNomeURL_P, [rfReplaceAll]);
     FConfigURL.ProAbrirSessao        := StringReplace(FPIniParams.ReadString('URL_P', 'AbrirSessao_' + CodIBGE       , FConfigURL.ProRecepcaoLoteRPS), '%NomeURL_P%', FxNomeURL_P, [rfReplaceAll]);
     FConfigURL.ProFecharSessao       := StringReplace(FPIniParams.ReadString('URL_P', 'FecharSessao_' + CodIBGE      , FConfigURL.ProRecepcaoLoteRPS), '%NomeURL_P%', FxNomeURL_P, [rfReplaceAll]);
-    FConfigURL.ProConsultaURL        := StringReplace(FPIniParams.ReadString('URL_P', 'ConsultaURL_' + CodIBGE       , FConfigURL.HomRecepcaoLoteRPS), '%NomeURL_P%', FxNomeURL_H, [rfReplaceAll]);
+    FConfigURL.ProConsultaURL        := StringReplace(FPIniParams.ReadString('URL_P', 'ConsultaURL_' + CodIBGE       , FConfigURL.ProRecepcaoLoteRPS), '%NomeURL_P%', FxNomeURL_H, [rfReplaceAll]);
   end
   else
   begin
@@ -878,7 +888,7 @@ begin
     FConfigURL.ProSubstituiNFSe      := StringReplace(FPIniParams.ReadString('URL_P', 'SubstituiNFSe'     , FConfigURL.ProRecepcaoLoteRPS), '%NomeURL_P%', FxNomeURL_P, [rfReplaceAll]);
     FConfigURL.ProAbrirSessao        := StringReplace(FPIniParams.ReadString('URL_P', 'AbrirSessao'       , FConfigURL.ProRecepcaoLoteRPS), '%NomeURL_P%', FxNomeURL_P, [rfReplaceAll]);
     FConfigURL.ProFecharSessao       := StringReplace(FPIniParams.ReadString('URL_P', 'FecharSessao'      , FConfigURL.ProRecepcaoLoteRPS), '%NomeURL_P%', FxNomeURL_P, [rfReplaceAll]);
-    FConfigURL.ProConsultaURL        := StringReplace(FPIniParams.ReadString('URL_P', 'ConsultaURL'       , FConfigURL.HomRecepcaoLoteRPS), '%NomeURL_P%', FxNomeURL_H, [rfReplaceAll]);
+    FConfigURL.ProConsultaURL        := StringReplace(FPIniParams.ReadString('URL_P', 'ConsultaURL'       , FConfigURL.ProRecepcaoLoteRPS), '%NomeURL_P%', FxNomeURL_H, [rfReplaceAll]);
   end;
 
   Texto := '';

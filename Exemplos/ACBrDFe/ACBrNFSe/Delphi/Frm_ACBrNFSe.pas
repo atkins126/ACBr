@@ -231,8 +231,8 @@ type
     btnConsultarLote: TButton;
     btnConsultarNFSeRPS: TButton;
     btnConsultarNFSePeriodo: TButton;
-    btnCancNFSe: TButton;
     btnCancelarNFSeSemXML: TButton;
+
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
     procedure sbPathNFSeClick(Sender: TObject);
@@ -262,8 +262,6 @@ type
     procedure lblDoar2Click(Sender: TObject);
     procedure lblMouseEnter(Sender: TObject);
     procedure lblMouseLeave(Sender: TObject);
-    procedure ACBrNFSe1GerarLog(const ALogLine: string; var Tratado: Boolean);
-    procedure ACBrNFSe1StatusChange(Sender: TObject);
     procedure sbtnPrestLogoClick(Sender: TObject);
     procedure sbtArqINIClick(Sender: TObject);
     procedure btnGerarEnviarLoteClick(Sender: TObject);
@@ -278,9 +276,11 @@ type
     procedure btnConsultarLoteClick(Sender: TObject);
     procedure btnConsultarNFSeRPSClick(Sender: TObject);
     procedure btnConsultarNFSePeriodoClick(Sender: TObject);
-    procedure btnCancNFSeClick(Sender: TObject);
     procedure cbCidadesChange(Sender: TObject);
     procedure btnCancelarNFSeSemXMLClick(Sender: TObject);
+
+    procedure ACBrNFSe1GerarLog(const ALogLine: string; var Tratado: Boolean);
+    procedure ACBrNFSe1StatusChange(Sender: TObject);
   private
     { Private declarations }
     procedure GravarConfiguracao;
@@ -376,28 +376,10 @@ end;
 procedure TfrmACBrNFSe.AlimentarNFSe(NumDFe, NumLote: String);
 var
   ValorISS: Double;
+  i: Integer;
 begin
   with ACBrNFSe1 do
   begin
-    // Provedor ISSNet sem certificado
-    // Configuracoes.Geral.Emitente.WebChaveAcesso := 'A001.B0001.C0001-1';
-
-    // Provedor Sigep sem certificado
-//    Configuracoes.Geral.Emitente.WebChaveAcesso := 'A001.B0001.C0001';
-
-    // Provedor iiBrasil token = WebChaveAcesso para homologação
-//    Configuracoes.Geral.Emitente.WebChaveAcesso := 'TLXX4JN38KXTRNSEAJYYEA==';
-    Configuracoes.Geral.Emitente.WebChaveAcesso := 'TLXX4JN38KXTRNSE';
-
-    if Configuracoes.Geral.Provedor = proAgili then
-      Configuracoes.Geral.Emitente.WebChaveAcesso := 'TLXX4JN38KXTRNSETLXX4JN38KXTRNSE';
-
-    with Configuracoes.Geral.Emitente.DadosSenhaParams.Add do
-    begin
-      Param := 'ChaveAutorizacao';
-      Conteudo := 'A001.B0001.C0001-1';
-    end;
-
     NotasFiscais.NumeroLote := NumLote;
     NotasFiscais.Transacao := True;
 
@@ -405,15 +387,22 @@ begin
     begin
       ChaveNFSe := '123456789012345678901234567890123456789';
       Numero := NumDFe;
-      SeriePrestacao := '1';
+
+      if Configuracoes.Geral.Provedor = proIssDSF then
+        SeriePrestacao := '99'
+      else
+        SeriePrestacao := '1';
 
       NumeroLote := NumLote;
 
       IdentificacaoRps.Numero := FormatFloat('#########0', StrToInt(NumDFe));
 
       // Para o provedor ISS.NET em ambiente de Homologação mudar a série para '8'
-//      IdentificacaoRps.Serie := 'NF'; //'85';
-      IdentificacaoRps.Serie := '85';
+
+      if Configuracoes.Geral.Provedor = proIssDSF then
+        IdentificacaoRps.Serie := 'NF'
+      else
+        IdentificacaoRps.Serie := '85';
 
       // TnfseTipoRPS = ( trRPS, trNFConjugada, trCupom );
       IdentificacaoRps.Tipo := trRPS;
@@ -455,7 +444,10 @@ begin
       // TnfseSimNao = ( snSim, snNao );
       // snSim = Ambiente de Produção
       // snNao = Ambiente de Homologação
-      Producao := snNao;
+      if Configuracoes.WebServices.Ambiente = taProducao then
+        Producao := snSim
+      else
+        Producao := snNao;
 
       // TnfseStatusRPS = ( srNormal, srCancelado );
       Status := srNormal;
@@ -523,8 +515,11 @@ begin
       Servico.ResponsavelRetencao := ptTomador;
 
       Servico.ItemListaServico := '09.01';
-//      Servico.CodigoCnae := '452000200';
-      Servico.CodigoCnae := '852010';
+
+      if Configuracoes.Geral.Provedor = proIssDSF then
+        Servico.CodigoCnae := '452000200'
+      else
+        Servico.CodigoCnae := '852010';
 
       // Usado pelo provedor de Goiania
       Servico.CodigoTributacaoMunicipio := '09.01';
@@ -589,6 +584,7 @@ begin
       PrestadorServico.Contato.Telefone := '33224455';
 
       Tomador.IdentificacaoTomador.CpfCnpj := '55555555555555';
+
       Tomador.IdentificacaoTomador.InscricaoMunicipal := '17331600';
 
       Tomador.RazaoSocial := 'INSCRICAO DE TESTE';
@@ -619,6 +615,20 @@ begin
       // Usado quando o serviço for uma obra
       // ConstrucaoCivil.CodigoObra := '88888';
       // ConstrucaoCivil.Art        := '433';
+
+      // Condição de Pagamento usado pelo provedor Betha versão 1 do Layout da ABRASF
+      CondicaoPagamento.QtdParcela := 2;
+      CondicaoPagamento.Condicao   := cpAPrazo;
+
+      for i := 1 to CondicaoPagamento.QtdParcela do
+      begin
+        with CondicaoPagamento.Parcelas.New do
+        begin
+          Parcela := i;
+          DataVencimento := Date + (30 * i);
+          Valor := (Servico.Valores.ValorLiquidoNfse / CondicaoPagamento.QtdParcela);
+        end;
+      end;
     end;
   end;
 end;
@@ -670,7 +680,9 @@ end;
 
 procedure TfrmACBrNFSe.btnCancelarNFSeSemXMLClick(Sender: TObject);
 var
-  Codigo, NumeroNFSe, Motivo, NumeroLote, CodVerificacao: String;
+  Codigo, NumeroNFSe, Motivo, NumeroLote, CodVerificacao,
+  ASerieNFSe, ANumeroRps, ASerieRps, AValorNFSe: String;
+  Valor: Double;
 begin
   // Codigo de Cancelamento
   // 1 - Erro de emissão
@@ -692,65 +704,43 @@ begin
   if not (InputQuery('Cancelar NFSe', 'Codigo de Verificação', CodVerificacao)) then
     exit;
 
-  ACBrNFSe1.CancelarNFSe(Codigo, NumeroNFSe, Motivo, NumeroLote, CodVerificacao);
+  ASerieNFSe := '';
+  ANumeroRps := '';
+  ASerieRps  := '';
+  AValorNFSe := '';
+
+  if ACBrNFSe1.Configuracoes.Geral.Provedor = proCONAM then
+  begin
+    if not (InputQuery('Cancelar NFSe', 'Serie da NFS-e', ASerieNFSe)) then
+      exit;
+
+    if not (InputQuery('Cancelar NFSe', 'Numero do Rps', ANumeroRps)) then
+      exit;
+
+    if not (InputQuery('Cancelar NFSe', 'Serie do Rps', ASerieRps)) then
+      exit;
+
+    if not (InputQuery('Cancelar NFSe', 'Valor da NFS-e', AValorNFSe)) then
+      exit;
+  end;
+
+  Valor := StrToFloatDef(AValorNFSe, 0);
+
+  ACBrNFSe1.CancelarNFSe(Codigo, NumeroNFSe, Motivo, NumeroLote, CodVerificacao,
+                         ASerieNFSe, ANumeroRps, ASerieRps, Valor);
 
   MemoDados.Lines.Add('Retorno do Cancelamento:');
 
   MemoDados.Lines.Add('Cód. Cancelamento: ' +
     ACBrNFSe1.WebServices.CancNfse.CodigoCancelamento);
+
   if ACBrNFSe1.WebServices.CancNfse.DataHora <> 0 then
     MemoDados.Lines.Add('Data / Hora      : ' +
       DateTimeToStr(ACBrNFSe1.WebServices.CancNfse.DataHora));
+
   LoadXML(MemoResp.Text, WBResposta);
 
   pgRespostas.ActivePageIndex := 1;
-end;
-
-procedure TfrmACBrNFSe.btnCancNFSeClick(Sender: TObject);
-var
-  Codigo, Motivo: String;
-begin
-  OpenDialog1.Title := 'Selecione a NFSe';
-  OpenDialog1.DefaultExt := '*-NFSe.xml';
-  OpenDialog1.Filter :=
-    'Arquivos NFSe (*-NFSe.xml)|*-NFSe.xml|Arquivos XML (*.xml)|*.xml|Todos os Arquivos (*.*)|*.*';
-  OpenDialog1.InitialDir := ACBrNFSe1.Configuracoes.Arquivos.PathSalvar;
-
-  if OpenDialog1.Execute then
-  begin
-    ACBrNFSe1.NotasFiscais.Clear;
-    ACBrNFSe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName, False);
-
-    // Codigo de Cancelamento
-    // 1 - Erro de emissão
-    // 2 - Serviço não concluido
-    // 3 - RPS Cancelado na Emissão
-
-    if not (InputQuery('Cancelar NFSe', 'Código de Cancelamento', Codigo)) then
-      exit;
-
-    // Provedor Equiplano é obrigatório o motivo de cancelamento
-    if not (InputQuery('Cancelar NFSe', 'Motivo de Cancelamento', Motivo)) then
-      exit;
-
-//    ACBrNFSe1.NotasFiscais.Items[0].NFSe.MotivoCancelamento:= Motivo;
-
-    ACBrNFSe1.CancelarNFSe(Codigo, '', Motivo);
-
-    MemoDados.Lines.Add('Arquivo Carregado de: ' + ACBrNFSe1.NotasFiscais.Items
-      [0].NomeArq);
-    MemoResp.Lines.LoadFromFile(ACBrNFSe1.NotasFiscais.Items[0].NomeArq);
-    MemoDados.Lines.Add('Retorno do Cancelamento:');
-
-    MemoDados.Lines.Add('Cód. Cancelamento: ' +
-      ACBrNFSe1.WebServices.CancNfse.CodigoCancelamento);
-    if ACBrNFSe1.WebServices.CancNfse.DataHora <> 0 then
-      MemoDados.Lines.Add('Data / Hora      : ' +
-        DateTimeToStr(ACBrNFSe1.WebServices.CancNfse.DataHora));
-    LoadXML(MemoResp.Text, WBResposta);
-
-    pgRespostas.ActivePageIndex := 1;
-  end;
 end;
 
 procedure TfrmACBrNFSe.btnCNPJClick(Sender: TObject);
@@ -1094,8 +1084,6 @@ begin
 end;
 
 procedure TfrmACBrNFSe.btnLeituraX509Click(Sender: TObject);
-//var
-//  Erro, AName: String;
 begin
   with ACBrNFSe1.SSL do
   begin
@@ -1105,14 +1093,6 @@ begin
      MemoResp.Lines.Add(CertCNPJ);
      MemoResp.Lines.Add(CertSubjectName);
      MemoResp.Lines.Add(CertNumeroSerie);
-
-    //MemoDados.Lines.LoadFromFile('c:\temp\teste2.xml');
-    //MemoResp.Lines.Text := Assinar(MemoDados.Lines.Text, 'Entrada', 'Parametros');
-    //Erro := '';
-    //if VerificarAssinatura(MemoResp.Lines.Text, Erro, 'Parametros' ) then
-    //  ShowMessage('OK')
-    //else
-    //  ShowMessage('ERRO: '+Erro)
 
     pgRespostas.ActivePageIndex := 0;
   end;
@@ -1128,7 +1108,7 @@ begin
   if not(InputQuery('Gerar o Link da NFSe', 'Codigo de Verificacao', sCodVerif)) then
     exit;
 
-  sLink := ACBrNFSe1.LinkNFSe(StrToIntDef(vNumNFSe, 0), sCodVerif);
+  sLink := ACBrNFSe1.LinkNFSe(vNumNFSe, sCodVerif);
 
   MemoResp.Lines.Add('Link Gerado: ' + sLink);
   pgRespostas.ActivePageIndex := 0;
@@ -1184,8 +1164,6 @@ begin
 
   MemoDados.Lines.Add('Retorno da Substituição:');
   MemoDados.Lines.Add('Cód. Cancelamento: ' + ACBrNFSe1.WebServices.SubNfse.CodigoCancelamento);
-
-//  LoadXML(MemoResp.Text, WBResposta);
 
   pgRespostas.ActivePageIndex := 1;
 end;
@@ -1539,6 +1517,24 @@ begin
     Emitente.WebUser      := edtUserWeb.Text;
     Emitente.WebSenha     := edtSenhaWeb.Text;
     Emitente.WebFraseSecr := edtFraseSecWeb.Text;
+
+    // Provedor ISSNet sem certificado
+    // Emitente.WebChaveAcesso := 'A001.B0001.C0001-1';
+
+    // Provedor Sigep sem certificado
+    // Emitente.WebChaveAcesso := 'A001.B0001.C0001';
+
+    // Provedor iiBrasil token = WebChaveAcesso para homologação
+    Emitente.WebChaveAcesso := 'TLXX4JN38KXTRNSE';
+
+    if Provedor = proAgili then
+      Emitente.WebChaveAcesso := 'TLXX4JN38KXTRNSETLXX4JN38KXTRNSE';
+
+    with Emitente.DadosSenhaParams.Add do
+    begin
+      Param := 'ChaveAutorizacao';
+      Conteudo := 'A001.B0001.C0001-1';
+    end;
 
     SetConfigMunicipio;
   end;

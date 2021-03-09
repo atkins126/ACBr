@@ -44,7 +44,7 @@ type
   TContribuinte           = (tcPessoaJuridica, tcOrgaoPublico, tcPessoaFisica);
 
   TTipoEvento             = (teR1000, teR2099, teR1070, teR2010, teR2020,
-                             teR2030, teR2040, teR2050, teR2060, teR2070,
+                             teR2030, teR2040, teR2050, teR2055, teR2060, teR2070,
                              teR2098, teR3010, teR5001, teR5011, teR9000);
 
   TprocEmi                = (peNenhum, peAplicEmpregador, peAplicGoverno);
@@ -106,6 +106,7 @@ type
                             schevtRecursoRecebidoAssociacao,  // R-2030 - Recursos Recebidos por Associação Desportiva
                             schevtRecursoRepassadoAssociacao, // R-2040 - Recursos Repassados para Associação Desportiva
                             schevtInfoProdRural,              // R-2050 - Comercialização da Produção por Produtor Rural PJ/Agroindústria
+                            schevtAquisicaoProdRural,         // R-2055 - Aquisição de produção rural
                             schevtInfoCPRB,                   // R-2060 - Contribuição Previdenciária sobre a Receita Bruta - CPRB
                             schevtPgtosDivs,                  // R-2070 - Retenções na Fonte - IR, CSLL, Cofins, PIS/PASEP
                             schevtReabreEvPer,                // R-2098 - Reabertura dos Eventos Periódicos
@@ -197,6 +198,16 @@ type
                               icMercExterno // 9 - Comercialização direta da Produção no Mercado Externo
                             );
 
+  TdetAquis                 = (iaProdRuralPF,  // 1 - Aquisição de produção de produtor rural pessoa física ou segurado especial em geral;
+                              iaProdRuraPFPAA, // 2 - Aquisição de produção de produtor rural pessoa física ou segurado especial em geral por entidade do PAA;
+                              iaPF,            // 3 - Aquisição de produção de produtor rural pessoa jurídica por entidade do PAA;
+                              iaIsentaPFPAA,   // 4 - Aquisição de produção de produtor rural pessoa física ou segurado especial em geral - Produção isenta (Lei 13.606/2018);
+                              iaProdRuraPJPAA, // 5 - Aquisição de produção de produtor rural pessoa física ou segurado especial em geral por entidade do PAA - Produção isenta (Lei 13.606/2018);
+                              iaIsentaPJPAA,   // 6 - Aquisição de produção de produtor rural pessoa jurídica por entidade do PAA - Produção isenta (Lei 13.606/2018);
+                              iaExternoPF      // 7 - Aquisição de produção de produtor rural pessoa física ou segurado especial para fins de exportação.
+                            );
+
+
   TtpCompeticao           = ( ttcOficial,   // 1 - Oficial
                               ttcnaoOficial // 2 - Não Oficial
                             );
@@ -220,7 +231,7 @@ type
                               ttrOutros       // 5 - Outros
                             );
 
-  TVersaoReinf            = ( v1_02_00, v1_03_00, v1_03_02, v1_04_00 );
+  TVersaoReinf            = ( v1_02_00, v1_03_00, v1_03_02, v1_04_00, v1_05_00, v1_05_01);
 
   // ct00 não consta no manual mas consta no manual do desenvolvedor pg 85, é usado para zerar a base de teste.
   TpClassTrib = (ct00, ct01, ct02, ct03, ct04, ct06, ct07, ct08, ct09, ct10, ct11,
@@ -229,13 +240,13 @@ type
 const
   PrefixVersao = '-v';
 
-  TTipoEventoString: array[0..14] of String =('R-1000', 'R-2099', 'R-1070',
+  TTipoEventoString: array[0..15] of String =('R-1000', 'R-2099', 'R-1070',
                                               'R-2010', 'R-2020', 'R-2030',
-                                              'R-2040', 'R-2050', 'R-2060',
+                                              'R-2040', 'R-2050', 'R-2055', 'R-2060',
                                               'R-2070', 'R-2098', 'R-3010',
                                               'R-5001', 'R-5011', 'R-9000' );
 
-  TReinfSchemaStr: array[0..14] of string = ('evtInfoContribuinte',                 // R-1000 - Informações do Contribuinte
+  TReinfSchemaStr: array[0..15] of string = ('evtInfoContribuinte',                 // R-1000 - Informações do Contribuinte
                                              'evtFechamento',                       // R-2099 - Fechamento dos Eventos Periódicos
                                              'evtTabProcesso',                      // R-1070 - Tabela de Processos Administrativos/Judiciais
                                              'evtTomadorServicos',                  // R-2010 - Retenção Contribuição Previdenciária - Serviços Tomados
@@ -243,6 +254,7 @@ const
                                              'evtRecursoRecebidoAssociacao',        // R-2030 - Recursos Recebidos por Associação Desportiva
                                              'evtRecursoRepassadoAssociacao',       // R-2040 - Recursos Repassados para Associação Desportiva
                                              'evtInfoProdRural',                    // R-2050 - Comercialização da Produção por Produtor Rural PJ/Agroindústria
+                                             'evtAquiProdRural',                    // R-2055 - Aquisição de produção rural
                                              'evtInfoCPRB',                         // R-2060 - Contribuição Previdenciária sobre a Receita Bruta - CPRB
                                              'evtPagamentosDiversos',               // R-2070 - Retenções na Fonte - IR, CSLL, Cofins, PIS/PASEP
                                              'evtReabreEvPer',                      // R-2098 - Reabertura dos Eventos Periódicos
@@ -252,7 +264,7 @@ const
                                              'evtExclusao'                          // R-9000 - Exclusão de Eventos
                                             );
 
-  TReinfSchemaRegistro: array[0..14] of string = ('R-1000', // rsevtInfoContri    - Informações do Contribuinte
+  TReinfSchemaRegistro: array[0..15] of string = ('R-1000', // rsevtInfoContri    - Informações do Contribuinte
                                                   'R-2099', // rsevtFechaEvPer    - Fechamento dos Eventos Periódicos
                                                   'R-1070', // rsevtTabProcesso   - Tabela de Processos Administrativos/Judiciais
                                                   'R-2010', // rsevtServTom       - Retenção Contribuição Previdenciária - Serviços Tomados
@@ -260,6 +272,7 @@ const
                                                   'R-2030', // rsevtAssocDespRec  - Recursos Recebidos por Associação Desportiva
                                                   'R-2040', // rsevtAssocDespRep  - Recursos Repassados para Associação Desportiva
                                                   'R-2050', // rsevtComProd       - Comercialização da Produção por Produtor Rural PJ/Agroindústria
+                                                  'R-2055', // rsevtAquiProdRural - Aquisição de produção rural
                                                   'R-2060', // rsevtCPRB          - Contribuição Previdenciária sobre a Receita Bruta - CPRB
                                                   'R-2070', // rsevtPgtosDivs     - Retenções na Fonte - IR, CSLL, Cofins, PIS/PASEP
                                                   'R-2098', // rsevtReabreEvPer   - Reabertura dos Eventos Periódicos
@@ -269,9 +282,9 @@ const
                                                   'R-9000'  // rsevtExclusao      - Exclusão de Eventos
                                                  );
 
-  TEventoString: array[0..14] of String =('evtInfoContri',   'evtFechaEvPer',   'evtTabProcesso',
+  TEventoString: array[0..15] of String =('evtInfoContri',   'evtFechaEvPer',   'evtTabProcesso',
                                           'evtServTom',      'evtServPrest',    'evtAssocDespRec',
-                                          'evtAssocDespRep', 'evtComProd',      'evtCPRB',
+                                          'evtAssocDespRep', 'evtComProd',      'evtAquiProdRural', 'evtCPRB',
                                           'evtPgtosDivs',    'evtReabreEvPer',  'evtEspDesportivo',
                                           'evtTotal',        'evtTotalContrib', 'evtExclusao');
 
@@ -344,6 +357,9 @@ function StrTotpRepasse(var ok: boolean; const s: string): TtpRepasse;
 function indComToStr(const t: TindCom ): string;
 function StrToindCom(var ok: boolean; const s: string): TindCom;
 
+function detAquisToStr(const t: TdetAquis): string;
+function StrToDetAquis(var ok: boolean; const s: string): TdetAquis;
+
 function tpAjusteToStr(const t: TtpAjuste ): string;
 function StrTotpAjuste(var ok: boolean; const s: string): TtpAjuste;
 
@@ -414,6 +430,7 @@ begin
      teR2030: Result := schevtRecursoRecebidoAssociacao;
      teR2040: Result := schevtRecursoRepassadoAssociacao;
      teR2050: Result := schevtInfoProdRural;
+     teR2055: Result := schevtAquisicaoProdRural;
      teR2060: Result := schevtInfoCPRB;
      teR2070: Result := schevtPgtosDivs;
      teR2098: Result := schevtReabreEvPer;
@@ -453,6 +470,8 @@ begin
     v1_03_00: result := 1.30;
     v1_03_02: result := 1.32;
     v1_04_00: Result := 1.40;
+    v1_05_00: Result := 1.50;
+    v1_05_01: Result := 1.51;
   else
     result := 0;
   end;
@@ -460,14 +479,14 @@ end;
 
 function VersaoReinfToStr(const t: TVersaoReinf): String;
 begin
-  result := EnumeradoToStr(t, ['1_02_00', '1_03_00', '1_03_02', '1_04_00'],
-                           [v1_02_00, v1_03_00, v1_03_02, v1_04_00]);
+  result := EnumeradoToStr(t, ['1_02_00', '1_03_00', '1_03_02', '1_04_00', '1_05_00', '1_05_01'],
+                           [v1_02_00, v1_03_00, v1_03_02, v1_04_00, v1_05_00, v1_05_01]);
 end;
 
 function StrToVersaoReinf(out ok: Boolean; const s: String): TVersaoReinf;
 begin
-  result := StrToEnumerado(ok, s, ['1_02_00', '1_03_00', '1_03_02', '1_04_00'],
-                           [v1_02_00, v1_03_00, v1_03_02, v1_04_00]);
+  result := StrToEnumerado(ok, s, ['1_02_00', '1_03_00', '1_03_02', '1_04_00', '1_05_00', '1_05_01'],
+                           [v1_02_00, v1_03_00, v1_03_02, v1_04_00, v1_05_00, v1_05_01]);
 end;
 
 function TipoEventoToStr(const t: TTipoEvento ): string;
@@ -691,6 +710,16 @@ end;
 function StrToindCom(var ok: boolean; const s: string): TindCom;
 begin
   result := TindCom( StrToEnumerado2(ok , s, ['1', '7', '8', '9']) );
+end;
+
+function detAquisToStr(const t: TdetAquis): string;
+begin
+  result := EnumeradoToStr2(t, ['1', '2', '3', '4', '5', '6', '7']);
+end;
+
+function StrToDetAquis(var ok: boolean; const s: string): TdetAquis;
+begin
+  result := TdetAquis( StrToEnumerado2(ok , s, ['1', '2', '3', '4', '5', '6', '7']));
 end;
 
 function tpAjusteToStr(const t: TtpAjuste ): string;

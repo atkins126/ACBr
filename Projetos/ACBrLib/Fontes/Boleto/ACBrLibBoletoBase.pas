@@ -70,10 +70,13 @@ type
     function Imprimir(eNomeImpressora: PChar): longint;
     function ImprimirBoleto(eIndice: longint; eNomeImpressora: PChar): longint;
     function GerarPDF: longint;
+    function GerarPDFBoleto(eIndice: longint): longint;
     function GerarHTML: longint;
     function GerarRemessa(eDir: PChar; eNumArquivo: longInt; eNomeArq: PChar): longint;
     function LerRetorno(eDir, eNomeArq: PChar): longint;
+    function ObterRetorno(eDir, eNomeArq: PChar; const sResposta: PChar; var esTamanho: longint): longint;
     function EnviarEmail(ePara, eAssunto, eMensagem, eCC: PChar): longint;
+    function EnviarEmailBoleto(eIndice: longint; ePara, eAssunto, eMensagem, eCC: PChar): longint;
     function SetDiretorioArquivo(eDir, eArq: PChar; const sResposta: PChar; var esTamanho: longint): longint;
     function ListaBancos(const sResposta: PChar; var esTamanho: longint): longint;
     function ListaCaractTitulo(const sResposta: PChar; var esTamanho: longint): longint;
@@ -92,7 +95,8 @@ implementation
 
 uses
   ACBrLibConsts, ACBrLibBoletoConsts, ACBrLibConfig, ACBrUtil, strutils, typinfo,
-  ACBrLibResposta, ACBrBoleto, ACBrBoletoConversao, ACBrLibBoletoConfig, ACBrMail;
+  ACBrLibResposta, ACBrBoleto, ACBrBoletoConversao, ACBrLibBoletoConfig, ACBrMail,
+  ACBrLibBoletoRespostas;
   
 constructor TACBrLibBoleto.Create(ArqConfig: string; ChaveCrypt: ansistring);
 begin
@@ -359,6 +363,34 @@ begin
   end;
 end;
 
+function TACBrLibBoleto.GerarPDFBoleto(eIndice: longint): longint;
+begin
+  try
+
+      if Config.Log.Nivel > logNormal then
+        GravarLog('Boleto_GerarPDFBoleto(' + IntToStr(eIndice) + ' )', logCompleto, True)
+      else
+        GravarLog('Boleto_GerarPDFBoleto', logNormal);
+
+      BoletoDM.Travar;
+      try
+        BoletoDM.ConfigurarImpressao;
+        BoletoDM.ACBrBoleto1.ACBrBoletoFC.IndiceImprimirIndividual := eIndice;
+        BoletoDM.ACBrBoleto1.GerarPDF;
+        Result := SetRetorno(ErrOK);
+      finally
+        BoletoDM.FinalizarImpressao;
+        BoletoDM.Destravar;
+      end;
+    except
+      on E: EACBrLibException do
+        Result := SetRetorno(E.Erro, E.Message);
+
+      on E: Exception do
+        Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+    end;
+end;
+
 function TACBrLibBoleto.GerarHTML: longint;  
 begin
   try
@@ -445,6 +477,52 @@ begin
   end;
 end;
 
+function TACBrLibBoleto.ObterRetorno(eDir, eNomeArq: PChar;
+  const sResposta: PChar; var esTamanho: longint): longint;
+var
+  Dir, NomeArq: AnsiString;
+  Resposta: AnsiString;
+  RespRetorno : TRetornoBoleto;
+begin
+  try
+    Dir := ConverterAnsiParaUTF8(eDir);
+    NomeArq:= ConverterAnsiParaUTF8(eNomeArq);
+    GravarLog('Boleto_ObterRetorno', logNormal);
+
+    BoletoDM.Travar;
+    try
+      if NaoEstaVazio( Dir ) then
+        BoletoDM.ACBrBoleto1.DirArqRetorno := Dir;
+      if NaoEstaVazio( NomeArq ) then
+        BoletoDM.ACBrBoleto1.NomeArqRetorno:= NomeArq;
+
+      BoletoDM.ACBrBoleto1.LerRetorno();
+
+      RespRetorno := TRetornoBoleto.Create(Config.TipoResposta, Config.CodResposta);
+      try
+        RespRetorno.Processar(BoletoDM.ACBrBoleto1);
+        Resposta := RespRetorno.Gerar;
+      Finally
+        RespRetorno.Free;
+      end;
+
+      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+      MoverStringParaPChar(Resposta, sResposta, esTamanho);
+      Result := SetRetorno(ErrOK, Resposta);
+
+    finally
+      BoletoDM.Destravar;
+    end;
+  except
+    on E: EACBrLibException do
+      Result := SetRetorno(E.Erro, E.Message);
+
+    on E: Exception do
+      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+  end;
+
+end;
+
 function TACBrLibBoleto.EnviarEmail(ePara, eAssunto, eMensagem, eCC: PChar): longint;  
 var
   Para, Assunto, Mensagem, CC: AnsiString;
@@ -476,6 +554,56 @@ begin
 
       BoletoDM.ConfigurarImpressao;
       BoletoDM.ACBrBoleto1.EnviarEmail(Para, Assunto, slMensagem, True, slCC);
+      Result := SetRetorno(ErrOK);
+    finally
+      slMensagem.Free;
+      slCC.Free;
+      BoletoDM.FinalizarImpressao;
+      BoletoDM.Destravar;
+    end;
+  except
+    on E: EACBrLibException do
+      Result := SetRetorno(E.Erro, E.Message);
+
+    on E: Exception do
+      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+  end;
+end;
+
+function TACBrLibBoleto.EnviarEmailBoleto(eIndice: longint; ePara, eAssunto, eMensagem, eCC: PChar): longint;
+var
+  Para, Assunto, Mensagem, CC: AnsiString;
+  slMensagem, slCC: TStrings;
+begin
+  try
+    Para := ConverterAnsiParaUTF8(ePara);
+    Assunto := ConverterAnsiParaUTF8(eAssunto);
+    Mensagem := ConverterAnsiParaUTF8(eMensagem);
+    CC := ConverterAnsiParaUTF8(eCC);
+
+    if Config.Log.Nivel > logNormal then
+      GravarLog('Boleto_EnviarEmailBoleto(' + IntToStr(eIndice) + ',' + Para + ',' + Assunto
+      + ',' + Mensagem + ',' + CC +')', logCompleto, True)
+    else
+      GravarLog('Boleto_EnviarEmailBoleto', logNormal);
+
+    BoletoDM.Travar;
+
+    if eIndice > (BoletoDM.ACBrBoleto1.ListadeBoletos.Count -1) then
+      raise Exception.Create('Título de Indice '+IntToStr(eIndice)+' não identificado na Lista!');
+
+    if EstaVazio(ePara) and (BoletoDM.ACBrBoleto1.ListadeBoletos.Count > 0) then
+      Para := BoletoDM.ACBrBoleto1.ListadeBoletos[eIndice].Sacado.Email;
+
+    try
+      slMensagem := TStringList.Create;
+      slMensagem.Text := Mensagem;
+
+      slCC := TStringList.Create;
+      slCC.Text := CC;
+
+      BoletoDM.ConfigurarImpressao;
+      BoletoDM.ACBrBoleto1.ListadeBoletos[eIndice].EnviarEmail(Para, Assunto, slMensagem, True, slCC);
       Result := SetRetorno(ErrOK);
     finally
       slMensagem.Free;

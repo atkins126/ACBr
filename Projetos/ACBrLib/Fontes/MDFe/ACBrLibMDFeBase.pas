@@ -507,12 +507,11 @@ begin
     try
       try
         MDFeDM.ACBrMDFe1.Manifestos.Validar;
+        Result := SetRetornoMDFeCarregados(MDFeDM.ACBrMDFe1.Manifestos.Count);
       except
         on E: EACBrMDFeException do
           Result := SetRetorno(ErrValidacaoMDFe, E.Message);
       end;
-
-      Result := SetRetornoMDFeCarregados(MDFeDM.ACBrMDFe1.Manifestos.Count);
     finally
       MDFeDM.Destravar;
     end;
@@ -845,7 +844,15 @@ begin
         WebServices.Retorno.Clear;
 
         Manifestos.Assinar;
-        Manifestos.Validar;
+        try
+          Manifestos.Validar;
+        except
+          on E: EACBrMDFeException do
+          begin
+            Result := SetRetorno(ErrValidacaoMDFe, E.Message);
+            Exit;
+          end;
+        end;
 
         if (ALote = 0) then
           WebServices.Enviar.Lote := '1'
