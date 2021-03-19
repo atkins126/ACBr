@@ -40,14 +40,31 @@ uses
   Classes, SysUtils;
 
 type
+  TACBrTipoAmbiente = (taProducao, taHomologacao);
+
+  TACBrTagAssinatura = (taSempre, taNunca, taSomenteSeAssinada,
+                        taSomenteParaNaoAssinada);
+
   TACBrTipoCampo = (tcStr, tcInt, tcDat, tcDatHor, tcEsp, tcDe2, tcDe3, tcDe4,
-                   tcDe6, tcDe8, tcDe10, tcHor, tcDatCFe, tcHorCFe, tcDatVcto,
-                   tcDatHorCFe, tcBoolStr, tcStrOrig, tcNumStr);
+                    tcDe6, tcDe8, tcDe10, tcHor, tcDatCFe, tcHorCFe, tcDatVcto,
+                    tcDatHorCFe, tcBoolStr, tcStrOrig, tcNumStr);
+
+const
+  LineBreak = #13#10;
 
 function FiltrarTextoXML(const RetirarEspacos: boolean; aTexto: String; RetirarAcentos: boolean = True;
                          SubstituirQuebrasLinha: Boolean = True; const QuebraLinha: String = ';'): String;
 
+function StrToEnumerado(out ok: boolean; const s: string; const AString: array of string;
+  const AEnumerados: array of variant): variant;
+
+function EnumeradoToStr(const t: variant; const AString:
+  array of string; const AEnumerados: array of variant): variant;
+
 implementation
+
+uses
+  ACBrUtil;
 
 function FiltrarTextoXML(const RetirarEspacos: boolean; aTexto: String;
   RetirarAcentos: boolean; SubstituirQuebrasLinha: Boolean; const QuebraLinha: String): String;
@@ -67,6 +84,31 @@ begin
     aTexto := ChangeLineBreak( aTexto, QuebraLinha);
 
   Result := Trim(aTexto);
+end;
+
+function StrToEnumerado(out ok: boolean; const s: string; const AString:
+  array of string; const AEnumerados: array of variant): variant;
+var
+  i: integer;
+begin
+  result := -1;
+  for i := Low(AString) to High(AString) do
+    if AnsiSameText(s, AString[i]) then
+      result := AEnumerados[i];
+  ok := result <> -1;
+  if not ok then
+    result := AEnumerados[0];
+end;
+
+function EnumeradoToStr(const t: variant; const AString:
+  array of string; const AEnumerados: array of variant): variant;
+var
+  i: integer;
+begin
+  result := '';
+  for i := Low(AEnumerados) to High(AEnumerados) do
+    if t = AEnumerados[i] then
+      result := AString[i];
 end;
 
 end.

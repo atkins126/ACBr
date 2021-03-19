@@ -49,10 +49,6 @@ uses
 
 type
 
-  {$IFDEF RTL230_UP}
-  [ComponentPlatformsAttribute(piacbrAllPlatforms)]
-  {$ENDIF RTL230_UP}
-
   TACBrPOSAposFinalizarTransacao = procedure(const TerminalId: String;
     Transacao: TACBrTEFResp; Status: TACBrPOSPGWebStatusTransacao) of object ;
 
@@ -84,6 +80,9 @@ type
 
   { TACBrPOS }
 
+  {$IFDEF RTL230_UP}
+  [ComponentPlatformsAttribute(piacbrAllDesktopPlatforms)]
+  {$ENDIF RTL230_UP}
   TACBrPOS = class( TACBrComponent )
   private
     fPOSPGWeb: TACBrPOSPGWebAPI;
@@ -91,6 +90,7 @@ type
     fTEFRespList: TACBrPOSRespList;
     fOnGravarLog: TACBrGravarLog;
     fOnAposFinalizarTransacao: TACBrPOSAposFinalizarTransacao;
+    function GetConfirmarAntesImpressao: Boolean;
     function GetConfirmarTransacoesPendentes: Boolean;
     function GetDadosTransacao(const TerminalId: String
       ): TACBrTEFPGWebAPIParametros;
@@ -115,6 +115,7 @@ type
     function GetTempoDesconexaoAutomatica: Word;
     function GetUtilizaSaldoTotalVoucher: Boolean;
     function GetVersaoAplicacao: String;
+    procedure SetConfirmarAntesImpressao(AValue: Boolean);
     procedure SetConfirmarTransacoesPendentes(AValue: Boolean);
     procedure SetDiretorioTrabalho(AValue: String);
     procedure SetMensagemBoasVindas(AValue: String);
@@ -229,6 +230,7 @@ type
     property SuportaViasDiferenciadas: Boolean read GetSuportaViasDiferenciadas write SetSuportaViasDiferenciadas default True;
     property UtilizaSaldoTotalVoucher: Boolean read GetUtilizaSaldoTotalVoucher write SetUtilizaSaldoTotalVoucher default False;
     property ConfirmarTransacoesPendentes: Boolean read GetConfirmarTransacoesPendentes write SetConfirmarTransacoesPendentes default True;
+    property ConfirmarAntesImpressao: Boolean read GetConfirmarAntesImpressao write SetConfirmarAntesImpressao default True;
 
     property OnGravarLog: TACBrGravarLog read fOnGravarLog write fOnGravarLog;
     property OnNovaConexao: TACBrPOSPGWebNovaConexao read GetOnNovaConexao write SetOnNovaConexao;
@@ -354,6 +356,11 @@ begin
   Result := fPOSPGWeb.ConfirmarTransacoesPendentes;
 end;
 
+function TACBrPOS.GetConfirmarAntesImpressao: Boolean;
+begin
+  Result := fPOSPGWeb.ConfirmarAntesImpressao;
+end;
+
 function TACBrPOS.GetDiretorioTrabalho: String;
 begin
   Result := fPOSPGWeb.DiretorioTrabalho;
@@ -453,6 +460,11 @@ end;
 function TACBrPOS.GetVersaoAplicacao: String;
 begin
   Result := fPOSPGWeb.VersaoAplicacao;
+end;
+
+procedure TACBrPOS.SetConfirmarAntesImpressao(AValue: Boolean);
+begin
+  fPOSPGWeb.ConfirmarAntesImpressao := AValue;
 end;
 
 procedure TACBrPOS.SetConfirmarTransacoesPendentes(AValue: Boolean);

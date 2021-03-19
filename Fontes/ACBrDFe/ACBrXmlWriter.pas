@@ -91,6 +91,7 @@ type
   protected
     FDocument: TACBrXmlDocument;
     FOpcoes: TACBrXmlWriterOptions;
+    FPrefixoPadrao: string;
 
     function AddNodeCNPJCPF(const ID1, ID2: string; CNPJCPF: string;
       obrigatorio: boolean = True; PreencheZeros: boolean = True): TACBrXmlNode;
@@ -100,7 +101,7 @@ type
       obrigatorio: boolean): TACBrXmlNode;
     function CreateElement(AName: string; ANamespace: string = '';
       APrefixNamespace: string = ''): TACBrXmlNode; virtual;
-    function AddNode(const Tipo: TpcnTipoCampo; ID, TAG: string;
+    function AddNode(const Tipo: TACBrTipoCampo; ID, TAG: string;
       const min, max, ocorrencias: smallint; const valor: variant;
       const Descricao: string = ''; ParseTextoXML: boolean = True;
       Atributo: string = ''): TACBrXmlNode; virtual;
@@ -117,6 +118,7 @@ type
 
     property Document: TACBrXmlDocument read FDocument;
     property ListaDeAlertas: TStringList read FListaDeAlertas write FListaDeAlertas;
+    property PrefixoPadrao: string read FPrefixoPadrao write FPrefixoPadrao;
 
   end;
 
@@ -240,7 +242,10 @@ end;
 function TACBrXmlWriter.CreateElement(AName: string; ANamespace: string;
   APrefixNamespace: string): TACBrXmlNode;
 begin
-  Result := FDocument.CreateElement(AName, ANamespace,  APrefixNamespace);
+  if NaoEstaVazio(FPrefixoPadrao) then
+    Result := FDocument.CreateElement(FPrefixoPadrao + ':' + AName, ANamespace,  APrefixNamespace)
+  else
+    Result := FDocument.CreateElement(AName, ANamespace,  APrefixNamespace);
 end;
 
 function TACBrXmlWriter.AddNode(const Tipo: TACBrTipoCampo; ID, TAG: string;
@@ -437,14 +442,14 @@ begin
   // Grava a tag no arquivo - Quando não existir algum conteúdo
   if ((ocorrencias = 1) and (EstaVazio)) then
   begin
-    Result := FDocument.CreateElement(Tag);
+    Result := CreateElement(Tag);
     exit;
   end;
 
   // Grava a tag no arquivo - Quando existir algum conteúdo
   if ((ocorrencias = 1) or (not EstaVazio)) then
   begin
-    Result := FDocument.CreateElement(Tag);
+    Result := CreateElement(Tag);
 
     if ParseTextoXML then
       Result.Content := FiltrarTextoXML(FOpcoes.RetirarEspacos,
