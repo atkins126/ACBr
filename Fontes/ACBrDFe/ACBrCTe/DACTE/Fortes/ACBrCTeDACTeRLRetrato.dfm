@@ -2,7 +2,8 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
   Left = 256
   Top = 88
   Caption = 'DACTe - Retrato'
-  ClientHeight = 698
+  ClientHeight = 900
+  ClientWidth = 1621
   Font.Height = -8
   Font.Name = 'Arial'
   Font.Style = [fsBold]
@@ -613,16 +614,16 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
         Transparent = False
       end
       object rllMsgTeste: TRLLabel
-        Left = 8
+        Left = 50
         Top = 29
-        Width = 724
-        Height = 31
+        Width = 640
+        Height = 26
         Alignment = taCenter
         Caption = 'AMBIENTE DE HOMOLOGA'#199#195'O - SEM VALOR FISCAL'
         Color = clWhite
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clGray
-        Font.Height = -27
+        Font.Height = -24
         Font.Name = 'Times New Roman'
         Font.Style = [fsBold]
         ParentColor = False
@@ -3665,8 +3666,149 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
       Borders.DrawRight = True
       Borders.DrawBottom = True
       Color = clWhite
+      IntegralHeight = False
       ParentColor = False
       BeforePrint = rlb_04_DadosNotaFiscalBeforePrint
+      object RLLabel5: TRLLabel
+        Left = 416
+        Top = 29
+        Width = 84
+        Height = 8
+        AutoSize = False
+        Caption = 'NOME DA SEGURADORA'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -7
+        Font.Name = 'Times New Roman'
+        Font.Style = []
+        ParentColor = False
+        ParentFont = False
+        Transparent = False
+      end
+      object rlmNomeSeguradora: TRLMemo
+        Left = 417
+        Top = 40
+        Width = 315
+        Height = 19
+        AutoSize = False
+        Behavior = [beSiteExpander]
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -9
+        Font.Name = 'Times New Roman'
+        Font.Style = []
+        Lines.Strings = (
+          'Seguradora 1')
+        ParentColor = False
+        ParentFont = False
+      end
+      object rlmRespSeguroMerc: TRLMemo
+        Left = 416
+        Top = 73
+        Width = 105
+        Height = 14
+        AutoSize = False
+        Behavior = [beSiteExpander]
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -9
+        Font.Name = 'Times New Roman'
+        Font.Style = []
+        Lines.Strings = (
+          'Resp Seguro 1')
+        ParentColor = False
+        ParentFont = False
+      end
+      object RLLabel39: TRLLabel
+        Left = 526
+        Top = 64
+        Width = 75
+        Height = 8
+        AutoSize = False
+        Caption = 'N'#218'MERO DA AP'#211'LICE'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -7
+        Font.Name = 'Times New Roman'
+        Font.Style = []
+        ParentColor = False
+        ParentFont = False
+        Transparent = False
+      end
+      object rlmNroApolice: TRLMemo
+        Left = 528
+        Top = 73
+        Width = 99
+        Height = 14
+        AutoSize = False
+        Behavior = [beSiteExpander]
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -9
+        Font.Name = 'Times New Roman'
+        Font.Style = []
+        Lines.Strings = (
+          'Nro Apolice 1')
+        ParentColor = False
+        ParentFont = False
+      end
+      object RLLabel40: TRLLabel
+        Left = 632
+        Top = 64
+        Width = 90
+        Height = 8
+        AutoSize = False
+        Caption = 'N'#218'MERO DA AVERBA'#199#195'O'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -7
+        Font.Name = 'Times New Roman'
+        Font.Style = []
+        ParentColor = False
+        ParentFont = False
+        Transparent = False
+      end
+      object rlmNroAverbacao: TRLMemo
+        Left = 634
+        Top = 73
+        Width = 99
+        Height = 14
+        AutoSize = False
+        Behavior = [beSiteExpander]
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -9
+        Font.Name = 'Times New Roman'
+        Font.Style = []
+        Lines.Strings = (
+          'Nro Averbacao 1')
+        ParentColor = False
+        ParentFont = False
+      end
+      object RLLabel37: TRLLabel
+        Left = 419
+        Top = 65
+        Width = 51
+        Height = 8
+        AutoSize = False
+        Caption = 'RESPONS'#193'VEL'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -7
+        Font.Name = 'Times New Roman'
+        Font.Style = []
+        ParentColor = False
+        ParentFont = False
+        Transparent = False
+      end
       object RLDraw9: TRLDraw
         Left = 283
         Top = 1
@@ -3760,9 +3902,8 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
         Left = 328
         Top = 38
         Width = 84
-        Height = 48
+        Height = 15
         Alignment = taRightJustify
-        AutoSize = False
         Behavior = [beSiteExpander]
         Color = clWhite
         Font.Charset = DEFAULT_CHARSET
@@ -3781,9 +3922,8 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
         Left = 166
         Top = 38
         Width = 76
-        Height = 48
+        Height = 15
         Alignment = taRightJustify
-        AutoSize = False
         Behavior = [beSiteExpander]
         Color = clWhite
         Font.Charset = DEFAULT_CHARSET
@@ -3802,9 +3942,8 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
         Left = 86
         Top = 38
         Width = 76
-        Height = 48
+        Height = 15
         Alignment = taRightJustify
-        AutoSize = False
         Behavior = [beSiteExpander]
         Color = clWhite
         Font.Charset = DEFAULT_CHARSET
@@ -3823,9 +3962,8 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
         Left = 5
         Top = 38
         Width = 76
-        Height = 48
+        Height = 15
         Alignment = taRightJustify
-        AutoSize = False
         Behavior = [beSiteExpander]
         Color = clWhite
         Font.Charset = DEFAULT_CHARSET
@@ -3886,23 +4024,6 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
         ParentColor = False
         ParentFont = False
       end
-      object RLLabel5: TRLLabel
-        Left = 418
-        Top = 28
-        Width = 84
-        Height = 8
-        AutoSize = False
-        Caption = 'NOME DA SEGURADORA'
-        Color = clWhite
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -7
-        Font.Name = 'Times New Roman'
-        Font.Style = []
-        ParentColor = False
-        ParentFont = False
-        Transparent = False
-      end
       object RLLabel43: TRLLabel
         Left = 328
         Top = 29
@@ -3939,23 +4060,6 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
         ParentFont = False
         Transparent = False
       end
-      object RLLabel40: TRLLabel
-        Left = 634
-        Top = 63
-        Width = 90
-        Height = 8
-        AutoSize = False
-        Caption = 'N'#218'MERO DA AVERBA'#199#195'O'
-        Color = clWhite
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -7
-        Font.Name = 'Times New Roman'
-        Font.Style = []
-        ParentColor = False
-        ParentFont = False
-        Transparent = False
-      end
       object RLLabel4: TRLLabel
         Left = 286
         Top = 3
@@ -3963,40 +4067,6 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
         Height = 8
         AutoSize = False
         Caption = 'OUTRAS CARACTER'#205'STICAS DA CARGA'
-        Color = clWhite
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -7
-        Font.Name = 'Times New Roman'
-        Font.Style = []
-        ParentColor = False
-        ParentFont = False
-        Transparent = False
-      end
-      object RLLabel39: TRLLabel
-        Left = 528
-        Top = 63
-        Width = 75
-        Height = 8
-        AutoSize = False
-        Caption = 'N'#218'MERO DA AP'#211'LICE'
-        Color = clWhite
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -7
-        Font.Name = 'Times New Roman'
-        Font.Style = []
-        ParentColor = False
-        ParentFont = False
-        Transparent = False
-      end
-      object RLLabel37: TRLLabel
-        Left = 416
-        Top = 63
-        Width = 51
-        Height = 8
-        AutoSize = False
-        Caption = 'RESPONS'#193'VEL'
         Color = clWhite
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -4081,9 +4151,8 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
         Left = 246
         Top = 38
         Width = 76
-        Height = 36
+        Height = 15
         Alignment = taRightJustify
-        AutoSize = False
         Behavior = [beSiteExpander]
         Color = clWhite
         Font.Charset = DEFAULT_CHARSET
@@ -4124,78 +4193,6 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
         Angle = 90.000000000000000000
         Brush.Style = bsClear
         DrawKind = dkLine
-      end
-      object rlmNomeSeguradora: TRLMemo
-        Left = 419
-        Top = 39
-        Width = 315
-        Height = 19
-        AutoSize = False
-        Behavior = [beSiteExpander]
-        Color = clWhite
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -9
-        Font.Name = 'Times New Roman'
-        Font.Style = []
-        Lines.Strings = (
-          'Seguradora 1')
-        ParentColor = False
-        ParentFont = False
-      end
-      object rlmRespSeguroMerc: TRLMemo
-        Left = 418
-        Top = 72
-        Width = 105
-        Height = 14
-        AutoSize = False
-        Behavior = [beSiteExpander]
-        Color = clWhite
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -9
-        Font.Name = 'Times New Roman'
-        Font.Style = []
-        Lines.Strings = (
-          'Resp Seguro 1')
-        ParentColor = False
-        ParentFont = False
-      end
-      object rlmNroApolice: TRLMemo
-        Left = 530
-        Top = 72
-        Width = 99
-        Height = 14
-        AutoSize = False
-        Behavior = [beSiteExpander]
-        Color = clWhite
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -9
-        Font.Name = 'Times New Roman'
-        Font.Style = []
-        Lines.Strings = (
-          'Nro Apolice 1')
-        ParentColor = False
-        ParentFont = False
-      end
-      object rlmNroAverbacao: TRLMemo
-        Left = 636
-        Top = 72
-        Width = 99
-        Height = 14
-        AutoSize = False
-        Behavior = [beSiteExpander]
-        Color = clWhite
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -9
-        Font.Name = 'Times New Roman'
-        Font.Style = []
-        Lines.Strings = (
-          'Nro Averbacao 1')
-        ParentColor = False
-        ParentFont = False
       end
     end
     object rlb_05_Complemento: TRLBand

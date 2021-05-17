@@ -630,7 +630,8 @@ begin
     proInfisc,
     proInfiscv11: begin
                     Gerador.Prefixo := Prefixo3;
-                    Gerador.wGrupo('envioLote versao="1.0" xmlns:ws="http://ws.pc.gif.com.br/"');
+//                    Gerador.wGrupo('envioLote versao="1.0" xmlns:ws="http://ws.pc.gif.com.br/"');
+                    Gerador.wGrupo('envioLote versao="1.0"');
                     Gerador.wCampo(tcStr, '', 'CNPJ'   , 01, 14, 1, Cnpj, '');
                     Gerador.wCampo(tcStr, '', 'dhTrans', 01, 19, 1, FormatDateTime('yyyy-mm-dd hh:mm:ss', Now), '');
                     Gerador.ArquivoFormatoXML := Gerador.ArquivoFormatoXML + Notas;
@@ -742,6 +743,8 @@ begin
             Gerador.wGrupo('Prestador');
 
             GerarGrupoCNPJCPF(Cnpj, True);
+
+            Gerador.wCampo(tcStr, '#3', 'InscricaoMunicipal', 01, 15, 0, IM, '');
 
             Gerador.wGrupo('/Prestador');
             Gerador.wCampo(tcInt, '#4', 'QuantidadeRps', 01, 02, 1, QtdeNotas, '');
@@ -1027,7 +1030,7 @@ begin
 
   GerarGrupoCNPJCPF(Cnpj, (VersaoNFSe <> ve100) or (Provedor in [proISSNet, proActcon]));
 
-  if (Provedor <> proBetha) or (IM <> '') then
+  if (not (Provedor in [proBetha, proBethav2])) or (IM <> '') then
     Gerador.wCampo(tcStr, '#3', 'InscricaoMunicipal', 01, 15, 1, IM, '');
 
   Gerador.Prefixo := Prefixo3;
@@ -1436,7 +1439,7 @@ begin
       if Provedor = proTecnos then
         Gerador.wCampo(tcStr, '#3', 'RazaoSocial', 01, 115, 1, RazaoSocial, '');
 
-      if (Provedor <> proBetha) or (IM <> '') then
+      if (not (Provedor in [proBetha, proBethav2])) or (IM <> '') then
         Gerador.wCampo(tcStr, '#4', 'InscricaoMunicipal', 01, 15, 1, IM, '');
 
       if Provedor = proISSDigital then
@@ -2099,7 +2102,7 @@ begin
 
       GerarGrupoCNPJCPF(Cnpj, (VersaoNFSe <> ve100) or (Provedor in [proActcon, pro4R]));
 
-      if (Provedor <> proBetha) or (IM <> '') then
+      if (not (Provedor in [proBetha, proBethav2])) or (IM <> '') then
         Gerador.wCampo(tcStr, '#2', 'InscricaoMunicipal', 01, 15, 1, IM, '');
 
       if Provedor <> proSigep then

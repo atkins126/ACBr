@@ -55,7 +55,7 @@ const
   CConta = 'CONTA';
   CTitulo = 'TITULO';
 
-  cACBrTipoOcorrenciaDecricao: array[0..308] of String = (
+  cACBrTipoOcorrenciaDecricao: array[0..309] of String = (
     {Ocorrências para arquivo remessa}
     'Remessa Registrar',
     'Remessa Baixar',
@@ -367,7 +367,8 @@ const
     'Retorno Protesto Em Cartório',
     'Retorno Sustação Solicitada',
     'Retorno Título Utilizado Como Garantia em Operação de Desconto',
-    'Retorno Título Descontável Com Desistência de Garantia em Operação de Desconto'
+    'Retorno Título Descontável Com Desistência de Garantia em Operação de Desconto',
+    'Retorno Intenção de Pagamento'
 );
 
 type
@@ -745,7 +746,8 @@ type
     toRetornoProtestadoEmCartorio,
     toRetornoSustacaoSolicitada,
     toRetornoTituloDescontado,
-    toRetornoTituloDescontavel
+    toRetornoTituloDescontavel,
+    toRetornoIntensaoPagamento
   );
 
   //Complemento de instrução para alterar outros dados
@@ -851,6 +853,7 @@ type
     function DefineCampoDigitoAgenciaConta: String; virtual;                  //Utilizado para definir Digito da Agencia / Conta na Remessa
     function DefinePosicaoUsoExclusivo: String; virtual;                      //Utilizado para definir Posições de uso exclusivo FEBRABAN na Remessa
     function DefineCodBeneficiarioHeader: String; virtual;                    //Utilizado para definir CodBeneficiario no Header da Remessa
+    function DefineTipoDocumento: String; virtual;                            //Define o Tipo de Documento na remessa
 
   public
     Constructor create(AOwner: TACBrBanco);
@@ -1706,7 +1709,7 @@ implementation
 Uses Forms, Math, dateutils, strutils,  ACBrBoletoWS,
      ACBrUtil, ACBrBancoBradesco, ACBrBancoBrasil, ACBrBancoAmazonia, ACBrBancoBanestes,
      ACBrBancoItau, ACBrBancoSicredi, ACBrBancoMercantil, ACBrBancoCaixa, ACBrBancoBanrisul,
-     ACBrBancoSantander, ACBrBancoBancoob, ACBrBancoCaixaSICOB ,ACBrBancoHSBC,
+     ACBrBancoSantander, ACBrBancoBancoob, ACBrBancoCaixaSICOB, ACBrBancoHSBC,
      ACBrBancoNordeste , ACBrBancoBRB, ACBrBancoBic, ACBrBancoBradescoSICOOB,
      ACBrBancoSafra, ACBrBancoSafraBradesco, ACBrBancoCecred, ACBrBancoBrasilSicoob,
      ACBrUniprime, ACBrBancoUnicredRS, ACBrBancoBanese, ACBrBancoCredisis, ACBrBancoUnicredES,
@@ -2627,23 +2630,23 @@ begin
       begin
          if DataAbatimento <> 0 then
             AStringList.Add(ACBrStr('Conceder abatimento de ' +
-                             FormatCurr('R$ #,##0.00',ValorAbatimento) +
+                             FormatFloatBr(ValorAbatimento, 'R$ #,##0.00') +
                              ' para pagamento ate ' + FormatDateTime('dd/mm/yyyy',DataAbatimento)))
          else
             AStringList.Add(ACBrStr('Conceder abatimento de ' +
-                             FormatCurr('R$ #,##0.00',ValorAbatimento)));
+                             FormatFloatBr(ValorAbatimento, 'R$ #,##0.00')));
       end;
 
       if ValorDesconto <> 0 then
       begin
          if DataDesconto <> 0 then
             AStringList.Add(ACBrStr('Conceder desconto de '                       +
-                             FormatCurr('R$ #,##0.00',ValorDesconto)       +
+                             FormatFloatBr(ValorDesconto, 'R$ #,##0.00')       +
                              ' para pagamento até ' +
                              FormatDateTime('dd/mm/yyyy',DataDesconto)))
          else
             AStringList.Add(ACBrStr('Conceder desconto de '                 +
-                             FormatCurr('R$ #,##0.00',ValorDesconto) +
+                             FormatFloatBr(ValorDesconto, 'R$ #,##0.00') +
                              ' por dia de antecipaçao'));
       end;
 
@@ -2651,12 +2654,12 @@ begin
       begin
         if DataDesconto2 <> 0 then
           AStringList.Add(ACBrStr('Conceder desconto de '                       +
-                           FormatCurr('R$ #,##0.00',ValorDesconto2)       +
+                           FormatFloatBr(ValorDesconto2, 'R$ #,##0.00')       +
                            ' para pagamento até ' +
                            FormatDateTime('dd/mm/yyyy', DataDesconto2)))
         else
           AStringList.Add(ACBrStr('Conceder desconto de '                 +
-                           FormatCurr('R$ #,##0.00',ValorDesconto2) +
+                           FormatFloatBr(ValorDesconto2, 'R$ #,##0.00') +
                            ' por dia de antecipaçao'));
       end;
 
@@ -2665,27 +2668,27 @@ begin
          if DataMoraJuros <> 0 then
             AStringList.Add(ACBrStr('Cobrar juros de '                        +
                             ifthen(((CodigoMoraJuros in [cjTaxaMensal, cjValorMensal]) or (CodigoMora = '2') or (CodigoMora = 'B')), FloatToStr(ValorMoraJuros) + '% ao mês',
-                                   FormatCurr('R$ #,##0.00 por dia',ValorMoraJuros))         +
+                                   FormatFloatBr(ValorMoraJuros, 'R$ #,##0.00 por dia'))         +
                              ' de atraso para pagamento '+
                              ifthen(Vencimento = DataMoraJuros, 'após o vencimento.',
                                     'a partir de '+FormatDateTime('dd/mm/yyyy',DataMoraJuros))))
          else
             AStringList.Add(ACBrStr('Cobrar juros de '                +
                                     ifthen(((CodigoMoraJuros in [cjTaxaMensal, cjValorMensal]) or (CodigoMora = '2') or (CodigoMora = 'B')), FloatToStr(ValorMoraJuros) + '% ao mês',
-                                           FormatCurr('R$ #,##0.00 por dia',ValorMoraJuros))         +
+                                           FormatFloatBr(ValorMoraJuros, 'R$ #,##0.00 por dia'))         +
                              ' de atraso'));
       end;
 
       if PercentualMulta <> 0 then
       begin
         if DataMulta <> 0 then
-          AStringList.Add(ACBrStr('Cobrar multa de ' + FormatCurr('R$ #,##0.00',
-            IfThen(MultaValorFixo, PercentualMulta, TruncTo((ValorDocumento*( 1+ PercentualMulta/100)-ValorDocumento),2)  )) +
+          AStringList.Add(ACBrStr('Cobrar multa de ' + FormatFloatBr(
+            IfThen(MultaValorFixo, PercentualMulta, TruncTo((ValorDocumento*( 1+ PercentualMulta/100)-ValorDocumento),2)  ), 'R$ #,##0.00') +
                          ' para pagamento'+ IfThen(DataMulta = Vencimento, ' após o vencimento.',
                                                    ' a partir de '+ FormatDateTime('dd/mm/yyyy',DataMulta))))
         else
-          AStringList.Add(ACBrStr('Multa de ' + FormatCurr('R$ #,##0.00',
-            IfThen(MultaValorFixo, PercentualMulta, TruncTo((ValorDocumento*( 1+ PercentualMulta/100)-ValorDocumento),2)  )) +
+          AStringList.Add(ACBrStr('Multa de ' + FormatFloatBr(
+            IfThen(MultaValorFixo, PercentualMulta, TruncTo((ValorDocumento*( 1+ PercentualMulta/100)-ValorDocumento),2)  ), 'R$ #,##0.00') +
                          ' após o vencimento.'));
       end;
       if DataLimitePagto <> 0 then
@@ -4278,6 +4281,20 @@ begin
   end;
 end;
 
+function TACBrBancoClass.DefineTipoDocumento: String;
+begin
+  with ACBrBanco.ACBrBoleto.Cedente do
+  begin
+    case TipoDocumento of
+      Tradicional: Result := '1';
+      Escritural: Result := '2';
+    else
+      Result := '1';
+    end;
+  end;
+
+end;
+
 function TACBrBancoClass.DefineCampoDigitoConta: String;
 begin
   with ACBrBanco.ACBrBoleto.Cedente do
@@ -4759,7 +4776,7 @@ begin
         Convenio      := IniBoletos.ReadString(CCedente,'CONVENIO',Convenio);
         CaracTitulo  := TACBrCaracTitulo(IniBoletos.ReadInteger(CCedente,'CaracTitulo',Integer(CaracTitulo) ));
         TipoCarteira := TACBrTipoCarteira(IniBoletos.ReadInteger(CCedente,'TipoCarteira', Integer(TipoCarteira) ));
-        TipoDocumento:= TACBrTipoDocumento(IniBoletos.ReadInteger(CCedente,'TipoDocumento', Integer(TipoDocumento) ));
+        TipoDocumento:= TACBrTipoDocumento(IniBoletos.ReadInteger(CCedente,'TipoDocumento', Integer(TipoDocumento) ) + 1 );
         if Assigned(Self.ACBrBoletoFC) then
         begin
           wLayoutBoleto:= IniBoletos.ReadInteger(CCedente,'LAYOUTBOL', Integer(Self.ACBrBoletoFC.LayOut) );
@@ -5141,6 +5158,32 @@ begin
           IniRetorno.WriteFloat(wSessao, 'Valor',ListaRetornoWeb[i].DadosRet.TituloRet.ValorDocumento);
 
         end;
+
+        if NaoEstaVazio(ListaRetornoWeb[i].DadosRet.TituloRet.CodBarras) then
+        begin
+          wSessao := 'TITULO_RETORNO';
+
+          IniRetorno.WriteDate(wSessao, 'vencimento_titulo',ListaRetornoWeb[i].DadosRet.TituloRet.Vencimento);
+          IniRetorno.WriteString(wSessao, 'tipo_carteira_titulo',ListaRetornoWeb[i].DadosRet.TituloRet.Carteira);
+          IniRetorno.WriteString(wSessao, 'nosso_numero',ListaRetornoWeb[i].DadosRet.TituloRet.NossoNumero);
+          IniRetorno.WriteString(wSessao, 'seu_numero',ListaRetornoWeb[i].DadosRet.TituloRet.SeuNumero);
+          IniRetorno.WriteString(wSessao, 'especie',ListaRetornoWeb[i].DadosRet.TituloRet.EspecieDoc);
+          IniRetorno.WriteString(wSessao, 'codigo_barras',ListaRetornoWeb[i].DadosRet.TituloRet.CodBarras);
+          IniRetorno.WriteString(wSessao, 'numero_linha_digitavel',ListaRetornoWeb[i].DadosRet.TituloRet.LinhaDig);
+          IniRetorno.WriteString(wSessao, 'local_pagamento',ListaRetornoWeb[i].DadosRet.TituloRet.Mensagem.Text);
+          IniRetorno.WriteDate(wSessao, 'data_processamento',ListaRetornoWeb[i].DadosRet.TituloRet.DataProcessamento);
+          IniRetorno.WriteDate(wSessao, 'data_emissao',ListaRetornoWeb[i].DadosRet.TituloRet.DataDocumento);
+          IniRetorno.WriteString(wSessao, 'uso_banco',ListaRetornoWeb[i].DadosRet.TituloRet.UsoBanco);
+          IniRetorno.WriteFloat(wSessao, 'valor_titulo',ListaRetornoWeb[i].DadosRet.TituloRet.ValorDocumento);
+          IniRetorno.WriteFloat(wSessao, 'valor_desconto',ListaRetornoWeb[i].DadosRet.TituloRet.ValorDesconto);
+          IniRetorno.WriteFloat(wSessao, 'valor_outra_deducao',ListaRetornoWeb[i].DadosRet.TituloRet.ValorDespesaCobranca);
+          IniRetorno.WriteFloat(wSessao, 'valor_juro_multa',ListaRetornoWeb[i].DadosRet.TituloRet.ValorMoraJuros);
+          IniRetorno.WriteFloat(wSessao, 'valor_outro_acrescimo',ListaRetornoWeb[i].DadosRet.TituloRet.ValorOutrosCreditos);
+          IniRetorno.WriteFloat(wSessao, 'valor_total_cobrado',ListaRetornoWeb[i].DadosRet.TituloRet.ValorPago);
+          IniRetorno.WriteString(wSessao, 'texto_informacao_cliente_beneficiario',ListaRetornoWeb[i].DadosRet.TituloRet.Informativo.Text);
+
+        end;
+
 
       end;
     end;

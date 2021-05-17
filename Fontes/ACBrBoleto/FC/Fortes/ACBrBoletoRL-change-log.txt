@@ -46,6 +46,22 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+28/04/2021
+ACBrBoletoFCFortes.dfm
+[*] Compatibilização das alterações de campos no layout com .dfm ref campo "usoBanco"
+
+23/04/2021
+ACBrBoletoFCFortes
+[*] Alteração na formatação de campos Currecy utilizando a função FormatFloatBr
+
+19/04/2021
+Ajustes para validar uso campo "UsoBanco"
+https://www.projetoacbr.com.br/forum/topic/61981-preenchimento-da-informa%C3%A7%C3%A3o-uso-banco-no-boleto/
+
+15/04/2021
+ACBrBoletoFCFortes
+[*] Ajustes de caracteres de acentuação desconfigurados no .lfm
+
 01/10/2020
 ACBrBoletoFCFortesFr
 [*] Ajustes na configuração de impressão do código de barras, mantendo as barras em tamanho fixo. 

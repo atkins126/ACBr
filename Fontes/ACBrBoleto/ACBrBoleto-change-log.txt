@@ -49,6 +49,65 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+29/04/2021
+--ACBrBancoSicred--
+[*] Ajuste na leitura do CNPJ ou CPF na leitura do Retorno CNAB400
+
+23/04/2021
+--ACBrBoleto--
+[*] Alteração na formatação de campos FormatFloat utilizando a função FormatFloatBr devido compatibilização com Linux
+
+15/04/2021
+--ACBrBoletoRet_Itau, ACBrBoleto--
+[*] Ajuste na leitura do Json de Resposta e geração do Log de Retorno
+
+08/04/2021
+--ACBrBoletoW_Caixa, ACBrBoletoRet_Caixa--
+[*] Ajuste na geração do XML para transmissão de Remessa WebService
+https://www.projetoacbr.com.br/forum/topic/61882-sugest%C3%A3o-e-ajustes-boleto-via-webservice-caixa/
+
+--ACBrBancoCecred--
+[*] Ajuste na informação de dias de protesto na remessa
+
+--ACBrBancoDaycoval--
+[*] Ajuste na geração do NossoNumero na remessa e Retorno
+https://www.projetoacbr.com.br/forum/topic/61228-layout-banco-daycoval/
+
+08/04/2021
+--ACBrBoletoRet_Itau--
+[*] Ajuste na validação de retorno com rejeição na API Itaú
+
+05/04/2021
+--ACBrBancoBrasil--
+[*] Validação na qtd de dias para Baixa em Remessa CNAB240
+https://www.projetoacbr.com.br/forum/topic/61783-boleto-banco-do-brasil-cnab240/
+
+05/04/2021
+--ACBrBancoBrasil--
+[*] Adicionado códigos de Ocorrencia para Remessa CNAB400
+https://www.projetoacbr.com.br/forum/topic/61921-ajuste-da-instru%C3%A7%C3%B5es-de-remessa-banco-do-brasil/
+
+
+30/03/2021
+--ACBrBancoBrasil--
+[*] Correçao no Header CNAB240 posicao 226-228 referente validação do layout 030 
+
+16/03/2021
+--ACBrBoleto, ACBrBancoSicred--
+[+] Adicionado ocorrencia para Intenção de Pagamento
+
+16/03/2021
+--ACBrBancoBanrisul--
+[*] Correção na geração da Instrucao2 em CNAB240, Banco utiliza apenas 1 dígito
+
+16/03/2021
+--ACBrBoleto, ACBrBancoBrasil, ACBrBancoSicred--
+[*] Ajuste na validação do campo TipoDocumento, adicionado função DefineTipoDocumento
+
+16/03/2021
+--ACBrBancoBanrisul--
+[*] Ajuste na validação do código Instrucao2 em CNAB240
+
 09/03/2021
 --ACBrBancoSafra--
 [-] Correção na chamada BancoSafra na função GetTipoCobranca

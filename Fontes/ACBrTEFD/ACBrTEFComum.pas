@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2021 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo:                                                 }
 {                                                                              }
@@ -48,6 +48,33 @@ uses
   ACBrBase;
 
 type
+
+  TACBrTEFTipoCartao = ( teftcCredito,
+                         teftcDebito,
+                         teftcVoucher,
+                         teftcFrota,
+                         teftcPrivateLabel,
+                         teftcOutros );
+  TACBrTEFTiposCartao = set of TACBrTEFTipoCartao;
+
+  TACBrTEFModalidadePagamento = ( tefmpNaoDefinido,
+                                  tefmpCartao,
+                                  tefmpDinheiro,
+                                  tefmpCheque,
+                                  tefmpCarteiraVirtual );
+
+  TACBrTEFModalidadeFinanciamento = ( tefmfNaoDefinido,
+                                      tefmfAVista,
+                                      tefmfParceladoEmissor,
+                                      tefmfParceladoEstabelecimento,
+                                      tefmfPredatado,
+                                      tefmfCreditoEmissor );
+
+  TACBrTEFStatusTransacao = ( tefstsSucessoAutomatico,
+                              tefstsSucessoManual,
+                              tefstsErroImpressao,
+                              tefstsErroDispesador,
+                              tefstsErroDiverso );
 
   EACBrTEFErro = class(Exception);
   EACBrTEFArquivo = class(EACBrTEFErro);
@@ -127,6 +154,7 @@ type
   public
     constructor Create;
     procedure Clear;
+    procedure Assign(Source: TACBrTEFRespCB);
 
     property Acrescimo: Double read FAcrescimo write FAcrescimo;
     property DataVencimento: TDateTime read FDataVencimento write FDataVencimento;
@@ -151,6 +179,7 @@ type
     function GetObject(Index: Integer): TACBrTEFRespCB;
   public
     constructor Create(FreeObjects: Boolean);
+    procedure Assign(Source: TACBrTEFRespListaCB);
 
     function Add(Obj: TACBrTEFRespCB): Integer;
     procedure Insert(Index: Integer; Obj: TACBrTEFRespCB);
@@ -170,6 +199,7 @@ type
   public
     constructor Create;
     procedure Clear;
+    procedure Assign(Source: TACBrTEFRespParcela);
 
     property Vencimento: TDateTime read FVencimentoParcela write FVencimentoParcela;
     property Valor: Double read FValorParcela write FValorParcela;
@@ -185,6 +215,8 @@ type
     procedure SetObject(Index: Integer; Item: TACBrTEFRespParcela);
     function GetObject(Index: Integer): TACBrTEFRespParcela;
   public
+    procedure Assign(Source: TACBrTEFRespParcelas);
+
     function Add(Obj: TACBrTEFRespParcela): Integer;
     procedure Insert(Index: Integer; Obj: TACBrTEFRespParcela);
     property Objects[Index: Integer]: TACBrTEFRespParcela read GetObject write SetObject; default;
@@ -205,6 +237,7 @@ type
   public
     constructor Create;
     procedure Clear;
+    procedure Assign(Source: TACBrTEFRespNFCeSAT);
 
     property CodCredenciadora: String read FCodCredenciadora write FCodCredenciadora;
     property CNPJCredenciadora: String read FCNPJCredenciadora write FCNPJCredenciadora;
@@ -298,6 +331,8 @@ type
     fpQRCode: String;       // String com o Conteúdo do QRCode
     fpIdCarteiraDigital : String; // Código de identificação da carteira digital
     fpNomeCarteiraDigital : String; // Nome da carteira digital
+    fpCodigoPSP : String; // Código do PSP - PIX
+    fpNSU_TEF : String; // NSU interno, do Gerenciador TEF
 
     procedure SetCNFEnviado(const AValue: Boolean);
     procedure SetArqBackup(const AValue: String);
@@ -398,6 +433,8 @@ type
     property QRCode: String read fpQRCode write fpQRCode;
     property IdCarteiraDigital: String read fpIdCarteiraDigital write fpIdCarteiraDigital;
     property NomeCarteiraDigital: String read fpNomeCarteiraDigital write fpNomeCarteiraDigital;
+    property CodigoPSP: String read fpCodigoPSP write fpCodigoPSP;
+    property NSU_TEF: String read fpNSU_TEF write fpNSU_TEF;
 
     property NFCeSAT: TACBrTEFRespNFCeSAT read fpNFCeSAT;
 
@@ -667,6 +704,19 @@ begin
   FValorPago := 0;
 end;
 
+procedure TACBrTEFRespCB.Assign(Source: TACBrTEFRespCB);
+begin
+  FAcrescimo := Source.Acrescimo;
+  FDataPagamento := Source.DataPagamento;
+  FDataVencimento := Source.DataVencimento;
+  FDesconto := Source.Desconto;
+  FDocumento := Source.Documento;
+  FNSUTransacaoCB := Source.NSUTransacaoCB;
+  FTipoDocumento := Source.TipoDocumento;
+  FValorOriginal := Source.ValorOriginal;
+  FValorPago := Source.ValorPago;
+end;
+
 { TACBrTEFRespListaCB }
 
 constructor TACBrTEFRespListaCB.Create(FreeObjects: Boolean);
@@ -675,6 +725,20 @@ begin
 
   FTotalTitulos := 0;
   FTotalTitulosNaoPago := 0;
+end;
+
+procedure TACBrTEFRespListaCB.Assign(Source: TACBrTEFRespListaCB);
+var
+  i: Integer;
+  AItem: TACBrTEFRespCB;
+begin
+  Clear;
+  for i := 0 to Source.Count-1 do
+  begin
+    AItem := TACBrTEFRespCB.Create;
+    AItem.Assign(Source[i]);
+    Add(AItem);
+  end;
 end;
 
 procedure TACBrTEFRespListaCB.SetObject(Index: Integer; Item: TACBrTEFRespCB);
@@ -712,11 +776,32 @@ begin
   FNSUParcela := '';
 end;
 
+procedure TACBrTEFRespParcela.Assign(Source: TACBrTEFRespParcela);
+begin
+  FValorParcela := Source.Valor;
+  FVencimentoParcela := Source.Vencimento;
+  FNSUParcela := Source.NSUParcela;
+end;
+
 { TACBrTEFRespParcelas }
 
 procedure TACBrTEFRespParcelas.SetObject(Index: Integer; Item: TACBrTEFRespParcela);
 begin
   inherited Items[Index] := Item;
+end;
+
+procedure TACBrTEFRespParcelas.Assign(Source: TACBrTEFRespParcelas);
+var
+  i: Integer;
+  AItem: TACBrTEFRespParcela;
+begin
+  Clear;
+  for i := 0 to Source.Count-1 do
+  begin
+    AItem := TACBrTEFRespParcela.Create;
+    AItem.Assign(Source[i]);
+    Add(AItem);
+  end;
 end;
 
 function TACBrTEFRespParcelas.GetObject(Index: Integer): TACBrTEFRespParcela;
@@ -751,6 +836,17 @@ begin
   FDonoCartao := '';
   FDataExpiracao := '';
   FUltimosQuatroDigitos := '';
+end;
+
+procedure TACBrTEFRespNFCeSAT.Assign(Source: TACBrTEFRespNFCeSAT);
+begin
+  FCodCredenciadora := Source.CodCredenciadora;
+  FAutorizacao := Source.Autorizacao;
+  FBandeira := Source.Bandeira;
+  FCNPJCredenciadora := Source.CNPJCredenciadora;
+  FDonoCartao := Source.DonoCartao;
+  FDataExpiracao := Source.DataExpiracao;
+  FUltimosQuatroDigitos := Source.UltimosQuatroDigitos;
 end;
 
 { TACBrTEFResp }
@@ -788,12 +884,93 @@ end;
 
 procedure TACBrTEFResp.Assign(Source: TACBrTEFResp);
 begin
-  Conteudo.Clear;
-  Conteudo.Conteudo.Assign(Source.Conteudo.Conteudo);
-  ConteudoToProperty;
+  fpConteudo.Clear;
+  fpConteudo.Conteudo.Assign(Source.Conteudo.Conteudo);
 
-  ArqBackup := Source.ArqBackup; { ArqBackup não é salva em Conteudo (memory only) }
+  fpAgencia := Source.Agencia;
+  fpAgenciaDC := Source.AgenciaDC;
+  fpAutenticacao := Source.Autenticacao;
+  fpArqBackup := Source.ArqBackup;
+  fpArqRespPendente := Source.ArqRespPendente;
   fpViaClienteReduzida := Source.ViaClienteReduzida;
+  fpBanco := Source.Banco;
+  fpCheque := Source.Cheque;
+  fpChequeDC := Source.ChequeDC;
+  fpCMC7 := Source.CMC7;
+  fpCNFEnviado := Source.CNFEnviado;
+  fpCodigoAutorizacaoTransacao := Source.CodigoAutorizacaoTransacao;
+  fpCodigoOperadoraCelular := Source.CodigoOperadoraCelular;
+  fpConta := Source.Conta;
+  fpContaDC := Source.ContaDC;
+  fpDataCheque := Source.DataCheque;
+  fpDataHoraTransacaoCancelada := Source.DataHoraTransacaoCancelada;
+  fpDataHoraTransacaoComprovante := Source.DataHoraTransacaoComprovante;
+  fpDataHoraTransacaoHost := Source.DataHoraTransacaoHost;
+  fpDataHoraTransacaoLocal := Source.DataHoraTransacaoLocal;
+  fpDataPreDatado := Source.DataPreDatado;
+  fpDocumentoPessoa := Source.DocumentoPessoa;
+  fpFinalizacao := Source.Finalizacao;
+  fpHeader := Source.Header;
+  fpID := Source.ID;
+  fpMoeda := Source.Moeda;
+  fpNomeAdministradora := Source.NomeAdministradora;
+  fpNomeOperadoraCelular := Source.NomeOperadoraCelular;
+  fpNSU := Source.NSU;
+  fpNSUTransacaoCancelada := Source.NSUTransacaoCancelada;
+  fpNumeroLoteTransacao := Source.NumeroLoteTransacao;
+  fpNumeroRecargaCelular := Source.NumeroRecargaCelular;
+  fpQtdLinhasComprovante := Source.QtdLinhasComprovante;
+  fpQtdParcelas := Source.QtdParcelas;
+  fpRede := Source.Rede;
+  fpStatusTransacao := Source.StatusTransacao;
+  fpTextoEspecialCliente := Source.TextoEspecialCliente;
+  fpTextoEspecialOperador := Source.TextoEspecialOperador;
+  fpTipoPessoa := Source.TipoPessoa;
+  fpTipoTransacao := Source.TipoTransacao;
+  fpTrailer := Source.Trailer;
+  fpBin := Source.BIN;
+  fpValorTotal := Source.ValorTotal;
+  fpValorOriginal := Source.ValorOriginal;
+  fpValorRecargaCelular := Source.ValorRecargaCelular;
+  fpSaque := Source.Saque;
+  fpDesconto := Source.Desconto;
+  fpTaxaServico := Source.TaxaServico;
+  fpDocumentoVinculado := Source.DocumentoVinculado;
+  fpTipoParcelamento := Source.TipoParcelamento;
+  fpDataVencimento := Source.DataVencimento;
+  fpInstituicao := Source.Instituicao;
+  fpModalidadePagto := Source.ModalidadePagto;
+  fpModalidadePagtoDescrita := Source.ModalidadePagtoDescrita;
+  fpModalidadePagtoExtenso := Source.ModalidadePagtoExtenso;
+  fpCodigoRedeAutorizada := Source.CodigoRedeAutorizada;
+  fpDebito := Source.Debito;
+  fpCredito := Source.Credito;
+  fpDigitado := Source.Digitado;
+  fpParceladoPor := Source.ParceladoPor;
+  fpValorEntradaCDC := Source.ValorEntradaCDC;
+  fpDataEntradaCDC := Source.DataEntradaCDC;
+  fpTipoOperacao := Source.TipoOperacao;
+  fpIdPagamento := Source.IdPagamento;
+  fpIdRespostaFiscal := Source.IdRespostaFiscal;
+  fpSerialPOS := Source.SerialPOS;
+  fpEstabelecimento := Source.Estabelecimento;
+  fpCodigoBandeiraPadrao := Source.CodigoBandeiraPadrao;
+  fpConfirmar := Source.Confirmar;
+  fpQRCode := Source.QRCode;
+  fpIdCarteiraDigital := Source.IdCarteiraDigital;
+  fpNomeCarteiraDigital := Source.NomeCarteiraDigital;
+  fpCodigoPSP := Source.CodigoPSP;
+  fpNSU_TEF := Source.NSU_TEF;
+
+  fpImagemComprovante1aVia.Text := Source.ImagemComprovante1aVia.Text;
+  fpImagemComprovante2aVia.Text := Source.ImagemComprovante2aVia.Text;
+
+  fpCorrespBancarios.Assign(Source.CorrespBancarios);
+  fpNFCeSAT.Assign(Source.NFCeSAT);
+  fpParcelas.Assign(Source.Parcelas);
+
+  // O Método abaixo, se existis, dá preferencia aos valores de "Conteudo"
+  ConteudoToProperty;
 end;
 
 procedure TACBrTEFResp.ConteudoToProperty;
@@ -880,6 +1057,17 @@ begin
   fpIdRespostaFiscal := 0;
   fpSerialPOS := '';
   fpEstabelecimento := '';
+
+  fpIdCarteiraDigital :=  '';
+  fpNomeCarteiraDigital := '';
+  fpCodigoPSP :=  '';
+  fpNSU_TEF :=  '';
+  fpDataVencimento := 0;
+  fpInstituicao := '';
+  fpModalidadePagto := '';
+  fpModalidadePagtoDescrita := '';
+  fpModalidadePagtoExtenso := '';
+  fpCodigoRedeAutorizada := '';
 end;
 
 procedure TACBrTEFResp.LeArquivo(const NomeArquivo: String);

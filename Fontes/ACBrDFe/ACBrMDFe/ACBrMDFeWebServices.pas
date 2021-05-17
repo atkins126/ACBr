@@ -2200,6 +2200,7 @@ begin
 
                 vContrato := FEvento.Evento[i].InfEvento.detEvento.infPag[j].vContrato;
                 indPag    := FEvento.Evento[i].InfEvento.detEvento.infPag[j].indPag;
+                vAdiant   := FEvento.Evento[i].InfEvento.detEvento.infPag[j].vAdiant;
 
                 if indPag = ipPrazo then
                 begin
@@ -2214,6 +2215,7 @@ begin
                   end;
                 end;
 
+                infBanc.PIX        := FEvento.Evento[i].InfEvento.detEvento.infPag[j].infBanc.PIX;
                 infBanc.CNPJIPEF   := FEvento.Evento[i].InfEvento.detEvento.infPag[j].infBanc.CNPJIPEF;
                 infBanc.codBanco   := FEvento.Evento[i].InfEvento.detEvento.infPag[j].infBanc.codBanco;
                 infBanc.codAgencia := FEvento.Evento[i].InfEvento.detEvento.infPag[j].infBanc.codAgencia;

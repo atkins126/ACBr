@@ -265,12 +265,11 @@ begin
   Leitor.Grupo   := Leitor.Arquivo;
 
   try
-    GNRERetorno := TACBrGNRE(ACBrGNRE).GuiasRetorno.Add.GNRE;
-
     Nivel := 1;
     i := 0;
     while Leitor.rExtrai(Nivel, 'guia', '', i + 1) <> '' do
     begin
+      GNRERetorno := TACBrGNRE(ACBrGNRE).GuiasRetorno.Add.GNRE;
       GNRERetorno.SituacaoGuia          := Leitor.rCampo(tcStr, 'situacaoGuia');
       GNRERetorno.UFFavorecida          := Leitor.rCampo(tcStr, 'ufFavorecida');
       GNRERetorno.tipoGnre              := Leitor.rCampo(tcStr, 'tipoGnre');
@@ -361,7 +360,7 @@ begin
             52 - Valor Atualização Monetaria FP
             }
             if Leitor.rAtributo('tipo=', 'valor') = '11' then
-              GNRERetorno.ValorPrincipal := Leitor.rCampo(tcDe2, 'valor');
+              GNRERetorno.ValorPrincICMS := Leitor.rCampo(tcDe2, 'valor');
 
             if Leitor.rAtributo('tipo=', 'valor') = '12' then
               GNRERetorno.ValorFECP := Leitor.rCampo(tcDe2, 'valor');
@@ -410,6 +409,7 @@ begin
       end;
 
       Inc(i);
+      Nivel := 1;
     end;
   finally
     Leitor.Free;

@@ -46,6 +46,53 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+10/05/21
+-- ACBrTEFComum, ACBrTEFAndroid, ACBrTEFPayGoAndroid --
+[*] Ajuste nas nomenclaturas, dos Tipos enumerados, para evitar conflitos com
+    outros tipos semelhantes em pcnConversao
+    (por: DSA)
+
+-- ACBrTEFComum, ACBrTEFCliSiTefComum, ACBrTEFPayGoComum --
+[+] Adicionada propriedades em "TACBrTEFResp"
+    CodigoPSP : String; // Código do PSP (PIX)
+    NSU_TEF : String; // NSU interno, do Gerenciador TEF
+    www.projetoacbr.com.br/forum/index.php?showtopic=62480
+
+06/05/21
+-- ACBrTEFAndroid, ACBrTEFPayGoAndroidAPI, ACBrTEFDReg --
+[+] Adicionado novo componente de TEF para Android.
+    Incialmente compatível apenas com TEF Android da PayGo/Setis
+    https://devpaygo.readme.io/v7/docs/o-que-%C3%A9-5
+    (por: DSA)
+
+-- ACBrTEFPayGoWebComum, ACBrTEFDPayGoWeb --
+[+] Adicionado suporte de Captura de CNPJ para PinPads com ABECS 2.12 ou superior
+    (por: DSA)
+
+-- ACBrTEFComum --
+[+] Adicionados novos Tipos e enumerados, que serão usado em ACBrTEFAPI e ACBrTEFAndroid
+    TACBrTEFTipoCartao, TACBrTEFTiposCartao, TACBrTEFModalidadePagamento,
+    TACBrTEFModalidadeFinanciamento, TACBrTEFStatusTransacao
+[+] Adicionado o método "Assign" nos objetos: TACBrTEFRespCB, TACBrTEFRespListaCB,
+    TACBrTEFRespParcela, TACBrTEFRespParcelas, TACBrTEFRespNFCeSAT, para permitir
+    a Cópia desses objetos
+[*] Método "TACBrTEFResp.Assign", modificado para copiar as propriedades internas
+    do Objeto de origem
+[*] Método "TACBrTEFResp.Clear", complementado com proprieddes que não estavam
+    sendo limpas
+    (por: DSA)
+
+-- ACBrPOS --
+[-] Método "TACBrPOS.DadosDaTransacaoParaTEFResp", Limpando, o objeto TACBrPOSResp,
+    antes de gravar os valores retornados da nova transação.
+    (por: DSA)
+
+05/04/21
+-- ACBrPOSPGWebAPI --
+[-] Correção em "TACBrPOSPGWebAPI.ExecutarTransacaoTEF", para não criar arquivo
+    de Backup se "ConfirmarAntesImpressao" estiver ligado
+    (por: DSA)
+
 18/03/21
 -- ACBrTEFPayGoWebComum --
 [-] Ajuste no método "ValidarRespostaCampo", para que não ocorra validação de

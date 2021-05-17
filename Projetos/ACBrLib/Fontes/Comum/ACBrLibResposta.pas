@@ -275,12 +275,21 @@ begin
             ParentNode := xDoc.CreateElement(Propertie.Name);
             FValue := AValue.AsExtended;
 
-            if (AValue.IsType<TDate>()) and (FValue > 0) then
-              ParentNode.AppendChild(xDoc.CreateTextNode(DateToStr(FValue)))
-            else if (AValue.IsType<TTime>()) and (FValue > 0) then
-              ParentNode.AppendChild(xDoc.CreateTextNode(TimeToStr(FValue)))
-            else if(AValue.IsType<TDateTime>()) and (FValue > 0) then
-              ParentNode.AppendChild(xDoc.CreateTextNode(DateTimeToStr(FValue)))
+            if AValue.IsType<TDate>() then
+            begin
+              if (FValue > 0) then
+                ParentNode.AppendChild(xDoc.CreateTextNode(DateToStr(FValue)));
+            end
+            else if AValue.IsType<TTime>() then
+            begin
+              if (FValue > 0) then
+                ParentNode.AppendChild(xDoc.CreateTextNode(TimeToStr(FValue)));
+            end
+            else if AValue.IsType<TDateTime>() then
+            begin
+              if (FValue > 0) then
+                ParentNode.AppendChild(xDoc.CreateTextNode(DateTimeToStr(FValue)));
+            end
             else
               ParentNode.AppendChild(xDoc.CreateTextNode(FloatToStr(FValue)));
           end;
@@ -301,6 +310,7 @@ begin
 
   try
     GravarIni(AIni, Sessao, Self);
+    AIni.ClearEmptySections;
     Result := AIni.AsString;
   finally
     if AIni <> nil then
@@ -413,12 +423,27 @@ begin
           begin
             FValue := AValue.AsExtended;
 
-            if (AValue.IsType<TDate>()) and (FValue > 0) then
-              AIni.WriteDate(ASessao, Propertie.Name, FValue)
-            else if (AValue.IsType<TTime>()) and (FValue > 0) then
-              AIni.WriteTime(ASessao, Propertie.Name, FValue)
-            else if (AValue.IsType<TDateTime>()) and (FValue > 0) then
-              AIni.WriteDateTime(ASessao, Propertie.Name, FValue)
+            if AValue.IsType<TDate>() then
+            begin
+              if (FValue > 0) then
+                AIni.WriteDate(ASessao, Propertie.Name, FValue)
+              else
+                AIni.WriteString(ASessao, Propertie.Name, '');
+            end
+            else if AValue.IsType<TTime>() then
+            begin
+              if (FValue > 0) then
+                AIni.WriteTime(ASessao, Propertie.Name, FValue)
+              else
+                AIni.WriteString(ASessao, Propertie.Name, '');
+            end
+            else if AValue.IsType<TDateTime>() then
+            begin
+              if (FValue > 0) then
+                AIni.WriteDateTime(ASessao, Propertie.Name, FValue)
+              else
+                AIni.WriteString(ASessao, Propertie.Name, '');
+            end
             else
               AIni.WriteFloat(ASessao, Propertie.Name, FValue);
           end;
@@ -484,7 +509,10 @@ begin
               for i := 0 to CollectionObject.Count - 1 do
               begin
                 CollectionItem := CollectionObject.Items[i];
-                GravarJson(JSONRoot, Format(CSessionFormat, [Propertie.Name, i+1]), CollectionItem)
+                if (CollectionObject.ItemClass.InheritsFrom(TACBrLibRespostaBase)) then
+                  GravarJson(JSONRoot, TACBrLibRespostaBase(CollectionItem).Sessao, CollectionItem)
+                else
+                  GravarJson(JSONRoot, Format(CSessionFormat, [Propertie.Name, i+1]), CollectionItem);
               end;
             end
             else if (ClassObject.InheritsFrom(TList)) then
@@ -493,7 +521,10 @@ begin
               for i := 0 to ListObject.Count - 1 do
               begin
                 ListItem := ListObject.Items[i];
-                GravarJson(JSONRoot, Format(CSessionFormat, [Propertie.Name, i+1]), ListItem)
+                if (ListItem.ClassType.InheritsFrom(TACBrLibRespostaBase)) then
+                  GravarJson(JSONRoot, TACBrLibRespostaBase(ListItem).Sessao, ListItem)
+                else
+                  GravarJson(JSONRoot, Format(CSessionFormat, [Propertie.Name, i+1]), ListItem);
               end;
             end
             else
@@ -524,17 +555,32 @@ begin
         tkSString,
         tkLString,
         tkAString:
-          JSONRoot.Add(Propertie.Name, StringToJSONString(Trim(AValue.AsString), False));
+          JSONRoot.Add(Propertie.Name, Trim(AValue.AsString));
         tkFloat:
           begin
             FValue := AValue.AsExtended;
 
-            if (AValue.IsType<TDate>()) and (FValue > 0) then
-              JSONRoot.Add(Propertie.Name, DateToStr(FValue))
-            else if (AValue.IsType<TTime>()) and (FValue > 0) then
-              JSONRoot.Add(Propertie.Name, TimeToStr(FValue))
-            else if (AValue.IsType<TDateTime>()) and (FValue > 0) then
-              JSONRoot.Add(Propertie.Name, FormatDateTime('yyyy-mm-dd"T"hh:nn:ss.zzz"Z"', FValue))
+            if AValue.IsType<TDate>() then
+            begin
+              if (FValue > 0) then
+                JSONRoot.Add(Propertie.Name, DateToStr(FValue))
+              else
+                JSONRoot.Add(Propertie.Name, '');
+            end
+            else if AValue.IsType<TTime>() then
+            begin
+              if (FValue > 0) then
+                JSONRoot.Add(Propertie.Name, TimeToStr(FValue))
+              else
+                JSONRoot.Add(Propertie.Name, '');
+            end
+            else if AValue.IsType<TDateTime>() then
+            begin
+              if (FValue > 0) then
+                JSONRoot.Add(Propertie.Name, FormatDateTime('yyyy-mm-dd"T"hh:nn:ss.zzz"Z"', FValue))
+              else
+                JSONRoot.Add(Propertie.Name, '');
+            end
             else
               JSONRoot.Add(Propertie.Name, FValue);
           end;

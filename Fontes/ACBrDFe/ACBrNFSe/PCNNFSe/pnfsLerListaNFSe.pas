@@ -360,10 +360,6 @@ begin
     if not Nivel1 then
       Nivel1 := (leitor.rExtrai(1, 'nfse') <> '');
 
-    // Adm notas
-    if not Nivel1 then
-      Nivel1 := (leitor.rExtrai(1, 'Nfse') <> '');
-
     // Assessor Publico
     if not Nivel1 then
       Nivel1 := (leitor.rExtrai(1, 'NFSE') <> '');
@@ -404,6 +400,10 @@ begin
     //NFSeBrasil
     if not Nivel1 then
       Nivel1 := (leitor.rExtrai(1, 'RespostaLoteRps') <> '');
+
+    // Adm notas
+    if not Nivel1 then
+      Nivel1 := (leitor.rExtrai(1, 'Nfse') <> '');
 
     if not Nivel1 then
       Nivel1 := (leitor.rExtrai(1, 'RespostaConsultaNFSE') <> '');
@@ -517,6 +517,9 @@ begin
         Nivel := 1;
 
       if Pos('NotaFiscalRelatorioDTO', Leitor.rExtrai(1, 'NFE', '', 0)) > 0 then
+        Nivel := 1;
+
+      if (Provedor = proSystemPro) and (leitor.rExtrai(1, 'NfseSubstituidora') <> '') then
         Nivel := 1;
 
       i := 0;

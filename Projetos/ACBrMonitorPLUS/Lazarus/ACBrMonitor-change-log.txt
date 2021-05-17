@@ -44,6 +44,31 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+10/05/2020
+--- cmdUnit, ACBrMonitorConsts, ACBrMonior1, ACBrMonitor.lpi--
+[+] Adicionado funcionalidade para compilaçao da versão Demo
+
+30/04/2020
+--- ACBrMonitorConfig, ACBrMonitorConsts--
+[+] Adicionar funcionalidades de Registro BoletoWeb
+
+15/04/2021
+-- ACBrMonitor1 --
+[+] Adicionado configuração de ajustes de Escala no Boleto.
+
+06/04/2021
+-- DoACBrNFeUnit --
+[*] Correção nos métodos onde exige recuperação do nome PDF gerado.
+
+01/04/2021
+-- DoACBrCTeUnit, DoACBrMDFeUnit --
+[*] Alteração no método de Envio em lote para ser sempre Assíncrono
+
+25/03/2021
+-- DoACBrNFeUnit --
+[*] Adicionado Melhorias para Agrupar respostas dos métodos de Envio de NFe, dessa forma evita problemas na geração de respostas 
+no formato Json e XML e permite melhor compatibilidade de respostas entre ACBrMonitor e ACBrLib
+
 16/03/2021
 -- DoACBrNFSeUnit --
 [+] Adicionado classe para implementar componente ACBrNFSe

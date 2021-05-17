@@ -303,7 +303,7 @@ begin
       if VersaoArquivo = 030 then 
       begin
         aCSP := 'CSP';
-        str0 := '0';
+        str0 := '000';
       end 
       else 
       begin
@@ -412,6 +412,8 @@ var
    BoletoEmail,GeraSegS         : Boolean;
    DataProtestoNegativacao      : string;
    DiasProtestoNegativacao      : string;
+   ATipoDocumento               : String;
+   nDiasBaixa                   : integer;
 
   function MontarInstrucoes2: string;
   begin
@@ -667,6 +669,14 @@ begin
      AMensagem   := '';
      if Mensagem.Text <> '' then
        AMensagem   := Mensagem.Strings[0];
+       
+     {Tipo Documento}
+     ATipoDocumento:= DefineTipoDocumento;
+
+     // Nº Dias para Baixa/Devolucao
+     nDiasBaixa  := 0;
+     if (ATipoOcorrencia = '01') and ( DataLimitePagto > Vencimento ) then
+       nDiasBaixa  := DaysBetween(Vencimento, DataLimitePagto);
 
      {SEGMENTO P}
      Result:= IntToStrZero(ACBrBanco.Numero, 3)                                         + // 1 a 3 - Código do banco
@@ -684,7 +694,7 @@ begin
               PadRight(ANossoNumero+aDV, 20, ' ')                                       + // 38 a 57 - Nosso número - identificação do título no banco
               wTipoCarteira                                                             + // 58 - Cobrança Simples
               '1'                                                                       + // 59 - Forma de cadastramento do título no banco: com cadastramento
-              InttoStr(Integer(ACBrBoleto.Cedente.TipoDocumento))                       + // 60 - Tipo de documento: Tradicional
+              ATipoDocumento                                                            + // 60 - Tipo de documento: Tradicional
               ATipoBoleto                                                               + // 61 a 62 - Quem emite e quem distribui o boleto?
               PadRight(NumeroDocumento, 15, ' ')                                        + // 63 a 77 - Número que identifica o título na empresa [ Alterado conforme instruções da CSO Brasília ] {27-07-09}
               FormatDateTime('ddmmyyyy', Vencimento)                                    + // 78 a 85 - Data de vencimento do título
@@ -717,7 +727,7 @@ begin
                      (StrToInt(DiasProtestoNegativacao) > 0),
                       PadLeft(DiasProtestoNegativacao, 2, '0'), '00')                   + // 222 a 223 - Prazo para protesto (em dias)
               '0'                                                                       + // 224 - Campo não tratado pelo BB [ Alterado conforme instruções da CSO Brasília ] {27-07-09}
-              '000'                                                                     + // 225 a 227 - Campo não tratado pelo BB [ Alterado conforme instruções da CSO Brasília ] {27-07-09}
+              IntToStrZero(nDiasBaixa,3)                                                + // 225 a 227 - Campo não tratado pelo BB [ Alterado conforme instruções da CSO Brasília ] {27-07-09}
               '09'                                                                      + // 228 a 229 - Código da moeda: Real
               StringOfChar('0', 10)                                                     + // 230 a 239 - Uso exclusivo FEBRABAN/CNAB
               ' ';
@@ -935,6 +945,9 @@ begin
        toRemessaAlterarNomeEnderecoSacado      : ATipoOcorrencia := '12'; {Alteração de nome e endereço do Sacado}
        toRemessaOutrasOcorrencias              : ATipoOcorrencia := '31'; {Alteração de Outros Dados}
        toRemessaCancelarDesconto               : ATipoOcorrencia := '32'; {Não conceder desconto}
+       toRemessaDispensarMulta                 : ATipoOcorrencia := '36';
+       toRemessaDispensarPrazoLimiteRecebimento: ATipoOcorrencia := '38';
+       toRemessaAlterarPrazoLimiteRecebimento  : ATipoOcorrencia := '39';
        toRemessaAlterarModalidade              : ATipoOcorrencia := '40'; {Alterar modalidade (Vide Observações)}
      else
        ATipoOcorrencia := '01'; {Remessa}

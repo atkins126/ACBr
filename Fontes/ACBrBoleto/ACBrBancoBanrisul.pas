@@ -597,7 +597,7 @@ begin
       else // Se a instrução estiver preenchida
         begin
           // Validar se a instrução passada é válida
-          if not MatchText(Instrucao2, ['0', '1', '2']) then
+          if not MatchText(Trim(Instrucao2), ['0', '1', '2']) then
             raise Exception.Create('Código de Baixa/Devolução informado incorretamente!');
         end;
       // Número de dias para baixa/devolução
@@ -649,11 +649,11 @@ begin
                 //Agência mantenedora da conta 18 - 22
                 PadLeft(OnlyNumber(ACBrBanco.ACBrBoleto.Cedente.Agencia), 5, '0') +
                 // Dígito verificador da agência 23 - 23
-                ACBrBanco.ACBrBoleto.Cedente.AgenciaDigito +
+               PadLeft( ACBrBanco.ACBrBoleto.Cedente.AgenciaDigito, 1, ' ') +
                 // Número da conta corrente 24 - 35
                 PadLeft(OnlyNumber(ACBrBanco.ACBrBoleto.Cedente.Conta), 12, '0') +
                 // Dígito verificador da conta 36 - 36
-                ACBrBanco.ACBrBoleto.Cedente.ContaDigito +
+                PadLeft( ACBrBanco.ACBrBoleto.Cedente.ContaDigito, 1, ' ') +
                 // Dígito verificador da ag/conta 37 - 37
                 Space(1) +
 
@@ -677,7 +677,7 @@ begin
                 PadRight(NumeroDocumento, 15) +
                 DupeString(' ', 10) +
                 DiasProt +
-                Instrucao2 +
+                PadRight(Trim(Instrucao2), 1, ' ') +
                 sDiasBaixaDevol +
                 '09' +
                 DupeString('0', 10) +' ';

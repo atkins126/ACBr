@@ -37,7 +37,8 @@ unit ACBrXmlBase;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils,
+  ACBrXmlDocument;
 
 type
   TACBrTipoAmbiente = (taProducao, taHomologacao);
@@ -60,6 +61,13 @@ function StrToEnumerado(out ok: boolean; const s: string; const AString: array o
 
 function EnumeradoToStr(const t: variant; const AString:
   array of string; const AEnumerados: array of variant): variant;
+
+function IncluirCDATA(const aXML: string): string;
+function RemoverCDATA(const aXML: string): string;
+
+function ProcessarConteudoXml(const ANode: TACBrXmlNode; const Tipo: TACBrTipoCampo): variant;
+
+procedure ApplyNamespacePrefix(const ANode: TACBrXmlNode; nsPrefix: string; excludeElements: array of string);
 
 implementation
 
@@ -109,6 +117,135 @@ begin
   for i := Low(AEnumerados) to High(AEnumerados) do
     if t = AEnumerados[i] then
       result := AString[i];
+end;
+
+function IncluirCDATA(const aXML: string): string;
+begin
+  Result := '<![CDATA[' + aXML + ']]>';
+end;
+
+function RemoverCDATA(const aXML: string): string;
+begin
+  Result := StringReplace(aXML, '<![CDATA[', '', [rfReplaceAll]);
+  Result := StringReplace(Result, ']]>', '', [rfReplaceAll]);
+end;
+
+function ProcessarConteudoXml(const ANode: TACBrXmlNode; const Tipo: TACBrTipoCampo): variant;
+var
+  ConteudoTag: string;
+begin
+  if not Assigned(ANode) or (ANode = nil) then
+    ConteudoTag := ''
+  else
+    ConteudoTag := Trim(ANode.Content);
+
+  case Tipo of
+    tcStr:
+      result := ConteudoTag;
+
+    tcDat:
+      begin
+        if length(ConteudoTag)>0 then
+          result := EncodeDate(StrToInt(copy(ConteudoTag, 01, 4)), StrToInt(copy(ConteudoTag, 06, 2)), StrToInt(copy(ConteudoTag, 09, 2)))
+        else
+          result := 0;
+      end;
+
+    tcDatVcto:
+      begin
+        if length(ConteudoTag)>0 then
+          result := EncodeDate(StrToInt(copy(ConteudoTag, 07, 4)), StrToInt(copy(ConteudoTag, 04, 2)), StrToInt(copy(ConteudoTag, 01, 2)))
+        else
+          Result := 0;
+      end;
+
+    tcDatCFe:
+      begin
+        if length(ConteudoTag)>0 then
+          result := EncodeDate(StrToInt(copy(ConteudoTag, 01, 4)), StrToInt(copy(ConteudoTag, 05, 2)), StrToInt(copy(ConteudoTag, 07, 2)))
+        else
+          result := 0;
+      end;
+
+    tcDatHor:
+      begin
+        if length(ConteudoTag)>0 then
+          result := EncodeDate(StrToInt(copy(ConteudoTag, 01, 4)), StrToInt(copy(ConteudoTag, 06, 2)), StrToInt(copy(ConteudoTag, 09, 2))) +
+                    EncodeTime(StrToInt(copy(ConteudoTag, 12, 2)), StrToInt(copy(ConteudoTag, 15, 2)), StrToIntDef(copy(ConteudoTag, 18, 2), 0), 0)
+        else
+          result := 0;
+      end;
+
+    tcHor:
+      begin
+        if length(ConteudoTag)>0 then
+          result := EncodeTime(StrToInt(copy(ConteudoTag, 1, 2)), StrToInt(copy(ConteudoTag, 4, 2)), StrToInt(copy(ConteudoTag, 7, 2)), 0)
+        else
+          result := 0;
+      end;
+
+    tcHorCFe:
+      begin
+        if length(ConteudoTag)>0 then
+          result := EncodeTime(StrToInt(copy(ConteudoTag, 1, 2)), StrToInt(copy(ConteudoTag, 3, 2)), StrToInt(copy(ConteudoTag, 5, 2)), 0)
+        else
+          result := 0;
+      end;
+
+    tcDatHorCFe:
+      begin
+        if length(ConteudoTag)>0 then
+          result := EncodeDate(StrToInt(copy(ConteudoTag, 01, 4)), StrToInt(copy(ConteudoTag, 05, 2)), StrToInt(copy(ConteudoTag, 07, 2)))+
+                    EncodeTime(StrToInt(copy(ConteudoTag, 09, 2)), StrToInt(copy(ConteudoTag, 11, 2)), StrToInt(copy(ConteudoTag, 13, 2)), 0)
+        else
+          result := 0;
+      end;
+
+    tcDe2, tcDe3, tcDe4, tcDe6, tcDe10:
+      begin
+        if length(ConteudoTag)>0 then
+          result := StringToFloatDef(ConteudoTag, 0)
+        else
+          result := 0;
+      end;
+
+    tcEsp:
+      result := ConteudoTag;
+
+    tcInt:
+      begin
+        if length(ConteudoTag)>0 then
+          result := StrToIntDef(Trim(OnlyNumber(ConteudoTag)),0)
+        else
+          result := 0;
+      end;
+
+  else
+    raise Exception.Create('Node <' + ANode.Name + '> com conteúdo inválido. '+ ConteudoTag);
+  end;
+end;
+
+procedure ApplyNamespacePrefix(const ANode: TACBrXmlNode; nsPrefix : string; excludeElements: array of string);
+Var
+  Item: TACBrXmlNode;
+
+  function StringInArray(const Value: string; Strings: array of string): Boolean;
+  var
+    I: Integer;
+  begin
+    Result := True;
+    for I := Low(Strings) to High(Strings) do
+      if Strings[i] = Value then Exit;
+    Result := False;
+  end;
+begin
+  if (ANode = nil) then Exit;
+
+  if not StringInArray(ANode.LocalName, excludeElements) then
+      ANode.Name :=  nsPrefix + ':' + ANode.Name;
+
+  for Item in ANode.Childrens do
+    ApplyNamespacePrefix(Item, nsPrefix, excludeElements);
 end;
 
 end.

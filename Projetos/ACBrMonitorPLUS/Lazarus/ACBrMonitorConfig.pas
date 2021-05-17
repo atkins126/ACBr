@@ -620,6 +620,8 @@ type
     Preview                    : Boolean;
     Progresso                  : Boolean;
     Setup                      : Boolean;
+    AlteraEscala               : Boolean;
+    Escala                     : Integer;
     Layout                     : Integer;
     Filtro                     : Integer;
     DirArquivoBoleto           : String ;
@@ -647,6 +649,42 @@ type
     EmailFormatoHTML           : Boolean;
   end;
 
+  TBoletoCedenteWS = record
+    ClientID                   : String;
+    ClientSecret               : String;
+    KeyUser                    : String;
+    Scope                      : String;
+
+  end;
+
+  TBoletoSSL = record
+    Ambiente                   : Integer;
+    Operacao                   : Integer;
+    VersaoDF                   : String;
+    Proxy_Host                 : String;
+    Proxy_Port                 : String;
+    Proxy_User                 : String;
+    Proxy_Pass                 : String;
+    CryptLib                   : Integer;
+    HttpLib                    : Integer;
+    XmlSignLib                 : Integer;
+    SSLType                    : Integer;
+    TimeOut                    : Integer;
+    CertificadoHTTP            : Boolean;
+
+  end;
+
+  TBoletoConfig = record
+    LogRegistro                : Boolean;
+    PathGravarRegistro         : String;
+    SSL                        : TBoletoSSL;
+  end;
+
+  TBoletoWS = record
+    CedenteWS                  : TBoletoCedenteWS;
+    Config                     : TBoletoConfig;
+  end;
+
   TBOLETO = record
     Nome                       : String ;
     CNPJCPF                    : String ;
@@ -663,7 +701,9 @@ type
     RemessaRetorno             : TBoletoRemessaRetorno;
     Relatorio                  : TBoletoRelatorio;
     Email                      : TBoletoEmail;
+    WS                         : TBoletoWS;
   end;
+
 
   EDFeException = class(Exception);
   EDFeConfigException = class(EDFeException);
@@ -1376,6 +1416,8 @@ begin
       Ini.WriteBool(   CSecBOLETO, CKeyBOLETOPreview,       Preview       );
       ini.WriteBool(   CSecBOLETO, CKeyBOLETOProgresso,     Progresso     );
       ini.WriteBool(   CSecBOLETO, CKeyBOLETOSetup,         Setup         );
+      ini.WriteBool(   CSecBOLETO, CKeyBOLETOAlteraEscala,  AlteraEscala  );
+      ini.WriteInteger(CSecBOLETO, CKeyBOLETOEscala,        Escala        );
       ini.WriteInteger(CSecBOLETO, CKeyBOLETOLayout,        Layout        );
       ini.WriteInteger(CSecBOLETO, CKeyBOLETOFiltro,        Filtro        );
       ini.WriteString( CSecBOLETO, CKeyBOLETODirArquivoBoleto,  DirArquivoBoleto       );
@@ -1404,6 +1446,37 @@ begin
       ini.WriteString( CSecBOLETO, CKeyBOLETOEmailAssuntoBoleto,        EmailAssuntoBoleto     );
       ini.WriteString( CSecBOLETO, CKeyBOLETOEmailMensagemBoleto,       EmailMensagemBoleto    );
       ini.WriteBool(   CSecBOLETO, CKeyBOLETOEmailFormatoHTML,          EmailFormatoHTML       );
+    end;
+
+    with BOLETO.WS.CedenteWS do
+    begin
+      ini.WriteString( CSecBOLETO, CKeyBOLETOClientID, ClientID );
+      ini.WriteString( CSecBOLETO, CKeyBOLETOClientSecret, ClientSecret);
+      ini.WriteString( CSecBOLETO, CKeyBOLETOKeyUser, KeyUser);
+      ini.WriteString( CSecBOLETO, CKeyBOLETOScope, Scope);
+    end;
+
+    with BOLETO.WS.Config do
+    begin
+      ini.WriteBool( CSecBOLETO, CKeyBOLETOLogRegistro, LogRegistro);
+      ini.WriteString( CSecBOLETO, CKeyBOLETOPathGravarRegistro, PathGravarRegistro);
+    end;
+
+    with BOLETO.WS.Config.SSL do
+    begin
+      ini.WriteInteger( CSecBOLETO, CKeyBOLETOAmbiente, Ambiente);
+      ini.WriteInteger( CSecBOLETO, CKeyBOLETOOperacao, Operacao);
+      ini.WriteString( CSecBOLETO, CKeyBOLETOProxyHost, Proxy_Host);
+      ini.WriteString( CSecBOLETO, CKeyBOLETOProxyPass, Proxy_Pass);
+      ini.WriteString( CSecBOLETO, CKeyBOLETOProxyPort, Proxy_Port);
+      ini.WriteString( CSecBOLETO, CKeyBOLETOProxyUser, Proxy_User);
+      ini.WriteInteger( CSecBOLETO, CKeyBOLETOCryptLib, CryptLib);
+      ini.WriteInteger( CSecBOLETO, CKeyBOLETOHttpLib, HttpLib);
+      ini.WriteInteger( CSecBOLETO, CKeyBOLETOSSLType, SSLType);
+      ini.WriteInteger( CSecBOLETO, CKeyBOLETOXmlSignLib, XmlSignLib);
+      ini.WriteInteger( CSecBOLETO, CKeyBOLETOTimeOut, TimeOut);
+      ini.WriteBool( CSecBOLETO, CKeyBOLETOCertificadoHTTP, CertificadoHTTP);
+      ini.WriteString( CSecBOLETO, CKeyBOLETOVersaoDF, VersaoDF);
     end;
 
     SL := TStringList.Create;
@@ -2076,9 +2149,11 @@ begin
       Preview                :=  Ini.ReadBool(   CSecBOLETO, CKeyBOLETOPreview,          Preview                );
       Progresso              :=  ini.ReadBool(   CSecBOLETO, CKeyBOLETOProgresso,        Progresso              );
       Setup                  :=  ini.ReadBool(   CSecBOLETO, CKeyBOLETOSetup,            Setup                  );
+      AlteraEscala           :=  ini.ReadBool(   CSecBOLETO, CKeyBOLETOAlteraEscala,     AlteraEscala           );
+      Escala                 :=  ini.ReadInteger(CSecBOLETO, CKeyBOLETOEscala,           Escala                 );
       Layout                 :=  ini.ReadInteger(CSecBOLETO, CKeyBOLETOLayout,           Layout                 );
       Filtro                 :=  ini.ReadInteger(CSecBOLETO, CKeyBOLETOFiltro,           Filtro                 );
-      DirArquivoBoleto       :=  ini.ReadString( CSecBOLETO, CKeyBOLETODirArquivoBoleto,   DirArquivoBoleto     );
+      DirArquivoBoleto       :=  ini.ReadString( CSecBOLETO, CKeyBOLETODirArquivoBoleto, DirArquivoBoleto       );
       Impressora             :=  Ini.ReadString( CSecBOLETO, CKeyBOLETOImpressora,       Impressora             );
       NomeArquivoBoleto      :=  Ini.ReadString( CSecBOLETO, CKeyBOLETONomeArquivoBoleto, NomeArquivoBoleto);
       
@@ -2105,6 +2180,37 @@ begin
       EmailAssuntoBoleto     :=  ini.ReadString( CSecBOLETO, CKeyBOLETOEmailAssuntoBoleto,        EmailAssuntoBoleto     );
       EmailMensagemBoleto    :=  ini.ReadString( CSecBOLETO, CKeyBOLETOEmailMensagemBoleto,       EmailMensagemBoleto    );
       EmailFormatoHTML       :=  ini.ReadBool(   CSecBOLETO, CKeyBOLETOEmailFormatoHTML,          EmailFormatoHTML    );
+    end;
+
+    with BOLETO.WS.CedenteWS do
+    begin
+      ClientID := ini.ReadString( CSecBOLETO, CKeyBOLETOClientID, ClientID );
+      ClientSecret := ini.ReadString( CSecBOLETO, CKeyBOLETOClientSecret, ClientSecret);
+      KeyUser := ini.ReadString( CSecBOLETO, CKeyBOLETOKeyUser, KeyUser);
+      Scope := ini.ReadString( CSecBOLETO, CKeyBOLETOScope, Scope);
+    end;
+
+    with BOLETO.WS.Config do
+    begin
+      LogRegistro := ini.ReadBool( CSecBOLETO, CKeyBOLETOLogRegistro, LogRegistro);
+      PathGravarRegistro := ini.ReadString( CSecBOLETO, CKeyBOLETOPathGravarRegistro, PathGravarRegistro);
+    end;
+
+    with BOLETO.WS.Config.SSL do
+    begin
+      Ambiente := ini.ReadInteger( CSecBOLETO, CKeyBOLETOAmbiente, Ambiente);
+      Operacao :=  ini.ReadInteger( CSecBOLETO, CKeyBOLETOOperacao, Operacao);
+      Proxy_Host := ini.ReadString( CSecBOLETO, CKeyBOLETOProxyHost, Proxy_Host);
+      Proxy_Pass := ini.ReadString( CSecBOLETO, CKeyBOLETOProxyPass, Proxy_Pass);
+      Proxy_Port := ini.ReadString( CSecBOLETO, CKeyBOLETOProxyPort, Proxy_Port);
+      Proxy_User := ini.ReadString( CSecBOLETO, CKeyBOLETOProxyUser, Proxy_User);
+      CryptLib := ini.ReadInteger( CSecBOLETO, CKeyBOLETOCryptLib, CryptLib);
+      HttpLib := ini.ReadInteger( CSecBOLETO, CKeyBOLETOHttpLib, HttpLib);
+      SSLType := ini.ReadInteger( CSecBOLETO, CKeyBOLETOSSLType, SSLType);
+      XmlSignLib := ini.ReadInteger( CSecBOLETO, CKeyBOLETOXmlSignLib, XmlSignLib);
+      TimeOut := ini.ReadInteger( CSecBOLETO, CKeyBOLETOTimeOut, TimeOut);
+      CertificadoHTTP := ini.ReadBool( CSecBOLETO, CKeyBOLETOCertificadoHTTP, CertificadoHTTP);
+      VersaoDF := ini.ReadString( CSecBOLETO, CKeyBOLETOVersaoDF, VersaoDF);
     end;
 
   finally
@@ -2743,6 +2849,8 @@ begin
     Preview                :=  True;
     Progresso              :=  True;
     Setup                  :=  True;
+    AlteraEscala           :=  True;
+    Escala                 := 96;
     Layout                 :=  0;
     Filtro                 :=  0;
     DirArquivoBoleto       :=  '';
@@ -2772,6 +2880,39 @@ begin
     EmailMensagemBoleto    :=  '';
     EmailFormatoHTML       := False;
   end;
+
+  with BOLETO.WS.CedenteWS do
+  begin
+    ClientID := '';
+    ClientSecret := '';
+    KeyUser := '';
+    Scope := '';
+  end;
+
+  with BOLETO.WS.Config do
+  begin
+    LogRegistro := True;
+    PathGravarRegistro := '';
+  end;
+
+  with BOLETO.WS.Config.SSL do
+  begin
+    Ambiente := 0;
+    Operacao :=  3;
+    Proxy_Host := '';
+    Proxy_Pass := '';
+    Proxy_Port := '';
+    Proxy_User := '';
+    CryptLib := 0;
+    HttpLib := 0;
+    SSLType := 0;
+    XmlSignLib := 0;
+    TimeOut := 30000;
+    CertificadoHTTP := False;
+    VersaoDF := '1.2';
+  end;
+
+
 end;
 
 procedure TMonitorConfig.ValidarNomeCaminho(Salvar: Boolean);

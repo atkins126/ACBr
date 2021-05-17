@@ -615,6 +615,8 @@ begin
               INIRec.WriteString(sSecao, 'CIOT', CIOT);
               INIRec.WriteString(sSecao, 'CNPJCPF', CNPJCPF);
             end;
+
+            INIRec.WriteString(sSecao, 'categCombVeic', categCombVeicToStr(Rodo.infANTT.valePed.categCombVeic));
           end;
 
           for i := 0 to rodo.infANTT.valePed.disp.Count - 1 do
@@ -626,6 +628,7 @@ begin
               INIRec.WriteString(sSecao, 'CNPJPg', CNPJPg);
               INIRec.WriteString(sSecao, 'nCompra', nCompra);
               INIRec.WriteFloat(sSecao, 'vValePed', vValePed);
+              INIRec.WriteString(sSecao, 'tpValePed', tpValePedToStr(tpValePed));
             end;
           end;
 
@@ -649,7 +652,9 @@ begin
               INIRec.WriteString(sSecao, 'idEstrangeiro', idEstrangeiro);
               INIRec.WriteString(sSecao, 'CNPJCPF', CNPJCPF);
               INIRec.WriteFloat(sSecao, 'vContrato', vContrato);
+              INIRec.WriteString(sSecao, 'indAltoDesemp', indAltoDesempToStr(indAltoDesemp));
               INIRec.WriteString(sSecao, 'indPag', TindPagToStr(indPag));
+              INIRec.WriteFloat(sSecao, 'vAdiant', vAdiant);
 
               for j := 0 to rodo.infANTT.infPag[I].Comp.Count - 1 do
               begin
@@ -676,6 +681,7 @@ begin
               sSecao := 'infBanc' + IntToStrZero(I, 3);
               with rodo.infANTT.infPag.Items[i].infBanc do
               begin
+                INIRec.WriteString(sSecao, 'PIX', PIX);
                 INIRec.WriteString(sSecao, 'CNPJIPEF', CNPJIPEF);
                 INIRec.WriteString(sSecao, 'codBanco', codBanco);
                 INIRec.WriteString(sSecao, 'codAgencia', codAgencia);
@@ -1470,6 +1476,8 @@ begin
             CNPJCPF := sFim;
           end;
 
+          rodo.infANTT.valePed.categCombVeic := StrTocategCombVeic(OK, INIRec.ReadString(sSecao, 'categCombVeic', ''));
+
           Inc(I);
         end;
 
@@ -1486,10 +1494,11 @@ begin
 
           with rodo.infANTT.valePed.disp.New do
           begin
-            CNPJForn := sFim;
-            CNPJPg   := INIRec.ReadString(sSecao, 'CNPJPg', '');
-            nCompra  := INIRec.ReadString(sSecao, 'nCompra', '');
-            vValePed := StringToFloatDef(INIRec.ReadString(sSecao, 'vValePed', ''), 0 );
+            CNPJForn  := sFim;
+            CNPJPg    := INIRec.ReadString(sSecao, 'CNPJPg', '');
+            nCompra   := INIRec.ReadString(sSecao, 'nCompra', '');
+            vValePed  := StringToFloatDef(INIRec.ReadString(sSecao, 'vValePed', ''), 0 );
+            tpValePed := StrTotpValePed(OK, INIRec.ReadString(sSecao, 'tpValePed', ''));
           end;
 
           Inc(I);
@@ -1537,8 +1546,10 @@ begin
               if idEstrangeiro = '' then
                 CNPJCPF := INIRec.ReadString(sSecao, 'CNPJCPF', '');
 
-              vContrato := StringToFloatDef(INIRec.ReadString(sSecao, 'vContrato', ''), 0 );
-              indPag    := StrToTIndPag(ok, INIRec.ReadString(sSecao, 'indPag', '0'));
+              vContrato     := StringToFloatDef(INIRec.ReadString(sSecao, 'vContrato', ''), 0 );
+              indAltoDesemp := StrToindAltoDesemp(ok, INIRec.ReadString(sSecao, 'indAltoDesemp', ''));
+              indPag        := StrToTIndPag(ok, INIRec.ReadString(sSecao, 'indPag', '0'));
+              vAdiant       := StringToFloatDef(INIRec.ReadString(sSecao, 'vAdiant', ''), 0 );
 
               J := 1;
               while true do
@@ -1587,14 +1598,18 @@ begin
               begin
                 with infBanc do
                 begin
-                  CNPJIPEF := INIRec.ReadString(sSecao, 'CNPJIPEF', '');
+                  PIX := INIRec.ReadString(sSecao, 'PIX', '');
 
-                  if CNPJIPEF = '' then
+                  if PIX = '' then
                   begin
-                    codBanco   := INIRec.ReadString(sSecao, 'codBanco', '');
-                    codAgencia := INIRec.ReadString(sSecao, 'codAgencia', '');
-                  end;
+                    CNPJIPEF := INIRec.ReadString(sSecao, 'CNPJIPEF', '');
 
+                    if CNPJIPEF = '' then
+                    begin
+                      codBanco   := INIRec.ReadString(sSecao, 'codBanco', '');
+                      codAgencia := INIRec.ReadString(sSecao, 'codAgencia', '');
+                    end;
+                  end;
                 end;
               end;
             end;

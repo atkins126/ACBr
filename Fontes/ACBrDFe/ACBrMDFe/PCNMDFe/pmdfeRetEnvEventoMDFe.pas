@@ -240,6 +240,7 @@ begin
 
               vContrato := Leitor.rCampo(tcDe2, 'vContrato');
               indPag    := StrToTIndPag(ok, Leitor.rCampo(tcStr, 'indPag'));
+              vAdiant   := Leitor.rCampo(tcDe2, 'vAdiant');
 
               j := 0;
               while Leitor.rExtrai(5, 'Comp', '', j + 1) <> '' do
@@ -274,12 +275,17 @@ begin
 
               if Leitor.rExtrai(5, 'infBanc') <> '' then
               begin
-                infBanc.CNPJIPEF := Leitor.rCampo(tcStr, 'CNPJIPEF');
+                infBanc.PIX := Leitor.rCampo(tcStr, 'PIX');
 
-                if infBanc.CNPJIPEF = '' then
+                if infBanc.PIX = '' then
                 begin
-                  infBanc.codBanco   := Leitor.rCampo(tcStr, 'codBanco');
-                  infBanc.codAgencia := Leitor.rCampo(tcStr, 'codAgencia');
+                  infBanc.CNPJIPEF := Leitor.rCampo(tcStr, 'CNPJIPEF');
+
+                  if infBanc.CNPJIPEF = '' then
+                  begin
+                    infBanc.codBanco   := Leitor.rCampo(tcStr, 'codBanco');
+                    infBanc.codAgencia := Leitor.rCampo(tcStr, 'codAgencia');
+                  end;
                 end;
               end;
             end;

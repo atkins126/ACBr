@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACBrLib.MDFe.Demo", "ACBrLib.MDFe.Demo\ACBrLib.MDFeMT.Demo.csproj", "{5BABED85-95E6-429F-A3F3-B08FA76301F9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACBrLib.MDFeMT.Demo", "ACBrLib.MDFe.Demo\ACBrLib.MDFeMT.Demo.csproj", "{5BABED85-95E6-429F-A3F3-B08FA76301F9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACBrLib.Core", "..\..\Shared\ACBrLib.Core\ACBrLib.Core.csproj", "{9B79E20D-34E2-4442-886C-242AC657E3AC}"
 EndProject
