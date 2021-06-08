@@ -152,5 +152,57 @@ namespace ACBrLib.NFe
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int NFE_ImprimirInutilizacaoPDF(IntPtr handle, string eArquivoXml);
+
+        protected override void InitializeMethods()
+        {
+            AddMethod<NFE_Inicializar>("NFE_Inicializar");
+            AddMethod<NFE_Finalizar>("NFE_Finalizar");
+            AddMethod<NFE_Nome>("NFE_Nome");
+            AddMethod<NFE_Versao>("NFE_Versao");
+            AddMethod<NFE_UltimoRetorno>("NFE_UltimoRetorno");
+            AddMethod<NFE_ConfigImportar>("NFE_ConfigImportar");
+            AddMethod<NFE_ConfigExportar>("NFE_ConfigExportar");
+            AddMethod<NFE_ConfigLer>("NFE_ConfigLer");
+            AddMethod<NFE_ConfigGravar>("NFE_ConfigGravar");
+            AddMethod<NFE_ConfigLerValor>("NFE_ConfigLerValor");
+            AddMethod<NFE_ConfigGravarValor>("NFE_ConfigGravarValor");
+            AddMethod<NFE_CarregarXML>("NFE_CarregarXML");
+            AddMethod<NFE_CarregarINI>("NFE_CarregarINI");
+            AddMethod<NFE_ObterXml>("NFE_ObterXml");
+            AddMethod<NFE_GravarXml>("NFE_GravarXml");
+            AddMethod<NFE_ObterIni>("NFE_ObterIni");
+            AddMethod<NFE_GravarIni>("NFE_GravarIni");
+            AddMethod<NFE_CarregarEventoXML>("NFE_CarregarEventoXML");
+            AddMethod<NFE_CarregarEventoINI>("NFE_CarregarEventoINI");
+            AddMethod<NFE_LimparLista>("NFE_LimparLista");
+            AddMethod<NFE_LimparListaEventos>("NFE_LimparListaEventos");
+            AddMethod<NFE_Assinar>("NFE_Assinar");
+            AddMethod<NFE_Validar>("NFE_Validar");
+            AddMethod<NFE_ValidarRegrasdeNegocios>("NFE_ValidarRegrasdeNegocios");
+            AddMethod<NFE_VerificarAssinatura>("NFE_VerificarAssinatura");
+            AddMethod<NFE_GerarChave>("NFE_GerarChave");
+            AddMethod<NFE_ObterCertificados>("NFE_ObterCertificados");
+            AddMethod<NFE_GetPath>("NFE_GetPath");
+            AddMethod<NFE_GetPathEvento>("NFE_GetPathEvento");
+            AddMethod<NFE_StatusServico>("NFE_StatusServico");
+            AddMethod<NFE_Consultar>("NFE_Consultar");
+            AddMethod<NFE_ConsultaCadastro>("NFE_ConsultaCadastro");
+            AddMethod<NFE_Inutilizar>("NFE_Inutilizar");
+            AddMethod<NFE_Enviar>("NFE_Enviar");
+            AddMethod<NFE_ConsultarRecibo>("NFE_ConsultarRecibo");
+            AddMethod<NFE_Cancelar>("NFE_Cancelar");
+            AddMethod<NFE_EnviarEvento>("NFE_EnviarEvento");
+            AddMethod<NFE_DistribuicaoDFePorUltNSU>("NFE_DistribuicaoDFePorUltNSU");
+            AddMethod<NFE_DistribuicaoDFePorNSU>("NFE_DistribuicaoDFePorNSU");
+            AddMethod<NFE_DistribuicaoDFePorChave>("NFE_DistribuicaoDFePorChave");
+            AddMethod<NFE_EnviarEmail>("NFE_EnviarEmail");
+            AddMethod<NFE_EnviarEmailEvento>("NFE_EnviarEmailEvento");
+            AddMethod<NFE_Imprimir>("NFE_Imprimir");
+            AddMethod<NFE_ImprimirPDF>("NFE_ImprimirPDF");
+            AddMethod<NFE_ImprimirEvento>("NFE_ImprimirEvento");
+            AddMethod<NFE_ImprimirEventoPDF>("NFE_ImprimirEventoPDF");
+            AddMethod<NFE_ImprimirInutilizacao>("NFE_ImprimirInutilizacao");
+            AddMethod<NFE_ImprimirInutilizacaoPDF>("NFE_ImprimirInutilizacaoPDF");
+        }
     }
 }

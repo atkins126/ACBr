@@ -22,7 +22,7 @@
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="4"/>
       <RevisionNr Value="6"/>
-      <BuildNr Value="118"/>
+      <BuildNr Value="119"/>
       <Language Value="0416"/>
       <Attributes pvaPreRelease="True"/>
       <StringTable CompanyName="Projeto ACBr" FileDescription="ACBrNFe - BIblioteca para emissão e impressão de nota fiscal eletrônica" InternalName="ACBrLibNFE" LegalCopyright="Projeto ACBr" LegalTrademarks="Projeto ACBr" ProductName="ACBrNFe " ProductVersion="0.4.6.0"/>
@@ -108,8 +108,7 @@
             </Options>
           </Linking>
           <Other>
-            <CustomOptions Value="-dSTDCALL
--dNOGUI"/>
+            <CustomOptions Value="-dSTDCALL -dNOGUI"/>
           </Other>
         </CompilerOptions>
       </Item3>
@@ -150,8 +149,7 @@
             </Options>
           </Linking>
           <Other>
-            <CustomOptions Value="-dSTDCALL
--dNOGUI"/>
+            <CustomOptions Value="-dSTDCALL -dNOGUI"/>
           </Other>
         </CompilerOptions>
       </Item4>

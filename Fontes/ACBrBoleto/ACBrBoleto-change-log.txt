@@ -49,6 +49,32 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+04/06/2021
+
+--ACBrBoletoItau--
+[*] Corrigido Informação de e-mail do Avalista
+https://www.projetoacbr.com.br/forum/topic/62586-remessa-banco-ita%C3%BA-cnab-400-readequa%C3%A7%C3%A3o-do-e-mail-na-remessa/
+
+25/05/2021
+--ACBrBoleto--
+[+] Adicionado o campo CIP para impressão no Boleto
+Contribuição: [Panda]Victor Gonzales
+https://www.projetoacbr.com.br/forum/topic/62571-informa%C3%A7%C3%B5es-de-cip-e-benefici%C3%A1rio-no-boleto-do-bradesco-cnab-400/
+
+24/05/2021
+--ACBrBancoCresol--
+[*] Ajuste na validação do codigo de retorno tipo String
+https://www.projetoacbr.com.br/forum/topic/62694-boleto-cresol-e-safra-altera%C3%A7oes/
+
+13/05/2021
+--ACBrBancoSafra--
+[*] Ajuste na propriedade de definição de versão do Header e Lote CNAB240
+https://www.projetoacbr.com.br/forum/topic/62533-n%C3%BAmero-da-vers%C3%A3o-do-layout-do-lote-banco-safra-acbrbancosafra/
+
+--ACBrBancoSicred--
+[*] Correção na geração de DataDesconto CNAB240, validar data com valor zero pelo codigo do Desconto
+https://www.projetoacbr.com.br/forum/topic/62516-arquivo-remessa-cnab-240-banco-sicred-segmento-p-no-campo-142-c%C3%B3digo-de-desconto-1/
+
 29/04/2021
 --ACBrBancoSicred--
 [*] Ajuste na leitura do CNPJ ou CPF na leitura do Retorno CNAB400

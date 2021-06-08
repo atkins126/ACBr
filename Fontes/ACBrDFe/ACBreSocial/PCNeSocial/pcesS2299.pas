@@ -64,8 +64,8 @@ type
   TEvtDeslig = class;
   TInfoDeslig = class;
   TVerbasRescS2299 = class;
-  TDmDevCollection = class;
-  TDMDevCollectionItem = class;
+  TDmDevCollectionS2299 = class;
+  TDMDevCollectionItemS2299 = class;
   TInfoPerApur = class;
   TInfoPerAnt = class;
   TIdeADCCollection = class;
@@ -113,7 +113,7 @@ type
     procedure GerarSucessaoVinc(obj: TSucessaoVinc2);
     procedure GerarVerbasResc(obj: TVerbasRescS2299);
     procedure GerarProcCS(obj: TProcCS);
-    procedure GerarDmDev(pDmDev: TDmDevCollection);
+    procedure GerarDmDev(pDmDev: TDmDevCollectionS2299);
     procedure GerarInfoPerApur(pInfoPerApur: TInfoPerApur);
     procedure GerarInfoPerAnt(pInfoPerAnt: TInfoPerAnt);
     procedure GerarIdeADC(pIdeADC: TIdeADCCollection);
@@ -158,7 +158,7 @@ type
     FQtdDiasInterm : Integer;
     FMudancaCPF : TMudancaCPF3;
     FCodCateg : Integer;
-    FinfoInterm : TinfoIntermCollection; 
+    FinfoInterm : TinfoIntermCollection;
     FdtAvPrv : TDateTime;
 
     function getVerbasResc: TVerbasRescS2299;
@@ -276,25 +276,25 @@ type
     function New: TinfoIntermCollectionItem;
     property Items[Index: Integer]: TinfoIntermCollectionItem read GetItem write SetItem; default;
   end;
-  
+
   TinfoIntermCollectionItem = class(TObject)
   private
     Fdia: Byte;
   public
     property dia: Byte read Fdia write Fdia;
   end;
-  
-  TDmDevCollection = class(TACBrObjectList)
+
+  TDmDevCollectionS2299 = class(TACBrObjectList)
   private
-    function GetItem(Index: Integer): TDMDevCollectionItem;
-    procedure SetItem(Index: Integer; Value: TDMDevCollectionItem);
+    function GetItem(Index: Integer): TDMDevCollectionItemS2299;
+    procedure SetItem(Index: Integer; Value: TDMDevCollectionItemS2299);
   public
-    function Add: TDMDevCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TDMDevCollectionItem;
-    property Items[Index: Integer]: TDMDevCollectionItem read GetItem write SetItem; default;
+    function Add: TDMDevCollectionItemS2299; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TDMDevCollectionItemS2299;
+    property Items[Index: Integer]: TDMDevCollectionItemS2299 read GetItem write SetItem; default;
   end;
 
-  TDMDevCollectionItem = class(TObject)
+  TDMDevCollectionItemS2299 = class(TObject)
   private
     FIdeDmDev: string;
     FInfoPerApur: TInfoPerApur;
@@ -318,13 +318,13 @@ type
 
   TVerbasRescS2299 = class(TVerbasResc)
   private
-    FDmDev: TDmDevCollection;
+    FDmDev: TDmDevCollectionS2299;
     FProcCS: TProcCS;
   public
     constructor Create;
     destructor Destroy; override;
 
-    property dmDev: TDmDevCollection read FDmDev write FDmDev;
+    property dmDev: TDmDevCollectionS2299 read FDmDev write FDmDev;
     property ProcCS: TProcCS read FProcCS write FProcCS;
   end;
 
@@ -425,7 +425,7 @@ begin
   Fobservacoes   := TobservacoesCollection.Create;
   FconsigFGTS    := TConsigFGTSCollection.Create;
   FQtdDiasInterm := -1;
-  FinfoInterm    := nil; 
+  FinfoInterm    := nil;
 end;
 
 destructor TInfoDeslig.Destroy;
@@ -484,30 +484,30 @@ end;
 
 { TDmDevCollection }
 
-function TDmDevCollection.Add: TDMDevCollectionItem;
+function TDmDevCollectionS2299.Add: TDMDevCollectionItemS2299;
 begin
   Result := Self.New;
 end;
 
-function TDmDevCollection.GetItem(Index: Integer): TDMDevCollectionItem;
+function TDmDevCollectionS2299.GetItem(Index: Integer): TDMDevCollectionItemS2299;
 begin
-  Result := TDMDevCollectionItem(inherited Items[Index]);
+  Result := TDMDevCollectionItemS2299(inherited Items[Index]);
 end;
 
-procedure TDmDevCollection.SetItem(Index: Integer; Value: TDMDevCollectionItem);
+procedure TDmDevCollectionS2299.SetItem(Index: Integer; Value: TDMDevCollectionItemS2299);
 begin
   inherited Items[Index] := Value;
 end;
 
-function TDmDevCollection.New: TDMDevCollectionItem;
+function TDmDevCollectionS2299.New: TDMDevCollectionItemS2299;
 begin
-  Result := TDMDevCollectionItem.Create;
+  Result := TDMDevCollectionItemS2299.Create;
   Self.Add(Result);
 end;
 
 { TDMDevCollectionItem }
 
-constructor TDMDevCollectionItem.Create;
+constructor TDMDevCollectionItemS2299.Create;
 begin
   inherited Create;
   FInfoPerApur    := nil;
@@ -515,7 +515,7 @@ begin
   FInfoTrabInterm := TInfoTrabIntermCollection.Create;
 end;
 
-destructor TDMDevCollectionItem.Destroy;
+destructor TDMDevCollectionItemS2299.Destroy;
 begin
   FreeAndNil(FInfoPerApur);
   FreeAndNil(FInfoPerAnt);
@@ -524,26 +524,26 @@ begin
   inherited;
 end;
 
-function TDMDevCollectionItem.getInfoPerApur: TInfoPerApur;
+function TDMDevCollectionItemS2299.getInfoPerApur: TInfoPerApur;
 begin
   if not Assigned(FInfoPerApur) then
     FInfoPerApur := TInfoPerApur.Create;
   result := FInfoPerApur;
 end;
 
-function TDMDevCollectionItem.getInfoPerAnt: TInfoPerAnt;
+function TDMDevCollectionItemS2299.getInfoPerAnt: TInfoPerAnt;
 begin
   if not Assigned(FInfoPerAnt) then
     FInfoPerAnt := TInfoPerAnt.Create;
   result := FInfoPerAnt;
 end;
 
-function TDMDevCollectionItem.infoPerApurInst: boolean;
+function TDMDevCollectionItemS2299.infoPerApurInst: boolean;
 begin
   result := Assigned(FInfoPerApur);
 end;
 
-function TDMDevCollectionItem.infoPerAntInst: boolean;
+function TDMDevCollectionItemS2299.infoPerAntInst: boolean;
 begin
   Result := Assigned(FInfoPerAnt);
 end;
@@ -681,7 +681,7 @@ constructor TVerbasRescS2299.Create;
 begin
   inherited Create;
 
-  FDmDev := TDmDevCollection.Create;
+  FDmDev := TDmDevCollectionS2299.Create;
   ProcCS := TProcCS.Create;
 end;
 
@@ -912,7 +912,7 @@ begin
   Gerador.wGrupo('/infoPerAnt');
 end;
 
-procedure TEvtDeslig.GerarDmDev(pDmDev: TDmDevCollection);
+procedure TEvtDeslig.GerarDmDev(pDmDev: TDmDevCollectionS2299);
 var
   i: integer;
 begin
@@ -1114,6 +1114,7 @@ begin
 
       sSecao := 'infoDeslig';
       infoDeslig.mtvDeslig    := INIRec.ReadString(sSecao, 'mtvDeslig', EmptyStr);
+      InfoDeslig.dtAvPrv      := StringToDateTime(INIRec.ReadString(sSecao, 'dtAvPrv', '0'));
       infoDeslig.dtDeslig     := StringToDateTime(INIRec.ReadString(sSecao, 'dtDeslig', '0'));
       infoDeslig.indPagtoAPI  := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'indPagtoAPI', 'S'));
       infoDeslig.dtProjFimAPI := StringToDateTime(INIRec.ReadString(sSecao, 'dtProjFimAPI', '0'));
@@ -1125,6 +1126,25 @@ begin
       infoDeslig.indCumprParc := eSStrToTpCumprParcialAviso(Ok, INIRec.ReadString(sSecao, 'indCumprParc', '0'));
       infoDeslig.qtdDiasInterm := INIRec.ReadInteger(sSecao, 'qtdDiasInterm', -1);
       infoDeslig.Observacao   := INIRec.ReadString(sSecao, 'observacao', EmptyStr);
+      infoDeslig.dtAvPrv      := StringToDateTime(INIRec.ReadString(sSecao, 'dtAvPrv', '0'));   //20/05/2021
+
+      K := 1;
+      while true do
+      begin
+        // de 01 até 31
+        sSecao := 'infoInterm' + IntToStrZero(K, 2);
+        sFim   := INIRec.ReadString(sSecao, 'dia', 'FIM');
+
+        if (sFim = 'FIM') or (Length(sFim) <= 0) then
+          break;
+
+        with InfoDeslig.infoInterm.New do
+        begin
+          dia := INIRec.ReadInteger(sSecao, 'dia', 0);
+        end;
+
+        Inc(K);
+      end;
 
       sSecao := 'sucessaoVinc';
       if INIRec.ReadString(sSecao, 'tpInscSuc', '') <> '' then
@@ -1132,6 +1152,9 @@ begin
 
       if INIRec.ReadString(sSecao, 'cnpjSucessora', '') <> '' then
         infoDeslig.sucessaoVinc.cnpjSucessora := INIRec.ReadString(sSecao, 'cnpjSucessora', EmptyStr);
+
+      infoDeslig.sucessaoVinc.tpInsc  := eSStrToTpInscricao(ok, INIRec.ReadString(sSecao, 'tpInsc', '1'));
+      infoDeslig.sucessaoVinc.nrInsc  :=  INIRec.ReadString(sSecao, 'nrInsc', EmptyStr);
 
       sSecao := 'transfTit';
       if INIRec.ReadString(sSecao, 'cpfSubstituto', '') <> '' then
@@ -1189,6 +1212,7 @@ begin
                   fatorRubr  := StringToFloatDef(INIRec.ReadString(sSecao, 'fatorRubr', ''), 0);
                   vrUnit     := StringToFloatDef(INIRec.ReadString(sSecao, 'vrUnit', ''), 0);
                   vrRubr     := StringToFloatDef(INIRec.ReadString(sSecao, 'vrRubr', ''), 0);
+                  indApurIR  := eSStrToTpindApurIR(ok, INIRec.ReadString(sSecao, 'indApurIR', '0'));  //20/05/2021
                 end;
 
                 Inc(K);

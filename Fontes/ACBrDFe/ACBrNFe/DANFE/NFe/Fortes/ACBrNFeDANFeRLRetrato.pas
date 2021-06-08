@@ -1896,11 +1896,16 @@ begin
     RLMemoInfAd.Lines.Text := ManterBandinfAdProd(infAdProd);
     txtNCM.Caption := Prod.NCM;
 
-    case fpNFe.Emit.CRT of
-      crtRegimeNormal, crtSimplesExcessoReceita:
-        txtCST.Caption := OrigToStr(Imposto.ICMS.orig) + CSTICMSToStr(Imposto.ICMS.CST);
-      crtSimplesNacional:
-        txtCST.Caption := OrigToStr(Imposto.ICMS.orig) + CSOSNIcmsToStr(Imposto.ICMS.CSOSN);
+    if Imposto.ISSQN.cListServ <> '' then
+      txtCST.Caption := ''
+    else
+    begin
+      case fpNFe.Emit.CRT of
+        crtRegimeNormal, crtSimplesExcessoReceita:
+          txtCST.Caption := OrigToStr(Imposto.ICMS.orig) + CSTICMSToStr(Imposto.ICMS.CST);
+        crtSimplesNacional:
+          txtCST.Caption := OrigToStr(Imposto.ICMS.orig) + CSOSNIcmsToStr(Imposto.ICMS.CSOSN);
+      end;
     end;
 
     txtCFOP.Caption := Prod.CFOP;
@@ -2295,7 +2300,7 @@ procedure TfrlDANFeRLRetrato.AdicionarInformacoesPagamento;
     begin
       TRLLabel(FindComponent('RLPagDescricao' + IntToStr(x))).Caption :=
         ACBrStr(
-          FormaPagamentoToDescricao(fpNFe.pag.Items[x].tPag)
+          FormaPagamentoToDescricao(fpNFe.pag.Items[x].tPag, fpNFe.pag.Items[x].xPag)
                   );
       TRLLabel(FindComponent('RLPagValor' + IntToStr(x))).Caption :=
         FormatFloatBr(fpNFe.pag.Items[x].vPag);

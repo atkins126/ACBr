@@ -1442,6 +1442,9 @@ begin
       if (not (Provedor in [proBetha, proBethav2])) or (IM <> '') then
         Gerador.wCampo(tcStr, '#4', 'InscricaoMunicipal', 01, 15, 1, IM, '');
 
+      if Provedor = proAsten then
+        Gerador.wCampo(tcStr, '#4', 'Token', 01, 30, 1,  ChaveAcessoPrefeitura , '');
+
       if Provedor = proISSDigital then
       begin
         Gerador.wCampo(tcStr, '#5', 'Senha', 06, 10, 1, SenhaWeb, '');
@@ -2069,6 +2072,26 @@ begin
 
     proIPM:
       begin
+        Gerador.wGrupo('solicitacao_cancelamento');
+        Gerador.wGrupo('prestador');
+        Gerador.wCampo(tcStr, '#1', 'cpfcnpj', 01, 15, 1, Cnpj, '');
+        Gerador.wCampo(tcInt, '#2', 'cidade', 01, 07, 1, CodMunicipio, '');
+        Gerador.wGrupo('/prestador');
+        Gerador.wGrupo('documentos');
+        Gerador.wGrupo('nfse');
+        Gerador.wCampo(tcStr, '#1', 'numero', 01, 15, 1, NumeroNfse, '');
+        Gerador.wCampo(tcStr, '#2', 'serie', 01, 01, 1, SerieNFSe, '');
+        Gerador.wCampo(tcStr, '#3', 'observacao', 01, 01, 1, MotivoCanc, '');
+        {
+        Gerador.wGrupo('substituta');
+        Gerador.wCampo(tcStr, '#1', 'numero', 01, 15, 1, NumeroNfse, '');
+        Gerador.wCampo(tcStr, '#2', 'serie', 01, 01, 1, SerieNFSe, '');
+        Gerador.wGrupo('/substituta');
+        }
+        Gerador.wGrupo('/nfse');
+        Gerador.wGrupo('/documentos');
+        Gerador.wGrupo('/solicitacao_cancelamento');
+        {
         Gerador.wGrupo('nfse');
         Gerador.wGrupo('nf');
         Gerador.wCampo(tcStr, '#1', 'numero', 01, 15, 1, NumeroNfse, '');
@@ -2080,6 +2103,7 @@ begin
         Gerador.wCampo(tcInt, '#2', 'cidade', 01, 07, 1, CodMunicipio, '');
         Gerador.wGrupo('/prestador');
         Gerador.wGrupo('/nfse');
+        }
       end;
 
      proGeisWeb:
@@ -2147,7 +2171,9 @@ begin
         TagF := '</' + Prefixo3 + 'Pedido>';
       end;
 
-    proTecnos:
+    proTecnos,
+    proDeISS,
+    proFiorilli:
       begin
         TagI := '<' + Prefixo3 + 'Pedido>' +
                    '<' + Prefixo4 + 'InfPedidoCancelamento ' + FaIdentificadorCanc +

@@ -42,6 +42,57 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+02/06/2021
+-- pnfsNFSeW_SMARAPD --
+[*] Imposta uma condição ao gerar a tag <tributadonomunicipio>, estava gerado
+    sempre com o mesmo valor.
+  Por: Italo Giurizzato Junior
+
+01/06/2021
+-- ACBrNFSeWebServices --
+[*] Possível ajuste para o provedor IPM.
+  Por: Italo Giurizzato Junior
+-- pnfsNFSeW_SMARAPD --
+[*] https://www.projetoacbr.com.br/forum/topic/62753-nfs-e-pra-cidade-de-serra-gerando-valor-de-campo-incorreto/
+   Por: Matheus Rodrigo Koch
+
+28/05/2021
+-- pnfsNFSeG --
+[*] Ajuste visando deixar todas as assinaturas do SubstituicaoNfse validas.
+   Por: Alessandro Risse
+-- Diversos --
+[*] Ajustes nos fontes para atender o Provedor Asten.
+  Por: VeleiroPedeVento / Italo Giurizzato Junior
+-- pnfsNFSeR --
+[*] Incluindo um cálculo para a propriedade ValorLiquidoNfse - Provedor IPM.
+  Por: Tiago FZ
+-- pnfsNFSeW_ABRASFv2 --
+[*] Corrigido a geração da tag Competencia para o provedor 4R que tem que ser
+    Data e Hora.
+  Por: Bruto do Delphi
+
+27/05/2021
+-- pnfsNFSeR --
+[*] Possível correção para a leituro do XML do RPS da versão 1 do
+    layout da ABRASF.
+  Por: Italo Giurizzato Junior
+
+25/05/2021
+-- ACBrNFSeWebServices --
+[*] Possível correção para o SubstituicaoNfse com relação a assinatura.
+  Por: Italo Giurizzato Junior
+-- pnfsNFSeG --
+[*] Possível correção para o cancelamento de NFS-e - provedor IPM.
+  Por: Italo Giurizzato Junior
+
+18/05/2021
+-- pnfsNFSeW_ABRASFv2 --
+[*] https://www.projetoacbr.com.br/forum/topic/62596-iibrasil-emiss%C3%A3o-de-nfse-limeira/
+  Por: Ricardo Gabriel
+-- ACBrNFSeWebServices --
+[*] https://www.projetoacbr.com.br/forum/topic/62549-3530607-mogidascruzessp-smarapdv23/?do=findComment&comment=409488&_rid=63
+  Por: Renato Rubinho
+
 14/05/2021
 -- pnfsNFSeG --
 [*] https://www.projetoacbr.com.br/forum/topic/62485-erro-schema-utilizando-bethav2/

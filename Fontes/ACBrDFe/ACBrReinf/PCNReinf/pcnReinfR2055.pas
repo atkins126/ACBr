@@ -85,14 +85,17 @@ type
   { TideEstab }
   TideEstab = class(TObject)
   private
-    FtpInscAdq   : TtpInsc;
-    FnrInscAdq, FindOpcCP, FnrInscProd : string;
-    FdetAquis    : TtipoComCollection;
-    FtpInscProd : TtpInsc;
-    FideProdutor : TtipoComCollection;
+    FtpInscAdq: TtpInsc;
+    FnrInscAdq: string;
+    FindOpcCP: string;
+    FnrInscProd: string;
+    FtpInscProd: TtpInsc;
+    FdetAquis: TtipoComCollection;
+    FideProdutor: TtipoComCollection;
  public
     constructor Create;
     destructor Destroy; override;
+
     property tpInscAdq: TtpInsc read FtpInscAdq write FtpInscAdq default tiCNPJ;
     property nrInscAdq: string read FnrInscAdq write FnrInscAdq;
     property indOpcCP: string read FindOpcCP write FindOpcCP;
@@ -116,8 +119,10 @@ type
   TtipoComCollectionItem = class(TObject)
   private
     FindAquis: TdetAquis;
-    FvlrBruto, FvlrCPDescPR,
-    FvlrRatDescPR, FvlrSenarDesc: double;
+    FvlrBruto: double;
+    FvlrCPDescPR: double;
+    FvlrRatDescPR: double;
+    FvlrSenarDesc: double;
     FinfoProc: TinfoProcCollection;
   public
     constructor Create;
@@ -144,12 +149,14 @@ type
 
   TinfoProcCollectionItem = class(TObject)
   private
-    FcodSusp: String;
-    FvlrSenarNRet: double;
+    FtpProc: TtpProc;
     FnrProc: String;
-    FvlrRatNRet: double;
+    FcodSusp: String;
     FvlrCPNRet: double;
+    FvlrRatNRet: double;
+    FvlrSenarNRet: double;
   public
+    property tpProc: TtpProc read FtpProc write FtpProc;
     property nrProc: String read FnrProc write FnrProc;
     property codSusp: String read FcodSusp write FcodSusp;
     property vlrCPNRet: double read FvlrCPNRet write FvlrCPNRet;
@@ -426,7 +433,7 @@ function TevtAqProd.LerArqIni(const AIniString: String): Boolean;
 var
   INIRec: TMemIniFile;
   Ok: Boolean;
-  sSecao, sFim: String;
+  sSecao, sFim, sSecaoF: String;
   I, J: Integer;
 begin
   Result := True;
@@ -466,11 +473,16 @@ begin
       ideContri.OrgaoPublico := (TACBrReinf(FACBrReinf).Configuracoes.Geral.TipoContribuinte = tcOrgaoPublico);
       ideContri.TpInsc       := StrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInsc', '1'));
       ideContri.NrInsc       := INIRec.ReadString(sSecao, 'nrInsc', EmptyStr);
-
+	  
       sSecao := 'ideEstabAdq';
 
       FinfoAquisProd.ideEstabAdquir.tpInscAdq := StrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInscAdq', '1'));
       FinfoAquisProd.ideEstabAdquir.nrInscAdq := INIRec.ReadString(sSecao, 'nrInscAdq', EmptyStr);
+	  
+      FinfoAquisProd.ideEstabAdquir.tpInscProd := StrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInscProd', '1'));
+      FinfoAquisProd.ideEstabAdquir.nrInscProd := INIRec.ReadString(sSecao, 'nrInscProd', EmptyStr);
+      FinfoAquisProd.ideEstabAdquir.indOpcCP   := INIRec.ReadString(sSecao, 'indOpcCP', EmptyStr);
+
 
       with FinfoAquisProd.ideEstabAdquir do
       begin
@@ -488,27 +500,33 @@ begin
           begin
             indAquis := StrToDetAquis(Ok, sFim);
             vlrBruto := StringToFloatDef(INIRec.ReadString(sSecao, 'vlrBruto', ''), 0);
+            vlrCPDescPR  := StringToFloatDef(INIRec.ReadString(sSecao, 'vlrCPDescPR', ''), 0);
+            vlrRatDescPR := StringToFloatDef(INIRec.ReadString(sSecao, 'vlrRatDescPR', ''), 0);
+            vlrSenarDesc := StringToFloatDef(INIRec.ReadString(sSecao, 'vlrSenarDesc', ''), 0);
 
             J := 1;
             while true do
             begin
               // de 01 até 50
               sSecao := 'infoProcJud' + IntToStrZero(I, 1) + IntToStrZero(J, 2);
+              sFim   := INIRec.ReadString(sSecao, 'tpProc', 'FIM');
 
               if (sFim = 'FIM') or (Length(sFim) <= 0) then
                 break;
-
+            
               with infoProc.New do
               begin
+                tpProc       := StrToTpProc(Ok, sFim);
                 nrProc       := INIRec.ReadString(sSecao, 'nrProc', '');
                 codSusp      := INIRec.ReadString(sSecao, 'codSusp', '');
                 vlrCPNRet    := StringToFloatDef(INIRec.ReadString(sSecao, 'vlrCPNRet', ''), 0);
                 vlrRatNRet   := StringToFloatDef(INIRec.ReadString(sSecao, 'vlrRatNRet', ''), 0);
                 vlrSenarDesc := StringToFloatDef(INIRec.ReadString(sSecao, 'vlrSenarDesc', ''), 0);
               end;
-
+            
               Inc(J);
             end;
+            
           end;
 
           Inc(I);

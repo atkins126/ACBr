@@ -47,7 +47,7 @@ uses
   FMX.ListView.Types, FMX.ListView.Appearances, FMX.ListView.Adapters.Base,
   FMX.ListView,  FMX.VirtualKeyboard,
   FileSelectFrame,
-  ACBrPosPrinterElginE1Service,
+  ACBrPosPrinterElginE1Service, ACBrPosPrinterElginE1Lib,
   ACBrPosPrinterGEDI,
   ACBrIBGE, ACBrSocket, ACBrCEP,
   ACBrDFeReport, ACBrDFeDANFeReport, ACBrNFeDANFEClass, ACBrNFeDANFeESCPOS,
@@ -149,7 +149,6 @@ type
     lbiConfPrinterDiversos: TListBoxItem;
     GridPanelLayout12: TGridPanelLayout;
     ListBoxGroupHeader6: TListBoxGroupHeader;
-    cbQRCodeLateral: TCheckBox;
     cbLogoLateral: TCheckBox;
     GridPanelLayout13: TGridPanelLayout;
     cbxModelo: TComboBox;
@@ -158,7 +157,6 @@ type
     Label22: TLabel;
     cbxPagCodigo: TComboBox;
     cbImprimir1Linha: TCheckBox;
-    cbImprimirDescAcres: TCheckBox;
     lbConfNFCe: TListBox;
     lbiHeaderCertificado: TListBoxGroupHeader;
     lbiConfCert: TListBoxItem;
@@ -349,6 +347,11 @@ type
     GridPanelLayout8: TGridPanelLayout;
     rbClasseInterna: TRadioButton;
     rbClasseExterna: TRadioButton;
+    cbImprimirDescAcres: TCheckBox;
+    cbQRCodeLateral: TCheckBox;
+    GridPanelLayout10: TGridPanelLayout;
+    Label41: TLabel;
+    seLarguraModulo: TSpinBox;
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure btnBackClick(Sender: TObject);
@@ -435,6 +438,7 @@ type
     { Private declarations }
     fE1Printer: TACBrPosPrinterElginE1Service;
     fGEDIPrinter: TACBrPosPrinterGEDI;
+    fE1Lib: TACBrPosPrinterElginE1Lib;
 
     FVKService: IFMXVirtualKeyboardService;
     FcMunList: TStringList;
@@ -544,9 +548,11 @@ begin
 
   // Criando Classes de Impressoras Externas //
   fE1Printer := TACBrPosPrinterElginE1Service.Create(ACBrPosPrinter1);
-  fE1Printer.Modelo := prnSmartPOS;
+  fE1Printer.Modelo := TElginE1Printers.prnSmartPOS;
   fE1Printer.OnErroImpressao := ExibirErroImpressaoE1;
   fGEDIPrinter := TACBrPosPrinterGEDI.Create(ACBrPosPrinter1);
+  fE1Lib := TACBrPosPrinterElginE1Lib.Create(ACBrPosPrinter1);
+  fE1Lib.Modelo := TElginE1LibPrinters.prnM8;
 
   imgErrorCep.Bitmap := ImageList1.Bitmap(TSizeF.Create(imgErrorCep.Width,imgErrorCep.Height),14);
   imgErrorCNPJ.Bitmap := imgErrorCep.Bitmap;
@@ -602,6 +608,7 @@ begin
   FTabList.Free;
   fE1Printer.Free;
   fGEDIPrinter.Free;
+  fE1Lib.Free;
 end;
 
 procedure TACBrNFCeTestForm.AppExceptionHandle(Sender: TObject; E: Exception);
@@ -652,7 +659,8 @@ end;
 procedure TACBrNFCeTestForm.CarregarModelosExternos;
 begin
   cbxModelo.Items.Clear;
-  cbxModelo.Items.Add('Elgin E1');
+  cbxModelo.Items.Add('Elgin E1 Service');
+  cbxModelo.Items.Add('Elgin E1 Lib');
   cbxModelo.Items.Add('Gertec GEDI');
   lbiConfPrinterImpressoras.Enabled := False;
 end;
@@ -1490,10 +1498,12 @@ begin
 
   if rbClasseExterna.IsChecked then
   begin
-    if (cbxModelo.ItemIndex = 1) then
-      ACBrPosPrinter1.ModeloExterno := fGEDIPrinter
+    case cbxModelo.ItemIndex of
+      0: ACBrPosPrinter1.ModeloExterno := fE1Printer;
+      1: ACBrPosPrinter1.ModeloExterno := fE1Lib;
     else
-      ACBrPosPrinter1.ModeloExterno := fE1Printer;
+      ACBrPosPrinter1.ModeloExterno := fGEDIPrinter;
+    end;
 
     cbxImpressorasBth.ItemIndex := cbxImpressorasBth.Items.IndexOf('NULL');
   end
@@ -1516,6 +1526,7 @@ begin
   ACBrPosPrinter1.ColunasFonteNormal := Trunc(seColunas.Value);
   ACBrPosPrinter1.EspacoEntreLinhas := Trunc(seEspLinhas.Value);
   ACBrPosPrinter1.LinhasEntreCupons := Trunc(seLinhasPular.Value);
+  ACBrPosPrinter1.ConfigQRCode.LarguraModulo := Trunc(seLarguraModulo.Value);
   ACBrPosPrinter1.ConfigLogo.KeyCode1 := Trunc(seKC1.Value);
   ACBrPosPrinter1.ConfigLogo.KeyCode2 := Trunc(seKC2.Value);
   ACBrPosPrinter1.ConfigLogo.IgnorarLogo := not cbImprimirLogo.IsChecked;
@@ -1929,6 +1940,7 @@ begin
     INI.WriteInteger('PosPrinter','Colunas', Trunc(seColunas.Value) );
     INI.WriteInteger('PosPrinter','EspacoEntreLinhas', Trunc(seEspLinhas.Value) );
     INI.WriteInteger('PosPrinter','LinhasPular', Trunc(seLinhasPular.Value) );
+    INI.WriteInteger('PosPrinter','LarguraModulo', Trunc(seLarguraModulo.Value) );
     Ini.WriteBool('PosPrinter', 'Logo', cbImprimirLogo.IsChecked);
     INI.WriteInteger('PosPrinter.Logo','KC1',Trunc(seKC1.Value));
     INI.WriteInteger('PosPrinter.Logo','KC2',Trunc(seKC2.Value));
@@ -2285,6 +2297,7 @@ begin
     seColunas.Value := Ini.ReadInteger('PosPrinter','Colunas', 32);
     seEspLinhas.Value := Ini.ReadInteger('PosPrinter','EspacoEntreLinhas', ACBrPosPrinter1.EspacoEntreLinhas);
     seLinhasPular.Value := Ini.ReadInteger('PosPrinter','LinhasPular', ACBrPosPrinter1.LinhasEntreCupons);
+    seLarguraModulo.Value := INI.ReadInteger('PosPrinter','LarguraModulo', 4);
     cbImprimirLogo.IsChecked := Ini.ReadBool('PosPrinter', 'Logo', False);
     seKC1.Value := Ini.ReadInteger('PosPrinter.Logo','KC1', 1);
     seKC2.Value := Ini.ReadInteger('PosPrinter.Logo','KC2', 0);

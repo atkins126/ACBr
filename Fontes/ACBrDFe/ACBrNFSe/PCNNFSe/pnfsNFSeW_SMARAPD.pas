@@ -160,9 +160,9 @@ begin
     Gerador.wCampo(tcDe2, '', 'valorunitario' , 01, 015, 1, FNFSe.Servico.ItemServico[i].ValorUnitario, '');
     Gerador.wCampo(tcDe2, '', 'aliquota'      , 01, 015, 1, FNFSe.Servico.ItemServico[i].Aliquota, '');
     if FNFSe.Servico.Valores.IssRetido in [stNormal,stSubstituicao] then
-      Gerador.wCampo(tcStr, '', 'impostoretido', 01, 005, 1, 'False', '')
+      Gerador.wCampo(tcStr, '', 'impostoretido', 01, 005, 1, 'false', '')
     else
-      Gerador.wCampo(tcStr, '', 'impostoretido', 01, 005, 1, 'True', '');
+      Gerador.wCampo(tcStr, '', 'impostoretido', 01, 005, 1, 'true', '');
     Gerador.wGrupo('/servico');
   end;
   Gerador.wGrupo('/tbservico');
@@ -254,7 +254,12 @@ begin
   GerarTransportadora;
   GerarServicoValores;
   GerarConstrucaoCivil;
-  Gerador.wCampo(tcStr,     '', 'tributadonomunicipio', 01,  5, 1, 'true', '');
+
+  if FNFSe.Tomador.Endereco.CodigoMunicipio <> FNFSe.PrestadorServico.Endereco.CodigoMunicipio then
+    Gerador.wCampo(tcStr,     '', 'tributadonomunicipio', 01,  5, 1, 'false', '')
+  else
+    Gerador.wCampo(tcStr,     '', 'tributadonomunicipio', 01,  5, 1, 'true', '');
+
   Gerador.wCampo(tcStr,     '', 'numerort',             01, 02, 1, FNFSe.IdentificacaoRps.Numero, '');
   Gerador.wCampo(tcStr,     '', 'codigoseriert',        01, 02, 1, '17', '');
   Gerador.wCampo(tcDatVcto, '', 'dataemissaort',        01, 21, 1, FNFSe.DataEmissaoRps, '');

@@ -168,7 +168,7 @@ procedure TACBrLibRespostaBase.GravarXml(const xDoc: TXMLDocument; const RootNod
 Var
   PropList: TPropInfoList;
   i: Integer;
-  ParentNode: TDomNode;
+  ParentNode, ListNode: TDomNode;
   ClassObject: TObject;
   CollectionObject: TCollection;
   CollectionItem: TCollectionItem;
@@ -193,32 +193,33 @@ begin
 
             if (ClassObject.InheritsFrom(TCollection)) then
             begin
+              ParentNode := xDoc.CreateElement('Itens');
+
               CollectionObject := TCollection(ClassObject);
               for i := 0 to CollectionObject.Count - 1 do
               begin
                 CollectionItem := CollectionObject.Items[i];
-
-                if (CollectionObject.ItemClass.InheritsFrom(TACBrLibRespostaBase)) then
-                  ParentNode := xDoc.CreateElement(TACBrLibRespostaBase(CollectionItem).Sessao.Replace(' ', '_'))
-                else
-                  ParentNode := xDoc.CreateElement(Propertie.Name);
-
-                GravarXml(xDoc, ParentNode, CollectionItem);
+                ListNode := xDoc.CreateElement(Propertie.Name);
+                GravarXml(xDoc, ListNode, CollectionItem);
+                ParentNode.AppendChild(ListNode);
               end;
             end
             else if (ClassObject.InheritsFrom(TList)) then
             begin
+              ParentNode := xDoc.CreateElement('Itens');
+
               ListObject := TList(ClassObject);
               for i := 0 to ListObject.Count - 1 do
               begin
                 ListItem := ListObject.Items[i];
 
-                if (ListItem.ClassType.InheritsFrom(TACBrLibRespostaBase)) then
-                  ParentNode := xDoc.CreateElement(TACBrLibRespostaBase(ListItem).Sessao.Replace(' ', '_'))
+                if (ListItem.InheritsFrom(TACBrLibRespostaBase)) then
+                  ListNode := xDoc.CreateElement(TACBrLibRespostaBase(ListItem).Sessao.Replace(' ', '_'))
                 else
-                  ParentNode := xDoc.CreateElement(Propertie.Name);
+                  ListNode := xDoc.CreateElement(Propertie.Name);
 
-                GravarXml(xDoc, ParentNode, ListItem);
+                GravarXml(xDoc, ListNode, ListItem);
+                ParentNode.AppendChild(ListNode);
               end;
             end
             else
@@ -509,10 +510,7 @@ begin
               for i := 0 to CollectionObject.Count - 1 do
               begin
                 CollectionItem := CollectionObject.Items[i];
-                if (CollectionObject.ItemClass.InheritsFrom(TACBrLibRespostaBase)) then
-                  GravarJson(JSONRoot, TACBrLibRespostaBase(CollectionItem).Sessao, CollectionItem)
-                else
-                  GravarJson(JSONRoot, Format(CSessionFormat, [Propertie.Name, i+1]), CollectionItem);
+                GravarJson(JSONRoot, Format(CSessionFormat, [Propertie.Name, i+1]), CollectionItem);
               end;
             end
             else if (ClassObject.InheritsFrom(TList)) then
