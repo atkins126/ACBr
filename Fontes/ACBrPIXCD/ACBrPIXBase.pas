@@ -63,14 +63,20 @@ resourcestring
   sErroMetodoNaoImplementado = 'Método %s não implementado para Classe %s';
 
 const
-  cGUIPIX = 'br.gov.bcb.pix';
-  cBRCurrency = 986;
   cBRCountryCode = 'BR';
   cMPMValueNotInformed = '***';
-  cEMVLimit = 99;
 
 type
+  TACBrPIXAPIVersion = ( verNenhuma, verPropria,
+                         ver200,
+                         ver210, ver211, ver212,
+                         ver220, ver221, ver222,
+                         ver230,
+                         ver250,
+                         ver260, ver261, ver262 );
+
   TACBrPIXTipoChave = ( tchNenhuma,
+                        tchEmail,
                         tchCPF,
                         tchCNPJ,
                         tchCelular,
@@ -186,14 +192,17 @@ begin
 end;
 
 function StringToPIXStatusCobranca(const AString: String): TACBrPIXStatusCobranca;
+var
+  s: String;
 begin
-  if (AString = 'ATIVA') then
+  s := UpperCase(Trim(AString));
+  if (s = 'ATIVA') then
     Result := stcATIVA
-  else if (AString = 'CONCLUIDA') then
+  else if (s = 'CONCLUIDA') then
     Result := stcCONCLUIDA
-  else if (AString = 'REMOVIDA_PELO_USUARIO_RECEBEDOR') then
+  else if (s = 'REMOVIDA_PELO_USUARIO_RECEBEDOR') then
     Result := stcREMOVIDA_PELO_USUARIO_RECEBEDOR
-  else if (AString = 'REMOVIDA_PELO_PSP') then
+  else if (s = 'REMOVIDA_PELO_PSP') then
     Result := stcREMOVIDA_PELO_PSP
   else
     Result := stcNENHUM;
@@ -210,14 +219,16 @@ begin
   end;
 end;
 
-function StringToPIXModalidadeAgente(const AString: String
-  ): TACBrPIXModalidadeAgente;
+function StringToPIXModalidadeAgente(const AString: String): TACBrPIXModalidadeAgente;
+var
+  s: String;
 begin
-  if (AString = 'AGTEC') then
+  s := UpperCase(Trim(AString));
+  if (s = 'AGTEC') then
     Result := maAGTEC
-  else if (AString = 'AGTOT') then
+  else if (s = 'AGTOT') then
     Result := maAGTOT
-  else if (AString = 'AGPSS') then
+  else if (s = 'AGPSS') then
     Result := maAGPSS
   else
     Result := maNENHUM;
@@ -234,14 +245,16 @@ begin
   end;
 end;
 
-function StringToPIXStatusDevolucao(const AString: String
-  ): TACBrPIXStatusDevolucao;
+function StringToPIXStatusDevolucao(const AString: String): TACBrPIXStatusDevolucao;
+var
+  s: String;
 begin
-  if (AString = 'EM_PROCESSAMENTO') then
+  s := UpperCase(Trim(AString));
+  if (s = 'EM_PROCESSAMENTO') then
     Result := stdEM_PROCESSAMENTO
-  else if (AString = 'DEVOLVIDO') then
+  else if (s = 'DEVOLVIDO') then
     Result := stdDEVOLVIDO
-  else if (AString = 'NAO_REALIZADO') then
+  else if (s = 'NAO_REALIZADO') then
     Result := stdNAO_REALIZADO
   else
     Result := stdNENHUM;
@@ -257,12 +270,14 @@ begin
   end;
 end;
 
-function StringToPIXNaturezaDevolucao(const AString: String
-  ): TACBrPIXNaturezaDevolucao;
+function StringToPIXNaturezaDevolucao(const AString: String): TACBrPIXNaturezaDevolucao;
+var
+  s: String;
 begin
-  if (AString = 'ORIGINAL') then
+  s := UpperCase(Trim(AString));
+  if (s = 'ORIGINAL') then
     Result := ndORIGINAL
-  else if (AString = 'RETIRADA') then
+  else if (s = 'RETIRADA') then
     Result := ndRETIRADA
   else
     Result := ndNENHUMA;
@@ -279,10 +294,13 @@ begin
 end;
 
 function StringToPIXTipoCobranca(const AString: String): TACBrPIXTipoCobranca;
+var
+  s: String;
 begin
-  if (AString = 'cobv') then
+  s := UpperCase(Trim(AString));
+  if (s = 'COBV') then
     Result := tcoCobV
-  else if (AString = 'cob') then
+  else if (s = 'COB') then
     Result := tcoCob
   else
     Result := tcoNenhuma;
@@ -300,12 +318,15 @@ begin
 end;
 
 function StringToPIXStatusLoteCobranca(const AString: String): TACBrPIXStatusLoteCobranca;
+var
+  s: String;
 begin
-  if (AString = 'EM_PROCESSAMENTO') then
+  s := UpperCase(Trim(AString));
+  if (s = 'EM_PROCESSAMENTO') then
     Result := stlEM_PROCESSAMENTO
-  else if (AString = 'CRIADA') then
+  else if (s = 'CRIADA') then
     Result := stlCRIADA
-  else if (AString = 'NEGADA') then
+  else if (s = 'NEGADA') then
     Result := stlNEGADA
   else
     Result := stlNENHUM;
@@ -389,8 +410,6 @@ begin
 end;
 
 procedure TACBrPIXSchema.WriteToJSon(AJSon: TJsonObject);
-var
-  js: TJsonObject;
 begin
   if IsEmpty then
     Exit;

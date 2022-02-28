@@ -100,9 +100,10 @@ begin
 
   // Gera ou não o atributo ID no grupo <Rps> da versão 2 do layout da ABRASF.
   GerarIDRps := False;
+  // Gera ou não o NameSpace no grupo <Rps> da versão 2 do layout da ABRASF.
+  GerarNSRps := True;
 
   GerarIDDeclaracao := True;
-  GerarTagSenhaFraseSecreta := False;
   GerarEnderecoExterior := False;
 
   TagTomador := 'Tomador';
@@ -183,6 +184,18 @@ begin
   NrOcorrNIFTomador := -1;
   NrOcorrID := -1;
   NrOcorrToken := -1;
+  NrOcorrSenha := -1;
+  NrOcorrFraseSecreta := -1;
+  NrOcorrAliquotaPis := -1;
+  NrOcorrRetidoPis := -1;
+  NrOcorrAliquotaCofins := -1;
+  NrOcorrRetidoCofins := -1;
+  NrOcorrAliquotaInss := -1;
+  NrOcorrRetidoInss := -1;
+  NrOcorrAliquotaIr := -1;
+  NrOcorrRetidoIr := -1;
+  NrOcorrAliquotaCsll := -1;
+  NrOcorrRetidoCsll := -1;
 end;
 
 end.

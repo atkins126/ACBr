@@ -96,18 +96,19 @@ type
       Params: TNFSeParamsResponse); override;
     procedure TratarRetornoSubstituiNFSe(Response: TNFSeSubstituiNFSeResponse); override;
 
-    procedure ProcessarMensagemErros(const RootNode: TACBrXmlNode;
-                                     const Response: TNFSeWebserviceResponse;
-                                     AListTag: string = 'ListaMensagemRetorno';
-                                     AMessageTag: string = 'MensagemRetorno'); virtual;
+    procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
+                                     Response: TNFSeWebserviceResponse;
+                                     const AListTag: string = 'ListaMensagemRetorno';
+                                     const AMessageTag: string = 'MensagemRetorno'); virtual;
 
   end;
 
 implementation
 
 uses
-  ACBrUtil,
-  ACBrNFSeX, ACBrNFSeXConsts, ACBrNFSeXNotasFiscais, ACBrNFSeXConversao;
+  ACBrUtil, ACBrDFeException,
+  ACBrNFSeX, ACBrNFSeXNotasFiscais, ACBrNFSeXConsts, ACBrNFSeXConversao,
+  ACBrNFSeXWebserviceBase;
 
 { TACBrNFSeProviderProprio }
 
@@ -121,7 +122,7 @@ procedure TACBrNFSeProviderProprio.PrepararEmitir(Response: TNFSeEmiteResponse);
 var
   AErro: TNFSeEventoCollectionItem;
   aParams: TNFSeParamsResponse;
-  Nota: NotaFiscal;
+  Nota: TNotaFiscal;
   Versao, IdAttr, NameSpace, NameSpaceLote, ListaRps, xRps,
   TagEnvio, Prefixo, PrefixoTS: string;
   I: Integer;
@@ -237,25 +238,22 @@ begin
   begin
     Nota := TACBrNFSeX(FAOwner).NotasFiscais.Items[I];
 
-    if EstaVazio(Nota.XMLAssinado) then
+    Nota.GerarXML;
+
+    Nota.XmlRps := ConverteXMLtoUTF8(Nota.XmlRps);
+    Nota.XmlRps := ChangeLineBreak(Nota.XmlRps, '');
+
+    if (ConfigAssinar.Rps and (Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono])) or
+       (ConfigAssinar.RpsGerarNFSe and (Response.ModoEnvio = meUnitario)) then
     begin
-      Nota.GerarXML;
-
-      Nota.XMLOriginal := ConverteXMLtoUTF8(Nota.XMLOriginal);
-      Nota.XMLOriginal := ChangeLineBreak(Nota.XMLOriginal, '');
-
-      if (ConfigAssinar.Rps and (Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono])) or
-         (ConfigAssinar.RpsGerarNFSe and (Response.ModoEnvio = meUnitario)) then
-      begin
-        Nota.XMLOriginal := FAOwner.SSL.Assinar(Nota.XMLOriginal,
-                                                PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
-                                                ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
-      end;
+      Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
+                                         PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
+                                         ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
     end;
 
     SalvarXmlRps(Nota);
 
-    xRps := RemoverDeclaracaoXML(Nota.XMLOriginal);
+    xRps := RemoverDeclaracaoXML(Nota.XmlRps);
     xRps := PrepararRpsParaLote(xRps);
 
     ListaRps := ListaRps + xRps;
@@ -308,6 +306,8 @@ end;
 procedure TACBrNFSeProviderProprio.PrepararConsultaSituacao(Response: TNFSeConsultaSituacaoResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
 procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultaSituacao(
@@ -324,6 +324,8 @@ end;
 procedure TACBrNFSeProviderProprio.PrepararConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
 procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultaLoteRps(
@@ -340,6 +342,8 @@ end;
 procedure TACBrNFSeProviderProprio.PrepararConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
 procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultaporRps(
@@ -356,6 +360,8 @@ end;
 procedure TACBrNFSeProviderProprio.PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
 procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultaNFSe(
@@ -372,6 +378,8 @@ end;
 procedure TACBrNFSeProviderProprio.PrepararConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
 procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultaNFSeporFaixa(
@@ -389,6 +397,8 @@ procedure TACBrNFSeProviderProprio.PrepararConsultaNFSeServicoPrestado(
   Response: TNFSeConsultaNFSeResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
 procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultaNFSeServicoPrestado(
@@ -407,6 +417,8 @@ procedure TACBrNFSeProviderProprio.PrepararConsultaNFSeServicoTomado(
   Response: TNFSeConsultaNFSeResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
 procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultaNFSeServicoTomado(
@@ -424,6 +436,8 @@ end;
 procedure TACBrNFSeProviderProprio.PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
 procedure TACBrNFSeProviderProprio.GerarMsgDadosCancelaNFSe(
@@ -441,7 +455,7 @@ procedure TACBrNFSeProviderProprio.PrepararSubstituiNFSe(Response: TNFSeSubstitu
 var
   AErro: TNFSeEventoCollectionItem;
   aParams: TNFSeParamsResponse;
-  Nota: NotaFiscal;
+  Nota: TNotaFiscal;
   IdAttr, xRps, NameSpace, NumRps, TagEnvio, Prefixo, PrefixoTS: string;
 begin
   if EstaVazio(Response.PedCanc) then
@@ -514,35 +528,23 @@ begin
   else
     IdAttr := 'ID';
 
-  if EstaVazio(Nota.XMLAssinado) then
+  Nota.GerarXML;
+
+  Nota.XmlRps := ConverteXMLtoUTF8(Nota.XmlRps);
+  Nota.XmlRps := ChangeLineBreak(Nota.XmlRps, '');
+
+  if ConfigAssinar.RpsSubstituirNFSe then
   begin
-    Nota.GerarXML;
-
-    Nota.XMLOriginal := ConverteXMLtoUTF8(Nota.XMLOriginal);
-    Nota.XMLOriginal := ChangeLineBreak(Nota.XMLOriginal, '');
-
-    if ConfigAssinar.RpsSubstituirNFSe then
-    begin
-      Nota.XMLOriginal := FAOwner.SSL.Assinar(Nota.XMLOriginal,
-                                              PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
-                                              ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
-    end;
+    Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
+                                       PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
+                                       ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
   end;
 
-  if FAOwner.Configuracoes.Arquivos.Salvar then
-  begin
-    if NaoEstaVazio(Nota.NomeArqRps) then
-      TACBrNFSeX(FAOwner).Gravar(Nota.NomeArqRps, Nota.XMLOriginal)
-    else
-    begin
-      Nota.NomeArqRps := Nota.CalcularNomeArquivoCompleto(Nota.NomeArqRps, '');
-      TACBrNFSeX(FAOwner).Gravar(Nota.NomeArqRps, Nota.XMLOriginal);
-    end;
-  end;
+  SalvarXmlRps(Nota);
 
   NumRps := Nota.NFSe.IdentificacaoRps.Numero;
 
-  xRps := RemoverDeclaracaoXML(Nota.XMLOriginal);
+  xRps := RemoverDeclaracaoXML(Nota.XmlRps);
   xRps := PrepararRpsParaLote(xRps);
 
   if ConfigGeral.Identificador <> '' then
@@ -587,6 +589,8 @@ procedure TACBrNFSeProviderProprio.GerarMsgDadosSubstituiNFSe(
   Response: TNFSeSubstituiNFSeResponse; Params: TNFSeParamsResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
 procedure TACBrNFSeProviderProprio.TratarRetornoSubstituiNFSe(Response: TNFSeSubstituiNFSeResponse);
@@ -594,8 +598,8 @@ begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;
 
-procedure TACBrNFSeProviderProprio.ProcessarMensagemErros(const RootNode: TACBrXmlNode;
-  const Response: TNFSeWebserviceResponse; AListTag, AMessageTag: string);
+procedure TACBrNFSeProviderProprio.ProcessarMensagemErros(RootNode: TACBrXmlNode;
+  Response: TNFSeWebserviceResponse; const AListTag, AMessageTag: string);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;

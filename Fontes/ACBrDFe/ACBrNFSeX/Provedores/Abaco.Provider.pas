@@ -54,6 +54,7 @@ type
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeXWebserviceAbaco204 = class(TACBrNFSeXWebserviceSoap11)
@@ -98,7 +99,7 @@ type
 implementation
 
 uses
-  ACBrDFeException, Abaco.GravarXml, Abaco.LerXml;
+  ACBrUtil, ACBrDFeException, Abaco.GravarXml, Abaco.LerXml;
 
 { TACBrNFSeXWebserviceAbaco }
 
@@ -198,6 +199,15 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
+function TACBrNFSeXWebserviceAbaco.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverIdentacao(Result);
+end;
+
 { TACBrNFSeProviderAbaco }
 
 procedure TACBrNFSeProviderAbaco.Configuracao;
@@ -277,6 +287,7 @@ begin
   with ConfigAssinar do
   begin
     Rps := True;
+    CancelarNFSe := True;
   end;
 
   with ConfigWebServices do

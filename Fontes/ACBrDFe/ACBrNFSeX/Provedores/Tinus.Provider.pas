@@ -195,6 +195,7 @@ begin
   begin
     Rps := True;
     LoteRps := True;
+    CancelarNFSe := True;
   end;
 
   SetXmlNameSpace('http://www.tinus.com.br');
@@ -238,7 +239,7 @@ var
 begin
   inherited ValidarSchema(Response, aMetodo);
 
-  xXml := Response.XmlEnvio;
+  xXml := Response.ArquivoEnvio;
 
   if FAOwner.Configuracoes.WebServices.AmbienteCodigo = 2 then
     xXml := StringReplace(xXml, 'www.tinus', 'www2.tinus', [rfReplaceAll]);
@@ -264,11 +265,11 @@ begin
         tmCancelarNFSe:
           xXml := StringReplace(xXml, 'CancelarNfseEnvio', 'Arg', [rfReplaceAll]);
     else
-      Response.XmlEnvio := xXml;
+      Response.ArquivoEnvio := xXml;
     end;
   end;
 
-  Response.XmlEnvio := xXml;
+  Response.ArquivoEnvio := xXml;
 end;
 
 end.

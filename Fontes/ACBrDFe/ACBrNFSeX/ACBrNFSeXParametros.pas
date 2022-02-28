@@ -42,6 +42,25 @@ uses
 
 type
 
+  { TACBrNFSeXConfigParams }
+
+  TACBrNFSeXConfigParams = Class
+  private
+    fSL: TStringList;
+    fParamsStr: String;
+
+    procedure SetParamsStr(AValue: String);
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function TemParametro(const AParam: String): Boolean;
+    function ValorParametro(const AParam: String): String;
+    function ParamTemValor(const AParam, AValor: String): Boolean;
+
+    property AsString: String read fParamsStr write SetParamsStr;
+  end;
+
   { TConfigGeral }
   TConfigGeral = class
   private
@@ -79,9 +98,7 @@ type
     FConsultaPorFaixaPreencherNumNfseFinal: Boolean;
 
     // uso diverso
-    FParams1: string;
-    // uso diverso
-    FParams2: string;
+    FParams: TACBrNFSeXConfigParams;
 
     // Provedor lido do arquivo ACBrNFSeXServicos
     FProvedor: TnfseProvedor;
@@ -93,8 +110,10 @@ type
     FCodIBGE: string;
 
   public
-    procedure LoadParams1(AINI: TCustomIniFile; ASession: string);
-    procedure LoadParams2(AINI: TCustomIniFile; ASession: string);
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure LoadParams(AINI: TCustomIniFile; const ASession: string);
 
     property Identificador: string read FIdentificador write FIdentificador;
     property QuebradeLinha: string read FQuebradeLinha write FQuebradeLinha;
@@ -114,8 +133,7 @@ type
     property ConsultaPorFaixaPreencherNumNfseFinal: Boolean read FConsultaPorFaixaPreencherNumNfseFinal write FConsultaPorFaixaPreencherNumNfseFinal;
 
     // Parametros lidos no arquivo .Res ou .ini
-    property Params1: string read FParams1;
-    property Params2: string read FParams2;
+    property Params: TACBrNFSeXConfigParams read FParams;
 
     property Provedor: TnfseProvedor read FProvedor write FProvedor;
     property Versao: TVersaoNFSe read FVersao write FVersao;
@@ -208,7 +226,14 @@ type
 
     procedure LoadUrlProducao(AINI: TCustomIniFile; ASession: string);
     procedure LoadUrlHomologacao(AINI: TCustomIniFile; ASession: string);
-    procedure HomologacaoIgualProducao(AINI: TCustomIniFile; ASession: string);
+    procedure LoadLinkUrlProducao(AINI: TCustomIniFile; ASession: string);
+    procedure LoadLinkUrlHomologacao(AINI: TCustomIniFile; ASession: string);
+    procedure LoadXMLNameSpaceProducao(AINI: TCustomIniFile; ASession: string);
+    procedure LoadXMLNameSpaceHomologacao(AINI: TCustomIniFile; ASession: string);
+    procedure LoadNameSpaceProducao(AINI: TCustomIniFile; ASession: string);
+    procedure LoadNameSpaceHomologacao(AINI: TCustomIniFile; ASession: string);
+    procedure LoadSoapActionProducao(AINI: TCustomIniFile; ASession: string);
+    procedure LoadSoapActionHomologacao(AINI: TCustomIniFile; ASession: string);
 
     property VersaoDados: string read FVersaoDados write FVersaoDados;
     property VersaoAtrib: string read FVersaoAtrib write FVersaoAtrib;
@@ -431,6 +456,54 @@ type
 
 implementation
 
+uses
+  ACBrUtil;
+
+{ TACBrNFSeXConfigParams }
+
+constructor TACBrNFSeXConfigParams.Create;
+begin
+  inherited Create;
+
+  fSL := TStringList.Create;
+end;
+
+destructor TACBrNFSeXConfigParams.Destroy;
+begin
+  fSL.Free;
+
+  inherited Destroy;
+end;
+
+function TACBrNFSeXConfigParams.ParamTemValor(const AParam,
+  AValor: String): Boolean;
+begin
+  Result := (Pos(lowercase(AValor), lowercase(ValorParametro(AParam))) > 0);
+end;
+
+function TACBrNFSeXConfigParams.TemParametro(const AParam: String): Boolean;
+var
+  p: Integer;
+begin
+  p := fSL.IndexOfName(Trim(AParam));
+  Result := (p >= 0);
+end;
+
+function TACBrNFSeXConfigParams.ValorParametro(const AParam: String): String;
+begin
+  Result := fSL.Values[AParam];
+end;
+
+procedure TACBrNFSeXConfigParams.SetParamsStr(AValue: String);
+var
+  s: String;
+begin
+  if fParamsStr = AValue then Exit;
+  fParamsStr := Trim(AValue);
+  s := StringReplace(fParamsStr, ':', '=', [rfReplaceAll]);
+  AddDelimitedTextToList(s, '|', fSL, #0);
+end;
+
 { TConfigWebServices }
 
 constructor TConfigWebServices.Create;
@@ -445,6 +518,54 @@ begin
   FHomologacao.Free;
 
   inherited Destroy;
+end;
+
+procedure TConfigWebServices.LoadLinkUrlHomologacao(AINI: TCustomIniFile;
+  ASession: string);
+begin
+  Homologacao.FLinkURL := AINI.ReadString(ASession, 'HomLinkURL', '');
+end;
+
+procedure TConfigWebServices.LoadLinkUrlProducao(AINI: TCustomIniFile;
+  ASession: string);
+begin
+  Producao.FLinkURL := AINI.ReadString(ASession, 'ProLinkURL', '');
+end;
+
+procedure TConfigWebServices.LoadNameSpaceHomologacao(AINI: TCustomIniFile;
+  ASession: string);
+begin
+  Homologacao.FNameSpace := AINI.ReadString(ASession, 'HomNameSpace', '');
+end;
+
+procedure TConfigWebServices.LoadNameSpaceProducao(AINI: TCustomIniFile;
+  ASession: string);
+begin
+  Producao.FNameSpace := AINI.ReadString(ASession, 'ProNameSpace', '');
+end;
+
+procedure TConfigWebServices.LoadXMLNameSpaceHomologacao(
+  AINI: TCustomIniFile; ASession: string);
+begin
+  Homologacao.FXMLNameSpace := AINI.ReadString(ASession, 'HomXMLNameSpace', '');
+end;
+
+procedure TConfigWebServices.LoadXMLNameSpaceProducao(AINI: TCustomIniFile;
+  ASession: string);
+begin
+  Producao.FXMLNameSpace := AINI.ReadString(ASession, 'ProXMLNameSpace', '');
+end;
+
+procedure TConfigWebServices.LoadSoapActionHomologacao(AINI: TCustomIniFile;
+  ASession: string);
+begin
+  Homologacao.FSoapAction := AINI.ReadString(ASession, 'HomSoapAction', '');
+end;
+
+procedure TConfigWebServices.LoadSoapActionProducao(AINI: TCustomIniFile;
+  ASession: string);
+begin
+  Producao.FSoapAction := AINI.ReadString(ASession, 'ProSoapAction', '');
 end;
 
 procedure TConfigWebServices.LoadUrlHomologacao(AINI: TCustomIniFile;
@@ -467,14 +588,6 @@ begin
     FConsultarNFSePorFaixa        := AINI.ReadString(ASession, 'HomConsultarNFSePorFaixa'       , FRecepcionar);
     FConsultarNFSeServicoPrestado := AINI.ReadString(ASession, 'HomConsultarNFSeServicoPrestado', FRecepcionar);
     FConsultarNFSeServicoTomado   := AINI.ReadString(ASession, 'HomConsultarNFSeServicoTomado'  , FRecepcionar);
-
-    FXMLNameSpace := AINI.ReadString(ASession, 'HomXMLNameSpace', '');
-
-    FNameSpace := AINI.ReadString(ASession, 'HomNameSpace', '');
-
-    FSoapAction := AINI.ReadString(ASession, 'HomSoapAction', '');
-
-    FLinkURL := AINI.ReadString(ASession, 'HomLinkURL', '');
   end;
 end;
 
@@ -497,52 +610,6 @@ begin
     FConsultarNFSePorFaixa        := AINI.ReadString(ASession, 'ProConsultarNFSePorFaixa'       , FRecepcionar);
     FConsultarNFSeServicoPrestado := AINI.ReadString(ASession, 'ProConsultarNFSeServicoPrestado', FRecepcionar);
     FConsultarNFSeServicoTomado   := AINI.ReadString(ASession, 'ProConsultarNFSeServicoTomado'  , FRecepcionar);
-
-    FXMLNameSpace := AINI.ReadString(ASession, 'ProXMLNameSpace', '');
-
-    FNameSpace := AINI.ReadString(ASession, 'ProNameSpace', '');
-
-    FSoapAction := AINI.ReadString(ASession, 'ProSoapAction', '');
-
-    FLinkURL := AINI.ReadString(ASession, 'ProLinkURL', '');
-  end;
-end;
-
-procedure TConfigWebServices.HomologacaoIgualProducao(AINI: TCustomIniFile;
-  ASession: string);
-begin
-  with Homologacao do
-  begin
-    if FRecepcionar = '' then
-    begin
-      FRecepcionar         := Producao.Recepcionar;
-      FConsultarSituacao   := Producao.ConsultarSituacao;
-      FConsultarLote       := Producao.ConsultarLote;
-      FConsultarNFSeRps    := Producao.ConsultarNFSeRps;
-      FConsultarNFSe       := Producao.ConsultarNFSe;
-      FCancelarNFSe        := Producao.CancelarNFSe;
-      FGerarNFSe           := Producao.GerarNFSe;
-      FRecepcionarSincrono := Producao.RecepcionarSincrono;
-      FSubstituirNFSe      := Producao.SubstituirNFSe;
-      FAbrirSessao         := Producao.AbrirSessao;
-      FFecharSessao        := Producao.FecharSessao;
-
-      FConsultarNFSePorFaixa        := Producao.ConsultarNFSePorFaixa;
-      FConsultarNFSeServicoPrestado := Producao.ConsultarNFSeServicoPrestado;
-      FConsultarNFSeServicoTomado   := Producao.ConsultarNFSeServicoTomado;
-    end;
-
-    if FXMLNameSpace = '' then
-      FXMLNameSpace := Producao.XMLNameSpace;
-
-    if FNameSpace = '' then
-      FNameSpace := Producao.NameSpace;
-
-    if FSoapAction = '' then
-      FSoapAction := Producao.SoapAction;
-
-    if FLinkURL = '' then
-      FLinkURL := Producao.LinkURL;
   end;
 end;
 
@@ -590,14 +657,23 @@ end;
 
 { TConfigGeral }
 
-procedure TConfigGeral.LoadParams1(AINI: TCustomIniFile; ASession: string);
+constructor TConfigGeral.Create;
 begin
-  FParams1 := AINI.ReadString(ASession, 'Params1', '');
+  inherited Create;
+
+  FParams := TACBrNFSeXConfigParams.Create;
 end;
 
-procedure TConfigGeral.LoadParams2(AINI: TCustomIniFile; ASession: string);
+destructor TConfigGeral.Destroy;
 begin
-  FParams2 := AINI.ReadString(ASession, 'Params2', '');
+  FParams.Free;
+
+  inherited Destroy;
+end;
+
+procedure TConfigGeral.LoadParams(AINI: TCustomIniFile; const ASession: string);
+begin
+  FParams.AsString := AINI.ReadString(ASession, 'Params', '');
 end;
 
 end.

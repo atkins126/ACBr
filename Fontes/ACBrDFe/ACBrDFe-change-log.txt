@@ -39,6 +39,29 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+28/01/2022
+-- ACBrXmlBase --
+[+] Criado o tipo TACBrTipoEncoding e a função TipoEncoding com
+    a finalidade de identificar o Encoding do XML.
+   Por: Italo Giurizzato Junior
+
+21/01/2022
+-- ACBrXmlBase --
+[*] A função LerDatas não estava previso uma data no formato AAAAMMDD.
+    Ajuste foi feito para reconhecer esse formato também.
+   Por: Italo Giurizzato Junior
+
+13/01/2022
+-- ACBrXmlBase --
+[+] Inclusão do tipo: TACBrTipoEmissao e das funções:TipoEmissaoToStr,
+    StrToTipoEmissao, TipoAmbienteToStr e StrToTipoAmbiente.
+   Por: Italo Giurizzato Junior
+
+04/01/2022
+-- ACBrXmlBase/ACBrXmlWrite --
+[*] Ajustes para suportar valores Int64.
+   Por: Italo Giurizzato Junior
+
 30/12/2021
 -- ACBrXmlBase --
 [*] Alteração na função StrToXml para trocar o <br> por ;

@@ -55,6 +55,8 @@ type
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
+
     property SoapAction: string read GetSoapAction;
   end;
 
@@ -78,10 +80,10 @@ type
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
-    procedure ProcessarMensagemErros(const RootNode: TACBrXmlNode;
-                                     const Response: TNFSeWebserviceResponse;
-                                     AListTag: string = '';
-                                     AMessageTag: string = 'Erro'); override;
+    procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
+                                     Response: TNFSeWebserviceResponse;
+                                     const AListTag: string = '';
+                                     const AMessageTag: string = 'Erro'); override;
 
     function AjustarRetorno(const Retorno: string): string;
   end;
@@ -161,8 +163,8 @@ begin
 end;
 
 procedure TACBrNFSeProviderSigISS.ProcessarMensagemErros(
-  const RootNode: TACBrXmlNode; const Response: TNFSeWebserviceResponse;
-  AListTag, AMessageTag: string);
+  RootNode: TACBrXmlNode; Response: TNFSeWebserviceResponse;
+  const AListTag, AMessageTag: string);
 var
   I: Integer;
   ANode: TACBrXmlNode;
@@ -214,7 +216,7 @@ end;
 procedure TACBrNFSeProviderSigISS.GerarMsgDadosEmitir(
   Response: TNFSeEmiteResponse; Params: TNFSeParamsResponse);
 begin
-  Response.XmlEnvio := Params.Xml;
+  Response.ArquivoEnvio := Params.Xml;
 end;
 
 procedure TACBrNFSeProviderSigISS.TratarRetornoEmitir(Response: TNFSeEmiteResponse);
@@ -228,7 +230,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -236,9 +238,9 @@ begin
         Exit
       end;
 
-      Response.XmlRetorno := AjustarRetorno(Response.XmlRetorno);
+      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -253,7 +255,7 @@ begin
         with Response do
         begin
           Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Resultado'), tcStr);
-          Sucesso := not (Situacao = 'N');
+          Sucesso := (Situacao = '1');
           Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('autenticidade'), tcStr);
           NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Nota'), tcStr);
           Link := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('LinkImpressao'), tcStr);
@@ -290,16 +292,16 @@ begin
 
   Response.Metodo := tmConsultarNFSe;
 
-  Response.XmlEnvio := '<ConsultarNotaPrestador xmlns="urn:sigiss_ws">' +
-                         '<DadosPrestador>' +
-                           '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
-                           '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
-                           '<senha>' + Trim(Emitente.WSSenha) + '</senha>' +
-                         '</DadosPrestador>' +
-                         '<Nota>' +
-                           Response.InfConsultaNFSe.NumeroIniNFSe +
-                         '</Nota>' +
-                       '</ConsultarNotaPrestador>';
+  Response.ArquivoEnvio := '<ConsultarNotaPrestador xmlns="urn:sigiss_ws">' +
+                             '<DadosPrestador>' +
+                               '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
+                               '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
+                               '<senha>' + Trim(Emitente.WSSenha) + '</senha>' +
+                             '</DadosPrestador>' +
+                             '<Nota>' +
+                               Response.InfConsultaNFSe.NumeroIniNFSe +
+                             '</Nota>' +
+                           '</ConsultarNotaPrestador>';
 end;
 
 procedure TACBrNFSeProviderSigISS.TratarRetornoConsultaNFSe(
@@ -317,7 +319,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -325,9 +327,9 @@ begin
         Exit
       end;
 
-      Response.XmlRetorno := AjustarRetorno(Response.XmlRetorno);
+      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -364,7 +366,7 @@ begin
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
         if Assigned(ANota) then
-          ANota.XML := ANode.OuterXml
+          ANota.XmlNfse := ANode.OuterXml
         else
         begin
           TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -411,22 +413,22 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<CancelarNota xmlns="urn:sigiss_ws">' +
-                         '<DadosCancelaNota>' +
-                           '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
-                           '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
-                           '<senha>' + Trim(Emitente.WSSenha) + '</senha>' +
-                           '<nota>' +
-                             Response.InfCancelamento.NumeroNFSe +
-                           '</nota>' +
-                           '<motivo>' +
-                             Response.InfCancelamento.MotCancelamento +
-                           '</motivo>' +
-                           '<email>' +
-                             '' +
-                           '</email>' +
-                         '</DadosCancelaNota>' +
-                       '</CancelarNota>';
+  Response.ArquivoEnvio := '<CancelarNota xmlns="urn:sigiss_ws">' +
+                             '<DadosCancelaNota>' +
+                               '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
+                               '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
+                               '<senha>' + Trim(Emitente.WSSenha) + '</senha>' +
+                               '<nota>' +
+                                 Response.InfCancelamento.NumeroNFSe +
+                               '</nota>' +
+                               '<motivo>' +
+                                 Response.InfCancelamento.MotCancelamento +
+                               '</motivo>' +
+                               '<email>' +
+                                 Response.InfCancelamento.email +
+                               '</email>' +
+                             '</DadosCancelaNota>' +
+                           '</CancelarNota>';
 end;
 
 procedure TACBrNFSeProviderSigISS.TratarRetornoCancelaNFSe(
@@ -435,13 +437,12 @@ var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
   ANode, AuxNode: TACBrXmlNode;
-  xSucesso: string;
 begin
   Document := TACBrXmlDocument.Create;
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -449,9 +450,9 @@ begin
         Exit
       end;
 
-      Response.XmlRetorno := AjustarRetorno(Response.XmlRetorno);
+      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -465,8 +466,8 @@ begin
       begin
         with Response do
         begin
-          xSucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Resultado'), tcStr);
-          Sucesso := not (xSucesso = 'N');
+          Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Resultado'), tcStr);
+          Sucesso := (Situacao = '1');
           NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Nota'), tcStr);
           Link := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('LinkImpressao'), tcStr);
         end;
@@ -500,7 +501,7 @@ begin
   FPMsgOrig := AMSG;
 
   Result := Executar(SoapAction + '#GerarNota', AMSG,
-                     [''],
+                     [],
                      ['xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
                       'xmlns:xsd="http://www.w3.org/2001/XMLSchema"',
                       'xmlns:urn="' + SoapAction + '"']);
@@ -512,7 +513,7 @@ begin
   FPMsgOrig := AMSG;
 
   Result := Executar(SoapAction + '#ConsultarNotaPrestador', AMSG,
-                     [''],
+                     [],
                      ['xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
                       'xmlns:xsd="http://www.w3.org/2001/XMLSchema"',
                       'xmlns:urn="' + SoapAction + '"']);
@@ -523,10 +524,18 @@ begin
   FPMsgOrig := AMSG;
 
   Result := Executar(SoapAction + '#CancelarNota', AMSG,
-                     [''],
+                     [],
                      ['xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
                       'xmlns:xsd="http://www.w3.org/2001/XMLSchema"',
                       'xmlns:urn="' + SoapAction + '"']);
+end;
+
+function TACBrNFSeXWebserviceSigISS.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := string(NativeStringToUTF8(Result));
 end;
 
 { TACBrNFSeXWebserviceSigISS103 }
@@ -537,7 +546,7 @@ begin
   FPMsgOrig := AMSG;
 
   Result := Executar(SoapAction + '#ConsultarNfseServicoPrestado', AMSG,
-                     [''],
+                     [],
                      ['xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
                       'xmlns:xsd="http://www.w3.org/2001/XMLSchema"',
                       'xmlns:urn="' + SoapAction + '"']);
@@ -577,7 +586,7 @@ begin
 
   Response.Metodo := tmConsultarNFSe;
 
-  Response.XmlEnvio := '<ConsultarNfseServicoPrestado xmlns="http://iss.londrina.pr.gov.br/ws/v1_03">' +
+  Response.ArquivoEnvio := '<ConsultarNfseServicoPrestado xmlns="http://iss.londrina.pr.gov.br/ws/v1_03">' +
                          '<ConsultarNfseServicoPrestadoEnvio>' +
                            '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
                            '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
@@ -614,23 +623,23 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<CancelarNota xmlns="http://iss.londrina.pr.gov.br/ws/v1_03"">' +
-                         '<DescricaoCancelaNota>' +
-                           '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
-                           '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
-                           '<cpf>' + Trim(Emitente.WSUser) + '</cpf>' +
-                           '<senha>' + Trim(Emitente.WSSenha) + '</senha>' +
-                           '<nota>' +
-                             Response.InfCancelamento.NumeroNFSe +
-                           '</nota>' +
-                           '<cod_cancelamento>' +
-                             Response.InfCancelamento.CodCancelamento +
-                           '</cod_cancelamento>' +
-                           '<email>' +
-                             '' +
-                           '</email>' +
-                         '</DescricaoCancelaNota>' +
-                       '</CancelarNota>';
+  Response.ArquivoEnvio := '<CancelarNota xmlns="http://iss.londrina.pr.gov.br/ws/v1_03">' +
+                             '<DescricaoCancelaNota>' +
+                               '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
+                               '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
+                               '<cpf>' + Trim(Emitente.WSUser) + '</cpf>' +
+                               '<senha>' + Trim(Emitente.WSSenha) + '</senha>' +
+                               '<nota>' +
+                                 Response.InfCancelamento.NumeroNFSe +
+                               '</nota>' +
+                               '<cod_cancelamento>' +
+                                 Response.InfCancelamento.CodCancelamento +
+                               '</cod_cancelamento>' +
+                               '<email>' +
+                                 Response.InfCancelamento.email +
+                               '</email>' +
+                             '</DescricaoCancelaNota>' +
+                           '</CancelarNota>';
 end;
 
 end.

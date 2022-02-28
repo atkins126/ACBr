@@ -38,11 +38,11 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrBase, ACBrUtil, ACBrDFe, ACBrDFeException, ACBrDFeConfiguracoes,
-  ACBrNFSeXDANFSeClass, ACBrNFSeXConfiguracoes, ACBrNFSeXNotasFiscais,
-  ACBrNFSeXClass, ACBrXmlBase, ACBrNFSeXWebservices,
-  ACBrNFSeXInterface, ACBrNFSeXWebserviceBase,
-  ACBrNFSeXWebservicesResponse, ACBrNFSeXProviderManager, ACBrNFSeXConversao;
+  ACBrBase,
+  ACBrDFe, ACBrDFeException, ACBrDFeConfiguracoes,
+  ACBrNFSeXConfiguracoes, ACBrNFSeXNotasFiscais, ACBrNFSeXWebservices,
+  ACBrNFSeXClass, ACBrNFSeXInterface, ACBrNFSeXConversao,
+  ACBrNFSeXWebserviceBase, ACBrNFSeXDANFSeClass;
 
 resourcestring
   ERR_SEM_PROVEDOR = 'Nenhum provedor selecionado';
@@ -181,7 +181,7 @@ type
     property Status: TStatusACBrNFSe      read FStatus;
     property Provider: IACBrNFSeXProvider read FProvider;
     property NumID[ANFSe: TNFSe]: string  read GetNumID;
-    property WebService: TWebServices read FWebService;
+    property WebService: TWebServices     read FWebService;
 
   published
     property Configuracoes: TConfiguracoesNFSe read GetConfiguracoes write SetConfiguracoes;
@@ -192,8 +192,10 @@ type
 implementation
 
 uses
-  StrUtils, DateUtils, Math,
-  ACBrDFeSSL, ACBrNFSeXProviderBase;
+  Math,
+  ACBrUtil,
+  ACBrDFeSSL,
+  ACBrNFSeXProviderManager;
 
 {$IFDEF FPC}
  {$R ACBrNFSeXServicos.rc}
@@ -810,6 +812,9 @@ begin
     SerieRps := aInfCancelamento.SerieRps;
     ValorNFSe := aInfCancelamento.ValorNFSe;
     CodVerificacao := aInfCancelamento.CodVerificacao;
+    email := aInfCancelamento.email;
+    NumeroNFSeSubst := aInfCancelamento.NumeroNFSeSubst;
+    SerieNFSeSubst := aInfCancelamento.SerieNFSeSubst;
   end;
 
   FProvider.CancelaNFSe;

@@ -6,11 +6,7 @@ interface
 
 uses
   Classes, SysUtils,
-  {$ifdef FPC}
-  fpcunit, testutils, testregistry, LConvEncoding
-  {$else}
-    TestFramework
-  {$endif};
+  ACBrTests.Util;
 
 type
 
@@ -99,7 +95,7 @@ type
     procedure RECOPI_Valido_RetornaTrue;
   end;
 
-  ExtraiURITest = class(TTestCase)
+  EncontrarURITest = class(TTestCase)
   published
     procedure Nao_Possui_ID_RetornaVazio;
     procedure Nao_Possui_Aspa_Inicial_LevantaExcecao;
@@ -251,7 +247,7 @@ end;
 procedure FormatarChaveAcessoTest.FormataChave;
 begin
   CheckEquals('9999 9999 9999 9999 9999 9999 9999 9999 9999 9999 9999', FormatarChaveAcesso('99999999999999999999999999999999999999999999'));
-end;          
+end;
 
 { ValidaDIDSITest }
 
@@ -369,7 +365,7 @@ begin
 
   Ano := FormatDateTime('YY', EncodeDate(YearOf(Date)-2, 1, 1));
   DIRE := Ano + '0000000001';
-  CheckFalse(ValidaDIRE(DIRE), 'Ano inferior deveria ser inválido');            
+  CheckFalse(ValidaDIRE(DIRE), 'Ano inferior deveria ser inválido');
 end;
 
 procedure ValidaDIRETest.ComLetras_RetornaFalso;
@@ -395,7 +391,7 @@ var
   Ano, DIRE: string;
 begin
   Ano := FormatDateTime('YY', Date);
-  
+
   DIRE := Ano + ONZE_CARACTERES;
   CheckFalse(ValidaDIRE(DIRE), 'DIRE com mais de 12 caracteres deveria ser inválido');
 
@@ -439,7 +435,7 @@ begin
   CheckFalse(ValidaRE(RE));
 
   RE := Ano + 'A0000001'+ '001';
-  CheckFalse(ValidaRE(RE));      
+  CheckFalse(ValidaRE(RE));
 end;
 
 procedure ValidaRETest.Diferente_de_12_Caracteres_RetornaFalso;
@@ -615,13 +611,13 @@ end;
 
 { ExtraiURITest }
 
-procedure ExtraiURITest.Nao_Possui_Aspa_Final_LevantaExcecao;
+procedure EncontrarURITest.Nao_Possui_Aspa_Final_LevantaExcecao;
 const
   XML_URI = '<xml Id="teste>';
   MSG_ESPERADA = 'Não encontrei inicio do URI: aspas final';
 begin
   try
-    ExtraiURI(XML_URI);
+    EncontrarURI(XML_URI);
   except on e: Exception do
     begin
       Check(e is EACBrDFeException);
@@ -630,13 +626,13 @@ begin
   end;
 end;
 
-procedure ExtraiURITest.Nao_Possui_Aspa_Inicial_LevantaExcecao;
+procedure EncontrarURITest.Nao_Possui_Aspa_Inicial_LevantaExcecao;
 const
   XML_URI = '<xml Id=teste>';
   MSG_ESPERADA = 'Não encontrei inicio do URI: aspas inicial';
 begin
   try
-    ExtraiURI(XML_URI);
+    EncontrarURI(XML_URI);
   except on e: Exception do
     begin
       Check(e is EACBrDFeException);
@@ -645,18 +641,18 @@ begin
   end;
 end;
 
-procedure ExtraiURITest.Nao_Possui_ID_RetornaVazio;
+procedure EncontrarURITest.Nao_Possui_ID_RetornaVazio;
 const
   XML_URI = '<xml>';
 begin
-  CheckEquals('', ExtraiURI(XML_URI));
+  CheckEquals('', EncontrarURI(XML_URI));
 end;
 
-procedure ExtraiURITest.URI_Correta_Retorna_URI;
+procedure EncontrarURITest.URI_Correta_Retorna_URI;
 const
   XML_URI = '<xml Id="teste">';
 begin
-  CheckEquals('teste', ExtraiURI(XML_URI));
+  CheckEquals('teste', EncontrarURI(XML_URI));
 end;
 
 { XmlEstaAssinadoTest }
@@ -735,18 +731,18 @@ begin
 end;
 
 initialization
-  RegisterTest('ACBrDFe.ACBrDFeUtil', FormatarNumeroDocumentoFiscalTest{$ifndef FPC}.suite{$endif});
-  RegisterTest('ACBrDFe.ACBrDFeUtil', FormatarChaveAcessoTest{$ifndef FPC}.suite{$endif});
-  RegisterTest('ACBrDFe.ACBrDFeUtil', FormatarNumeroDocumentoFiscalNFSeTest{$ifndef FPC}.suite{$endif});
-  RegisterTest('ACBrDFe.ACBrDFeUtil', ValidaUFCidadeTest{$ifndef FPC}.suite{$endif});
-  RegisterTest('ACBrDFe.ACBrDFeUtil', ValidaDIDSITest{$ifndef FPC}.suite{$endif});
-  RegisterTest('ACBrDFe.ACBrDFeUtil', ValidaDIRETest{$ifndef FPC}.suite{$endif});
-  RegisterTest('ACBrDFe.ACBrDFeUtil', ValidaRETest{$ifndef FPC}.suite{$endif});
-  RegisterTest('ACBrDFe.ACBrDFeUtil', ValidaDrawbackTest{$ifndef FPC}.suite{$endif});
-  RegisterTest('ACBrDFe.ACBrDFeUtil', ValidaRECOPITest{$ifndef FPC}.suite{$endif});
-  RegisterTest('ACBrDFe.ACBrDFeUtil', ExtraiURITest{$ifndef FPC}.suite{$endif});
-  RegisterTest('ACBrDFe.ACBrDFeUtil', XmlEstaAssinadoTest{$ifndef FPC}.suite{$endif});
-  RegisterTest('ACBrDFe.URLServicos', URLServicosTest{$ifndef FPC}.suite{$endif});
+  _RegisterTest('ACBrDFe.ACBrDFeUtil', FormatarNumeroDocumentoFiscalTest);
+  _RegisterTest('ACBrDFe.ACBrDFeUtil', FormatarChaveAcessoTest);
+  _RegisterTest('ACBrDFe.ACBrDFeUtil', FormatarNumeroDocumentoFiscalNFSeTest);
+  _RegisterTest('ACBrDFe.ACBrDFeUtil', ValidaUFCidadeTest);
+  _RegisterTest('ACBrDFe.ACBrDFeUtil', ValidaDIDSITest);
+  _RegisterTest('ACBrDFe.ACBrDFeUtil', ValidaDIRETest);
+  _RegisterTest('ACBrDFe.ACBrDFeUtil', ValidaRETest);
+  _RegisterTest('ACBrDFe.ACBrDFeUtil', ValidaDrawbackTest);
+  _RegisterTest('ACBrDFe.ACBrDFeUtil', ValidaRECOPITest);
+  _RegisterTest('ACBrDFe.ACBrDFeUtil', EncontrarURITest);
+  _RegisterTest('ACBrDFe.ACBrDFeUtil', XmlEstaAssinadoTest);
+  _RegisterTest('ACBrDFe.URLServicos', URLServicosTest);
 
 end.
 

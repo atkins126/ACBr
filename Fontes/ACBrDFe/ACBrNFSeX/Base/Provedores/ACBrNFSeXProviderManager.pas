@@ -37,8 +37,9 @@ unit ACBrNFSeXProviderManager;
 interface
 
 uses
-  SysUtils, Classes, ACBrUtil,
-  ACBrNFSeXInterface, ACBrNFSeXConversao, ACBrDFe;
+  SysUtils, Classes,
+  ACBrDFe,
+  ACBrNFSeXInterface;
 
 type
 
@@ -50,13 +51,12 @@ type
 implementation
 
 uses
-  ACBrNFSeX,
+  ACBrNFSeX, ACBrNFSeXConversao,
 
   // Provedores que seguem a versão 1 do layout da ABRASF
   BHISS.Provider,
   CIGA.Provider,
   DBSeller.Provider,
-  DSFSJC.Provider,
   FISSLex.Provider,
   geNFe.Provider,
   Ginfes.Provider,
@@ -234,8 +234,17 @@ begin
         Result := TACBrNFSeProviderDesenvolve203.Create(ACBrNFSe);
 
       proDigifred: Result := TACBrNFSeProviderDigifred200.Create(ACBrNFSe);
-      proDSF:      Result := TACBrNFSeProviderDSF200.Create(ACBrNFSe);
-      proDSFSJC:   Result := TACBrNFSeProviderDSFSJC.Create(ACBrNFSe);
+
+      proDSF:
+        begin
+          case Versao of
+            ve100: Result := TACBrNFSeProviderDSF.Create(ACBrNFSe);
+            ve200: Result := TACBrNFSeProviderDSF200.Create(ACBrNFSe);
+            ve203: Result := TACBrNFSeProviderDSF203.Create(ACBrNFSe);
+          else
+            Result := nil;
+          end;
+        end;
 
       proeGoverneISS:
         Result := TACBrNFSeProvidereGoverneISS.Create(ACBrNFSe);

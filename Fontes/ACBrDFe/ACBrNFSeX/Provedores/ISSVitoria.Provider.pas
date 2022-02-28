@@ -56,6 +56,7 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderISSVitoria200 = class (TACBrNFSeProviderABRASFv2)
@@ -89,9 +90,13 @@ begin
     RpsSubstituirNFSe := True;
   end;
 
-  SetXmlNameSpace('http://www.abrasf.org.br/nfse.xsd');
+  with ConfigWebServices do
+  begin
+    VersaoDados := '2.01';
+    VersaoDados := '2.01';
+  end;
 
-  ConfigMsgDados.XmlRps.xmlns := 'http://www.abrasf.org.br/';
+  SetXmlNameSpace('http://www.abrasf.org.br/nfse.xsd');
 end;
 
 function TACBrNFSeProviderISSVitoria200.CriarGeradorXml(
@@ -285,6 +290,16 @@ begin
   Result := Executar('http://www.abrasf.org.br/nfse.xsd/SubstituirNfse', Request,
                      ['SubstituirNfseResult', 'SubstituirNfseResposta'],
                      []);
+end;
+
+function TACBrNFSeXWebserviceISSVitoria200.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverIdentacao(Result);
 end;
 
 end.

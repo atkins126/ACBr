@@ -183,6 +183,12 @@ begin
     end;
     Leitor.GroupRestore(False);
 
+    oAdicao.fabricanteCidade                             := Leitor.rCampo(tcStr, 'fabricanteCidade');
+    oAdicao.fabricanteComplemento                        := Leitor.rCampo(tcStr, 'fabricanteComplemento');
+    oAdicao.fabricanteEstado                             := Leitor.rCampo(tcStr, 'fabricanteEstado');
+    oAdicao.fabricanteLogradouro                         := Leitor.rCampo(tcStr, 'fabricanteLogradouro');
+    oAdicao.fabricanteNome                               := Leitor.rCampo(tcStr, 'fabricanteNome');
+    oAdicao.fabricanteNumero                             := Leitor.rCampo(tcInt, 'fabricanteNumero');
     oAdicao.fornecedorCidade                             := Leitor.rCampo(tcStr, 'fornecedorCidade');
     oAdicao.fornecedorComplemento                        := Leitor.rCampo(tcStr, 'fornecedorComplemento');
     oAdicao.fornecedorEstado                             := Leitor.rCampo(tcStr, 'fornecedorEstado');
@@ -298,6 +304,8 @@ begin
   DI.canalSelecaoParametrizada           := Leitor.rCampo(tcInt, 'canalSelecaoParametrizada');
   DI.caracterizacaoOperacaoCodigoTipo    := Leitor.rCampo(tcInt, 'caracterizacaoOperacaoCodigoTipo');
   DI.caracterizacaoOperacaoDescricaoTipo := Leitor.rCampo(tcStr, 'caracterizacaoOperacaoDescricaoTipo');
+  DI.caracterizacaoOperacaoNome          := Leitor.rCampo(tcStr, 'caracterizacaoOperacaoNome');
+  DI.caracterizacaoOperacaoNumero        := Leitor.rCampo(tcStr, 'caracterizacaoOperacaoNumero');
   DI.cargaDataChegada                    := Leitor.rCampo(tcDatCFe, 'cargaDataChegada');
   DI.cargaNumeroAgente                   := Leitor.rCampo(tcStr, 'cargaNumeroAgente');
   DI.cargaPaisProcedenciaCodigo          := Leitor.rCampo(tcInt, 'cargaPaisProcedenciaCodigo');
@@ -356,9 +364,10 @@ begin
 
   if (Leitor.rExtrai(1, 'embalagem') <> '') then
   begin
-    DI.embalagem.codigoTipoEmbalagem := Leitor.rCampo(tcInt, 'codigoTipoEmbalagem');
-    DI.embalagem.nomeEmbalagem       := Leitor.rCampo(tcStr, 'nomeEmbalagem');
-    DI.embalagem.quantidadeVolume    := Leitor.rCampo(tcDe2, 'quantidadeVolume');
+    DI.embalagem.codigoTipoEmbalagem  := Leitor.rCampo(tcInt, 'codigoTipoEmbalagem');
+    DI.embalagem.nomeEmbalagem        := Leitor.rCampo(tcStr, 'nomeEmbalagem');
+    DI.embalagem.moedaNegociadaCodigo := Leitor.rCampo(tcInt, 'moedaNegociadaCodigo');
+    DI.embalagem.quantidadeVolume     := Leitor.rCampo(tcDe2, 'quantidadeVolume');
   end;
   Leitor.GroupRestore;
 
@@ -371,25 +380,30 @@ begin
   DI.freteTotalMoeda           := Leitor.rCampo(tcDe2, 'freteTotalMoeda');
   DI.freteTotalReais           := Leitor.rCampo(tcDe2, 'freteTotalReais');
 
-  if (Leitor.rExtrai(1, 'icms') <> '') then
+  i := 0;
+  DI.dossie.Clear;
+  while (Leitor.rExtrai(1, 'icms', '', i+1) <> '') do
   begin
-    DI.icms.agenciaIcms                := Leitor.rCampo(tcInt, 'agenciaIcms');
-    DI.icms.bancoIcms                  := Leitor.rCampo(tcInt, 'bancoIcms');
-    DI.icms.codigoTipoRecolhimentoIcms := Leitor.rCampo(tcInt, 'codigoTipoRecolhimentoIcms');
-    DI.icms.cpfResponsavelRegistro     := Leitor.rCampo(tcStr, 'cpfResponsavelRegistro');
-    DI.icms.dataRegistro               := Leitor.rCampo(tcDatCFe, 'dataRegistro');
-    DI.icms.horaRegistro               := Leitor.rCampo(tcHorCFe, 'horaRegistro');
-    DI.icms.nomeTipoRecolhimentoIcms   := Leitor.rCampo(tcStr, 'nomeTipoRecolhimentoIcms');
-    DI.icms.numeroSequencialIcms       := Leitor.rCampo(tcInt, 'numeroSequencialIcms');
-    DI.icms.ufIcms                     := Leitor.rCampo(tcStr, 'ufIcms');
-    DI.icms.valorTotalIcms             := Leitor.rCampo(tcDe2, 'valorTotalIcms');
+    DI.icms.New;
+    DI.icms[i].agenciaIcms                := Leitor.rCampo(tcInt, 'agenciaIcms');
+    DI.icms[i].bancoIcms                  := Leitor.rCampo(tcInt, 'bancoIcms');
+    DI.icms[i].codigoTipoRecolhimentoIcms := Leitor.rCampo(tcInt, 'codigoTipoRecolhimentoIcms');
+    DI.icms[i].cpfResponsavelRegistro     := Leitor.rCampo(tcStr, 'cpfResponsavelRegistro');
+    DI.icms[i].dataPagamentoIcms          := Leitor.rCampo(tcDatCFe, 'dataPagamentoIcms');
+    DI.icms[i].dataRegistro               := Leitor.rCampo(tcDatCFe, 'dataRegistro');
+    DI.icms[i].horaRegistro               := Leitor.rCampo(tcHorCFe, 'horaRegistro');
+    DI.icms[i].nomeTipoRecolhimentoIcms   := Leitor.rCampo(tcStr, 'nomeTipoRecolhimentoIcms');
+    DI.icms[i].numeroSequencialIcms       := Leitor.rCampo(tcInt, 'numeroSequencialIcms');
+    DI.icms[i].ufIcms                     := Leitor.rCampo(tcStr, 'ufIcms');
+    DI.icms[i].valorTotalIcms             := Leitor.rCampo(tcDe2, 'valorTotalIcms');
+    Inc(i);
   end;
   Leitor.GroupRestore;
 
   DI.importadorCodigoTipo             := Leitor.rCampo(tcInt, 'importadorCodigoTipo');
-  DI.importadorCpfRepresentanteLegal  := Leitor.rCampo(tcDe2, 'importadorCpfRepresentanteLegal');
+  DI.importadorCpfRepresentanteLegal  := Leitor.rCampo(tcStr, 'importadorCpfRepresentanteLegal');
   DI.importadorEnderecoBairro         := Leitor.rCampo(tcStr, 'importadorEnderecoBairro');
-  DI.importadorEnderecoCep            := Leitor.rCampo(tcInt, 'importadorEnderecoCep');
+  DI.importadorEnderecoCep            := Leitor.rCampo(tcStr, 'importadorEnderecoCep');
   DI.importadorEnderecoComplemento    := Leitor.rCampo(tcStr, 'importadorEnderecoComplemento');
   DI.importadorEnderecoLogradouro     := Leitor.rCampo(tcStr, 'importadorEnderecoLogradouro');
   DI.importadorEnderecoMunicipio      := Leitor.rCampo(tcStr, 'importadorEnderecoMunicipio');

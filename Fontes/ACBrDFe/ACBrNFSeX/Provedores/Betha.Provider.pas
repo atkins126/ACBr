@@ -87,6 +87,7 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderBetha202 = class (TACBrNFSeProviderABRASFv2)
@@ -97,6 +98,7 @@ type
     function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
+    function DefinirIDLote(const ID: string): string; override;
   end;
 
 implementation
@@ -217,11 +219,11 @@ var
 begin
   inherited PrepararEmitir(Response);
 
-  aXml := RetornarConteudoEntre(Response.XmlEnvio,
+  aXml := RetornarConteudoEntre(Response.ArquivoEnvio,
    '<EnviarLoteRpsEnvio xmlns="http://www.betha.com.br/e-nota-contribuinte-ws">',
    '</EnviarLoteRpsEnvio>', False);
 
-  Response.XmlEnvio := '<ns3:EnviarLoteRpsEnvio xmlns:ns3="http://www.betha.com.br/e-nota-contribuinte-ws">' +
+  Response.ArquivoEnvio := '<ns3:EnviarLoteRpsEnvio xmlns:ns3="http://www.betha.com.br/e-nota-contribuinte-ws">' +
                          aXml +
                        '</ns3:EnviarLoteRpsEnvio>';
 end;
@@ -233,11 +235,11 @@ var
 begin
   inherited PrepararConsultaSituacao(Response);
 
-  aXml := RetornarConteudoEntre(Response.XmlEnvio,
+  aXml := RetornarConteudoEntre(Response.ArquivoEnvio,
    '<ConsultarSituacaoLoteRpsEnvio xmlns="http://www.betha.com.br/e-nota-contribuinte-ws">',
    '</ConsultarSituacaoLoteRpsEnvio>', False);
 
-  Response.XmlEnvio := '<ns3:ConsultarSituacaoLoteRpsEnvio xmlns:ns3="http://www.betha.com.br/e-nota-contribuinte-ws">' +
+  Response.ArquivoEnvio := '<ns3:ConsultarSituacaoLoteRpsEnvio xmlns:ns3="http://www.betha.com.br/e-nota-contribuinte-ws">' +
                          aXml +
                        '</ns3:ConsultarSituacaoLoteRpsEnvio>';
 end;
@@ -249,11 +251,11 @@ var
 begin
   inherited PrepararConsultaLoteRps(Response);
 
-  aXml := RetornarConteudoEntre(Response.XmlEnvio,
+  aXml := RetornarConteudoEntre(Response.ArquivoEnvio,
    '<ConsultarLoteRpsEnvio xmlns="http://www.betha.com.br/e-nota-contribuinte-ws">',
    '</ConsultarLoteRpsEnvio>', False);
 
-  Response.XmlEnvio := '<ns3:ConsultarLoteRpsEnvio xmlns:ns3="http://www.betha.com.br/e-nota-contribuinte-ws">' +
+  Response.ArquivoEnvio := '<ns3:ConsultarLoteRpsEnvio xmlns:ns3="http://www.betha.com.br/e-nota-contribuinte-ws">' +
                          aXml +
                        '</ns3:ConsultarLoteRpsEnvio>';
 end;
@@ -265,11 +267,11 @@ var
 begin
   inherited PrepararConsultaNFSeporRps(Response);
 
-  aXml := RetornarConteudoEntre(Response.XmlEnvio,
+  aXml := RetornarConteudoEntre(Response.ArquivoEnvio,
    '<ConsultarNfsePorRpsEnvio xmlns="http://www.betha.com.br/e-nota-contribuinte-ws">',
    '</ConsultarNfsePorRpsEnvio>', False);
 
-  Response.XmlEnvio := '<ns3:ConsultarNfsePorRpsEnvio xmlns:ns3="http://www.betha.com.br/e-nota-contribuinte-ws">' +
+  Response.ArquivoEnvio := '<ns3:ConsultarNfsePorRpsEnvio xmlns:ns3="http://www.betha.com.br/e-nota-contribuinte-ws">' +
                          aXml +
                        '</ns3:ConsultarNfsePorRpsEnvio>';
 end;
@@ -281,11 +283,11 @@ var
 begin
   inherited PrepararConsultaNFSe(Response);
 
-  aXml := RetornarConteudoEntre(Response.XmlEnvio,
+  aXml := RetornarConteudoEntre(Response.ArquivoEnvio,
    '<ConsultarNfseEnvio xmlns="http://www.betha.com.br/e-nota-contribuinte-ws">',
    '</ConsultarNfseEnvio>', False);
 
-  Response.XmlEnvio := '<ns3:ConsultarNfseEnvio xmlns:ns3="http://www.betha.com.br/e-nota-contribuinte-ws">' +
+  Response.ArquivoEnvio := '<ns3:ConsultarNfseEnvio xmlns:ns3="http://www.betha.com.br/e-nota-contribuinte-ws">' +
                          aXml +
                        '</ns3:ConsultarNfseEnvio>';
 end;
@@ -297,11 +299,11 @@ var
 begin
   inherited PrepararCancelaNFSe(Response);
 
-  aXml := RetornarConteudoEntre(Response.XmlEnvio,
+  aXml := RetornarConteudoEntre(Response.ArquivoEnvio,
    '<CancelarNfseEnvio xmlns="http://www.betha.com.br/e-nota-contribuinte-ws">',
    '</CancelarNfseEnvio>', False);
 
-  Response.XmlEnvio := aXml;
+  Response.ArquivoEnvio := aXml;
 end;
 
 procedure TACBrNFSeProviderBetha.AssinarCancelaNFSe(
@@ -309,8 +311,8 @@ procedure TACBrNFSeProviderBetha.AssinarCancelaNFSe(
 begin
   inherited AssinarCancelaNFSe(Response);
 
-  Response.XmlEnvio := '<ns3:CancelarNfseEnvio xmlns:ns3="http://www.betha.com.br/e-nota-contribuinte-ws">' +
-                         Response.XmlEnvio +
+  Response.ArquivoEnvio := '<ns3:CancelarNfseEnvio xmlns:ns3="http://www.betha.com.br/e-nota-contribuinte-ws">' +
+                         Response.ArquivoEnvio +
                        '</ns3:CancelarNfseEnvio>';
 end;
 
@@ -373,6 +375,12 @@ begin
     else
       raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
   end;
+end;
+
+function TACBrNFSeProviderBetha202.DefinirIDLote(const ID: string): string;
+begin
+  if ConfigGeral.Identificador <> '' then
+    Result := ' ' + ConfigGeral.Identificador + '="lote' + ID + '"';
 end;
 
 { TACBrNFSeXWebserviceBetha202 }
@@ -548,6 +556,15 @@ begin
   Result := Executar('SubstituirNfseEnvio', Request,
                      ['return', 'SubstutuirNfseResposta'],
                 ['xmlns:tns="http://www.betha.com.br/e-nota-contribuinte-ws"']);
+end;
+
+function TACBrNFSeXWebserviceBetha202.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
 end;
 
 end.

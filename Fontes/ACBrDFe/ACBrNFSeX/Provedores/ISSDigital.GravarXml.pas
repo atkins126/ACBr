@@ -62,11 +62,15 @@ procedure TNFSeW_ISSDigital200.Configuracao;
 begin
   inherited Configuracao;
 
+  FormatoItemListaServico := filsSemFormatacaoSemZeroEsquerda;
+
   NrOcorrValorISS := 1;
   NrOcorrAliquota := 1;
   NrOcorrProducao := 1;
+  NrOcorrSenha := 1;
+  NrOcorrFraseSecreta := 1;
 
-  GerarTagSenhaFraseSecreta := True;
+  GerarIDRps := True;
 end;
 
 end.

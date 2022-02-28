@@ -731,23 +731,32 @@ var
    RestPart: Double;
    IntCalc, FracCalc, LastNumber, IntValue : Int64;
    Negativo: Boolean;
-Begin
-   Negativo  := (AValue < 0);
+{$IFNDEF EXTERNALLINKER}
+   OldRM: TFPURoundingMode;
+{$ELSE}
+   OldRM: TRoundingMode;
+{$ENDIF}
+begin
+  OldRM := GetRoundMode;
+  try
+    if (OldRM <> rmNearest) then
+      SetRoundMode(rmNearest);
 
-   Pow       := intpower(10, abs(Digits) );
-   PowValue  := abs(AValue) / 10 ;
-   IntValue  := trunc(PowValue);
-   FracValue := frac(PowValue);
+    Negativo  := (AValue < 0);
+    Pow       := intpower(10, abs(Digits) );
+    PowValue  := abs(AValue) / 10 ;
+    IntValue  := trunc(PowValue);
+    FracValue := frac(PowValue);
 
-   PowValue := SimpleRoundToEX( FracValue * 10 * Pow, -9) ; // SimpleRoundTo elimina dizimas ;
-   IntCalc  := trunc( PowValue );
-   FracCalc := trunc( frac( PowValue ) * 100 );
+    PowValue := SimpleRoundToEX( FracValue * 10 * Pow, -9) ; // SimpleRoundTo elimina dizimas ;
+    IntCalc  := trunc( PowValue );
+    FracCalc := trunc( frac( PowValue ) * 100 );
 
-   if (FracCalc > 50) then
+    if (FracCalc > 50) then
      Inc( IntCalc )
 
-   else if (FracCalc = 50) then
-   begin
+    else if (FracCalc = 50) then
+    begin
      LastNumber := round( frac( IntCalc / 10) * 10);
 
      if odd(LastNumber) then
@@ -759,11 +768,14 @@ Begin
        if RestPart > Delta then
          Inc( IntCalc );
      end ;
-   end ;
+    end ;
 
-   Result := ((IntValue*10) + (IntCalc / Pow));
-   if Negativo then
+    Result := ((IntValue*10) + (IntCalc / Pow));
+    if Negativo then
      Result := -Result;
+  finally
+    SetRoundMode(OldRM);
+  end;
 end;
 
 function TruncTo(const AValue: Double; const Digits: TRoundToRange): Double;
@@ -996,8 +1008,8 @@ end ;
  ---------------------------------------------------------------------------- }
 function IntToLEStr(AInteger: Integer; BytesStr: Integer): AnsiString;
 var
-   AHexStr: String;
-   LenHex, P, DecVal: Integer;
+  AHexStr: String;
+  LenHex, P, DecVal: Integer;
 begin
   LenHex  := BytesStr * 2 ;
   AHexStr := IntToHex(AInteger,LenHex);
@@ -2073,7 +2085,7 @@ end ;
 
 function Iso8601ToDateTime(const AISODate: string): TDateTime;
 var
-  y, m, d, h, n, s: word;
+  y, m, d, h, n, s, z: word;
 begin
   y := StrToInt(Copy(AISODate, 1, 4));
   m := StrToInt(Copy(AISODate, 6, 2));
@@ -2081,8 +2093,9 @@ begin
   h := StrToInt(Copy(AISODate, 12, 2));
   n := StrToInt(Copy(AISODate, 15, 2));
   s := StrToInt(Copy(AISODate, 18, 2));
+  z := StrToIntDef(Copy(AISODate, 21, 3), 0);
 
-  Result := EncodeDateTime(y,m,d, h,n,s,0);
+  Result := EncodeDateTime(y,m,d, h,n,s,z);
 end;
 
 function DateTimeToIso8601(ADate: TDateTime; const ATimeZone: string = ''): string;

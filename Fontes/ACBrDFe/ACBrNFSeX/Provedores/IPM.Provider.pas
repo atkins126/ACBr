@@ -56,6 +56,7 @@ type
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderIPM = class (TACBrNFSeProviderProprio)
@@ -84,12 +85,16 @@ type
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
-    procedure ProcessarMensagemErros(const RootNode: TACBrXmlNode;
-                                     const Response: TNFSeWebserviceResponse;
-                                     AListTag: string = '';
-                                     AMessageTag: string = 'Erro'); override;
+    procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
+                                     Response: TNFSeWebserviceResponse;
+                                     const AListTag: string = '';
+                                     const AMessageTag: string = 'Erro'); override;
 
     function AjustarRetorno(const Retorno: string): string;
+
+  public
+    function SimNaoToStr(const t: TnfseSimNao): string; override;
+    function StrToSimNao(out ok: boolean; const s: string): TnfseSimNao; override;
   end;
 
   TACBrNFSeXWebserviceIPM101 = class(TACBrNFSeXWebserviceMulti2)
@@ -102,6 +107,7 @@ type
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderIPM101 = class (TACBrNFSeProviderIPM)
@@ -134,8 +140,11 @@ begin
     ConsultaNFSe := False;
   end;
 
-  ConfigAssinar.RpsGerarNFSe := (Pos('AssinarRps', ConfigGeral.Params2) > 0);
-  ConfigAssinar.CancelarNFSe := (Pos('AssinarCancelar', ConfigGeral.Params2) > 0);
+  with ConfigAssinar do
+  begin
+    RpsGerarNFSe := ConfigGeral.Params.ParamTemValor('Assinar', 'AssRpsGerarNfse');
+    CancelarNFSe := ConfigGeral.Params.ParamTemValor('Assinar', 'AssCancelarNfse');
+  end;
 
   SetXmlNameSpace('');
 
@@ -190,8 +199,8 @@ begin
 end;
 
 procedure TACBrNFSeProviderIPM.ProcessarMensagemErros(
-  const RootNode: TACBrXmlNode; const Response: TNFSeWebserviceResponse;
-  AListTag, AMessageTag: string);
+  RootNode: TACBrXmlNode; Response: TNFSeWebserviceResponse;
+  const AListTag, AMessageTag: string);
 var
   I, j, k: Integer;
   ANode: TACBrXmlNode;
@@ -210,30 +219,46 @@ begin
 
   for I := Low(ANodeArray) to High(ANodeArray) do
   begin
-    aMsg := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('codigo'), tcStr);
+    Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('codigo'), tcStr);
 
-    if aMsg = '' then
+    if Codigo <> '' then
     begin
       aMsg := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('MensagemRetorno'), tcStr);
 
-      j := Pos('code', aMsg);
-
-      if j > 0 then
-       Codigo := Copy(aMsg, j + 6, 3);
-
-
-      j := Pos('msg', aMsg);
-
-      if j > 0 then
+      if aMsg = '' then
       begin
-        AErro := Response.Erros.New;
+        aMsg := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
 
-        AErro.Codigo := Codigo;
-        AErro.Descricao := Copy(aMsg, j + 6, Length(aMsg));
-        k := Pos(',', AErro.Descricao);
-        AErro.Descricao := Copy(AErro.Descricao, 1, k - 2);
+        if aMsg <> '' then
+        begin
+          AErro := Response.Erros.New;
 
-        AErro.Correcao := '';
+          AErro.Codigo := Codigo;
+          AErro.Descricao := aMsg;
+          AErro.Correcao := '';
+        end;
+      end
+      else
+      begin
+        j := Pos('code', aMsg);
+
+        if j > 0 then
+         Codigo := Copy(aMsg, j + 6, 3);
+
+
+        j := Pos('msg', aMsg);
+
+        if j > 0 then
+        begin
+          AErro := Response.Erros.New;
+
+          AErro.Codigo := Codigo;
+          AErro.Descricao := Copy(aMsg, j + 6, Length(aMsg));
+          k := Pos(',', AErro.Descricao);
+          AErro.Descricao := Copy(AErro.Descricao, 1, k - 2);
+
+          AErro.Correcao := '';
+        end;
       end;
     end
     else
@@ -254,6 +279,19 @@ begin
       end;
     end;
   end;
+end;
+
+function TACBrNFSeProviderIPM.SimNaoToStr(const t: TnfseSimNao): string;
+begin
+  Result := EnumeradoToStr(t, ['0', '1'], [snNao, snSim]);
+end;
+
+function TACBrNFSeProviderIPM.StrToSimNao(out ok: boolean;
+  const s: string): TnfseSimNao;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['0', '1', 'N', 'S'],
+                           [snNao, snSim, snNao, snSim]);
 end;
 
 function TACBrNFSeProviderIPM.AjustarRetorno(const Retorno: string): string;
@@ -278,7 +316,7 @@ end;
 procedure TACBrNFSeProviderIPM.GerarMsgDadosEmitir(Response: TNFSeEmiteResponse;
   Params: TNFSeParamsResponse);
 begin
-  Response.XmlEnvio := Params.Xml;
+  Response.ArquivoEnvio := Params.Xml;
 end;
 
 procedure TACBrNFSeProviderIPM.TratarRetornoEmitir(Response: TNFSeEmiteResponse);
@@ -288,16 +326,15 @@ var
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
   I: Integer;
   NotaCompleta: Boolean;
-  AcessoNegado: Boolean;
 begin
   Document := TACBrXmlDocument.Create;
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -305,21 +342,11 @@ begin
         Exit
       end;
 
-      Response.XmlRetorno := AjustarRetorno(Response.XmlRetorno);
+      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
 
-      NotaCompleta := (Pos('<nfse>', Response.XmlRetorno) > 0);
+      NotaCompleta := (Pos('<nfse>', Response.ArquivoRetorno) > 0);
 
-      AcessoNegado := (Pos('Acesso Negado', Response.XmlRetorno) > 0);
-
-      if AcessoNegado then
-      begin
-        AErro := Response.Erros.New;
-        AErro.Codigo := Cod211;
-        AErro.Descricao := Desc211;
-        Exit;
-      end;
-
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -361,7 +388,7 @@ begin
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
           if Assigned(ANota) then
-            ANota.XML := ANode.OuterXml
+            ANota.XmlNfse := ANode.OuterXml
           else
           begin
             TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -411,7 +438,7 @@ begin
     Exit;
   end;
 
-  Response.XmlEnvio := '<nfse>' +
+  Response.ArquivoEnvio := '<nfse>' +
                          '<pesquisa>' +
                            '<codigo_autenticidade>' +
                              Response.Protocolo +
@@ -427,14 +454,14 @@ var
   AErro: TNFSeEventoCollectionItem;
   ANode, AuxNode: TACBrXmlNode;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
   NotaCompleta: Boolean;
 begin
   Document := TACBrXmlDocument.Create;
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -442,15 +469,16 @@ begin
         Exit
       end;
 
-      Response.XmlRetorno := AjustarRetorno(Response.XmlRetorno);
+      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
 
-      NotaCompleta := (Pos('<nfse>', Response.XmlRetorno) > 0);
+      NotaCompleta := (Pos('<nfse>', Response.ArquivoRetorno) > 0);
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
       ProcessarMensagemErros(ANode, Response, '', 'mensagem');
+      ProcessarMensagemErros(ANode, Response, 'ListaMensagemRetorno', 'MensagemRetorno');
 
       Response.Sucesso := (Response.Erros.Count = 0);
 
@@ -483,7 +511,7 @@ begin
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(Response.NumeroNota);
 
         if Assigned(ANota) then
-          ANota.XML := ANode.OuterXml
+          ANota.XmlNfse := ANode.OuterXml
         else
         begin
           TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -540,7 +568,7 @@ begin
     Exit;
   end;
 
-  Response.XmlEnvio := '<consulta_rps>' +
+  Response.ArquivoEnvio := '<consulta_rps>' +
                          '<cidade>' +
                            CodIBGEToCodTOM(TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio) +
                          '</cidade>' +
@@ -560,14 +588,14 @@ var
   AErro: TNFSeEventoCollectionItem;
   ANode, AuxNode: TACBrXmlNode;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
   NotaCompleta: Boolean;
 begin
   Document := TACBrXmlDocument.Create;
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -575,11 +603,11 @@ begin
         Exit
       end;
 
-      Response.XmlRetorno := AjustarRetorno(Response.XmlRetorno);
+      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
 
-      NotaCompleta := (Pos('<nfse>', Response.XmlRetorno) > 0);
+      NotaCompleta := (Pos('<nfse>', Response.ArquivoRetorno) > 0);
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -609,7 +637,7 @@ begin
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
         if Assigned(ANota) then
-          ANota.XML := ANode.OuterXml
+          ANota.XmlNfse := ANode.OuterXml
         else
         begin
           TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -680,7 +708,7 @@ begin
   else
     TagSerie := 'serie';
 
-  Response.XmlEnvio := '<nfse>' +
+  Response.ArquivoEnvio := '<nfse>' +
                          '<pesquisa>' +
                            '<numero>' +
                              OnlyNumber(Response.InfConsultaNFSe.NumeroIniNFSe) +
@@ -703,7 +731,7 @@ var
   ANode, AuxNode: TACBrXmlNode;
 //  ANodeArray: TACBrXmlNodeArray;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
 //  I: Integer;
   NotaCompleta: Boolean;
 begin
@@ -711,7 +739,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -719,11 +747,11 @@ begin
         Exit
       end;
 
-      Response.XmlRetorno := AjustarRetorno(Response.XmlRetorno);
+      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
 
-      NotaCompleta := (Pos('<nfse>', Response.XmlRetorno) > 0);
+      NotaCompleta := (Pos('<nfse>', Response.ArquivoRetorno) > 0);
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -753,7 +781,7 @@ begin
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
         if Assigned(ANota) then
-          ANota.XML := ANode.OuterXml
+          ANota.XmlNfse := ANode.OuterXml
         else
         begin
           TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -794,7 +822,7 @@ begin
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
           if Assigned(ANota) then
-            ANota.XML := ANode.OuterXml
+            ANota.XmlNfse := ANode.OuterXml
           else
           begin
             TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -837,7 +865,7 @@ procedure TACBrNFSeProviderIPM.PrepararCancelaNFSe(
 var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
-  xSerie, IdAttr: string;
+  xSerie, IdAttr, xSubstituta: string;
 begin
   if EstaVazio(Response.InfCancelamento.NumeroNFSe) then
   begin
@@ -872,9 +900,20 @@ begin
   else
     xSerie := '';
 
-  if ConfigGeral.Params1 = 'SolicitarCancelamento' then
+  if ConfigGeral.Params.TemParametro('SolicitarCancelamento') then
   begin
-    Response.XmlEnvio := '<solicitacao_cancelamento>' +
+    xSubstituta := '';
+    if Response.InfCancelamento.NumeroNFSeSubst <> '' then
+      xSubstituta := '<substituta>' +
+                       '<numero>' +
+                         Response.InfCancelamento.NumeroNFSeSubst +
+                       '</numero>' +
+                       '<serie>' +
+                         Response.InfCancelamento.SerieNFSeSubst +
+                       '</serie>' +
+                     '</substituta>';
+
+    Response.ArquivoEnvio := '<solicitacao_cancelamento>' +
                            '<prestador>' +
                              '<cpfcnpj>' +
                                OnlyNumber(Emitente.CNPJ) +
@@ -894,6 +933,7 @@ begin
                                '<observacao>' +
                                  Response.InfCancelamento.MotCancelamento +
                                '</observacao>' +
+                               xSubstituta +
                              '</nfse>' +
                            '</documentos>' +
                          '</solicitacao_cancelamento>';
@@ -905,7 +945,7 @@ begin
     else
       IdAttr := '';
 
-    Response.XmlEnvio := '<nfse' + IdAttr + '>' +
+    Response.ArquivoEnvio := '<nfse' + IdAttr + '>' +
                            '<nf>' +
                              '<numero>' +
                                Response.InfCancelamento.NumeroNFSe +
@@ -938,7 +978,7 @@ var
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
   I: Integer;
   NotaCompleta: Boolean;
 begin
@@ -946,7 +986,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -954,11 +994,11 @@ begin
         Exit
       end;
 
-      Response.XmlRetorno := AjustarRetorno(Response.XmlRetorno);
+      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
 
-      NotaCompleta := (Pos('<nfse>', Response.XmlRetorno) > 0);
+      NotaCompleta := (Pos('<nfse>', Response.ArquivoRetorno) > 0);
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -1007,7 +1047,7 @@ begin
             ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(Response.NumeroNota);
 
           if Assigned(ANota) then
-            ANota.XML := ANode.OuterXml
+            ANota.XmlNfse := ANode.OuterXml
           else
           begin
             TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -1050,7 +1090,28 @@ function TACBrNFSeXWebserviceIPM.GerarNFSe(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
+end;
+
+function TACBrNFSeXWebserviceIPM.TratarXmlRetornado(const aXML: string): string;
+begin
+  if Pos('</', aXML) = 0 then
+  begin
+    Result := '<a>' +
+              '<mensagem>' +
+                '<codigo>' + '</codigo>' +
+                '<Mensagem>' + aXML + '</Mensagem>' +
+                '<Correcao>' + '</Correcao>' +
+              '</mensagem>' +
+            '</a>';
+
+    Result := ParseText(AnsiString(Result), True, False);
+    Result := String(NativeStringToUTF8(Result));
+  end
+  else
+  begin
+    Result := inherited TratarXmlRetornado(aXML);
+  end;
 end;
 
 function TACBrNFSeXWebserviceIPM.ConsultarLote(ACabecalho,
@@ -1058,7 +1119,7 @@ function TACBrNFSeXWebserviceIPM.ConsultarLote(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceIPM.ConsultarNFSe(ACabecalho,
@@ -1066,7 +1127,7 @@ function TACBrNFSeXWebserviceIPM.ConsultarNFSe(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceIPM.ConsultarNFSePorRps(ACabecalho,
@@ -1074,14 +1135,14 @@ function TACBrNFSeXWebserviceIPM.ConsultarNFSePorRps(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceIPM.Cancelar(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 { TACBrNFSeXWebserviceIPM101 }
@@ -1097,12 +1158,51 @@ begin
   aHeaderReq.AddHeader('Authorization', Auth);
 end;
 
+function TACBrNFSeXWebserviceIPM101.TratarXmlRetornado(
+  const aXML: string): string;
+var
+  j, k: Integer;
+  Codigo, Mensagem: string;
+begin
+  if Pos('</', aXML) = 0 then
+  begin
+    j := Pos('code', aXML);
+
+    if j > 0 then
+     Codigo := Copy(aXML, j + 6, 3);
+
+    j := Pos('msg', aXML);
+
+    if j > 0 then
+    begin
+      Mensagem := Copy(aXML, j + 6, Length(aXML));
+      k := Pos(',', Mensagem);
+      Mensagem := Copy(Mensagem, 1, k - 2);
+    end;
+
+    Result := '<a>' +
+              '<mensagem>' +
+                '<codigo>' + Codigo + '</codigo>' +
+                '<Mensagem>' + Mensagem + '</Mensagem>' +
+                '<Correcao>' + '</Correcao>' +
+              '</mensagem>' +
+            '</a>';
+
+    Result := ParseText(AnsiString(Result), True, False);
+    Result := String(NativeStringToUTF8(Result));
+  end
+  else
+  begin
+    Result := inherited TratarXmlRetornado(aXML);
+  end;
+end;
+
 function TACBrNFSeXWebserviceIPM101.GerarNFSe(ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceIPM101.ConsultarLote(ACabecalho,
@@ -1110,7 +1210,7 @@ function TACBrNFSeXWebserviceIPM101.ConsultarLote(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceIPM101.ConsultarNFSe(ACabecalho,
@@ -1118,14 +1218,14 @@ function TACBrNFSeXWebserviceIPM101.ConsultarNFSe(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceIPM101.Cancelar(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 { TACBrNFSeProviderIPM101 }

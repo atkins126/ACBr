@@ -1,3 +1,5 @@
+{$IFNDEF ACBr_INC}
+{$DEFINE ACBr_INC}
 {******************************************************************************}
 { Projeto: Componentes ACBr                                                    }
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
@@ -32,6 +34,18 @@
 {       Rua Coronel Aureliano de Camargo, 963 - Tatuí - SP - 18270-170         }
 {******************************************************************************}
 
+{-----------------------------------------------------
+ Esse arquivo é dividido em duas partes: Configurações e Implementação
+     * Configurações: Nessa parte estão opções que podem ser ativadas ou desativadas,
+          mudando assim o comportamento do código das soluções ACBr. 
+             Algumas destas opções são editadas pelo ACBrInstall. Você também 
+          pode editar os "DEFINE" dessa parte para atingir o comportamento desejado.
+     * Implementação: Essa parte NÃO DEVE SER EDITADA. Fazer isso pode resultar em
+          comportamento indefinido e problemas difíceis de diagnosticar.
+-----------------------------------------------------}
+
+(*//////////////// CONFIGURAÇÕES  ////////////////////*)
+
 // Descomente a linha abaixo, se você quer que seu Executável NÃO dependa das DLLs LibXML2, LibXMLSEC, (NÃO RECOMENDADO)
 {.$DEFINE DFE_SEM_OPENSSL}
 // Comente a linha abaixo, se você quer que seu Executável dependa das DLLs LibXMLSEC (NAO RECOMENDADO)
@@ -44,15 +58,6 @@
 {.$DEFINE DFE_SEM_MSXML}
 // Descomente a linha abaixo, se você não deseja adicionar a Dependência da INDY nos seus Projetos
 {.$DEFINE DFE_SEM_INDY}
-
-{$IfDef DFE_SEM_OPENSSL}
-  {$Define DFE_SEM_XMLSEC}
-  {$Define DFE_SEM_LIBXML2}
-{$EndIf}
-
-{$IfDef DFE_SEM_LIBXML2}
-  {$UnDef DFE_ACBR_LIBXML2}
-{$EndIf}
 
 // Descomente essa linha, para usar a carga de DLL tardia, nas Units do OpenSSL  (Apenas Delphi)
 {.$DEFINE USE_DELAYED}
@@ -73,6 +78,8 @@
 
 // Para usar FMX (Firemonkey) Windows / Delphi descomente essa linha
 //{$DEFINE FMX}
+
+(*//////////////// IMPLEMENTAÇÃO  ////////////////////*)
 
 // Ajusta FreePascal para o modo Delphi
 //------------------------------------------------------------------------------
@@ -131,6 +138,15 @@
   {$DEFINE DFE_SEM_MSXML}
   {$DEFINE DFE_SEM_INDY}
   {$UnDef STDCALL}
+{$ENDIF}
+
+{$IFDEF DFE_SEM_OPENSSL}
+  {$DEFINE DFE_SEM_XMLSEC}
+  {$DEFINE DFE_SEM_LIBXML2}
+{$ENDIF}
+
+{$IFDEF DFE_SEM_LIBXML2}
+  {$UNDEF DFE_ACBR_LIBXML2}
 {$ENDIF}
 
 // utilizar para facilitar a manutenção do ACBr.inc, já que ele era uma cópia
@@ -292,3 +308,13 @@
 {$Else}
  {$UnDef USE_ZLibExGZ} // ZLibExGZ não é compatível com FPC
 {$EndIf}
+
+// A partir da versão XE2 é preciso usar namespaces,se não definido "Unit scope names"
+{$IFNDEF FPC}        
+  {$IFDEF DELPHIXE2_UP}
+    {$DEFINE USE_NAMESPACES}
+  {$ENDIF}
+{$ENDIF}
+
+
+{$ENDIF ~ACBr_INC}

@@ -114,6 +114,7 @@ type
     procedure GerarInfoDeficiencia(pInfoDeficiencia: TInfoDeficiencia; pTipo: integer = 0);
     procedure GerarLocalTrabGeral(pLocalTrabGeral: TLocalTrabGeral);
     procedure GerarLocalTrabDom(pLocalTrabDom: TLocalTrabDom);
+    procedure GerarLocalTempDom(pLocalTempDom: TLocalTempDom);
     procedure GerarLocalTrabalho(pLocalTrabalho: TLocalTrabalho);
     procedure GerarModoAbertura(pModo: TModoLancamento);
     procedure GerarModoFechamento(pModo: TModoLancamento);
@@ -163,7 +164,7 @@ type
     procedure GerarRemunOutrEmpr(objRemunOutrEmpr: TRemunOutrEmprCollection);
     procedure GerarInfoMV(pInfoMV: TInfoMV);
     procedure GerarInfoSimples(obj: TinfoSimples);
-    procedure GerarIdeEstabLot(pIdeEstabLot : TideEstabLotCollection);
+    procedure GerarIdeEstabLot(pIdeEstabLot: TideEstabLotCollection);
     procedure GerarQuarentena(obj: TQuarentena);
     procedure GerarIdeRespInf(obj: TIdeRespInf);
     procedure GerarTreinamentoCapacitacao(objTreiCap: TtreiCapCollection);
@@ -547,8 +548,8 @@ begin
     Gerador.wCampo(tcStr, '', 'nmDep',     1, 70, 1, pDependente.Items[i].NmDep);
     Gerador.wCampo(tcDat, '', 'dtNascto', 10, 10, 1, pDependente.Items[i].DtNascto);
     Gerador.wCampo(tcStr, '', 'cpfDep',   11, 11, 0, pDependente.Items[i].CpfDep);
-    
-    if (VersaoDF > ve02_05_00) and (pBeneficiario) then
+
+    if (VersaoDF > ve02_05_00) then 
       if (pDependente.Items[i].sexoDep = 'F') or (pDependente.Items[i].sexoDep = 'M') then
         Gerador.wCampo(tcStr, '', 'sexoDep',   1,  1, 0, pDependente.Items[i].sexoDep);
 
@@ -973,8 +974,10 @@ begin
         Gerador.wCampo(tcInt, '', 'tpInclContr', 1,   1, 1, eSTpInclContrToStr(pTrabTemporario.tpinclContr));
 
     if VersaoDF <= ve02_05_00 then
-      GerarIdeTomadorServ(pTrabTemporario.ideTomadorServ);
-      
+      GerarIdeTomadorServ(pTrabTemporario.ideTomadorServ)
+    else
+      GerarIdeEstabVinc(pTrabTemporario.ideEstabVinc);
+     
     GerarIdeTrabSubstituido(pTrabTemporario.ideTrabSubstituido);
 
     Gerador.wGrupo('/trabTemporario');
@@ -1418,7 +1421,7 @@ begin
 
     Gerador.wCampo(tcStr, '', 'cnpjSindCategProf', 14, 14, 1, pInfoCeletista.cnpjSindCategProf);
 
-    if VersaoDF <= ve02_05_00 then    
+    if (pInfoCeletista.FGTS.DtOpcFGTS > 0) then
       GerarFGTS(pInfoCeletista.FGTS);
 
     GerarTrabTemporario(pInfoCeletista.TrabTemporario);
@@ -1557,8 +1560,11 @@ begin
   Gerador.wGrupo('localTrabalho');
 
   GerarLocalTrabGeral(pLocalTrabalho.LocalTrabGeral);
-  GerarLocalTrabDom(pLocalTrabalho.LocalTrabDom);
 
+  if VersaoDF <= ve02_05_00 then
+    GerarLocalTrabDom(pLocalTrabalho.LocalTrabDom)
+  else
+    GerarLocalTempDom(pLocalTrabalho.LocalTempDom);
   Gerador.wGrupo('/localTrabalho');
 end;
 
@@ -1578,6 +1584,25 @@ begin
     Gerador.wCampo(tcStr, '', 'uf',          2,  2, 1, pLocalTrabDom.Uf);
 
     Gerador.wGrupo('/localTrabDom');
+  end;
+end;
+
+procedure TeSocialEvento.GerarLocalTempDom(pLocalTempDom: TLocalTempDom);
+begin
+  if NaoEstaVazio(pLocalTempDom.TpLograd) then
+  begin
+    Gerador.wGrupo('localTempDom');
+
+    Gerador.wCampo(tcStr, '', 'tpLograd',    1,  4, 1, pLocalTempDom.TpLograd);
+    Gerador.wCampo(tcStr, '', 'dscLograd',   1, 80, 1, pLocalTempDom.DscLograd);
+    Gerador.wCampo(tcStr, '', 'nrLograd',    1, 10, 1, pLocalTempDom.NrLograd);
+    Gerador.wCampo(tcStr, '', 'complemento', 0, 30, 0, pLocalTempDom.Complemento);
+    Gerador.wCampo(tcStr, '', 'bairro',      0, 60, 0, pLocalTempDom.Bairro);
+    Gerador.wCampo(tcStr, '', 'cep',         1,  8, 1, pLocalTempDom.Cep);
+    Gerador.wCampo(tcInt, '', 'codMunic',    7,  7, 1, pLocalTempDom.CodMunic);
+    Gerador.wCampo(tcStr, '', 'uf',          2,  2, 1, pLocalTempDom.Uf);
+
+    Gerador.wGrupo('/localTempDom');
   end;
 end;
 

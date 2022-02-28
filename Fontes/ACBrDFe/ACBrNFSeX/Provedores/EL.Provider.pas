@@ -98,10 +98,10 @@ type
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
-    procedure ProcessarMensagemErros(const RootNode: TACBrXmlNode;
-                                     const Response: TNFSeWebserviceResponse;
-                                     AListTag: string = '';
-                                     AMessageTag: string = ''); override;
+    procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
+                                     Response: TNFSeWebserviceResponse;
+                                     const AListTag: string = '';
+                                     const AMessageTag: string = ''); override;
 
   public
     procedure Emite; override;
@@ -121,6 +121,7 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderEL204 = class (TACBrNFSeProviderABRASFv2)
@@ -382,6 +383,15 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
+function TACBrNFSeXWebserviceEL204.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
+end;
+
 { TACBrNFSeProviderEL }
 
 function TACBrNFSeProviderEL.AbreSessao(
@@ -408,7 +418,7 @@ begin
 
       AService := CriarServiceClient(tmAbrirSessao);
       AService.Prefixo := Result.Lote;
-      Result.XmlRetorno := AService.AbrirSessao(ConfigMsgDados.DadosCabecalho, Result.XmlEnvio);
+      Result.ArquivoRetorno := AService.AbrirSessao(ConfigMsgDados.DadosCabecalho, Result.ArquivoEnvio);
 
       Result.Sucesso := True;
       Result.EnvelopeEnvio := AService.Envio;
@@ -460,7 +470,7 @@ begin
 
       AService := CriarServiceClient(tmFecharSessao);
       AService.Prefixo := Result.Lote;
-      Result.XmlRetorno := AService.FecharSessao(ConfigMsgDados.DadosCabecalho, Result.XmlEnvio);
+      Result.ArquivoRetorno := AService.FecharSessao(ConfigMsgDados.DadosCabecalho, Result.ArquivoEnvio);
 
       Result.Sucesso := True;
       Result.EnvelopeEnvio := AService.Envio;
@@ -503,8 +513,8 @@ begin
 end;
 
 procedure TACBrNFSeProviderEL.ProcessarMensagemErros(
-  const RootNode: TACBrXmlNode; const Response: TNFSeWebserviceResponse;
-  AListTag, AMessageTag: string);
+  RootNode: TACBrXmlNode; Response: TNFSeWebserviceResponse;
+  const AListTag, AMessageTag: string);
 var
   I: Integer;
   ANode: TACBrXmlNode;
@@ -549,7 +559,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<el:autenticarContribuinte>' +
+  Response.ArquivoEnvio := '<el:autenticarContribuinte>' +
                          '<identificacaoPrestador>' +
                             OnlyNumber(Emitente.CNPJ) +
                          '</identificacaoPrestador>' +
@@ -569,7 +579,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -577,7 +587,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'return', 'mensagens');
 
@@ -600,7 +610,7 @@ end;
 procedure TACBrNFSeProviderEL.PrepararFecharSessao(
   Response: TNFSeFechaSessaoResponse);
 begin
-  Response.XmlEnvio := '<el:finalizarSessao>' +
+  Response.ArquivoEnvio := '<el:finalizarSessao>' +
                          '<hashIdentificador>' +
                             FPHash +
                          '</hashIdentificador>' +
@@ -617,7 +627,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -625,7 +635,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'return', 'mensagens');
 
@@ -691,7 +701,7 @@ begin
                  '</ListaRps>' +
                '</LoteRps>';
 
-    Response.XmlEnvio := '<el:EnviarLoteRpsEnvio>' +
+    Response.ArquivoEnvio := '<el:EnviarLoteRpsEnvio>' +
                            '<identificacaoPrestador>' +
                               OnlyNumber(Emitente.CNPJ) +
                            '</identificacaoPrestador>' +
@@ -716,7 +726,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -724,7 +734,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -772,7 +782,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<el:ConsultarSituacaoLoteRpsEnvio>' +
+  Response.ArquivoEnvio := '<el:ConsultarSituacaoLoteRpsEnvio>' +
                          '<identificacaoPrestador>' +
                             OnlyNumber(Emitente.CNPJ) +
                          '</identificacaoPrestador>' +
@@ -794,7 +804,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -802,7 +812,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -849,7 +859,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<el:ConsultarLoteRpsEnvio>' +
+  Response.ArquivoEnvio := '<el:ConsultarLoteRpsEnvio>' +
                          '<identificacaoPrestador>' +
                             OnlyNumber(Emitente.CNPJ) +
                          '</identificacaoPrestador>' +
@@ -871,7 +881,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -879,7 +889,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -928,7 +938,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<el:ConsultarNfseRpsEnvio>' +
+  Response.ArquivoEnvio := '<el:ConsultarNfseRpsEnvio>' +
                          '<identificacaoRps>' +
                             Response.NumRPS +
                          '</identificacaoRps>' +
@@ -950,7 +960,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -958,7 +968,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -1010,7 +1020,7 @@ begin
 
   Response.Metodo := tmConsultarNFSe;
 
-  Response.XmlEnvio := '<el:ConsultarNfseEnvio>' +
+  Response.ArquivoEnvio := '<el:ConsultarNfseEnvio>' +
                          '<identificacaoPrestador>' +
                             OnlyNumber(Emitente.CNPJ) +
                          '</identificacaoPrestador>' +
@@ -1032,7 +1042,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -1040,7 +1050,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -1090,7 +1100,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<el:CancelarNfseEnvio>' +
+  Response.ArquivoEnvio := '<el:CancelarNfseEnvio>' +
                          '<identificacaoPrestador>' +
                             OnlyNumber(Emitente.CNPJ) +
                          '</identificacaoPrestador>' +
@@ -1112,7 +1122,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -1120,7 +1130,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -1211,7 +1221,7 @@ function TACBrNFSeXWebserviceEL.Recepcionar(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1219,7 +1229,7 @@ function TACBrNFSeXWebserviceEL.AbrirSessao(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1227,7 +1237,7 @@ function TACBrNFSeXWebserviceEL.FecharSessao(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1236,7 +1246,7 @@ function TACBrNFSeXWebserviceEL.ConsultarSituacao(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1244,7 +1254,7 @@ function TACBrNFSeXWebserviceEL.ConsultarLote(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1253,7 +1263,7 @@ function TACBrNFSeXWebserviceEL.ConsultarNFSePorRps(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1261,7 +1271,7 @@ function TACBrNFSeXWebserviceEL.ConsultarNFSe(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1269,7 +1279,7 @@ function TACBrNFSeXWebserviceEL.Cancelar(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 

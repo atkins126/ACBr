@@ -58,8 +58,6 @@ type
   public
     function GerarXml: Boolean; override;
 
-//    property Situacao: String         read FSituacao;
-//    property TipoRecolhimento: String read FTipoRecolhimento;
   end;
 
 implementation
@@ -151,20 +149,20 @@ begin
   begin
     Result[i] := CreateElement('Item');
 
-    sTributavel := EnumeradoToStr( NFSe.Servico.ItemServico.Items[i].Tributavel,
+    sTributavel := EnumeradoToStr( NFSe.Servico.ItemServico[i].Tributavel,
                                                     ['S', 'N'], [snSim, snNao]);
 
     Result[i].AppendChild(AddNode(tcStr, '#', 'DiscriminacaoServico', 1, 80, 1,
-                              NFSe.Servico.ItemServico.Items[i].Descricao, ''));
+                              NFSe.Servico.ItemServico[i].Descricao, ''));
 
     Result[i].AppendChild(AddNode(tcDe4, '#', 'Quantidade', 1, 15, 1,
-                             NFSe.Servico.ItemServico.Items[i].Quantidade, ''));
+                             NFSe.Servico.ItemServico[i].Quantidade, ''));
 
     Result[i].AppendChild(AddNode(tcDe4, '#', 'ValorUnitario', 1, 20, 1,
-                          NFSe.Servico.ItemServico.Items[i].ValorUnitario, ''));
+                          NFSe.Servico.ItemServico[i].ValorUnitario, ''));
 
     Result[i].AppendChild(AddNode(tcDe2, '#', 'ValorTotal', 1, 18, 1,
-                             NFSe.Servico.ItemServico.Items[i].ValorTotal, ''));
+                             NFSe.Servico.ItemServico[i].ValorTotal, ''));
 
     Result[i].AppendChild(AddNode(tcStr, '#', 'Tributavel', 1, 1, 0,
                                                               sTributavel, ''));
@@ -208,7 +206,7 @@ begin
 
   Opcoes.SuprimirDecimais := True;
   Opcoes.DecimalChar := '.';
-  Opcoes.QuebraLinha := FAOwner.ConfigGeral.QuebradeLinha;
+  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
@@ -217,11 +215,11 @@ begin
   NFSe.InfID.ID := 'Rps_' + NFSe.IdentificacaoRps.Numero;
 
   NFSeNode := CreateElement('RPS');
-  NFSeNode.SetAttribute(FAOwner.ConfigGeral.Identificador, NFSe.infID.ID);
+  NFSeNode.SetAttribute(FpAOwner.ConfigGeral.Identificador, NFSe.infID.ID);
 
   FDocument.Root := NFSeNode;
 
-  FPSituacao := EnumeradoToStr( NFSe.Status, ['N','C'], [srNormal, srCancelado]);
+  FPSituacao := EnumeradoToStr( NFSe.StatusRps, ['N','C'], [srNormal, srCancelado]);
 
   sIEEmit           := Poem_Zeros(NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, 11);
   SerieRPS          := PadRight( NFSe.IdentificacaoRps.Serie, 5 , ' ');
@@ -339,14 +337,18 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'EmailTomador', 1, 60, 1,
                                                NFSe.Tomador.Contato.Email, ''));
 
+  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'InscricaoMunicipalObra', 1, 11, 0,
+                                 NFSe.ConstrucaoCivil.CodigoMunicipioObra, ''));
+
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'DocTomadorEstrangeiro', 0, 20, 0,
                   NFSe.Tomador.IdentificacaoTomador.DocTomadorEstrangeiro, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'CodigoAtividade', 1, 9, 1,
                                                   NFSe.Servico.CodigoCnae, ''));
 
-//  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'CodigoServico', 4, 5, 0,
-//                                OnlyNumber(NFSe.Servico.ItemListaServico), ''));
+  if VersaoNFSe = ve101 then
+    NFSeNode.AppendChild(AddNode(tcStr, '#1', 'CodigoServico', 4, 5, 0,
+                                OnlyNumber(NFSe.Servico.ItemListaServico), ''));
 
   NFSeNode.AppendChild(AddNode(tcDe4, '#1', 'AliquotaAtividade', 1, 11, 1,
                                             NFSe.Servico.Valores.Aliquota, ''));
@@ -429,7 +431,7 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'TelefoneTomador', 0, 8, 1,
            RightStr(OnlyNumber(NFSe.Tomador.Contato.Telefone),8), ''));
 
-  if (NFSe.Status = srCancelado) then
+  if (NFSe.StatusRps = srCancelado) then
     NFSeNode.AppendChild(AddNode(tcStr, '#1', 'MotCancelamento', 1, 80, 1,
                                                    NFSE.MotivoCancelamento, ''))
   else

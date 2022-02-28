@@ -49,6 +49,48 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+25/02/2022
+--ACBrBancoBS2.pas--
+[*] TK-2420 Ajustes no DV NN BS2
+Por : Pandaaa
+
+22/02/2022
+--ACBrBancoInter.pas--
+[*] TK-2377 Ajustes nas informações de descontos
+
+17/02/2022
+--ACBrBancoInter.pas--
+[-] TK2369 ACBrBancoInter - CNAB400 Sem Data Mora
+--ACBrBancoBS2.pas--
+[+] TK2337 ACBrBancoBS2 218 CNAB400 novo banco
+Contribuição: Paulo Cesar Alves de Oliveira
+
+07/02/2022
+--ACBrBancoDoBrasil.pas--
+[*] TK-2320 Ajuste remessa CNAB400 campo "DataDesconto" para ocorrencia 39
+
+04/02/2022
+--ACBrBoletoW_Sicredi_API.pas--
+[-] TK-2333 ACBrBoleto - Ajuste integração via API quando CEP iniciado com 0
+contribuicao : Fernando Henrique
+
+02/02/2022
+--ACBrBoletoSofisa.pas--
+[+] TK-2319 Adicionado banco Sofisa.
+
+27/01/2022
+--ACBrBancoInter.pas, ACBrBancoRendimento.pas, ACBrBoleto.pas, ACBrBoletoFCFortesFR.pas, ACBrBoletoRet_Sicredi_Api.pas, ACBrBoletoW_Sicredi_Api.pas--
+[*] TK-2289 Remoção de Warnings e Hints
+Por : Waldir Paim
+
+--ACBrBancoInter.pas--
+[*] TK-2305 Ajuste remessa Banco Inter
+Por : Pandaaa / WindSoft
+
+21/02/2022
+--ACBrBancoSafra--
+[*] Ajuste na Geração Detalhe Remessa CNAB400 NumeroRemessa
+
 07/10/2021
 --ACBrBoletoWS, ACBrBoletoRetorno--
 [*] Ajuste na atualização do Retorno WebService na lista de títulos

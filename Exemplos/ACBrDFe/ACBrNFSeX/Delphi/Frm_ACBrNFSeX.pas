@@ -300,7 +300,7 @@ type
     procedure ConfigurarComponente;
     procedure AlimentarNFSe(NumDFe, NumLote: String);
     procedure LoadXML(RetWS: String; MyWebBrowser: TWebBrowser;
-      NomeArq: string = 'temp.xml');
+      NomeArq: string = 'temp.xml'; aTempo: Integer = 0);
     procedure AtualizarSSLLibsCombo;
     procedure AtualizarCidades;
     function RoundTo5(Valor: Double; Casas: Integer): Double;
@@ -399,6 +399,24 @@ begin
         frmStatus.Show;
         frmStatus.BringToFront;
       end;
+
+    stNFSeAguardaProcesso:
+      begin
+        if (frmStatus = nil) then
+          frmStatus := TfrmStatus.Create(Application);
+        frmStatus.lblStatus.Caption := 'Aguardando o Processo...';
+        frmStatus.Show;
+        frmStatus.BringToFront;
+      end;
+
+    stNFSeEnvioWebService:
+      begin
+        if (frmStatus = nil) then
+          frmStatus := TfrmStatus.Create(Application);
+        frmStatus.lblStatus.Caption := 'Enviando para o WebService...';
+        frmStatus.Show;
+        frmStatus.BringToFront;
+      end;
   end;
 
   Application.ProcessMessages;
@@ -406,7 +424,7 @@ end;
 
 procedure TfrmACBrNFSe.AlimentarNFSe(NumDFe, NumLote: String);
 var
-  ValorISS: Double;
+  vValorISS: Double;
   i: Integer;
 begin
   with ACBrNFSeX1 do
@@ -430,7 +448,9 @@ begin
       // Usado pelo provedor AssessorPublico
       {
         A tag SITUACAO refere-se ao código da situação da NFS-e e aceita números
-        inteiros de até 4 caracteres, sendo que devem estar previamente        cadastradas no sistema.      }
+        inteiros de até 4 caracteres, sendo que devem estar previamente
+        cadastradas no sistema.
+      }
       Situacao := 1;
 
 //      refNF := '123456789012345678901234567890123456789';
@@ -534,7 +554,7 @@ begin
         Producao := snNao;
 
       // TnfseStatusRPS = ( srNormal, srCancelado );
-      Status := srNormal;
+      StatusRps := srNormal;
 
       // Somente Os provedores Betha, FISSLex e SimplISS permitem incluir no RPS
       // a TAG: OutrasInformacoes os demais essa TAG é gerada e preenchida pelo
@@ -559,6 +579,16 @@ begin
       Servico.Valores.ValorIr := 0.00;
       Servico.Valores.ValorCsll := 0.00;
 
+      // Provedor Elotech
+      Servico.Valores.RetidoPis := snNao;
+      Servico.Valores.RetidoCofins := snNao;
+      Servico.Valores.AliquotaInss := 0;
+      Servico.Valores.RetidoInss := snNao;
+      Servico.Valores.AliquotaIr := 0;
+      Servico.Valores.RetidoIr := snNao;
+      Servico.Valores.AliquotaCsll := 0;
+      Servico.Valores.RetidoCsll := snNao;
+
       // TnfseSituacaoTributaria = ( stRetencao, stNormal, stSubstituicao );
       // stRetencao = snSim
       // stNormal   = snNao
@@ -577,7 +607,7 @@ begin
 
       Servico.Valores.Aliquota := 2;
 
-      ValorISS := Servico.Valores.BaseCalculo * Servico.Valores.Aliquota / 100;
+      vValorISS := Servico.Valores.BaseCalculo * Servico.Valores.Aliquota / 100;
 
       // A função RoundTo5 é usada para arredondar valores, sendo que o segundo
       // parametro se refere ao numero de casas decimais.
@@ -585,7 +615,7 @@ begin
       // exemplos: RoundTo5(50.535, -2) ==> 50.54
       // exemplos: RoundTo5(50.536, -2) ==> 50.54
 
-      Servico.Valores.ValorISS := RoundTo5(ValorISS, -2);
+      Servico.Valores.ValorISS := RoundTo5(vValorISS, -2);
 
       Servico.Valores.ValorLiquidoNfse := Servico.Valores.ValorServicos -
         Servico.Valores.ValorPis - Servico.Valores.ValorCofins -
@@ -706,6 +736,7 @@ begin
 
         // Provedor EloTech
         Tributavel := snNao;
+        CodigoCnae := '6203100';
 
         // Provedor IPM
         { define se o tributo é no municipio do prestador ou não }
@@ -858,7 +889,7 @@ end;
 procedure TfrmACBrNFSe.btnCancNFSeClick(Sender: TObject);
 var
   NumNFSe, Codigo, Motivo, NumLote, CodVerif, SerNFSe, NumRps,
-  SerRps, ValNFSe, ChNFSe: String;
+  SerRps, ValNFSe, ChNFSe, eMailTomador: String;
   CodCanc: Integer;
   InfCancelamento: TInfCancelamento;
   Titulo: string;
@@ -960,6 +991,13 @@ begin
       if not (InputQuery(Titulo, 'Código de Verificação ou Chave de Autenticação', CodVerif)) then
         exit;
     end;
+
+    if ACBrNFSeX1.Configuracoes.Geral.Provedor = proSigISS then
+    begin
+      eMailTomador := '';
+      if not (InputQuery(Titulo, 'eMail do Tomador', eMailTomador)) then
+        exit;
+    end;
   end;
 
   InfCancelamento := TInfCancelamento.Create;
@@ -977,6 +1015,7 @@ begin
       SerieRps        := SerRps;
       ValorNFSe       := StrToFloatDef(ValNFSe, 0);
       CodVerificacao  := CodVerif;
+      email           := eMailTomador;
     end;
 
     ACBrNFSeX1.CancelarNFSe(InfCancelamento);
@@ -1284,7 +1323,7 @@ begin
             tpConsulta := tcPorNumero;
 
             NumeroIniNFSe := NumeroNFSe;
-            SerNFSe := SerNFSe;
+            SerieNFSe := SerNFSe;
             CadEconomico := edtEmitIM.Text;
           end;
 
@@ -2505,8 +2544,8 @@ begin
                 memoLog.Lines.Add('Situação Lote : ' + Situacao);
                 memoLog.Lines.Add('Sucesso       : ' + BoolToStr(Sucesso, True));
 
-                LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
-                LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
+                LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml', 1000);
+                LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml', 1000);
 
                 if Erros.Count > 0 then
                 begin
@@ -2552,8 +2591,8 @@ begin
                 memoLog.Lines.Add('Situação Lote : ' + Situacao);
                 memoLog.Lines.Add('Sucesso       : ' + BoolToStr(Sucesso, True));
 
-                LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
-                LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
+                LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml', 1000);
+                LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml', 1000);
 
                 if Erros.Count > 0 then
                 begin
@@ -2740,6 +2779,7 @@ begin
             memoLog.Lines.Add('Situação      : ' + Situacao);
             memoLog.Lines.Add('Data          : ' + DateToStr(Data));
             memoLog.Lines.Add('Desc. Situação: ' + DescSituacao);
+            memoLog.Lines.Add('ID Nota       : ' + idNota);
             memoLog.Lines.Add('Link          : ' + Link);
             memoLog.Lines.Add('Sucesso       : ' + BoolToStr(Sucesso, True));
 
@@ -2890,8 +2930,8 @@ begin
               memoLog.Lines.Add('Parâmetros de Retorno');
               memoLog.Lines.Add('Sucesso       : ' + BoolToStr(Sucesso, True));
 
-              LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
-              LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
+              LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml', 1000);
+              LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml', 1000);
 
               if Erros.Count > 0 then
               begin
@@ -3039,6 +3079,9 @@ begin
     memoLog.Lines.Add('Prestador.......: ' + ACBrNFSeX1.NotasFiscais.Items[i].NFSe.Prestador.RazaoSocial);
     memoLog.Lines.Add('Tomador.........: ' + ACBrNFSeX1.NotasFiscais.Items[i].NFSe.Tomador.RazaoSocial);
 
+    if ACBrNFSeX1.NotasFiscais.Items[i].NFSe.SituacaoNfse = ACBrNFSeXConversao.snCancelado then
+      memoLog.Lines.Add('A Nota encontra-se Cancelada.');
+
     if ACBrNFSeX1.NotasFiscais.Items[i].NomeArq <> '' then
     begin
       memoLog.Lines.Add('Nome do arquivo.: ' + ACBrNFSeX1.Configuracoes.Arquivos.GetPathNFSe() + '\' +
@@ -3048,8 +3091,8 @@ begin
       else
         memoLog.Lines.Add('==> Xml da nota não salvo em disco.');
 
-      // Na propriedade XML temos o XML da NFS-e
-      LoadXML(ACBrNFSeX1.NotasFiscais.Items[i].XML, WBXmlNotas);
+      // Na propriedade XmlNfse temos o XML da NFS-e
+      LoadXML(ACBrNFSeX1.NotasFiscais.Items[i].XmlNfse, WBXmlNotas);
     end;
   end;
 
@@ -3169,6 +3212,7 @@ begin
     ACBrNFSeX1.DANFSe.MargemEsquerda := 5;
     ACBrNFSeX1.DANFSe.MargemSuperior := 5;
     ACBrNFSeX1.DANFSe.MargemInferior := 5;
+    ACBrNFSeX1.DANFSE.Cancelada := True;
   end;
 
   with ACBrNFSeX1.MAIL do
@@ -3211,14 +3255,18 @@ begin
   lblVersaoSchemas.Caption := VersaoNFSeToStr(ACBrNFSeX1.Configuracoes.Geral.Versao);
 end;
 
-procedure TfrmACBrNFSe.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser; NomeArq: string);
+procedure TfrmACBrNFSe.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser;
+  NomeArq: string; aTempo: Integer);
 begin
-  ACBrUtil.WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + NomeArq,
-                      AnsiString(RetWS), False, False);
+  if RetWS <> '' then
+  begin
+    ACBrUtil.WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + NomeArq,
+                        AnsiString(RetWS), False, False);
 
-  MyWebBrowser.Navigate(PathWithDelim(ExtractFileDir(application.ExeName)) + NomeArq);
+    MyWebBrowser.Navigate(PathWithDelim(ExtractFileDir(application.ExeName)) + NomeArq);
 
-  sleep(1000);
+    sleep(aTempo);
+  end;
 end;
 
 procedure TfrmACBrNFSe.PathClick(Sender: TObject);
@@ -3239,6 +3287,7 @@ var
   xValor, xDecimais: String;
   p, nCasas: Integer;
   nValor: Double;
+  OldRM: TFPURoundingMode;
 begin
   nValor := Valor;
   xValor := Trim(FloatToStr(Valor));
@@ -3253,15 +3302,21 @@ begin
   begin
     xDecimais := Copy(xValor, p + 1, Length(xValor));
 
-    if Length(xDecimais) > nCasas then
-    begin
-      if xDecimais[nCasas + 1] >= '5' then
-        SetRoundMode(rmUP)
-      else
-        SetRoundMode(rmNearest);
-    end;
+    OldRM := GetRoundMode;
+    try
+      if Length(xDecimais) > nCasas then
+      begin
+        if xDecimais[nCasas + 1] >= '5' then
+          SetRoundMode(rmUP)
+        else
+          SetRoundMode(rmNearest);
+      end;
 
-    nValor := RoundTo(Valor, Casas);
+      nValor := RoundTo(Valor, Casas);
+
+    finally
+      SetRoundMode(OldRM);
+    end;
   end;
 
   Result := nValor;

@@ -444,7 +444,7 @@ begin
          aRemessa.Text:= aRemessa.Text + UpperCase(wLinha);
 
          {8.3 Registro Mensagem}
-         if Mensagem.Count > 0 then
+         if (Mensagem.Count > 0) and (OcorrenciaOriginal.Tipo <> toRemessaBaixar) then
          begin
            TextoRegInfo := PadRight(Mensagem[0], 80);
            if Mensagem.Count > 1 then

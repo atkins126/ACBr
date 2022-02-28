@@ -8,20 +8,23 @@ unit ACBr_PIXCD;
 interface
 
 uses
-  ACBrPIXBase, ACBrPIXUtil, ACBrPIXQRCodeEstatico, ACBrPIXSchemasCob, 
-  ACBrPIXSchemasProblema, ACBrPIXSchemasPix, ACBrPIXSchemasDevolucao, 
-  ACBrPIXSchemasPaginacao, ACBrPIXSchemasParametrosConsultaPix, 
-  ACBrPIXSchemasPixConsultados, ACBrPIXSchemasParametrosConsultaCob, 
-  ACBrPIXSchemasCalendario, ACBrPIXSchemasDevedor, ACBrPIXSchemasLocation, 
+  ACBrPIXCDReg, ACBrPIXBase, ACBrPIXUtil, ACBrPIXCD, ACBrPIXBRCode, 
+  ACBrPIXPSPItau, ACBrPIXPSPBancoDoBrasil, ACBrPIXPSPSantander, 
+  ACBrPIXPSPShipay, ACBrPIXSchemasProblema, ACBrPIXSchemasCalendario, 
+  ACBrPIXSchemasDevedor, ACBrPIXSchemasLocation, ACBrPIXSchemasPaginacao, 
+  ACBrPIXSchemasDevolucao, ACBrPIXSchemasPix, 
+  ACBrPIXSchemasParametrosConsultaPix, ACBrPIXSchemasPixConsultados, 
+  ACBrPIXSchemasCob, ACBrPIXSchemasParametrosConsultaCob, 
   ACBrPIXSchemasCobsConsultadas, ACBrPIXSchemasCobV, 
   ACBrPIXSchemasCobsVConsultadas, ACBrPIXSchemasLoteCobV, 
   ACBrPIXSchemasParametrosConsultaLote, ACBrPIXSchemasLotesCobVConsultadas, 
-  LazarusPackageIntf;
+  ACBrShipaySchemas, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
+  RegisterUnit('ACBrPIXCDReg', @ACBrPIXCDReg.Register);
 end;
 
 initialization

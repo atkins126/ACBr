@@ -52,6 +52,7 @@ type
     function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderSigep200 = class (TACBrNFSeProviderABRASFv2)
@@ -134,7 +135,7 @@ var
   xXml, credenciais: string;
   i, j: Integer;
 begin
-  xXml := Response.XmlEnvio;
+  xXml := Response.ArquivoEnvio;
 
   with TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente do
   begin
@@ -211,10 +212,10 @@ begin
         xXml := Copy(xXml, 1, i -1) + Copy(xXml, j, length(xXml));
       end;
   else
-    Response.XmlEnvio := xXml;
+    Response.ArquivoEnvio := xXml;
   end;
 
-  Response.XmlEnvio := xXml;
+  Response.ArquivoEnvio := xXml;
 
   inherited ValidarSchema(Response, aMetodo);
 end;
@@ -298,6 +299,18 @@ begin
   Result := Executar('', Request,
                      ['CancelarNfseResposta', 'CancelarNfseResposta'],
                      ['xmlns:ws="http://ws.integration.pm.bsit.com.br/"']);
+end;
+
+function TACBrNFSeXWebserviceSigep200.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := StrToXml(Result);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverIdentacao(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
+  Result := string(NativeStringToUTF8(Result));
 end;
 
 end.

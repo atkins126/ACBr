@@ -103,15 +103,15 @@ procedure TNFSeW_Agili.Configuracao;
 begin
   inherited Configuracao;
 
-  FpAtividadeEconomica := Trim(FAOwner.ConfigGeral.Params1);
+  FpAtividadeEconomica := Trim(FpAOwner.ConfigGeral.Params.ValorParametro('NomeTagAtividadeEconomica'));
 
   FpNrOcorrCodigoCnae := 1;
   FpNrOcorrItemLei116 := 1;
 
-  if Pos('NaoGerarCodigoCnae', FAOwner.ConfigGeral.Params2) > 0 then
+  if FpAOwner.ConfigGeral.Params.ParamTemValor('NaoGerarTag', 'CodigoCnae') then
     FpNrOcorrCodigoCnae := -1;
 
-  if Pos('NaoGerarItemLei116', FAOwner.ConfigGeral.Params2) > 0 then
+  if FpAOwner.ConfigGeral.Params.ParamTemValor('NaoGerarTag', 'ItemLei116') then
     FpNrOcorrItemLei116 := -1;
 end;
 
@@ -140,14 +140,14 @@ var
 begin
   Configuracao;
 
-  Opcoes.QuebraLinha := FAOwner.ConfigGeral.QuebradeLinha;
+  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
   FDocument.Clear();
 
   NFSeNode := CreateElement('Rps');
-  NFSeNode.SetNamespace(FAOwner.ConfigMsgDados.xmlRps.xmlns, self.PrefixoPadrao);
+  NFSeNode.SetNamespace(FpAOwner.ConfigMsgDados.xmlRps.xmlns, self.PrefixoPadrao);
 
   FDocument.Root := NFSeNode;
 
@@ -201,10 +201,10 @@ begin
 
     Result[i].AppendChild(AddNode(tcStr, '#1', 'Discriminacao', 1, 2000, 1,
       StringReplace( NFSe.Servico.ItemServico[i].Descricao, ';',
-        FAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll, rfIgnoreCase] ), ''));
+        FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll, rfIgnoreCase] ), ''));
 
     Result[i].AppendChild(AddNode(tcStr, '#1', 'CodigoCnae', 1, 7, FpNrOcorrCodigoCnae,
-                                    FormatarCnae(NFSe.Servico.CodigoCnae), ''));
+                     FormatarCnae(NFSe.Servico.ItemServico[i].CodigoCnae), ''));
 
     Result[i].AppendChild(AddNode(tcStr, '#1', 'ItemLei116', 1, 140, FpNrOcorrItemLei116,
                                                                CodServico, ''));

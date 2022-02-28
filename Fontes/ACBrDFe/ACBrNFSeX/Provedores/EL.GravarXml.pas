@@ -94,7 +94,7 @@ var
 begin
   Configuracao;
 
-  Opcoes.QuebraLinha := FAOwner.ConfigGeral.QuebradeLinha;
+  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
@@ -162,7 +162,7 @@ begin
                                                    NFSe.OutrasInformacoes, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'Status', 1, 1, 1,
-                                              StatusRPSToStr(NFSe.Status), ''));
+                                       StatusRPSToStr(NFSe.StatusRps), ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'CodigoMunicipioPrestacao', 7, 7, 0,
                       OnlyNumber(NFSe.Prestador.Endereco.CodigoMunicipio), ''));
@@ -208,16 +208,16 @@ begin
                                               NFSe.Prestador.NomeFantasia, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'IncentivadorCultural', 1, 1, 1,
-                                   SimNaoToStr(NFSe.IncentivadorCultural), ''));
+      FpAOwner.SimNaoToStr(NFSe.IncentivadorCultural), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'OptanteSimplesNacional', 1, 1, 1,
-                                 SimNaoToStr(NFSe.OptanteSimplesNacional), ''));
+    FpAOwner.SimNaoToStr(NFSe.OptanteSimplesNacional), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'NaturezaOperacao', 1, 1, 1,
                              NaturezaOperacaoToStr(NFSe.NaturezaOperacao), ''));
 
   Result.AppendChild(AddNode(tcInt, '#1', 'RegimeEspecialTributacao', 1, 1, 1,
-             RegimeEspecialTributacaoToStr(NFSe.RegimeEspecialTributacao), ''));
+    FpAOwner.RegimeEspecialTributacaoToStr(NFSe.RegimeEspecialTributacao), ''));
 
   xmlNode := GerarEnderecoPrestador;
   Result.AppendChild(xmlNode);
@@ -405,17 +405,15 @@ begin
 end;
 
 function TNFSeW_EL.GerarRpsSubstituido: TACBrXmlNode;
+var
+  InfIDSubstituido: string;
 begin
   Result := CreateElement('RpsSubstituido');
 
-  Result.AppendChild(AddNode(tcStr, '#1', 'Numero', 1, 15, 1,
-                        OnlyNumber(NFSe.RpsSubstituido.Numero), DSC_NUMRPSSUB));
+  InfIDSubstituido := Poem_Zeros(OnlyNumber(NFSe.RpsSubstituido.Numero) +
+                                 NFSe.RpsSubstituido.Serie, 15);
 
-  Result.AppendChild(AddNode(tcStr, '#1', 'Serie', 1, 5, 1,
-                                   NFSe.RpsSubstituido.Serie, DSC_SERIERPSSUB));
-
-  Result.AppendChild(AddNode(tcStr, '#1', 'Tipo', 1, 1, 1,
-                       TipoRPSToStr(NFSe.RpsSubstituido.Tipo), DSC_TIPORPSSUB));
+  Result.AppendChild(AddNode(tcStr, '#1', 'Id', 1, 15, 1, InfIDSubstituido, ''));
 end;
 
 function TNFSeW_EL.GerarServico: TACBrXmlNodeArray;
@@ -430,7 +428,7 @@ begin
     Result[i] := CreateElement('Servico');
 
     Result[i].AppendChild(AddNode(tcStr, '#', 'CodigoCnae', 1, 07, 0,
-                                                  NFSe.Servico.CodigoCnae, ''));
+                                   NFSe.Servico.ItemServico[i].CodigoCnae, ''));
 
     Result[i].AppendChild(AddNode(tcStr, '#', 'CodigoServico116', 1, 5, 1,
                                     NFSe.Servico.ItemServico[i].CodLCServ, ''));
@@ -445,13 +443,13 @@ begin
                                       NFSe.Servico.ItemServico[i].Unidade, ''));
 
     Result[i].AppendChild(AddNode(tcStr, '#', 'Descricao', 1, 255, 1,
-                                NFSe.Servico.ItemServico[i].Descricao, ''));
+                                    NFSe.Servico.ItemServico[i].Descricao, ''));
 
     Result[i].AppendChild(AddNode(tcDe4, '#', 'Aliquota', 1, 5, 1,
                                NFSe.Servico.ItemServico[i].Aliquota / 100, ''));
 
     Result[i].AppendChild(AddNode(tcDe4, '#', 'ValorServico', 1, 15, 1,
-                                NFSe.Servico.ItemServico[i].ValorTotal, ''));
+                                   NFSe.Servico.ItemServico[i].ValorTotal, ''));
 
     Result[i].AppendChild(AddNode(tcDe4, '#', 'ValorIssqn', 1, 15, 1,
                                      NFSe.Servico.ItemServico[i].ValorISS, ''));

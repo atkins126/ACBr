@@ -55,6 +55,7 @@ type
     function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderTecnos201 = class (TACBrNFSeProviderABRASFv2)
@@ -75,10 +76,19 @@ type
     procedure AssinarConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
     procedure AssinarConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse); override;
 
-    procedure ProcessarMensagemErros(const RootNode: TACBrXmlNode;
-                                     const Response: TNFSeWebserviceResponse;
-                                     AListTag: string = 'ListaMensagemRetorno';
-                                     AMessageTag: string = 'MensagemRetorno'); override;
+    procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
+                                     Response: TNFSeWebserviceResponse;
+                                     const AListTag: string = 'ListaMensagemRetorno';
+                                     const AMessageTag: string = 'MensagemRetorno'); override;
+
+  public
+    function RegimeEspecialTributacaoToStr(const t: TnfseRegimeEspecialTributacao): string; override;
+    function StrToRegimeEspecialTributacao(out ok: boolean; const s: string): TnfseRegimeEspecialTributacao; override;
+    function RegimeEspecialTributacaoDescricao(const t: TnfseRegimeEspecialTributacao): string; override;
+
+    function ResponsavelRetencaoToStr(const t: TnfseResponsavelRetencao): string; override;
+    function StrToResponsavelRetencao(out ok: boolean; const s: string): TnfseResponsavelRetencao; override;
+    function ResponsavelRetencaoDescricao(const t: TnfseResponsavelRetencao): String; override;
   end;
 
 implementation
@@ -97,7 +107,7 @@ var
   i: Integer;
   Emitente: TEmitenteConfNFSe;
 begin
-  xXml := Response.XmlEnvio;
+  xXml := Response.ArquivoEnvio;
   i := Pos('<InscricaoMunicipal>', xXml) -1;
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
@@ -106,7 +116,7 @@ begin
           '<RazaoSocial>' + Emitente.RazSocial + '</RazaoSocial>' +
           Copy(xXml, i +1, length(xXml));
 
-  Response.XmlEnvio := xXml;
+  Response.ArquivoEnvio := xXml;
 
   inherited AssinarConsultaLoteRps(Response);
 end;
@@ -118,7 +128,7 @@ var
   i: Integer;
   Emitente: TEmitenteConfNFSe;
 begin
-  xXml := Response.XmlEnvio;
+  xXml := Response.ArquivoEnvio;
   i := Pos('<InscricaoMunicipal>', xXml) -1;
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
@@ -127,7 +137,7 @@ begin
           '<RazaoSocial>' + Emitente.RazSocial + '</RazaoSocial>' +
           Copy(xXml, i +1, length(xXml));
 
-  Response.XmlEnvio := xXml;
+  Response.ArquivoEnvio := xXml;
 
   inherited AssinarConsultaNFSeporRps(Response);
 end;
@@ -247,7 +257,7 @@ begin
 
   with Params do
   begin
-    Response.XmlEnvio := '<' + Prefixo + 'CancelarNfseEnvio' + NameSpace + '>' +
+    Response.ArquivoEnvio := '<' + Prefixo + 'CancelarNfseEnvio' + NameSpace + '>' +
                            '<' + Prefixo2 + 'Pedido>' +
                              '<' + Prefixo2 + 'InfPedidoCancelamento' + IdAttr + '>' +
                                '<' + Prefixo2 + 'IdentificacaoNfse>' +
@@ -275,8 +285,8 @@ begin
 end;
 
 procedure TACBrNFSeProviderTecnos201.ProcessarMensagemErros(
-  const RootNode: TACBrXmlNode; const Response: TNFSeWebserviceResponse;
-  AListTag, AMessageTag: string);
+  RootNode: TACBrXmlNode; Response: TNFSeWebserviceResponse;
+  const AListTag, AMessageTag: string);
 var
   I: Integer;
   ANode: TACBrXmlNode;
@@ -363,6 +373,72 @@ begin
         AAlerta.Correcao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr);
       end;
     end;
+  end;
+end;
+
+function TACBrNFSeProviderTecnos201.RegimeEspecialTributacaoToStr(
+  const t: TnfseRegimeEspecialTributacao): string;
+begin
+  Result := EnumeradoToStr(t,
+                       ['0', '1', '2', '3', '4', '5', '6'],
+                       [retNenhum, retMicroempresaMunicipal, retEstimativa,
+                       retSociedadeProfissionais, retCooperativa,
+                       retMicroempresarioIndividual, retMicroempresarioEmpresaPP
+                       ]);
+end;
+
+function TACBrNFSeProviderTecnos201.StrToRegimeEspecialTributacao(
+  out ok: boolean; const s: string): TnfseRegimeEspecialTributacao;
+begin
+  Result := StrToEnumerado(ok, s,
+                       ['0', '1', '2', '3', '4', '5', '6'],
+                       [retNenhum, retMicroempresaMunicipal, retEstimativa,
+                       retSociedadeProfissionais, retCooperativa,
+                       retMicroempresarioIndividual, retMicroempresarioEmpresaPP
+                       ]);
+end;
+
+function TACBrNFSeProviderTecnos201.RegimeEspecialTributacaoDescricao(
+  const t: TnfseRegimeEspecialTributacao): string;
+begin
+  case t of
+    retNenhum                    : Result := '0 - Nenhum';
+    retMicroempresaMunicipal     : Result := '1 - Microempresa municipal';
+    retEstimativa                : Result := '2 - Estimativa';
+    retSociedadeProfissionais    : Result := '3 - Sociedade de profissionais';
+    retCooperativa               : Result := '4 - Cooperativa';
+    retMicroempresarioIndividual : Result := '5 - Microempresário Individual (MEI)';
+    retMicroempresarioEmpresaPP  : Result := '6 - Microempresário e Empresa de Pequeno Porte (ME EPP)';
+  else
+    Result := '';
+  end;
+end;
+
+function TACBrNFSeProviderTecnos201.ResponsavelRetencaoToStr(
+  const t: TnfseResponsavelRetencao): string;
+begin
+  Result := EnumeradoToStr(t,
+                             ['1', '2', '3'],
+                             [rtNenhum, rtTomador, rtIntermediario]);
+end;
+
+function TACBrNFSeProviderTecnos201.StrToResponsavelRetencao(out ok: boolean;
+  const s: string): TnfseResponsavelRetencao;
+begin
+  Result := StrToEnumerado(ok, s,
+                             ['1', '2', '3'],
+                             [rtNenhum, rtTomador, rtIntermediario]);
+end;
+
+function TACBrNFSeProviderTecnos201.ResponsavelRetencaoDescricao(
+  const t: TnfseResponsavelRetencao): String;
+begin
+  case t of
+    rtNenhum        : Result := '1 - Nenhum';
+    rtTomador       : Result := '2 - Tomador';
+    rtIntermediario : Result := '3 - Intermediário';
+  else
+    Result := '';
   end;
 end;
 
@@ -509,6 +585,15 @@ begin
   Result := Executar('http://tempuri.org/mCancelamentoNFSe', Request,
                      ['mCancelamentoNFSeResult', 'CancelarNfseResposta'],
                      []);
+end;
+
+function TACBrNFSeXWebserviceTecnos201.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
 end;
 
 end.

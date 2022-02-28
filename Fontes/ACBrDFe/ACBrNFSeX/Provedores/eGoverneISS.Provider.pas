@@ -54,6 +54,7 @@ type
     function ConsultarLote(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProvidereGoverneISS = class (TACBrNFSeProviderProprio)
@@ -76,10 +77,10 @@ type
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
-    procedure ProcessarMensagemErros(const RootNode: TACBrXmlNode;
-                                     const Response: TNFSeWebserviceResponse;
-                                     AListTag: string = '';
-                                     AMessageTag: string = 'Erro'); override;
+    procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
+                                     Response: TNFSeWebserviceResponse;
+                                     const AListTag: string = '';
+                                     const AMessageTag: string = 'Erro'); override;
 
   end;
 
@@ -155,8 +156,8 @@ begin
 end;
 
 procedure TACBrNFSeProvidereGoverneISS.ProcessarMensagemErros(
-  const RootNode: TACBrXmlNode; const Response: TNFSeWebserviceResponse;
-  AListTag, AMessageTag: string);
+  RootNode: TACBrXmlNode; Response: TNFSeWebserviceResponse;
+  const AListTag, AMessageTag: string);
 var
   I: Integer;
   ANode: TACBrXmlNode;
@@ -177,6 +178,10 @@ begin
     AErro := Response.Erros.New;
     AErro.Codigo := '';
     AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('MensagemErro'), tcStr);
+
+    if AErro.Descricao = '' then
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
+
     AErro.Correcao := '';
   end;
 end;
@@ -194,7 +199,7 @@ begin
     begin
       Xml := StringReplace(Xml, 'eis:NotaFiscal', 'eis1:NotaFiscalLoteDTO', [rfReplaceAll]);
 
-      Response.XmlEnvio := '<eis:Notas>' +
+      Response.ArquivoEnvio := '<eis:Notas>' +
                              '<eis1:ChaveAutenticacao>' +
                                 Emitente.WSChaveAcesso +
                              '</eis1:ChaveAutenticacao>' +
@@ -207,7 +212,7 @@ begin
                            '</eis:Notas>';
     end
     else
-      Response.XmlEnvio := Xml;
+      Response.ArquivoEnvio := Xml;
   end;
 end;
 
@@ -220,7 +225,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := '201';
@@ -228,7 +233,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       if Response.ModoEnvio = meLoteAssincrono then
         ProcessarMensagemErros(Document.Root, Response, '', 'EmitirEmLoteResult')
@@ -265,7 +270,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<eis:ChaveAutenticacao>' +
+  Response.ArquivoEnvio := '<eis:ChaveAutenticacao>' +
                           Emitente.WSChaveAcesso +
                        '</eis:ChaveAutenticacao>' +
                        '<eis:CodigoLote>' +
@@ -283,7 +288,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -291,7 +296,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, '', 'ConsultarLoteResult');
 
@@ -329,7 +334,7 @@ begin
   // Se Transacao for True o Ambiente é de Homologação
   Transacao := (TACBrNFSeX(FAOwner).Configuracoes.WebServices.AmbienteCodigo = 2);
 
-  Response.XmlEnvio := '<eis:ChaveAutenticacao>' +
+  Response.ArquivoEnvio := '<eis:ChaveAutenticacao>' +
                           Emitente.WSChaveAcesso +
                        '</eis:ChaveAutenticacao>' +
                        '<eis:Homologacao>' +
@@ -351,7 +356,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -359,7 +364,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, '', 'CancelarResult');
 
@@ -391,7 +396,7 @@ begin
   Request := Request + '</tem:EmitirEmLote>';
 
   Result := Executar('http://tempuri.org/INotaFiscalEletronicaServico/EmitirEmLote', Request,
-                     [''],
+                     [],
                      ['xmlns:tem="http://tempuri.org/"',
                       'xmlns:eis="http://schemas.datacontract.org/2004/07/Eissnfe.Negocio.WebServices.Mensagem"',
                       'xmlns:eis1="http://schemas.datacontract.org/2004/07/Eissnfe.Dominio.DataTransferObject.Prestador"',
@@ -410,7 +415,7 @@ begin
   Request := Request + '</tem:Emitir>';
 
   Result := Executar('http://tempuri.org/INotaFiscalEletronicaServico/Emitir', Request,
-                     [''],
+                     [],
                      ['xmlns:tem="http://tempuri.org/"',
                       'xmlns:eis="http://schemas.datacontract.org/2004/07/Eissnfe.Negocio.WebServices.Mensagem"',
                       'xmlns:eis1="http://schemas.datacontract.org/2004/07/Eissnfe.Dominio.DataTransferObject.Prestador"',
@@ -429,7 +434,7 @@ begin
   Request := Request + '</tem:ConsultarLote>';
 
   Result := Executar('http://tempuri.org/INotaFiscalEletronicaServico/ConsultarLote', Request,
-                     [''],
+                     [],
                      ['xmlns:tem="http://tempuri.org/"',
                       'xmlns:eis="http://schemas.datacontract.org/2004/07/Eissnfe.Negocio.WebServices.Mensagem"',
                       'xmlns:eis1="http://schemas.datacontract.org/2004/07/Eissnfe.Dominio.DataTransferObject.Prestador"',
@@ -447,11 +452,19 @@ begin
   Request := Request + '</tem:Cancelar>';
 
   Result := Executar('http://tempuri.org/INotaFiscalEletronicaServico/Cancelar', Request,
-                     [''],
+                     [],
                      ['xmlns:tem="http://tempuri.org/"',
                       'xmlns:eis="http://schemas.datacontract.org/2004/07/Eissnfe.Negocio.WebServices.Mensagem"',
                       'xmlns:eis1="http://schemas.datacontract.org/2004/07/Eissnfe.Dominio.DataTransferObject.Prestador"',
                       'xmlns:eis2="http://schemas.datacontract.org/2004/07/Eissnfe.Dominio.DataTransferObject.Contribuinte"']);
+end;
+
+function TACBrNFSeXWebserviceeGoverneISS.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := RemoverPrefixosDesnecessarios(Result);
 end;
 
 end.

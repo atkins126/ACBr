@@ -128,6 +128,11 @@ type
     FValorTotalRecebido: Double;
     FValorTotalTributos: Double;
     FIrrfIndenizacao: Double;
+    FRetidoPis: TnfseSimNao;
+    FRetidoCofins: TnfseSimNao;
+    FRetidoInss: TnfseSimNao;
+    FRetidoIr: TnfseSimNao;
+    FRetidoCsll: TnfseSimNao;
   public
     property ValorServicos: Double read FValorServicos write FValorServicos;
     property ValorDeducoes: Double read FValorDeducoes write FValorDeducoes;
@@ -170,6 +175,12 @@ type
     property ValorTotalTributos: Double read FValorTotalTributos write FValorTotalTributos;
     //Provedor Tecnos
     property IrrfIndenizacao: Double read FIrrfIndenizacao write FIrrfIndenizacao;
+    //Provedor Elotech
+    property RetidoPis: TnfseSimNao read FRetidoPis write FRetidoPis;
+    property RetidoCofins: TnfseSimNao read FRetidoCofins write FRetidoCofins;
+    property RetidoInss: TnfseSimNao read FRetidoInss write FRetidoInss;
+    property RetidoIr: TnfseSimNao read FRetidoIr write FRetidoIr;
+    property RetidoCsll: TnfseSimNao read FRetidoCsll write FRetidoCsll;
   end;
 
   TItemServicoCollectionItem = class(TObject)
@@ -226,6 +237,8 @@ type
     FValorIRRF: Double;
 
     FTributavel: TnfseSimNao;
+    FCodigoCnae: string;
+
     FTribMunPrestador: TnfseSimNao;
     FCodMunPrestacao: string;
     FSituacaoTributaria: Integer;
@@ -285,6 +298,7 @@ type
 
     // Provedor EloTech
     property Tributavel: TnfseSimNao read FTributavel write FTributavel;
+    property CodigoCnae: string read FCodigoCnae write FCodigoCnae;
 
     // Provedor IPM
     property TribMunPrestador: TnfseSimNao read FTribMunPrestador write FTribMunPrestador;
@@ -691,25 +705,6 @@ type
     property Items[Index: Integer]: TDespesaCollectionItem read GetItem write SetItem;
   end;
 
-  TAssinaComChaveParamsCollectionItem = class(TObject)
-  private
-    FParam: string;
-    FConteudo: string;
-  public
-    property Param: string read FParam write FParam;
-    property Conteudo: string read FConteudo write FConteudo;
-  end;
-
-  TAssinaComChaveParamsCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TAssinaComChaveParamsCollectionItem;
-    procedure SetItem(Index: Integer; Const Value: TAssinaComChaveParamsCollectionItem);
-  public
-    function Add: TAssinaComChaveParamsCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TAssinaComChaveParamsCollectionItem;
-    property Items[Index: Integer]: TAssinaComChaveParamsCollectionItem read GetItem write SetItem; default;
-  end;
-
   TPedidoCancelamento = class(TObject)
   private
     FInfID: TInfID;
@@ -805,7 +800,7 @@ type
     FLogradouroLocalPrestacaoServico: TLogradouroLocalPrestacaoServico;
     FIncentivadorCultural: TnfseSimNao;
     FProducao: TnfseSimNao;
-    FStatus: TStatusRps;
+    FStatusRps: TStatusRps;
     FRpsSubstituido: TIdentificacaoRps;
     FSeriePrestacao: string;
     FServico: TDadosServico;
@@ -846,7 +841,6 @@ type
     FTipoEmissao: TTipoEmissao;
     FEmpreitadaGlobal: TEmpreitadaGlobal;
     FModeloNFSe: string;
-    FCancelada: TnfseSimNao;
     FTransportadora: TDadosTransportadora;
     FCanhoto: TnfseCanhoto;
 
@@ -858,7 +852,6 @@ type
     FAssinatura: string;
     FInformacoesComplementares: string;
 
-    FAssinaComChaveParams: TAssinaComChaveParamsCollection;
     FPercentualCargaTributaria: Double;
     FValorCargaTributaria: Double;
     FPercentualCargaTributariaMunicipal: Double;
@@ -879,8 +872,6 @@ type
     procedure Setemail(const Value: TemailCollection);
     procedure SetInformacoesComplementares(const Value: string);
     procedure SetDespesa(const Value: TDespesaCollection);
-    procedure SetAssinaComChaveParams(
-      const Value: TAssinaComChaveParamsCollection);
     procedure SetGenericos(const Value: TGenericosCollection);
     procedure SetQuartos(const Value: TQuartoCollection);
   public
@@ -905,7 +896,7 @@ type
     property LogradouLocalPrestacaoServico: TLogradouroLocalPrestacaoServico read FLogradouroLocalPrestacaoServico write FLogradouroLocalPrestacaoServico;
     property IncentivadorCultural: TnfseSimNao read FIncentivadorCultural write FIncentivadorCultural;
     property Producao: TnfseSimNao read FProducao write FProducao;
-    property Status: TStatusRps read FStatus write FStatus;
+    property StatusRps: TStatusRps read FStatusRps write FStatusRps;
     property RpsSubstituido: TIdentificacaoRps read FRpsSubstituido write FRpsSubstituido;
     property DataEmissaoRps: TDateTime read FDataEmissaoRps write FDataEmissaoRps;
     // Provedor IssDsf
@@ -944,7 +935,6 @@ type
     property TipoEmissao: TTipoEmissao read FTipoEmissao write FTipoEmissao;
     property EmpreitadaGlobal: TEmpreitadaGlobal read FEmpreitadaGlobal write FEmpreitadaGlobal;
     property ModeloNFSe: string read FModeloNFSe write FModeloNFSe;
-    property Cancelada: TnfseSimNao read FCancelada write FCancelada;
     property Canhoto: TnfseCanhoto read FCanhoto Write FCanhoto;
     property Transportadora: TDadosTransportadora read FTransportadora write FTransportadora;
     property Despesa: TDespesaCollection read FDespesa write SetDespesa;
@@ -954,8 +944,6 @@ type
     property email: TemailCollection read Femail write Setemail;
 
     property TipoTributacaoRPS: TTipoTributacaoRPS read FTipoTributacaoRPS write FTipoTributacaoRPS;
-
-    property AssinaComChaveParams: TAssinaComChaveParamsCollection read FAssinaComChaveParams write SetAssinaComChaveParams;
 
     // Provedor SP
     property Assinatura: string read FAssinatura write FAssinatura;
@@ -1115,8 +1103,11 @@ begin
   FOptanteSimplesNacional := snNao;
   FOptanteMEISimei := snNao;
   FIncentivadorCultural := snNao;
-  FStatus := srNormal;
+  FStatusRps := srNormal;
   FRpsSubstituido.FTipo := trRPS;
+  FSituacaoNfse := snNormal;
+  FNfseCancelamento.DataHora := 0;
+  FNfseSubstituidora := '';
   // NFSe
   FNumero := '';
   FCodigoVerificacao := '';
@@ -1125,15 +1116,11 @@ begin
   FOutrasInformacoes := '';
   FInformacoesComplementares := '';
   FValorCredito := 0;
-  // RPS e NFSe
-  FNfseCancelamento.DataHora := 0;
-  FNfseSubstituidora := '';
 
   // Provedor Infisc Versão XML 1.1
   FTipoEmissao := teNormalNFSe;
   FEmpreitadaGlobal := EgOutros;
   FModeloNFSe := '55';
-  FCancelada := snNao;
   FCanhoto := tcNenhum;
 
   FLogradouroLocalPrestacaoServico := llpTomador;
@@ -1159,7 +1146,6 @@ begin
   FTransportadora := TDadosTransportadora.Create;
   Femail := TemailCollection.Create;
   FDespesa := TDespesaCollection.Create;
-  FAssinaComChaveParams := TAssinaComChaveParamsCollection.Create;
   FGenericos := TGenericosCollection.Create;
 
   Clear;
@@ -1185,7 +1171,6 @@ begin
   FNfseCancelamento.Free;
   Femail.Free;
   FDespesa.Free;
-  FAssinaComChaveParams.Free;
   FTransportadora.Free;
   FGenericos.Free;
 
@@ -1215,12 +1200,6 @@ end;
 procedure TNFSe.SetDespesa(const Value: TDespesaCollection);
 begin
   FDespesa := Value;
-end;
-
-procedure TNFSe.SetAssinaComChaveParams(
-  const Value: TAssinaComChaveParamsCollection);
-begin
-  FAssinaComChaveParams := Value;
 end;
 
 { TPedidoCancelamento }
@@ -1422,31 +1401,6 @@ end;
 function TDespesaCollection.New: TDespesaCollectionItem;
 begin
   Result := TDespesaCollectionItem.Create;
-  Self.Add(Result);
-end;
-
-{ TAssinaComChaveParamsCollection }
-
-function TAssinaComChaveParamsCollection.Add: TAssinaComChaveParamsCollectionItem;
-begin
-  Result := Self.New;
-end;
-
-function TAssinaComChaveParamsCollection.GetItem(
-  Index: Integer): TAssinaComChaveParamsCollectionItem;
-begin
-  Result := TAssinaComChaveParamsCollectionItem(inherited Items[Index]);
-end;
-
-procedure TAssinaComChaveParamsCollection.SetItem(Index: Integer;
-  const Value: TAssinaComChaveParamsCollectionItem);
-begin
-  inherited Items[Index] := Value;
-end;
-
-function TAssinaComChaveParamsCollection.New: TAssinaComChaveParamsCollectionItem;
-begin
-  Result := TAssinaComChaveParamsCollectionItem.Create;
   Self.Add(Result);
 end;
 

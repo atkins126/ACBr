@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Juliana Tamizou                                 }
 {                                                                              }
@@ -59,11 +59,15 @@ type
   TACBrBoletoFCFortes = class(TACBrBoletoFCClass)
   private
     { Private declarations }
+    procedure ImprimirInternal(AStream: TStream);
+
   public
     { Public declarations }
     Constructor Create(AOwner: TComponent); override;
 
-    procedure Imprimir; override;
+    procedure Imprimir; overload; override;
+    procedure Imprimir(AStream: TStream); overload; override;
+
   end;
 
   TACBrBoletoFCFortesFr = class(TForm)
@@ -1179,6 +1183,7 @@ type
      fBoletoFC: TACBrBoletoFCFortes;
      fIndice: Integer;
      function GetACBrTitulo: TACBrTitulo;
+
     { Private declarations }
   public
     { Public declarations }
@@ -1192,7 +1197,9 @@ var
 
 implementation
 
-Uses ACBrUtil, strutils, ACBrDFeReport, ACBrDelphiZXingQRCode ;
+Uses
+  strutils,
+  ACBrUtil, ACBrImage, ACBrDelphiZXingQRCode;
 
 {$ifdef FPC}
   {$R *.lfm}
@@ -1209,7 +1216,20 @@ begin
 end;
 
 procedure TACBrBoletoFCFortes.Imprimir;
+begin
+  inherited Imprimir;    // Executa verificações padroes
+  ImprimirInternal(nil);
+end;
 
+procedure TACBrBoletoFCFortes.Imprimir(AStream: TStream);
+begin
+  inherited Imprimir(AStream);    // Executa verificações padroes
+  if Filtro <> fiPDF then
+    raise Exception.Create(ACBrStr('Impressão por Stream apenas para o Filtro PDF.'));
+  ImprimirInternal(AStream);
+end;
+
+procedure TACBrBoletoFCFortes.ImprimirInternal(AStream: TStream);
 var
   frACBrBoletoFortes : TACBRBoletoFCFortesFr;
   RLFiltro : TRLCustomSaveFilter;
@@ -1217,8 +1237,6 @@ var
   i: Integer;
   Bitmap: TBitmap;
 begin
-  inherited Imprimir;    // Executa verificações padroes
-
   frACBrBoletoFortes := TACBrBoletoFCFortesFr.Create(Self);
   try
      with frACBrBoletoFortes do
@@ -1269,52 +1287,54 @@ begin
               RLLayout.Print;
          end
         else
-         begin
-            if RLLayout.Prepare then
+          if not RLLayout.Prepare then
+            Exit;
+
+           case Filtro of
+             fiHTML : RLFiltro := RLHTMLFilter1;
+             fiJPG:
+             begin
+               for i := 0 to RLLayout.Pages.PageCount - 1 do
+               begin
+                 Bitmap := NeedAuxBitmap;
+                 Bitmap.Width := RLLayout.Pages[i].Width;
+                 Bitmap.Height := RLLayout.Pages[i].Height;
+                 Bitmap.PixelFormat := pf32bit;
+
+                 Bitmap.Canvas.Brush.Color := clWhite;
+                 Bitmap.Canvas.Brush.Style := bsSolid;
+                 Bitmap.Canvas.FillRect(Rect(0, 0, Bitmap.Width, Bitmap.Height));
+
+                 RLLayout.Pages[i].PaintTo(Bitmap.Canvas, Rect(0, 0, Bitmap.Width, Bitmap.Height));
+                 NomeArquivo := ChangeFileExt(NomeArquivo, '');
+                 Bitmap.SaveToFile(NomeArquivo + FormatCurr('000', I+1) + '.bmp');
+               end;
+               exit;
+             end;
+           else
+              RLFiltro := RLPDFFilter1;
+           end;
+
+            RLFiltro.ShowProgress := MostrarProgresso;
+            RLFiltro.FileName := NomeArquivo;
+
+            if RLFiltro = RLPDFFilter1 then
             begin
-               case Filtro of
-                 fiPDF  : RLFiltro := RLPDFFilter1;
-                 fiHTML : RLFiltro := RLHTMLFilter1;
-                 fiJPG:
-                 begin
-                   for i := 0 to RLLayout.Pages.PageCount - 1 do
-                   begin
-                     Bitmap := NeedAuxBitmap;
-                     Bitmap.Width := RLLayout.Pages.Pages[i].Width;
-                     Bitmap.Height := RLLayout.Pages.Pages[i].Height;
-                     Bitmap.PixelFormat := pf32bit;
-
-                     Bitmap.Canvas.Brush.Color := clWhite;
-                     Bitmap.Canvas.Brush.Style := bsSolid;
-                     Bitmap.Canvas.FillRect(Rect(0, 0, bitmap.Width, bitmap.Height));
-
-                     RLLayout.Pages.Pages[i].PaintTo(bitmap.Canvas, Rect(0, 0, Bitmap.Width, Bitmap.Height));
-                     NomeArquivo := ChangeFileExt(NomeArquivo, '');
-                     bitmap.SaveToFile(NomeArquivo + FormatCurr('000', I+1) + '.bmp');
-                  end;
-                  exit;
-               end
-               else
-                 exit ;
-               end ;
-
-               if RLFiltro = RLPDFFilter1 then
-                  RLPDFFilter1.DocumentInfo.Title := RLLayout.Title;
-
-               RLFiltro.ShowProgress := MostrarProgresso;
-               RLFiltro.FileName := NomeArquivo ;
-               RLFiltro.FilterPages( RLLayout.Pages );
-            end;
-         end;
+              RLPDFFilter1.DocumentInfo.Title := RLLayout.Title;
+              if Assigned(AStream) then
+                RLPDFFilter1.FilterPages(RLLayout.Pages, AStream)
+              else
+                RLPDFFilter1.FilterPages(RLLayout.Pages)
+            end
+            else
+              RLFiltro.FilterPages(RLLayout.Pages);
      end;
   finally
      frACBrBoletoFortes.Free ;
   end;
 end;
 
-
 { TACBrBoletoFCFortesFr }
-
 procedure TACBrBoletoFCFortesFr.FormCreate(Sender: TObject);
 //var
 //  I : Integer ;
@@ -1554,7 +1574,7 @@ begin
       txtDataDocumento2.Caption       := FormatDateTime('dd/mm/yyyy', Titulo.DataDocumento);
       txtNumeroDocumento2.Caption     := Titulo.NumeroDocumento;
       txtEspecieDoc2.Caption          := Titulo.EspecieDoc;
-      txtAceite2.Caption              := ifThen(Titulo.Aceite = atSim,'S','N');
+      txtAceite2.Caption              := fBoletoFC.DefineAceiteImpressao(Titulo);
       txtDataProcessamento2.Caption   := IfThen(Titulo.DataProcessamento = 0,
                                                 FormatDateTime('dd/mm/yyyy',Now),
                                                 FormatDateTime('dd/mm/yyyy',Titulo.DataProcessamento));
@@ -1706,7 +1726,7 @@ begin
       txtDataDocto.Caption            := FormatDateTime('dd/mm/yyyy', Titulo.DataDocumento);
       txtNumeroDocto.Caption          := Titulo.NumeroDocumento;
       txtEspecieDoc.Caption           := Titulo.EspecieDoc;
-      txtAceite.Caption               := IfThen((atSim = Titulo.Aceite), 'S', 'N');
+      txtAceite.Caption               := fBoletoFC.DefineAceiteImpressao(Titulo);
       txtDataProces.Caption           := IfThen(Titulo.DataProcessamento = 0,
                                                 FormatDateTime('dd/mm/yyyy',Now),
                                                 FormatDateTime('dd/mm/yyyy',Titulo.DataProcessamento));
@@ -1862,7 +1882,7 @@ begin
       txtDataDocumentoRecTop1.Caption  := FormatDateTime('dd/mm/yyyy', Titulo.DataDocumento);
       txtNumeroDocumentoRecTop1.Caption:= Titulo.NumeroDocumento;
       txtEspecieDocRecTop1.Caption     := Titulo.EspecieDoc;
-      txtAceiteRecTop1.Caption         := IfThen((atSim = Titulo.Aceite), 'S', 'N');
+      txtAceiteRecTop1.Caption         := fBoletoFC.DefineAceiteImpressao(Titulo);
       txtDataProcessamentoRecTop1.Caption := FormatDateTime('dd/mm/yyyy',Titulo.DataProcessamento);
 
       txtUsoBancoRecTop1.Caption       := Titulo.UsoBanco;
@@ -2020,7 +2040,7 @@ begin
       lTertxtDataDocumento.Caption       := FormatDateTime('dd/mm/yyyy', Titulo.DataDocumento);
       lTertxtNumeroDocumento.Caption     := Titulo.NumeroDocumento;
       lTertxtEspecieDoc.Caption          := Titulo.EspecieDoc;
-      lTertxtAceite.Caption              := ifThen(Titulo.Aceite = atSim,'S','N');
+      lTertxtAceite.Caption              := fBoletoFC.DefineAceiteImpressao(Titulo);
       lTertxtDataProcessamento.Caption   := IfThen(Titulo.DataProcessamento = 0,
                                                 FormatDateTime('dd/mm/yyyy',Now),
                                                 FormatDateTime('dd/mm/yyyy',Titulo.DataProcessamento));
@@ -2118,7 +2138,7 @@ begin
     txtDataDocumentoDet.Caption             := FormatDateTime('dd/mm/yyyy', Titulo.DataDocumento);
     txtNumeroDocumentoDet.Caption           := Titulo.NumeroDocumento;
     txtEspecieDocDEt.Caption                := Titulo.EspecieDoc;
-    txtAceiteDet.Caption                    := ifThen(Titulo.Aceite = atSim, 'S', 'N');
+    txtAceiteDet.Caption                    := fBoletoFC.DefineAceiteImpressao(Titulo);
     txtDataProcessamentoDet.Caption         := IfThen(Titulo.DataProcessamento = 0,FormatDateTime('dd/mm/yyyy', Now),FormatDateTime('dd/mm/yyyy', Titulo.DataProcessamento));
     txtNossoNumeroDet.Caption               := NossoNum;
     txtUsoBancoDet.Caption                  := Titulo.UsoBanco;
@@ -2314,7 +2334,7 @@ begin
     txtDataDocumentoServicos.Caption             := FormatDateTime('dd/mm/yyyy', Titulo.DataDocumento);
     txtNumeroDocumentoServicos.Caption           := Titulo.NumeroDocumento;
     txtEspecieDocServicos.Caption                := Titulo.EspecieDoc;
-    txtAceiteServicos.Caption                    := ifThen(Titulo.Aceite = atSim, 'S', 'N');
+    txtAceiteServicos.Caption                    := fBoletoFC.DefineAceiteImpressao(Titulo);
     txtDataProcessamentoServicos.Caption         := IfThen(Titulo.DataProcessamento = 0,FormatDateTime('dd/mm/yyyy', Now),FormatDateTime('dd/mm/yyyy', Titulo.DataProcessamento));
     txtNossoNumeroServicos.Caption               := NossoNum;
     txtUsoBancoServicos.Caption                  := Titulo.UsoBanco;

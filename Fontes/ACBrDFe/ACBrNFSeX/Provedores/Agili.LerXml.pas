@@ -428,7 +428,7 @@ begin
       CodigoCnae := FpcodCNAE;
       ItemListaServico := FpCodLCServ;
 
-      if FAOwner.ConfigGeral.TabServicosExt then
+      if FpAOwner.ConfigGeral.TabServicosExt then
         xItemListaServico := ObterDescricaoServico(OnlyNumber(ItemListaServico))
       else
         xItemListaServico := CodItemServToDesc(OnlyNumber(ItemListaServico));
@@ -589,10 +589,10 @@ begin
     case NFSe.Situacao of
       -2:
         begin
-          NFSe.Cancelada := snSim;
+          NFSe.SituacaoNfse := snCancelado;
           NFSe.MotivoCancelamento := ObterConteudo(AuxNode.Childrens.FindAnyNs('MotivoCancelamento'), tcStr);
         end;
-      -8: NFSe.Cancelada := snNao;
+      -8: NFSe.SituacaoNfse := snNormal;
     end;
   end;
 end;
@@ -602,7 +602,8 @@ var
   XmlNode: TACBrXmlNode;
   xRetorno: string;
 begin
-  xRetorno := TratarXmlRetorno(Arquivo);
+//italo  xRetorno := TratarXmlRetorno(Arquivo);
+  xRetorno := Arquivo;
 
   if EstaVazio(xRetorno) then
     raise Exception.Create('Arquivo xml não carregado.');

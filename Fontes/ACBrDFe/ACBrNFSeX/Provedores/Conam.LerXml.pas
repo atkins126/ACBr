@@ -122,11 +122,10 @@ var
   XmlNode: TACBrXmlNode;
   xRetorno: string;
 begin
-  xRetorno := TratarXmlRetorno(Arquivo);
-  xRetorno := TiraAcentos(xRetorno);
-
-  if EstaVazio(xRetorno) then
+  if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  xRetorno := TiraAcentos(Arquivo);
 
   if FDocument = nil then
     FDocument := TACBrXmlDocument.Create();
@@ -252,7 +251,7 @@ begin
       Discriminacao    := ObterConteudo(AuxNode.Childrens.FindAnyNs('DiscrSrv'), tcStr);
       ItemListaServico := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodSrv'), tcStr);
 
-      if FAOwner.ConfigGeral.TabServicosExt then
+      if FpAOwner.ConfigGeral.TabServicosExt then
         xItemListaServico := ObterDescricaoServico(OnlyNumber(ItemListaServico))
       else
         xItemListaServico := CodItemServToDesc(OnlyNumber(ItemListaServico));

@@ -60,6 +60,8 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
+
     property URL: string read GetURL;
     property NameSpace: string read GetNameSpace;
     property SoapAction: string read GetSoapAction;
@@ -161,7 +163,7 @@ var
 begin
   inherited ValidarSchema(Response, aMetodo);
 
-  xXml := Response.XmlEnvio;
+  xXml := Response.ArquivoEnvio;
 
   xNameSpace1 := 'xmlns="' + ConfigWebServices.Producao.XMLNameSpace + '"';
 
@@ -264,10 +266,10 @@ begin
         xXml := '<SubstituirNfseEnvio ' + xNameSpace2 + '>' + xXml + '</SubstituirNfseEnvio>';
       end;
   else
-    Response.XmlEnvio := xXml;
+    Response.ArquivoEnvio := xXml;
   end;
 
-  Response.XmlEnvio := xXml;
+  Response.ArquivoEnvio := xXml;
 end;
 
 { TACBrNFSeXWebserviceVersaTecnologia200 }
@@ -277,9 +279,9 @@ var
   xURL: string;
 begin
   if TACBrNFSeX(FPDFeOwner).Configuracoes.WebServices.AmbienteCodigo = 1 then
-    xURL := TACBrNFSeX(FPDFeOwner).Provider.ConfigGeral.Params1
+    xURL := TACBrNFSeX(FPDFeOwner).Provider.ConfigGeral.Params.ValorParametro('URLProducao')
   else
-    xURL := TACBrNFSeX(FPDFeOwner).Provider.ConfigGeral.Params2;
+    xURL := TACBrNFSeX(FPDFeOwner).Provider.ConfigGeral.Params.ValorParametro('URLHomologacao');
 
   if TACBrNFSeX(FPDFeOwner).Configuracoes.Geral.Versao = ve201 then
     xURL := xURL + '/webservice'
@@ -468,6 +470,15 @@ begin
                      [NameSpace]);
 end;
 
+function TACBrNFSeXWebserviceVersaTecnologia200.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result));
+  Result := RemoverDeclaracaoXML(Result);
+end;
+
 { TACBrNFSeProviderVersaTecnologia201 }
 
 procedure TACBrNFSeProviderVersaTecnologia201.Configuracao;
@@ -519,7 +530,7 @@ begin
 
   with Params do
   begin
-    Response.XmlEnvio := '<' + Prefixo + 'CancelarNfseEnvio' + NameSpace + '>' +
+    Response.ArquivoEnvio := '<' + Prefixo + 'CancelarNfseEnvio' + NameSpace + '>' +
                            '<' + Prefixo2 + 'Pedido>' +
                              '<' + Prefixo2 + 'InfPedidoCancelamento' + IdAttr + '>' +
                                '<' + Prefixo2 + 'IdentificacaoNfse>' +

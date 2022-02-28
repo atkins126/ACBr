@@ -38,8 +38,8 @@ interface
 
 uses
   SysUtils, Classes,
-  ACBrUtil, ACBrDFeException, ACBrXmlReader, ACBrNFSeXInterface,
-  ACBrNFSeXParametros, ACBrNFSeXClass, ACBrNFSeXConversao;
+  ACBrXmlReader,
+  ACBrNFSeXInterface, ACBrNFSeXClass, ACBrNFSeXConversao;
 
 type
   { TNFSeRClass }
@@ -51,11 +51,12 @@ type
     FProvedor: TnfseProvedor;
 
   protected
-    FAOwner: IACBrNFSeXProvider;
+    FpAOwner: IACBrNFSeXProvider;
 
-    function NormatizaItemListaServico(const Codigo: string): string;
+    function NormatizarItemListaServico(const Codigo: string): string;
     function ItemListaServicoDescricao(const Codigo: string): string;
     function TipodeXMLLeitura(const aArquivo: string): TtpXML;
+    function NormatizarXml(const aXml: string): string; virtual;
   public
     constructor Create(AOwner: IACBrNFSeXProvider);
 
@@ -68,11 +69,15 @@ type
 
 implementation
 
+uses
+  ACBrUtil,
+  ACBrDFeException;
+
 { TNFSeRClass }
 
 constructor TNFSeRClass.Create(AOwner: IACBrNFSeXProvider);
 begin
-  FAOwner := AOwner;
+  FpAOwner := AOwner;
 end;
 
 function TNFSeRClass.ItemListaServicoDescricao(const Codigo: string): string;
@@ -81,7 +86,7 @@ var
 begin
   xCodigo := OnlyNumber(Codigo);
 
-  if FAOwner.ConfigGeral.TabServicosExt then
+  if FpAOwner.ConfigGeral.TabServicosExt then
     Result := ObterDescricaoServico(xCodigo)
   else
     Result := CodItemServToDesc(xCodigo);
@@ -93,7 +98,7 @@ begin
   raise EACBrDFeException.Create(ClassName + '.LerXml, não implementado');
 end;
 
-function TNFSeRClass.NormatizaItemListaServico(const Codigo: string): string;
+function TNFSeRClass.NormatizarItemListaServico(const Codigo: string): string;
 var
   Item: Integer;
   xCodigo: string;
@@ -109,9 +114,14 @@ begin
   Result := Copy(xCodigo, 1, 2) + '.' + Copy(xCodigo, 3, 2);
 end;
 
+function TNFSeRClass.NormatizarXml(const aXml: string): string;
+begin
+  Result := aXml;
+end;
+
 function TNFSeRClass.TipodeXMLLeitura(const aArquivo: string): TtpXML;
 begin
-  if (Pos('nfse>', LowerCase(Arquivo)) > 0) then
+  if (Pos('/infnfse>', LowerCase(Arquivo)) > 0) then
     Result := txmlNFSe
   else
     Result := txmlRPS;

@@ -48,6 +48,8 @@ type
   { TNFSeR_Infisc }
 
   TNFSeR_Infisc = class(TNFSeRClass)
+  private
+
   protected
 
     // versão 1.0
@@ -309,7 +311,7 @@ begin
 
       aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('anulada'), tcStr);
 
-      Status := StrToEnumerado(Ok, aValor, ['N','S'], [srNormal, srCancelado]);
+      SituacaoNfse := StrToEnumerado(Ok, aValor, ['N','S'], [snNormal, snCancelado]);
 
       Servico.CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('cMunFG'), tcStr);
 
@@ -318,12 +320,16 @@ begin
       ModeloNFSe := ObterConteudo(AuxNode.Childrens.FindAnyNs('mod'), tcStr);
 
       aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('cancelada'), tcStr);
-      Cancelada := StrToSimNao(Ok, aValor, proInfisc);
+      SituacaoNfse := StrToStatusNFSe(Ok, aValor);
 
       MotivoCancelamento := ObterConteudo(AuxNode.Childrens.FindAnyNs('motCanc'), tcStr);
 
       aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('ambienteEmi'), tcStr);
-      Producao := StrToSimNao(Ok, aValor, proInfisc);
+
+      if aValor = '1' then
+        Producao := snSim
+      else
+        Producao := snNao;
     end;
   end;
 end;
@@ -575,7 +581,8 @@ var
   XmlNode: TACBrXmlNode;
   xRetorno: string;
 begin
-  xRetorno := TratarXmlRetorno(Arquivo);
+//italo  xRetorno := TratarXmlRetorno(Arquivo);
+  xRetorno := Arquivo;
 
   if EstaVazio(xRetorno) then
     raise Exception.Create('Arquivo xml não carregado.');

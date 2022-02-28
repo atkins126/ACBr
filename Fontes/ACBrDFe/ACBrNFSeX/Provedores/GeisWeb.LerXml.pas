@@ -115,12 +115,12 @@ begin
   begin
     with NFSe.Prestador.Endereco do
     begin
-      Endereco        := ObterConteudo(AuxNode.Childrens.FindAnyNs('Rua'), tcStr);
-      Numero          := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
-      Bairro          := ObterConteudo(AuxNode.Childrens.FindAnyNs('Bairro'), tcStr);
-      CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr);
-      UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('Estado'), tcStr);
-      CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
+      Endereco := ObterConteudo(AuxNode.Childrens.FindAnyNs('Rua'), tcStr);
+      Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+      Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('Bairro'), tcStr);
+      xMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr);
+      UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('Estado'), tcStr);
+      CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
     end;
   end;
 end;
@@ -128,6 +128,7 @@ end;
 procedure TNFSeR_GeisWeb.LerEnderecoTomador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
+  cCidade: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('Endereco');
 
@@ -138,7 +139,8 @@ begin
       Endereco := ObterConteudo(AuxNode.Childrens.FindAnyNs('Rua'), tcStr);
       Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
       Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('Bairro'), tcStr);
-      CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr);
+      cCidade := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr);
+      xMunicipio := CodIBGEToCidade(StrToIntDef(OnlyNumber(cCidade), 0));
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('Estado'), tcStr);
       CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
     end;
@@ -157,6 +159,7 @@ begin
     begin
       numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('NumeroNfse'), tcStr);
       CodigoVerificacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+      IdentificacaoRps.Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('NumeroRps'), tcStr);
     end;
   end;
 end;
@@ -215,10 +218,10 @@ begin
 
   if AuxNode <> nil then
   begin
-    with NFSe.Servico do
+    with NFSe.OrgaoGerador do
     begin
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoMunicipio'), tcStr);
-      UFPrestacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('Uf'), tcStr);
+      UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('Uf'), tcStr);
     end;
   end;
 end;
@@ -277,7 +280,9 @@ begin
       ItemListaServico := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoServico'), tcStr);
       Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('Discriminacao'), tcStr);
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('MunicipioPrestacaoServico'), tcStr);
-
+      CodigoTributacaoMunicipio := ItemListaServico;
+      xCodigoTributacaoMunicipio := CodItemServToDesc(ItemListaServico);
+      xItemListaServico := CodItemServToDesc(ItemListaServico);
 //                    <xs:element name="TipoLancamento" type="xs:string"></xs:element>
     end;
   end;
@@ -317,6 +322,7 @@ begin
       Aliquota := ObterConteudo(AuxNode.Childrens.FindAnyNs('Aliquota'), tcDe2);
       ValorIss := ObterConteudo(AuxNode.Childrens.FindAnyNs('IssDevido'), tcDe2);
       ValorIssRetido := ObterConteudo(AuxNode.Childrens.FindAnyNs('IssRetido'), tcDe2);
+      ValorLiquidoNfse := ValorServicos - ValorInss - ValorIssRetido;
     end;
   end;
 end;
@@ -326,7 +332,8 @@ var
   XmlNode: TACBrXmlNode;
   xRetorno: string;
 begin
-  xRetorno := TratarXmlRetorno(Arquivo);
+//italo  xRetorno := TratarXmlRetorno(Arquivo);
+  xRetorno := Arquivo;
   xRetorno := TiraAcentos(xRetorno);
 
   if EstaVazio(xRetorno) then

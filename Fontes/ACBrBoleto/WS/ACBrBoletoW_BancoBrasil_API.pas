@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 
-{ Direitos Autorais Reservados (c) 2021 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 
 { Colaboradores nesse arquivo:  José M S Junior, Victor Hugo Gonzales          }
 
@@ -232,8 +232,8 @@ begin
 
         Consulta.Add('agenciaBeneficiario='+OnlyNumber( Boleto.Cedente.Agencia ));
         Consulta.Add('contaBeneficiario='+OnlyNumber( Boleto.Cedente.Conta ));
-        //Consulta.Add('carteiraConvenio='+OnlyNumber(Boleto.Cedente.Convenio));
-        //Consulta.Add('variacaoCarteiraConvenio='+Boleto.Cedente.Modalidade);
+        Consulta.Add('carteiraConvenio='+OnlyNumber(Boleto.Cedente.Convenio));
+        Consulta.Add('variacaoCarteiraConvenio='+Boleto.Cedente.Modalidade);
 
         if Boleto.Configuracoes.WebService.Filtro.modalidadeCobranca > 0 then
           Consulta.Add('modalidadeCobranca='+ IntToStr(Boleto.Configuracoes.WebService.Filtro.modalidadeCobranca));
@@ -320,7 +320,10 @@ begin
       Json.Add('codigoAceite').Value.AsString                           := IfThen(Titulos.Aceite = atSim,'A','N');
       Json.Add('codigoTipoTitulo').Value.AsInteger                      := codigoTipoTitulo(Titulos.EspecieDoc);
       Json.Add('descricaoTipoTitulo').Value.AsString                    := Titulos.EspecieDoc;
-      //Json.Add('indicadorPermissaoRecebimentoParcial').Value.AsString := 'N';
+
+      if Titulos.TipoPagamento = tpAceita_Qualquer_Valor then
+        Json.Add('indicadorPermissaoRecebimentoParcial').Value.AsString := 'S';
+
       Json.Add('numeroTituloBeneficiario').Value.AsString               := Copy(Trim(UpperCase(Titulos.NumeroDocumento)),0,15);
       Json.Add('campoUtilizacaoBeneficiario').Value.AsString            := Copy(Trim(StringReplace(UpperCase(Titulos.Mensagem.Text),'\r\n',' ',[rfReplaceAll])),0,30);
       Json.Add('numeroTituloCliente').Value.AsString                    := Boleto.Banco.MontarCampoNossoNumero(Titulos);

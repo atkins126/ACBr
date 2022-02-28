@@ -125,7 +125,7 @@ begin
                  OnlyNumber(NFSe.Servico.ItemServico[i].ItemListaServico), ''));
 
     Result[i].AppendChild(AddNode(tcStr, '#55', 'sCNAE', 1, 6, 1,
-                                                  NFSe.Servico.CodigoCnae, ''));
+                                   NFSe.Servico.ItemServico[i].CodigoCnae, ''));
 
     Result[i].AppendChild(AddNode(tcDe2, '#57', 'nValorServico', 1, 15, 1,
                          NFSe.Servico.ItemServico[i].ValorUnitario, DSC_VPARC));
@@ -157,7 +157,7 @@ begin
 
 //  Opcoes.SuprimirDecimais := True;
 //  Opcoes.DecimalChar := '.';
-  Opcoes.QuebraLinha := FAOwner.ConfigGeral.QuebradeLinha;
+  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
@@ -193,7 +193,7 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'sCodigoVerificador', 1, 2000, 1,
                                                                        '', ''));
 
-  Situacao := EnumeradoToStr(NFSe.Status, ['N', 'C'], [srNormal, srCancelado]);
+  Situacao := EnumeradoToStr(NFSe.StatusRps, ['N', 'C'], [srNormal, srCancelado]);
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'sSituacao', 1, 1, 1, Situacao, ''));
 

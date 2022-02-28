@@ -46,6 +46,7 @@ type
   TNFSeR_BHISS = class(TNFSeR_ABRASFv1)
   protected
 
+    function NormatizarXml(const aXml: string): string; override;
   public
 
   end;
@@ -56,5 +57,12 @@ implementation
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
 //     BHISS
 //==============================================================================
+
+{ TNFSeR_BHISS }
+
+function TNFSeR_BHISS.NormatizarXml(const aXml: string): string;
+begin
+  Result := StringReplace(aXml, '&>', ' ', [rfReplaceAll]);
+end;
 
 end.

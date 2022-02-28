@@ -57,6 +57,7 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProvideriiBrasil204 = class (TACBrNFSeProviderABRASFv2)
@@ -140,7 +141,7 @@ var
   xXml, Integridade: string;
   i: Integer;
 begin
-  xXml := Response.XmlEnvio;
+  xXml := Response.ArquivoEnvio;
 
   // Precisa verificar o que deve ser utilizado para gerar o valor da Integridade
   // para o provedor iiBrasil
@@ -153,7 +154,7 @@ begin
         i := Pos('</GerarNfseEnvio>', xXml);
 
         xXml := Copy(xXml, 1, i -1) + Integridade + '</GerarNfseEnvio>';
-        Response.XmlEnvio := xXml;
+        Response.ArquivoEnvio := xXml;
       end;
 
     tmConsultarNFSePorRps:
@@ -161,7 +162,7 @@ begin
         i := Pos('</ConsultarNfseRpsEnvio>', xXml);
 
         xXml := Copy(xXml, 1, i -1) + Integridade + '</ConsultarNfseRpsEnvio>';
-        Response.XmlEnvio := xXml;
+        Response.ArquivoEnvio := xXml;
       end;
 
     tmCancelarNFSe:
@@ -169,7 +170,7 @@ begin
         i := Pos('</CancelarNfseEnvio>', xXml);
 
         xXml := Copy(xXml, 1, i -1) + Integridade + '</CancelarNfseEnvio>';
-        Response.XmlEnvio := xXml;
+        Response.ArquivoEnvio := xXml;
       end;
 
     tmSubstituirNFSe:
@@ -177,10 +178,10 @@ begin
         i := Pos('</SubstituirNfseEnvio>', xXml);
 
         xXml := Copy(xXml, 1, i -1) + Integridade + '</SubstituirNfseEnvio>';
-        Response.XmlEnvio := xXml;
+        Response.ArquivoEnvio := xXml;
       end;
   else
-    Response.XmlEnvio := xXml;
+    Response.ArquivoEnvio := xXml;
   end;
 
   inherited ValidarSchema(Response, aMetodo);
@@ -355,6 +356,16 @@ begin
   Result := Executar('http://nfse.abrasf.org.br/SubstituirNfse', Request,
                      ['outputXML', 'SubstituirNfseResposta'],
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceiiBrasil204.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 end.
