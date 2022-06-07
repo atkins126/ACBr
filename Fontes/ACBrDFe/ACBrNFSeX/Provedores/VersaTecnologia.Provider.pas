@@ -103,7 +103,9 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais,
   VersaTecnologia.GravarXml, VersaTecnologia.LerXml;
 
@@ -476,7 +478,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := ParseText(AnsiString(Result));
-  Result := RemoverDeclaracaoXML(Result);
+  Result := string(NativeStringToUTF8(RemoverDeclaracaoXML(Result)));
 end;
 
 { TACBrNFSeProviderVersaTecnologia201 }

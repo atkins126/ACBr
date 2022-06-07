@@ -102,7 +102,10 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   Equiplano.GravarXml, Equiplano.LerXml;
 
@@ -116,6 +119,7 @@ begin
   begin
     ModoEnvio := meLoteAssincrono;
     FpCodigoCidade := Params.ValorParametro('CodigoCidade');
+    DetalharServico := True;
   end;
 
   with ConfigAssinar do
@@ -685,6 +689,14 @@ begin
           CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cdAutenticacao'), tcStr);
           Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dtEmissaoNfs'), tcDatHor);
           NumeroRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrRps'), tcStr);
+        end;
+
+        AuxNode := AuxNode.Childrens.FindAnyNs('cancelamento');
+
+        if AuxNode <> nil then
+        begin
+          Response.Cancelamento.DataHora := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dtCancelamento'), tcDatHor);
+          Response.Cancelamento.Motivo := ObterConteudoTag(AuxNode.Childrens.FindAnyns('dsCancelamento'), tcStr);
         end;
 
         i := TACBrNFSeX(FAOwner).NotasFiscais.Count;

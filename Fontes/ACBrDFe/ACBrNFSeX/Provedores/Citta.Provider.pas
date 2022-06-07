@@ -68,6 +68,9 @@ type
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
     procedure ValidarSchema(Response: TNFSeWebserviceResponse; aMetodo: TMetodo); override;
+
+  public
+    function StrToSituacaoTributaria(out ok: boolean; const s: string): TnfseSituacaoTributaria; override;
   end;
 
 implementation
@@ -207,6 +210,14 @@ begin
   end;
 
   Response.ArquivoEnvio := Xml;
+end;
+
+function TACBrNFSeProviderCitta203.StrToSituacaoTributaria(out ok: boolean;
+  const s: string): TnfseSituacaoTributaria;
+begin
+  Result := StrToEnumerado(ok, s,
+                             ['1', '0', '2'],
+                             [stRetencao, stNormal, stSubstituicao]);
 end;
 
 { TACBrNFSeXWebserviceCitta203 }

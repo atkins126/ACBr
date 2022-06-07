@@ -81,13 +81,9 @@ type
   private
     FTipo: TTipoInscricao; // Tamanho 1
     FNumero: String; // Tamanho 14 ou 15
-	FPixTipoChave: String;
-    FPixMensagem: String;
   public
     property Tipo: TTipoInscricao read FTipo write FTipo;
     property Numero: String read FNumero write FNumero;
-	property PixTipoChave: String read FPixTipoChave write FPixTipoChave;
-    property PixMensagem: String read FPixMensagem write FPixMensagem;
   end;
 
   TAgencia = class(TObject)
@@ -305,6 +301,7 @@ type
     FContaCorrente: TContaCorrente;
     FNome: String; // Tamanho 30
     FInscricao: TInscricao;
+    FIDTipoTransferencia: string;
   public
     constructor Create;
     destructor Destroy; override;
@@ -314,6 +311,7 @@ type
     property ContaCorrente: TContaCorrente read FContaCorrente write FContaCorrente;
     property Nome: String read FNome write FNome;
     property Inscricao: TInscricao read FInscricao write FInscricao;
+    property IDTipoTransfencia: String read FIDTipoTransferencia write FIDTipoTransferencia;
   end;
 
   TMoeda = class(TObject)
@@ -489,6 +487,10 @@ type
     FCodOcorrencia: string;
     FDescOcorrencia: String;
     FCodigoISPB: Integer;
+    FPixTipoChave: TTipoChavePIX;
+    FPixMensagem: String;
+    FPixTXID: string;
+    FPixChave: string;
   public
     constructor Create;
     destructor Destroy; override;
@@ -511,6 +513,10 @@ type
     property CodOcorrencia: string read FCodOcorrencia write FCodOcorrencia;
     property DescOcorrencia: String read FDescOcorrencia write FDescOcorrencia;
     property CodigoISPB: Integer read FCodigoISPB write FCodigoISPB;
+    property PixTipoChave: TTipoChavePix read FPixTipoChave write FPixTipoChave;
+    property PixMensagem: String read FPixMensagem write FPixMensagem;
+    property PixTXID: String read FPixTXID write FPixTXID;
+    property PixChave: String read FPixChave write FPixChave;
   end;
 
   TSegmentoBList = class(TObjectList)
@@ -737,6 +743,8 @@ type
     FCodigoComp: String; // Tamanho 2
     FAviso: Integer; // Tamanho 1
     FCodOcorrencia : String; // Tamanho 2
+    FNumeroDocumento: Integer;
+    FCodigoISPB: Integer; // Tamanho 8
 
     FSegmentoB: TSegmentoBList;
     FSegmentoC: TSegmentoCList;
@@ -770,6 +778,8 @@ type
     property CodOcorrencia: String read FCodOcorrencia write FCodOcorrencia;
     property DescOcorrencia: String read FDescOcorrencia write FDescOcorrencia;
     property PagamentoLiberado: Boolean read GetPagamentoLiberado;
+    property NumeroDocumento: Integer read FNumeroDocumento write FNumeroDocumento;
+    property CodigoISPB: Integer read FCodigoISPB write FCodigoISPB;
     property SegmentoB: TSegmentoBList read FSegmentoB write SetSegmentoB;
     property SegmentoC: TSegmentoCList read FSegmentoC write SetSegmentoC;
     property SegmentoD: TSegmentoDList read FSegmentoD write SetSegmentoD;
@@ -923,6 +933,8 @@ type
     FPagador: TPagador;
     FBeneficiario: TBeneficiario;
     FSacadorAvalista: TSacadorAvalista;
+    FChave: String;
+    FTXID: String;
   public
     constructor Create; reintroduce;
     destructor Destroy; override;
@@ -932,6 +944,8 @@ type
     property Pagador: TPagador read FPagador write FPagador;
     property Beneficiario: TBeneficiario read FBeneficiario write FBeneficiario;
     property SacadorAvalista: TSacadorAvalista read FSacadorAvalista write FSacadorAvalista;
+    property Chave: string read FChave write FChave;
+    property TXID: string read FTXID write FTXID;
   end;
 
   TSegmentoJ52List = class(TObjectList)
@@ -1140,7 +1154,7 @@ type
   private
     FSegmentoN           : TSegmentoN;
     FReceita             : Integer;
-    FTipoContribuinte    : Integer;
+    FTipoContribuinte    : TTipoInscricao;
     FidContribuinte      : String; // Tamanho 14
     FCompetencia         : Integer;
     FValorTributo        : Double;
@@ -1154,7 +1168,7 @@ type
 
     property SegmentoN: TSegmentoN read FSegmentoN write FSegmentoN;
     property Receita: Integer read FReceita write FReceita;
-    property TipoContribuinte: Integer read FTipoContribuinte write FTipoContribuinte;
+    property TipoContribuinte: TTipoInscricao read FTipoContribuinte write FTipoContribuinte;
     property idContribuinte: String read FidContribuinte write FidContribuinte;
     property Competencia: Integer read FCompetencia write FCompetencia;
     property ValorTributo: Double read FValorTributo write FValorTributo;
@@ -1460,11 +1474,14 @@ type
     FSeuNumero         : String; // Tamanho 20
     FNossoNumero       : String; // Tamanho 20
     FCodOcorrencia : String;
+    FSegmentoW: TSegmentoWList;
     FSegmentoZ: TSegmentoZList;
     FQuantidadeMoeda: Double;
     FValorPago: Double;
     FNotaFiscal: Integer;
     FDescOcorrencia: String;
+
+    procedure SetSegmentoW(const Value: TSegmentoWList);
     procedure SetSegmentoZ(const Value: TSegmentoZList);
     function GetPagamentoLiberado: Boolean;
   public
@@ -1481,6 +1498,7 @@ type
     property NossoNumero: String read FNossoNumero write FNossoNumero;
     property CodOcorrencia: String read FCodOcorrencia write FCodOcorrencia;
     property DescOcorrencia: String read FDescOcorrencia write FDescOcorrencia;
+    property SegmentoW: TSegmentoWList read FSegmentoW write SetSegmentoW;
     property SegmentoZ: TSegmentoZList read FSegmentoZ write SetSegmentoZ;
     property QuantidadeMoeda: Double read FQuantidadeMoeda write FQuantidadeMoeda;
     property ValorPago: Double read FValorPago write FValorPago;
@@ -2147,6 +2165,7 @@ begin
   inherited Create;
   FInscricao := TInscricao.Create;
   FEndereco  := TEndereco.Create;
+  FPixTipoChave := tcpNenhum;
 end;
 
 destructor TSegmentoB.Destroy;
@@ -2580,18 +2599,27 @@ end;
 constructor TSegmentoO.Create;
 begin
   inherited Create;
+
+  FSegmentoW := TSegmentoWList.Create;
   FSegmentoZ := TSegmentoZList.Create;
 end;
 
 destructor TSegmentoO.Destroy;
 begin
+  FSegmentoW.Free;
   FSegmentoZ.Free;
+
   inherited;
 end;
 
 function TSegmentoO.GetPagamentoLiberado: Boolean;
 begin
   Result := POS(CodOcorrencia, PAGAMENTO_LIBERADO_BANCO) > 0;
+end;
+
+procedure TSegmentoO.SetSegmentoW(const Value: TSegmentoWList);
+begin
+  FSegmentoW := Value;
 end;
 
 procedure TSegmentoO.SetSegmentoZ(const Value: TSegmentoZList);

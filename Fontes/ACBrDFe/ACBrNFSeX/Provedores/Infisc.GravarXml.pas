@@ -38,9 +38,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnAuxiliar, pcnConsts,
+  pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXGravarXml_ABRASFv2,
   ACBrNFSeXConversao;
 
@@ -102,6 +101,9 @@ type
   end;
 
 implementation
+
+uses
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -178,6 +180,8 @@ begin
 end;
 
 function TNFSeW_Infisc.GerarDadosdaObra: TACBrXmlNode;
+var
+  xCidade: string;
 begin
   Result := CreateElement('dadosDaObra');
 
@@ -199,10 +203,10 @@ begin
   Result.AppendChild(AddNode(tcStr, '#1', 'cCidadeObra', 1, 7, 1,
                                  NFSe.ConstrucaoCivil.CodigoMunicipioObra, ''));
 
+  xCidade := CodIBGEToCidade(StrToIntDef(NFSe.ConstrucaoCivil.CodigoMunicipioObra, 0));
+
   Result.AppendChild(AddNode(tcStr, '#1', 'xCidadeObra', 1, 60, 1,
-    copy(CodIBGEToCidade(StrToIntDef(NFSe.ConstrucaoCivil.CodigoMunicipioObra, 0)),
-         0,
-         pos('/', CodIBGEToCidade(StrToIntDef(NFSe.ConstrucaoCivil.CodigoMunicipioObra, 0)))-1), ''));
+                                   Copy(xCidade, 1, Pos('/', xCidade) -1), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'xUfObra', 1, 2, 1,
                                               NFSe.ConstrucaoCivil.UFObra, ''));
@@ -409,6 +413,8 @@ begin
 end;
 
 function TNFSeW_Infisc.GerarEnderecoEmitente: TACBrXmlNode;
+var
+  xCidade: string;
 begin
   Result := CreateElement('end');
 
@@ -427,11 +433,10 @@ begin
   Result.AppendChild(AddNode(tcStr, '#1', 'cMun', 1, 7, 1,
                                   NFSe.Prestador.Endereco.CodigoMunicipio, ''));
 
+  xCidade := CodIBGEToCidade(StrToIntDef(NFSe.Prestador.Endereco.CodigoMunicipio, 0));
+
   Result.AppendChild(AddNode(tcStr, '#1', 'xMun', 1, 60, 1,
-    copy(CodIBGEToCidade(StrToIntDef(NFSe.Prestador.Endereco.CodigoMunicipio, 0)),
-         0,
-         pos('/',
-             CodIBGEToCidade(StrToIntDef(NFSe.Prestador.Endereco.CodigoMunicipio, 0))) -1), ''));
+                                   Copy(xCidade, 1, Pos('/', xCidade) -1), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'UF', 1, 2, 1,
                                                NFSe.Prestador.Endereco.UF, ''));
@@ -447,6 +452,8 @@ begin
 end;
 
 function TNFSeW_Infisc.GerarEnderecoTomador: TACBrXmlNode;
+var
+  xCidade: string;
 begin
   Result := CreateElement('ender');
 
@@ -465,8 +472,10 @@ begin
   Result.AppendChild(AddNode(tcStr, '#1', 'cMun', 1, 7, 0,
                                     NFSe.Tomador.Endereco.CodigoMunicipio, ''));
 
+  xCidade := CodIBGEToCidade(StrToIntDef(NFSe.Tomador.Endereco.CodigoMunicipio, 0));
+
   Result.AppendChild(AddNode(tcStr, '#1', 'xMun', 1, 60, 0,
-    CodIBGEToCidade(StrToIntDef(NFSe.Tomador.Endereco.CodigoMunicipio, 0)), ''));
+                                   Copy(xCidade, 1, Pos('/', xCidade) -1), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'UF', 1, 2, 0,
                                                  NFSe.Tomador.Endereco.UF, ''));
@@ -507,9 +516,18 @@ begin
 end;
 
 begin
+  {
+    A Chave é composta por:
+     2 | N |Código IBGE para UF do prestador
+    14 | N |CNPJ do prestador
+     2 | N |Modelo da nota (valor 98 por padrão)
+     3 | C |Série da nota (em maiúsculas, com zeros à direita)
+     9 | N |Número da nota (com zeros à esquerda)
+     9 | N |Código numérico aleatório
+  }
   cUF := IntToStr(UFtoCUF(NFSe.Prestador.Endereco.UF));
   CNPJ := Poem_Zeros(OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.CpfCnpj), 14);
-  Modelo :=  NFSe.ModeloNFSe;
+  Modelo := NFSe.ModeloNFSe;
   aSerie := Poem_Zeros(UpperCase(NFSE.SeriePrestacao), 3);
   Numero := Poem_Zeros(NFSe.Numero, 9);
   Codigo := Poem_Zeros(NFSe.cNFSe, 9);
@@ -734,7 +752,7 @@ begin
   Result := CreateElement('Observacoes');
 
   Result.AppendChild(AddNode(tcStr, '#1', 'xinf', 1, 100, 1,
-                                     copy(NFSe.OutrasInformacoes, 1, 100), ''));
+                                     Copy(NFSe.OutrasInformacoes, 1, 100), ''));
 end;
 
 function TNFSeW_Infisc.GerarRetencao: TACBrXmlNode;
@@ -833,7 +851,7 @@ begin
     Result.AppendChild(AddNode(tcDe3, '#1', 'vUnit', 1, 15, 1,
                        NFSe.Servico.ItemServico[Item].ValorUnitario, ''))
   else
-    Result.AppendChild(AddNode(tcDe2, '#1', 'vUnit', 1, 15, 1,
+    Result.AppendChild(AddNode(tcDe4, '#1', 'vUnit', 1, 15, 1,
                        NFSe.Servico.ItemServico[Item].ValorUnitario, ''));
 
   Result.AppendChild(AddNode(tcDe2, '#1', 'vServ', 1, 15, 0,
@@ -1137,6 +1155,8 @@ end;
 procedure TNFSeW_Infisc201.Configuracao;
 begin
   inherited Configuracao;
+
+  GerarNSRps := False;
 end;
 
 procedure TNFSeW_Infisc201.DefinirIDRps;

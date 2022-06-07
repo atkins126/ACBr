@@ -161,7 +161,7 @@ begin
     try
       fpToken := js.S['access_token'];
       sec := js.I['expires_in'];
-      fpRefereshToken := js.S['refresh_token'];
+      fpRefreshToken := js.S['refresh_token'];
     finally
       js.Free;
     end;
@@ -171,21 +171,21 @@ begin
       js.Parse(RespostaHttp);
       fpToken := js['access_token'].AsString;
       sec := js['expires_in'].AsInteger;
-      fpRefereshToken := js['refresh_token'].AsString;
+      fpRefreshToken := js['refresh_token'].AsString;
     finally
       js.Free;
     end;
    {$EndIf}
 
    if (Trim(fpToken) = '') then
-     ACBrPixCD.DispararExcecao(EACBrPixHttpException.Create(ACBrStr(sErroAutenticacao)));
+     DispararExcecao(EACBrPixHttpException.Create(ACBrStr(sErroAutenticacao)));
 
    fpValidadeToken := IncSecond(Now, sec);
    fpAutenticado := True;
   end
   else
-    ACBrPixCD.DispararExcecao(EACBrPixHttpException.CreateFmt(
-      sErroHttp,[Http.ResultCode, ChttpMethodPOST, AURL]));
+    DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
+      [Http.ResultCode, ChttpMethodPOST, AURL]));
 end;
 
 function TACBrPSPItau.SolicitarCertificado(const TokenTemporario: String): String;
@@ -220,8 +220,8 @@ begin
   if (ResultCode = HTTP_OK) then
     Result := StreamToAnsiString(Http.OutputStream)
   else
-    ACBrPixCD.DispararExcecao(EACBrPixHttpException.CreateFmt(
-      sErroHttp,[Http.ResultCode, ChttpMethodPOST, AURL]));
+    DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
+      [Http.ResultCode, ChttpMethodPOST, AURL]));
 end;
 
 function TACBrPSPItau.GerarCertificadoCSR: String;

@@ -87,7 +87,10 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   Governa.GravarXml, Governa.LerXml;
 
@@ -104,6 +107,7 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaLote := False;
     ConsultaNFSe := False;
+    DetalharServico := True;
 
     FpVersaoArquivo := Params.ValorParametro('VersaoArquivo');
   end;
@@ -458,29 +462,29 @@ begin
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
   Response.ArquivoEnvio := '<tcLoteCancelamento>' +
-                          '<tsCodCadBic>' +
-                             OnlyNumber(Emitente.InscMun) +
-                          '</tsCodCadBic>' +
-                          '<tsVrsArq>' +
-                             FpVersaoArquivo +
-                          '</tsVrsArq>' +
-                          '<tsChvAcs>' +
-                             OnlyNumber(Emitente.WSChaveAcesso) +
-                          '</tsChvAcs>' +
-                          '<tcNotCan>' +
-                            '<tcInfNotCan>' +
-                              '<tsNumNot>' +
-                                Response.InfCancelamento.NumeroNFSe +
-                              '</tsNumNot>' +
-                              '<tsCodVer>' +
-                                 Response.InfCancelamento.CodVerificacao +
-                              '</tsCodVer>' +
-                              '<tsDesMotCan>' +
-                                 Response.InfCancelamento.MotCancelamento +
-                              '</tsDesMotCan>' +
-                            '</tcInfNotCan>' +
-                          '</tcNotCan>' +
-                       '</tcLoteCancelamento>';
+                             '<tsCodCadBic>' +
+                               OnlyNumber(Emitente.InscMun) +
+                             '</tsCodCadBic>' +
+                             '<tsVrsArq>' +
+                               FpVersaoArquivo +
+                             '</tsVrsArq>' +
+                             '<tsChvAcs>' +
+                               OnlyNumber(Emitente.WSChaveAcesso) +
+                             '</tsChvAcs>' +
+                             '<tcNotCan>' +
+                               '<tcInfNotCan>' +
+                                 '<tsNumNot>' +
+                                   Response.InfCancelamento.NumeroNFSe +
+                                 '</tsNumNot>' +
+                                 '<tsCodVer>' +
+                                   Response.InfCancelamento.CodVerificacao +
+                                 '</tsCodVer>' +
+                                 '<tsDesMotCan>' +
+                                   Response.InfCancelamento.MotCancelamento +
+                                 '</tsDesMotCan>' +
+                               '</tcInfNotCan>' +
+                             '</tcNotCan>' +
+                           '</tcLoteCancelamento>';
 end;
 
 procedure TACBrNFSeProviderGoverna.TratarRetornoCancelaNFSe(

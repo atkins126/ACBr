@@ -193,7 +193,8 @@ implementation
 
 uses
   Math,
-  ACBrUtil,
+  ACBrUtil.Strings,
+  ACBrUtil.Compatibilidade,
   ACBrDFeSSL,
   ACBrNFSeXProviderManager;
 
@@ -434,6 +435,9 @@ begin
           FWebService.ConsultaLoteRps.Lote := '';
         end;
 
+        if not FProvider.ConfigGeral.ConsultaSitLote then
+          Sleep(Configuracoes.WebServices.AguardarConsultaRet);
+
         FProvider.ConsultaLoteRps;
       end;
     end;
@@ -457,28 +461,19 @@ function TACBrNFSeX.GerarIntegridade(const AXML: string): string;
 var
   XML: string;
   i, j: Integer;
-  xAssinatura: TStringList;
 begin
   j := Length(AXML);
   XML := '';
 
   for i := 1 to J do
   begin
-    if {$IFNDEF HAS_CHARINSET}ACBrUtil.{$ENDIF}CharInSet(AXML[i], ['!'..'~']) then
+    if {$IFNDEF HAS_CHARINSET}ACBrUtil.Compatibilidade.{$ENDIF}CharInSet(AXML[i], ['!'..'~']) then
       XML := XML + AXML[i];
   end;
 
-//  SSL.CarregarCertificadoSeNecessario;
-
-  xAssinatura := TStringList.Create;
-  try
-    xAssinatura.Add(XML + Configuracoes.Geral.Emitente.WSChaveAcesso);
-
-    Result := string(SSL.CalcHash(xAssinatura, dgstSHA512, outHexa, False));
-    Result := lowerCase(Result);
-  finally
-    xAssinatura.Free;
-  end;
+  Result := SSL.CalcHash(XML + Configuracoes.Geral.Emitente.WSChaveAcesso,
+                         dgstSHA512, outHexa, False);
+  Result := lowerCase(Result);
 end;
 
 procedure TACBrNFSeX.ConsultarLoteRps(const AProtocolo, ANumLote: String);
@@ -805,8 +800,9 @@ begin
     NumeroNFSe := aInfCancelamento.NumeroNFSe;
     SerieNFSe := aInfCancelamento.SerieNFSe;
     ChaveNFSe := aInfCancelamento.ChaveNFSe;
+    DataEmissaoNFSe := aInfCancelamento.DataEmissaoNFSe;
     CodCancelamento := aInfCancelamento.CodCancelamento;
-    MotCancelamento := aInfCancelamento.MotCancelamento;
+    MotCancelamento := TiraAcentos(ChangeLineBreak(aInfCancelamento.MotCancelamento));
     NumeroLote := aInfCancelamento.NumeroLote;
     NumeroRps := aInfCancelamento.NumeroRps;
     SerieRps := aInfCancelamento.SerieRps;
@@ -815,6 +811,9 @@ begin
     email := aInfCancelamento.email;
     NumeroNFSeSubst := aInfCancelamento.NumeroNFSeSubst;
     SerieNFSeSubst := aInfCancelamento.SerieNFSeSubst;
+
+    if (ChaveNFSe <> '') and (NumeroNFSe = '') then
+      NumeroNFSe := Copy(ChaveNFSe, 22, 9);
   end;
 
   FProvider.CancelaNFSe;
@@ -822,25 +821,22 @@ begin
   if Configuracoes.Geral.ConsultaAposCancelar and
      FProvider.ConfigGeral.ConsultaNFSe then
   begin
-//    try
-      FWebService.ConsultaNFSe.Clear;
+    FWebService.ConsultaNFSe.Clear;
 
-      with FWebService.ConsultaNFSe.InfConsultaNFSe do
-      begin
-        if FProvider.ConfigGeral.ConsultaPorFaixa then
-          tpConsulta := tcPorFaixa
-        else
-          tpConsulta := tcPorNumero;
+    with FWebService.ConsultaNFSe.InfConsultaNFSe do
+    begin
+      if FProvider.ConfigGeral.ConsultaPorFaixa then
+        tpConsulta := tcPorFaixa
+      else
+        tpConsulta := tcPorNumero;
 
-        NumeroIniNFSe := FWebService.CancelaNFSe.InfCancelamento.NumeroNFSe;
-        NumeroFinNFSe := FWebService.CancelaNFSe.InfCancelamento.NumeroNFSe;
-        Pagina        := 1;
-      end;
+      NumeroIniNFSe := FWebService.CancelaNFSe.InfCancelamento.NumeroNFSe;
+      NumeroFinNFSe := FWebService.CancelaNFSe.InfCancelamento.NumeroNFSe;
+      NumeroLote := FWebService.CancelaNFSe.InfCancelamento.NumeroLote;
+      Pagina := 1;
+    end;
 
-      FProvider.ConsultaNFSe;
-//    finally
-//      FWebService.CancelaNFSe.Situacao := FWebService.ConsultaNFSe.Situacao;
-//    end;
+    FProvider.ConsultaNFSe;
   end;
 end;
 
@@ -865,7 +861,7 @@ begin
     NumeroNFSe := aNumNFSe;
     SerieNFSe := aSerieNFSe;
     CodCancelamento := aCodCancelamento;
-    MotCancelamento := aMotCancelamento;
+    MotCancelamento := TiraAcentos(ChangeLineBreak(aMotCancelamento));
     NumeroLote := aNumLote;
     CodVerificacao := aCodVerificacao;
   end;

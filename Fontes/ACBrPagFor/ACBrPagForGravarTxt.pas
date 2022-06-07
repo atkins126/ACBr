@@ -38,7 +38,7 @@ interface
 
 uses
   SysUtils, Classes,
-  ACBrPagForClass, ACBrPagForConversao, ACBrUtil;
+  ACBrPagForClass, ACBrPagForConversao;
 
 type
   TPagForW = class(TPersistent)
@@ -61,13 +61,13 @@ type
     procedure GeraRegistro0;             // Registro Header de Arquivo
     procedure GeraRegistro1(I: Integer); // Registro Header de Lote
     
-	procedure GeraSegmentoA(I: Integer);                     // Registro para Pagamentos (Pagamento através de Crédito em Conta Corrente, Cheque, OP, DOC, Pagamento com Autenticação ou Pix)
+    procedure GeraSegmentoA(I: Integer);                     // Registro para Pagamentos (Pagamento através de Crédito em Conta Corrente, Cheque, OP, DOC, Pagamento com Autenticação ou Pix)
     procedure GeraSegmentoB(mSegmentoBList: TSegmentoBList); // Registro para Pagamentos (Pagamento através de Crédito em Conta Corrente, Cheque, OP, DOC, Pagamento com Autenticação ou Pix)
     procedure GeraSegmentoC(mSegmentoCList: TSegmentoCList); // Registro para Pagamentos (Pagamento através de Crédito em Conta Corrente, Cheque, OP, DOC, Pagamento com Autenticação ou Pix)
-	
+
     procedure GeraSegmentoD(mSegmentoDList: TSegmentoDList); // Registro para Custódia de Cheques
-    
-	procedure GeraSegmentoE(mSegmentoEList: TSegmentoEList); // Registro para Extrato (Extrato de Conta Corrente para Conciliação Bancária)
+
+    procedure GeraSegmentoE(mSegmentoEList: TSegmentoEList); // Registro para Extrato (Extrato de Conta Corrente para Conciliação Bancária)
     procedure GeraSegmentoF(mSegmentoFList: TSegmentoFList); // Registro para Extrato (Extrato para Gestão de Caixa)
 
     procedure GeraSegmentoJ(I: Integer);                           // Registro para Pagamentos (Pagamento de Títulos de Cobrança e QRCode Pix)
@@ -116,6 +116,9 @@ type
 
 implementation
 
+uses
+  ACBrUtil.Strings;
+
 { TPagForW }
 
 constructor TPagForW.Create(AOwner: TPagFor);
@@ -153,7 +156,7 @@ begin
         wregistro := wregistro + '081';
       end;
 
-    pagHSBC, pagSantander, pagSicred:
+    pagHSBC, pagSantander, pagSicredi:
       wregistro := wregistro + Space(9);
   else
     wregistro := wregistro + Space(9);
@@ -199,7 +202,7 @@ begin
         wregistro := wregistro + ' '; // Filler Branco               1
       end;
 
-    pagSicred, pagBancoCECRED:
+    pagSicredi, pagBancoCECRED:
       begin
         wregistro := wregistro + PadRight(FPagFor.Registro0.Empresa.Convenio, 20);
         wregistro := wregistro + FormatFloat('00000', FPagFor.Registro0.Empresa.ContaCorrente.Agencia.Codigo); // Cód. Ag. Agência da Conta   5
@@ -208,20 +211,33 @@ begin
         wregistro := wregistro + PadRight(FPagFor.Registro0.Empresa.ContaCorrente.Conta.DV, 1); // Díg. Verif. Conta           1
         wregistro := wregistro + ' '; // Filler Branco               1
       end;
+
     pagBancoDoBrasil:
       begin
         wregistro := wregistro + TBStrZero(FPagFor.Registro0.Empresa.Convenio, 9);
         wregistro := wregistro + '0126';
         wregistro := wregistro + Space(5);
+
         if FPagFor.Registro0.ReservadoEmpresa = 'T' then
           wregistro := wregistro + 'TS' //arquivo de teste
         else
           wregistro := wregistro + Space(2);
+
         wregistro := wregistro + FormatFloat('00000', FPagFor.Registro0.Empresa.ContaCorrente.Agencia.Codigo);
         wregistro := wregistro + PadRight(FPagFor.Registro0.Empresa.ContaCorrente.Agencia.DV, 1);
         wregistro := wregistro + FormatFloat('000000000000', FPagFor.Registro0.Empresa.ContaCorrente.Conta.Numero);
         wregistro := wregistro + PadRight(FPagFor.Registro0.Empresa.ContaCorrente.Conta.DV, 1);
         wregistro := wregistro + '0';
+      end;
+
+    pagBradesco:
+      begin
+        wregistro := wregistro + PadRight(FPagFor.Registro0.Empresa.Convenio, 20);
+        wregistro := wregistro + FormatFloat('00000', FPagFor.Registro0.Empresa.ContaCorrente.Agencia.Codigo);
+        wregistro := wregistro + PadRight(FPagFor.Registro0.Empresa.ContaCorrente.Agencia.DV, 1);
+        wregistro := wregistro + FormatFloat('000000000000', FPagFor.Registro0.Empresa.ContaCorrente.Conta.Numero);
+        wregistro := wregistro + PadRight(FPagFor.Registro0.Empresa.ContaCorrente.Conta.DV, 1);
+        wregistro := wregistro + PadRight(FPagFor.Registro0.Empresa.ContaCorrente.DV, 1);
       end;
   else
     begin
@@ -252,13 +268,13 @@ begin
 
   case FPagFor.Geral.Banco of
 
-   pagBancoDoBrasil:
+    pagBancoDoBrasil:
       begin
         wregistro := wregistro + FormatFloat('000000', FPagFor.Registro0.Arquivo.Sequencia);
         FveRegistro0 := '003';
       end;
 
-    pagSicred:
+    pagSicredi:
       begin
         wregistro := wregistro + FormatFloat('000000', FPagFor.Registro0.Arquivo.Sequencia);
         FveRegistro0 := '084';
@@ -294,7 +310,7 @@ begin
         FveRegistro0 := '088';
       end;
 
-    pagBancoSafra:
+    pagSafra:
       begin
         wregistro := wregistro + FormatFloat('000000', FPagFor.Registro0.Arquivo.Sequencia);
         FveRegistro0 := '103';
@@ -322,7 +338,7 @@ begin
         wregistro := wregistro + '0000000000';
       end;
 
-    pagSantander, pagSicred:
+    pagSantander, pagSicredi:
       begin
         wregistro := wregistro + PadRight(TiraAcentos(FPagFor.Registro0.ReservadoBanco), 20);
         wregistro := wregistro + PadRight(TiraAcentos(FPagFor.Registro0.ReservadoEmpresa), 20);
@@ -360,10 +376,11 @@ begin
   Inc(FQtdeRegistros);
   Inc(FQtdeLotes);
 
-  if (FPagFor.Geral.Banco = pagBancoDoBrasil) then
-      FQtdeRegistrosLote := 0
+  if FPagFor.Geral.Banco = pagBancoDoBrasil then
+    FQtdeRegistrosLote := 0
   else
     FQtdeRegistrosLote := 1;
+
   FSequencialDeLote  := 0;
 
   case FPagFor.Lote.Items[I].Registro1.Servico.TipoServico of
@@ -398,13 +415,13 @@ begin
           flTributoDARJ, flTributoGARESPICMS, flTributoGARESPDR,
           flTributoGARESPITCMD, flTributoIPVA,
           flTributoLicenciamento, flTributoDPVAT, flTributoGNRe :
-            FveRegistro1 := '010';   //Pagamento com codigo de barras  e Convenios  SEGMENTO 'J' e 'O'.
+            FveRegistro1 := '030';   //Pagamento com codigo de barras  e Convenios  SEGMENTO 'J' e 'O'.
         else
           FveRegistro1 := '031';  //Pagamento DOC / TED
         end;
       end;
 
-    pagSicred:
+    pagSicredi:
       FveRegistro1 := '042';
 
     pagHSBC:
@@ -423,8 +440,16 @@ begin
         else
           FveRegistro1 := '030'
       end;
+
     pagBradesco:
-      FveRegistro1 := '040';
+      begin
+        if FPagFor.Lote.Items[I].SegmentoA.Count > 0 then
+          // Se for parte do Header (Pagamentos através de cheque, OP, DOC, TED e crédito em conta corrente)
+          // Segmento A - Pagamentos através de cheque, OP, DOC, TED e crédito em conta corrente
+          FveRegistro1 := '045'
+        else
+          FveRegistro1 := '040'
+      end;
   else
     FveRegistro1 := '000'
   end;
@@ -441,7 +466,8 @@ begin
   wregistro := wregistro + Copy(TBStrZero(FPagFor.Lote.Items[I].Registro1.Empresa.Inscricao.Numero, 15), 2, 14);
 
   case FPagFor.Geral.Banco of
-    pagSicred, pagBancoCECRED:
+    pagSicredi,
+    pagBancoCECRED:
       begin
         wregistro := wregistro + PadRight(FPagFor.Lote.Items[I].Registro1.Empresa.Convenio, 20);
         wregistro := wregistro + FormatFloat('00000', FPagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Agencia.Codigo);
@@ -486,11 +512,13 @@ begin
         wregistro := wregistro + PadRight(FPagFor.Registro0.Empresa.ContaCorrente.Conta.DV, 1); // Díg. Verif. Conta           1
         wregistro := wregistro + ' '; // Filler Branco               1
       end;
+
     pagBancoDoBrasil:
       begin
         wregistro := wregistro + TBStrZero(FPagFor.Registro0.Empresa.Convenio, 9);
         wregistro := wregistro + '0126';
         wregistro := wregistro + Space(5);
+
         if FPagFor.Registro0.ReservadoEmpresa = 'T' then
           wregistro := wregistro + 'TS' //arquivo de teste
         else
@@ -501,6 +529,16 @@ begin
         wregistro := wregistro + FormatFloat('000000000000', FPagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Conta.Numero);
         wregistro := wregistro + PadRight(TiraAcentos(FPagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Conta.DV), 1);
         wregistro := wregistro + '0';
+      end;
+
+    pagBradesco:
+      begin
+        wregistro := wregistro + PadRight(FPagFor.Lote.Items[I].Registro1.Empresa.Convenio, 20);
+        wregistro := wregistro + FormatFloat('00000', FPagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Agencia.Codigo);
+        wregistro := wregistro + PadRight(FPagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Agencia.DV, 1);
+        wregistro := wregistro + FormatFloat('000000000000', FPagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Conta.Numero);
+        wregistro := wregistro + PadRight(FPagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Conta.DV, 1);
+        wregistro := wregistro + PadRight(FPagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.DV, 1);
       end;
   else
     begin
@@ -527,27 +565,43 @@ begin
         wregistro := wregistro + TBStrZero(Copy(IntToStr(FPagFor.Lote.Items[I].Registro1.Endereco.CEP), 1, 5), 5);
         wregistro := wregistro + PadRight(Copy(IntToStr(FPagFor.Lote.Items[I].Registro1.Endereco.CEP),6, 3), 3);
       end;
-    else
-      wregistro := wregistro + FormatFloat('00000000', FPagFor.Lote.Items[I].Registro1.Endereco.CEP);
+  else
+    wregistro := wregistro + FormatFloat('00000000', FPagFor.Lote.Items[I].Registro1.Endereco.CEP);
   end;
+
   wregistro := wregistro + PadRight(TiraAcentos(FPagFor.Lote.Items[I].Registro1.Endereco.Estado), 2);
 
   case FPagFor.Geral.Banco of
     pagHSBC:
       begin
-        wregistro := wregistro + 'S'; // Comprovante de Pagamento Emissão em Lote  “S=Sim” ou “N=Não”
+        // Comprovante de Pagamento Emissão em Lote  “S=Sim” ou “N=Não”
+        wregistro := wregistro + 'S';
         wregistro := wregistro + Space(17);
       end;
+
     pagBancoDoBrasil:
       begin
         wregistro := wregistro + Space(8);
         wregistro := wregistro + '0000000000';
       end;
-    else
+
+    pagBradesco:
       begin
-        wregistro := wregistro + Space(8);
-        wregistro := wregistro + Space(10);
+        if FPagFor.Lote.Items[I].SegmentoA.Count > 0 then
+        begin
+          // Se for parte do Header (Pagamentos através de cheque, OP, DOC, TED e crédito em conta corrente)
+          // Segmento A - Pagamentos através de cheque, OP, DOC, TED e crédito em conta corrente
+          wregistro := wregistro + '01';
+          wregistro := wregistro + Space(16);
+        end
+        else
+          wregistro := wregistro + Space(18);
       end;
+  else
+    begin
+      wregistro := wregistro + Space(8);
+      wregistro := wregistro + Space(10);
+    end;
   end;
 
   WriteRecord(wregistro);
@@ -567,7 +621,10 @@ begin
   wregistro := wregistro + Space(9);
 
   case FPagFor.Geral.Banco of
-    pagSantander, pagSicred, pagBancoCECRED, pagBancoSafra:
+    pagSantander,
+    pagSicredi,
+    pagBancoCECRED,
+    pagSafra:
       begin
         wregistro := wregistro + FormatFloat('000000', FQtdeRegistrosLote);
         wregistro := wregistro + FormatFloat('000000000000000000', FPagFor.Lote.Items[I].Registro5.Valor * 100);
@@ -590,15 +647,19 @@ begin
         wregistro := wregistro + FormatFloat('000000', FQtdeRegistrosLote);
 
         if (FPagFor.Lote.Items[I].Registro1.Servico.FormaLancamento = flPagamentoConcessionarias) then
-        begin // Contas de Concessionárias e Tributos com código de barras
+        begin
+          // Contas de Concessionárias e Tributos com código de barras
           wregistro := wregistro + FormatFloat('000000000000000000', FPagFor.Lote.Items[I].Registro5.Valor * 100);
           wregistro := wregistro + FormatFloat('000000000000000', FPagFor.Lote.Items[I].Registro5.QtdeMoeda * 100000000); // 8 casas decimais
           wregistro := wregistro + Space(174);
           wregistro := wregistro + Space(10);
         end
         else
-        if FPagFor.Lote.Items[I].Registro1.Servico.TipoServico = tsPagamentoSalarios then
-        begin // fgts
+        if (FPagFor.Lote.Items[I].Registro1.Servico.TipoServico = tsPagamentoSalarios) or
+           (FPagFor.Lote.Items[I].Registro1.Servico.FormaLancamento in [flTributoGPS, flTributoDARFNormal, flTributoDARFSimples,
+             flTributoGARESPICMS, flTributoDPVAT, flTributoIPVA, flTributoLicenciamento, flFGTSGFIP]) then
+        begin
+          // fgts
           wregistro := wregistro + FormatFloat('00000000000000', FPagFor.Lote.Items[I].Registro5.Valor * 100);
           wregistro := wregistro + FormatFloat('00000000000000', FPagFor.Lote.Items[I].Registro5.TotalOutrasEntidades * 100);
           wregistro := wregistro + FormatFloat('00000000000000', FPagFor.Lote.Items[I].Registro5.TotalValorAcrescimo * 100);
@@ -620,10 +681,12 @@ begin
           wregistro := wregistro + Space(10);
         end;
       end;
+
     pagBradesco:
       begin
         wregistro := wregistro + FormatFloat('000000', FQtdeRegistrosLote);
-        if (FPagFor.Lote.Items[I].Registro1.Servico.FormaLancamento in [flLiquidacaoTitulosProprioBanco,flLiquidacaoTitulosOutrosBancos] ) then
+        if (FPagFor.Lote.Items[I].Registro1.Servico.FormaLancamento in [flLiquidacaoTitulosProprioBanco, flLiquidacaoTitulosOutrosBancos,
+                                                                        flDocTed, flPIXTransferencia, flPIXQRCode, flCreditoContaCorrente] ) then
         begin
           wregistro := wregistro + FormatFloat('000000000000000000', FPagFor.Lote.Items[I].Registro5.Valor * 100);
           wregistro := wregistro + FormatFloat('000000000000000000', FPagFor.Lote.Items[I].Registro5.QtdeMoeda * 100000); // 5 casas decimais
@@ -632,6 +695,7 @@ begin
           wregistro := wregistro + Space(10);
         end;
       end;
+
     pagBancoDoBrasil:
       begin
         Inc(FQtdeRegistrosLote);
@@ -677,7 +741,11 @@ begin
   wregistro := wregistro + FormatFloat('000000', FQtdeRegistros);
 
   case FPagFor.Geral.Banco of
-    pagSicred, pagBancoCECRED, pagBancoSafra, pagBradesco, pagBancoDoBrasil:
+    pagSicredi,
+    pagBancoCECRED,
+    pagSafra,
+    pagBradesco,
+    pagBancoDoBrasil:
       wregistro := wregistro + '000000';
   else
     wregistro := wregistro + Space(6);
@@ -686,8 +754,6 @@ begin
 
   WriteRecord(wregistro);
   FArquivoTXT := FArquivoTXT + sLineBreak + wregistro;
-//  if FPagFor.Geral.Banco = pagItau then
-//    FArquivoTXT := FArquivoTXT + sLineBreak; // Ao importar arquivo no site do itau, da  erro se não tiver esta quebra de linha final
 end;
 
 procedure TPagForW.GerarLote(I: Integer);
@@ -764,7 +830,7 @@ begin
       wregistro := wregistro + BancoToStr(Favorecido.Banco);
 
       case FPagFor.Geral.Banco of
-        pagSicred:
+        pagSicredi:
           begin
             wregistro := wregistro + FormatFloat('00000', Favorecido.ContaCorrente.Agencia.Codigo);
             wregistro := wregistro + PadRight(TiraAcentos(Favorecido.ContaCorrente.Agencia.DV), 1);
@@ -773,7 +839,8 @@ begin
             wregistro := wregistro + PadRight(TiraAcentos(Favorecido.ContaCorrente.DV), 1);
           end;
 
-        pagHSBC, pagSantander:
+        pagHSBC,
+        pagSantander:
           begin
             wregistro := wregistro + FormatFloat('00000', Favorecido.ContaCorrente.Agencia.Codigo); // Cód. Ag. Agência da Conta   5
             wregistro := wregistro + ' '; // Filler Branco               1
@@ -805,7 +872,9 @@ begin
               end;
             end;
           end;
-        pagBancoDoBrasil:
+
+        pagBancoDoBrasil,
+        pagBradesco:
           begin
             wregistro := wregistro + FormatFloat('00000', Favorecido.ContaCorrente.Agencia.Codigo);
             wregistro := wregistro + PadRight(TiraAcentos(Favorecido.ContaCorrente.Agencia.DV), 1);
@@ -826,7 +895,7 @@ begin
 
       wregistro := wregistro + PadRight(TiraAcentos(Favorecido.Nome), 30);
 
-      if FPagFor.Geral.Banco = pagBancoDoBrasil then
+      if FPagFor.Geral.Banco in [pagBancoDoBrasil, pagItau] then
       begin
         wregistro := wregistro + PadRight(TiraAcentos(Credito.SeuNumero), 20);
       end
@@ -856,7 +925,7 @@ begin
             wregistro := wregistro + Space(5);
             wregistro := wregistro + FormatFloat('0', Aviso);
             wregistro := wregistro + '0000000000';
-        end;
+          end;
 
         pagSantander:
           begin
@@ -874,7 +943,7 @@ begin
             wregistro := wregistro + Space(10);
           end;
 
-        pagSicred:
+        pagSicredi:
           begin
             wregistro := wregistro + TpMoedaToStr(Credito.Moeda.Tipo);
             wregistro := wregistro + '000000000000000';     //Zeros
@@ -910,9 +979,41 @@ begin
         pagItau:
           begin
             wregistro := wregistro + 'REA';
-            wregistro := wregistro + '00000000';     //CÓDIGO ISPB IDENTIFICAÇÃO DA INSTITUIÇÃO PARA O SPB
-            wregistro := wregistro + '0000000';     // ZEROS COMPLEMENTO DE REGISTRO
+            //CÓDIGO ISPB IDENTIFICAÇÃO DA INSTITUIÇÃO PARA O SPB
+            wregistro := wregistro + FormatFloat('00000000', CodigoISPB);
+
+            // 9 = PIX
+            if (Favorecido.Camara = 9) then
+              // IDENTIFICAÇÃO DO TIPO DE TRANSFERÊNCIA
+              wregistro := wregistro + PadLeft(Favorecido.IDTipoTransfencia, 2, '0') + '00000'
+            else
+              // ZEROS COMPLEMENTO DE REGISTRO
+              wregistro := wregistro + '0000000';
+
             wregistro := wregistro + FormatFloat('000000000000000', Credito.ValorPagamento * 100);//“VALOR DO PAGTO” deve ser informado com zeros.
+            wregistro := wregistro + PadRight(TiraAcentos(Credito.NossoNumero), 20);
+
+            if Credito.DataReal > 0 then
+              wregistro := wregistro + FormatDateTime('ddmmyyyy', Credito.DataReal)
+            else
+              wregistro := wregistro + '00000000';
+
+            wregistro := wregistro + FormatFloat('000000000000000', Credito.ValorReal * 100);
+            wregistro := wregistro + PadRight(TiraAcentos(Informacao2), 20);
+            wregistro := wregistro + PadLeft(IntToStr(NumeroDocumento), 6, '0');
+            wregistro := wregistro + PadRight(Favorecido.Inscricao.Numero, 14);
+            wregistro := wregistro + PadRight(TiraAcentos(CodigoDOC), 2);
+            wregistro := wregistro + PadRight(TiraAcentos(CodigoTED), 5);
+            wregistro := wregistro + Space(5);
+            wregistro := wregistro + FormatFloat('0', Aviso);
+            wregistro := wregistro + Space(10);
+          end;
+
+        pagBradesco:
+          begin
+            wregistro := wregistro + TpMoedaToStr(Credito.Moeda.Tipo);
+            wregistro := wregistro + FormatFloat('000000000000000', Credito.Moeda.Qtde * 100000);
+            wregistro := wregistro + FormatFloat('000000000000000', Credito.ValorPagamento * 100);
             wregistro := wregistro + PadRight(TiraAcentos(Credito.NossoNumero), 20);
 
             if Credito.DataReal > 0 then
@@ -924,7 +1025,8 @@ begin
             wregistro := wregistro + PadRight(TiraAcentos(Informacao2), 40);
             wregistro := wregistro + PadRight(TiraAcentos(CodigoDOC), 2);
             wregistro := wregistro + PadRight(TiraAcentos(CodigoTED), 5);
-            wregistro := wregistro + Space(5);
+            wregistro := wregistro + PadRight(TiraAcentos(CodigoComp), 2);
+            wregistro := wregistro + Space(3);
             wregistro := wregistro + FormatFloat('0', Aviso);
             wregistro := wregistro + Space(10);
           end;
@@ -965,14 +1067,14 @@ var
   wregistro: string;
   J: Integer;
 begin
-  for J := 0 to {FPagFor.Lote.Items[I].SegmentoB}mSegmentoBList.Count - 1 do
+  for J := 0 to mSegmentoBList.Count - 1 do
   begin
-    with {FPagFor.Lote.Items[I].SegmentoB}mSegmentoBList.Items[J] do
+    with mSegmentoBList.Items[J] do
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
 
-      if (FPagFor.Geral.Banco = PagSicred) or (FPagFor.Geral.Banco = pagBancoDoBrasil) then
+      if (FPagFor.Geral.Banco in [PagSicredi, pagBancoDoBrasil, pagBradesco]) then
         Inc(FSequencialDeLote);
 
       wregistro := BancoToStr(FPagFor.Geral.Banco);
@@ -980,63 +1082,137 @@ begin
       wregistro := wregistro + '3';
       wregistro := wregistro + FormatFloat('00000', FSequencialDeLote);
       wregistro := wregistro + 'B';
-      if(Inscricao.PixTipoChave = '')then
+
+      // Itau criou um segundo tipo de segmento B, só para PIX
+      if (PixTipoChave <> tcpNenhum) and (FPagFor.Geral.Banco = pagItau) then
       begin
-        wregistro := wregistro + Space(3);
+        wregistro := wregistro + TipoChavePixToStr(PixTipoChave);
+        wregistro := wregistro + ' ';
         wregistro := wregistro + TpInscricaoToStr(Inscricao.Tipo);
         wregistro := wregistro + TBStrZero(Inscricao.Numero, 14);
-        wregistro := wregistro + PadRight(TiraAcentos(Endereco.Logradouro), 30);
-        wregistro := wregistro + FormatFloat('00000', Endereco.Numero);
-        wregistro := wregistro + PadRight(TiraAcentos(Endereco.Complemento), 15);
-        wregistro := wregistro + PadRight(TiraAcentos(Endereco.Bairro), 15);
-        wregistro := wregistro + PadRight(TiraAcentos(Endereco.Cidade), 20);
-        wregistro := wregistro + FormatFloat('00000000', Endereco.CEP);
-        wregistro := wregistro + PadRight(Endereco.Estado, 2);
-      end;
-      case FPagFor.Geral.Banco of
-        pagSantander:
-          begin
-            wregistro := wregistro + FormatDateTime('ddmmyyyy', DataVencimento);
-            wregistro := wregistro + FormatFloat('000000000000000', Valor * 100);
-            wregistro := wregistro + FormatFloat('000000000000000', Abatimento * 100);
-            wregistro := wregistro + FormatFloat('000000000000000', Desconto * 100);
-            wregistro := wregistro + FormatFloat('000000000000000', Mora * 100);
-            wregistro := wregistro + FormatFloat('000000000000000', Multa * 100);
-            wregistro := wregistro + '0000';
-            wregistro := wregistro + Space(11);
-            wregistro := wregistro + FormatFloat('00000', CodigoUG);
-            wregistro := wregistro + ' ';
-            wregistro := wregistro + 'N';
-            wregistro := wregistro + Space(8);
-          end;
+        wregistro := wregistro + PadRight(PixTXID, 30);
+        wregistro := wregistro + PadRight(TiraAcentos(PixMensagem), 65);
+        wregistro := wregistro + PadRight(PixChave, 100);
+        wregistro := wregistro + '   ';
+        wregistro := wregistro + Space(10);
+      end
+      else if (PixTipoChave <> tcpNenhum) and (FPagFor.Geral.Banco = pagBradesco) then
+      begin
+        wregistro := wregistro + TipoChavePixToStr(PixTipoChave);
+        wregistro := wregistro + ' ';
+        wregistro := wregistro + TpInscricaoToStr(Inscricao.Tipo);
+        wregistro := wregistro + TBStrZero(Inscricao.Numero, 14);
+        wregistro := wregistro + PadRight(PixTXID, 35);
+        wregistro := wregistro + PadRight(TiraAcentos(PixMensagem), 60);
+        wregistro := wregistro + PadRight(PixChave, 99);
+        wregistro := wregistro + FormatFloat('000000', CodigoUG);
+        wregistro := wregistro + FormatFloat('00000000', CodigoISPB);
+      end
+      else // Segmento B "normal" (não PIX) ou PIX de outros bancos que ainda nao foram implementados corretamente aqui
+      begin
+        // Campo são enviados apenas quando não é PIX
+        if PixTipoChave = tcpNenhum then
+        begin
+          wregistro := wregistro + Space(3);
+          wregistro := wregistro + TpInscricaoToStr(Inscricao.Tipo);
+          wregistro := wregistro + TBStrZero(Inscricao.Numero, 14);
+          wregistro := wregistro + PadRight(TiraAcentos(Endereco.Logradouro), 30);
+          wregistro := wregistro + FormatFloat('00000', Endereco.Numero);
+          wregistro := wregistro + PadRight(TiraAcentos(Endereco.Complemento), 15);
+          wregistro := wregistro + PadRight(TiraAcentos(Endereco.Bairro), 15);
+          wregistro := wregistro + PadRight(TiraAcentos(Endereco.Cidade), 20);
+          wregistro := wregistro + FormatFloat('00000000', Endereco.CEP);
+          wregistro := wregistro + PadRight(Endereco.Estado, 2);
+        end;
 
-        pagHSBC:
-          begin
-            wregistro := wregistro + Space(105);
-
-            if CodigoUG > 0 then
-              wregistro := wregistro + PadRight(FormatFloat('0', CodigoUG), 8)
-            else
-              wregistro := wregistro + PadRight(TiraAcentos(CodigoDOC), 8); // Alfanumerico (Brancos)
-          end;
-
-        pagItau:
-          begin
-		    if(Inscricao.PixTipoChave <> '')then
+        case FPagFor.Geral.Banco of
+          pagSantander:
             begin
-              wregistro := wregistro + PadRight(Inscricao.PixTipoChave, 2);
+              wregistro := wregistro + FormatDateTime('ddmmyyyy', DataVencimento);
+              wregistro := wregistro + FormatFloat('000000000000000', Valor * 100);
+              wregistro := wregistro + FormatFloat('000000000000000', Abatimento * 100);
+              wregistro := wregistro + FormatFloat('000000000000000', Desconto * 100);
+              wregistro := wregistro + FormatFloat('000000000000000', Mora * 100);
+              wregistro := wregistro + FormatFloat('000000000000000', Multa * 100);
+              wregistro := wregistro + '0000';
+              wregistro := wregistro + Space(11);
+              wregistro := wregistro + FormatFloat('00000', CodigoUG);
               wregistro := wregistro + ' ';
-              wregistro := wregistro + TpInscricaoToStr(Inscricao.Tipo);
-              wregistro := wregistro + TBStrZero(Inscricao.Numero, 14);
-              wregistro := wregistro + Space(30);
-              wregistro := wregistro + PadRight(Inscricao.PixMensagem, 65);
+              wregistro := wregistro + 'N';
+              wregistro := wregistro + Space(8);
             end;
-            wregistro := wregistro + PadRight(Email, 100); //ENDEREÇO DE E-MAIL
-            wregistro := wregistro + Space(3);
-            wregistro := wregistro + Space(10);
-          end;
+  
+          pagHSBC:
+            begin
+              wregistro := wregistro + Space(105);
+  
+              if CodigoUG > 0 then
+                wregistro := wregistro + PadRight(FormatFloat('0', CodigoUG), 8)
+              else
+                wregistro := wregistro + PadRight(TiraAcentos(CodigoDOC), 8); // Alfanumerico (Brancos)
+            end;
+  
+          pagItau:
+            begin
+              if (PixTipoChave <> tcpNenhum) then
+              begin
+                wregistro := wregistro + TipoChavePixToStr(PixTipoChave);
+                wregistro := wregistro + ' ';
+                wregistro := wregistro + TpInscricaoToStr(Inscricao.Tipo);
+                wregistro := wregistro + TBStrZero(Inscricao.Numero, 14);
+                wregistro := wregistro + Space(30);
+                wregistro := wregistro + PadRight(PixMensagem, 65);
+              end;
 
-        pagSicred:
+              wregistro := wregistro + PadRight(Email, 100); //ENDEREÇO DE E-MAIL
+              wregistro := wregistro + Space(3);
+              wregistro := wregistro + Space(10);
+            end;
+
+          pagSicredi:
+            begin
+              if (PixTipoChave <> tcpNenhum) then
+              begin
+                wregistro := wregistro + TipoChavePixToStr(PixTipoChave);
+                wregistro := wregistro + ' ';
+                wregistro := wregistro + TpInscricaoToStr(Inscricao.Tipo);
+                wregistro := wregistro + TBStrZero(Inscricao.Numero, 14);
+                wregistro := wregistro + Space(95);
+                wregistro := wregistro + PadRight(PixMensagem, 99);
+
+                if CodigoUG > 0 then
+                   wregistro := wregistro + FormatFloat('000000', CodigoUG)
+                else
+                   wregistro := wregistro + Space(6);
+
+                if CodigoISPB > 0 then
+                   wregistro := wregistro + FormatFloat('00000000', CodigoISPB)
+                else
+                   wregistro := wregistro + Space(8);
+              end
+              else
+              begin
+                 wregistro := wregistro + FormatDateTime('ddmmyyyy', DataVencimento);
+                 wregistro := wregistro + FormatFloat('000000000000000', Valor * 100);
+                 wregistro := wregistro + FormatFloat('000000000000000', Abatimento * 100);
+                 wregistro := wregistro + FormatFloat('000000000000000', Desconto * 100);
+                 wregistro := wregistro + FormatFloat('000000000000000', Mora * 100);
+                 wregistro := wregistro + FormatFloat('000000000000000', Multa * 100);
+                 wregistro := wregistro + PadRight(TiraAcentos(CodigoDOC), 15);
+                 wregistro := wregistro + FormatFloat('0', Aviso);
+
+                 if CodigoUG > 0 then
+                   wregistro := wregistro + FormatFloat('000000', CodigoUG)
+                 else
+                   wregistro := wregistro + Space(6);
+
+                if CodigoISPB > 0 then
+                  wregistro := wregistro + FormatFloat('00000000', CodigoISPB)
+                else
+                  wregistro := wregistro + Space(8);
+              end;
+           end
+        else
           begin
             wregistro := wregistro + FormatDateTime('ddmmyyyy', DataVencimento);
             wregistro := wregistro + FormatFloat('000000000000000', Valor * 100);
@@ -1047,20 +1223,8 @@ begin
             wregistro := wregistro + PadRight(TiraAcentos(CodigoDOC), 15);
             wregistro := wregistro + FormatFloat('0', Aviso);
             wregistro := wregistro + FormatFloat('000000', CodigoUG);
-            wregistro := wregistro + FormatFloat('00000000', CodigoISPB)
-          end
-      else
-        begin
-          wregistro := wregistro + FormatDateTime('ddmmyyyy', DataVencimento);
-          wregistro := wregistro + FormatFloat('000000000000000', Valor * 100);
-          wregistro := wregistro + FormatFloat('000000000000000', Abatimento * 100);
-          wregistro := wregistro + FormatFloat('000000000000000', Desconto * 100);
-          wregistro := wregistro + FormatFloat('000000000000000', Mora * 100);
-          wregistro := wregistro + FormatFloat('000000000000000', Multa * 100);
-          wregistro := wregistro + PadRight(TiraAcentos(CodigoDOC), 15);
-          wregistro := wregistro + FormatFloat('0', Aviso);
-          wregistro := wregistro + FormatFloat('000000', CodigoUG);
-          wregistro := wregistro + Space(8);
+            wregistro := wregistro + Space(8);
+          end;
         end;
       end;
 
@@ -1075,9 +1239,9 @@ var
   wregistro: string;
   J: Integer;
 begin
-  for J := 0 to {FPagFor.Lote.Items[I].SegmentoC}mSegmentoCList.Count - 1 do
+  for J := 0 to mSegmentoCList.Count - 1 do
   begin
-    with {FPagFor.Lote.Items[I].SegmentoC}mSegmentoCList.Items[J] do
+    with mSegmentoCList.Items[J] do
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
@@ -1113,6 +1277,7 @@ begin
             wregistro := wregistro + PadRight(NumeroFaturaDocumento, 20);
             wregistro := wregistro + Space(10);
           end;
+
         pagBancoDoBrasil:
           begin
             wregistro := wregistro + Space(3);
@@ -1159,9 +1324,9 @@ var
   wregistro: string;
   J: Integer;
 begin
-  for J := 0 to {FPagFor.Lote.Items[I].SegmentoD}mSegmentoDList.Count - 1 do
+  for J := 0 to mSegmentoDList.Count - 1 do
   begin
-    with {FPagFor.Lote.Items[I].SegmentoD}mSegmentoDList.Items[J] do
+    with mSegmentoDList.Items[J] do
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
@@ -1223,9 +1388,9 @@ var
   wregistro: string;
   J: Integer;
 begin
-  for J := 0 to {FPagFor.Lote.Items[I].SegmentoE}mSegmentoEList.Count - 1 do
+  for J := 0 to mSegmentoEList.Count - 1 do
   begin
-    with {FPagFor.Lote.Items[I].SegmentoE}mSegmentoEList.Items[J] do
+    with mSegmentoEList.Items[J] do
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
@@ -1252,9 +1417,9 @@ var
   wregistro: string;
   J: Integer;
 begin
-  for J := 0 to {FPagFor.Lote.Items[I].SegmentoF}mSegmentoFList.Count - 1 do
+  for J := 0 to mSegmentoFList.Count - 1 do
   begin
-    with {FPagFor.Lote.Items[I].SegmentoF}mSegmentoFList.Items[J] do
+    with mSegmentoFList.Items[J] do
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
@@ -1318,6 +1483,7 @@ begin
             wregistro := wregistro + Space(6);
             wregistro := wregistro + '0000000000';
          end;
+
         pagHSBC:
           begin
             wregistro := wregistro + '  ';
@@ -1338,7 +1504,8 @@ begin
             wregistro := wregistro + Space(15);
           end;
 
-        pagItau, pagSantander:
+        pagItau,
+        pagSantander:
           begin
             wregistro := wregistro + FormatFloat('000000000000000', ValorTitulo * 100);
             wregistro := wregistro + FormatFloat('000000000000000', Desconto * 100);
@@ -1356,7 +1523,10 @@ begin
             wregistro := wregistro + Space(15);
             wregistro := wregistro + Space(10);
           end;
-        pagSicred, pagBancoCECRED, pagBancoSafra:
+
+        pagSicredi,
+        pagBancoCECRED,
+        pagSafra:
           begin
             wregistro := wregistro + FormatFloat('000000000000000', ValorTitulo * 100);
             wregistro := wregistro + FormatFloat('000000000000000', Desconto * 100);
@@ -1370,6 +1540,7 @@ begin
             wregistro := wregistro + Space(6);
             wregistro := wregistro + Space(10);
           end;
+
         pagBradesco:
           begin
             wregistro := wregistro + FormatFloat('000000000000000', ValorTitulo * 100);
@@ -1422,15 +1593,14 @@ var
   wregistro: string;
   J: Integer;
 begin
-  for J := 0 to {FPagFor.Lote.Items[I].SegmentoJ52}mSegmentoJ52List.Count - 1 do
+  for J := 0 to mSegmentoJ52List.Count - 1 do
   begin
-    with {FPagFor.Lote.Items[I].SegmentoJ52}mSegmentoJ52List.Items[J] do
+    with mSegmentoJ52List.Items[J] do
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
 
-      if (FPagFor.Geral.Banco = PagBradesco) or 
-        (FPagFor.Geral.Banco = PagBancoDoBrasil) then
+      if (FPagFor.Geral.Banco in [pagBradesco, pagBancoDoBrasil, pagSicredi]) then
         Inc(FSequencialDeLote);
 
       wregistro := BancoToStr(FPagFor.Geral.Banco);
@@ -1445,11 +1615,15 @@ begin
             wregistro := wregistro + ' ';
             wregistro := wregistro + InMovimentoToStr(CodMovimento);
           end;
-        PagSicred:
+
+        PagSicredi:
           begin
             wregistro := wregistro + ' ';
-            wregistro := wregistro + '01'; //Conforme orientado pelo sicredi o J-52 sempre sera 01 o codigo do movimento na remessa
+            //Conforme orientado pelo sicredi o J-52 sempre sera 01
+            //o codigo do movimento na remessa
+            wregistro := wregistro + '01';
           end;
+
         pagBradesco:
           begin
             wregistro := wregistro + ' ';
@@ -1465,14 +1639,29 @@ begin
       wregistro := wregistro + '52';
       wregistro := wregistro + TpInscricaoToStr(Pagador.Inscricao.Tipo);
       wregistro := wregistro + TBStrZero(Pagador.Inscricao.Numero, 15);
-      wregistro := wregistro + PadRight(Pagador.Nome, 40);
+      wregistro := wregistro + PadRight(TiraAcentos(Pagador.Nome), 40);
       wregistro := wregistro + TpInscricaoToStr(Beneficiario.Inscricao.Tipo);
       wregistro := wregistro + TBStrZero(Beneficiario.Inscricao.Numero, 15);
-      wregistro := wregistro + PadRight(Beneficiario.Nome, 40);
-      wregistro := wregistro + TpInscricaoToStr(SacadorAvalista.Inscricao.Tipo);
-      wregistro := wregistro + TBStrZero(SacadorAvalista.Inscricao.Numero, 15);
-      wregistro := wregistro + PadRight(SacadorAvalista.Nome, 40);
-      wregistro := wregistro + Space(53);
+      wregistro := wregistro + PadRight(TiraAcentos(Beneficiario.Nome), 40);
+
+      // Nao é PIX QRCode
+      if not (FPagFor.Geral.Banco in [pagItau, pagBradesco]) or (Chave = '') then
+      begin
+        wregistro := wregistro + TpInscricaoToStr(SacadorAvalista.Inscricao.Tipo);
+        wregistro := wregistro + TBStrZero(SacadorAvalista.Inscricao.Numero, 15);
+        wregistro := wregistro + PadRight(TiraAcentos(SacadorAvalista.Nome), 40);
+        wregistro := wregistro + Space(53);
+      end
+      else if (FPagFor.Geral.Banco = pagBradesco) and (Chave <> '') then
+      begin
+        wregistro := wregistro + PadRight(Chave, 79);
+        wregistro := wregistro + PadRight(TXID, 30);
+      end
+      else // PIX QRCode ITAU
+      begin
+        wregistro := wregistro + PadRight(Chave, 77, ' ');
+        wregistro := wregistro + PadRight(TXID, 32, ' ');
+      end;
 
       WriteRecord(wregistro);
       FArquivoTXT := FArquivoTXT + sLineBreak + wregistro;
@@ -1534,8 +1723,22 @@ begin
           wregistro := wregistro + PadRight(TiraAcentos(SegmentoN.NomeContribuinte), 30);
           wregistro := wregistro + FormatDateTime('ddmmyyyy', SegmentoN.DataPagamento);
           wregistro := wregistro + FormatFloat('000000000000000', SegmentoN.ValorPagamento * 100);
-          wregistro := wregistro + FormatFloat('000000', Receita);
-          wregistro := wregistro + FormatFloat('00', TipoContribuinte);
+
+          if FPagFor.Geral.Banco = pagSicredi then
+          begin
+            wregistro := wregistro + PadRight(IntToStr(Receita), 6);
+
+            if TipoContribuinte = tiCNPJ then
+              wregistro := wregistro + FormatFloat('00', 1)
+            else
+              wregistro := wregistro + FormatFloat('00', 2);
+          end
+          else
+          begin
+            wregistro := wregistro + FormatFloat('000000', Receita);
+            wregistro := wregistro + FormatFloat('00', StrToInt(TpInscricaoToStr(TipoContribuinte)));
+          end;
+
           wregistro := wregistro + TBStrZero(idContribuinte, 14);
           wregistro := wregistro + '17';
           wregistro := wregistro + FormatFloat('000000', Competencia);
@@ -1543,6 +1746,7 @@ begin
           wregistro := wregistro + FormatFloat('000000000000000', ValorOutrasEntidades * 100);
           wregistro := wregistro + FormatFloat('000000000000000', AtualizacaoMonetaria * 100);
           wregistro := wregistro + Space(45);
+
           if FPagFor.Geral.Banco = pagBancoDoBrasil then
             wregistro := wregistro + '0000000000'
           else
@@ -1626,8 +1830,22 @@ begin
           wregistro := wregistro + PadRight(TiraAcentos(SegmentoN.NomeContribuinte), 30);
           wregistro := wregistro + FormatDateTime('ddmmyyyy', SegmentoN.DataPagamento);
           wregistro := wregistro + FormatFloat('000000000000000', SegmentoN.ValorPagamento * 100);
-          wregistro := wregistro + FormatFloat('000000', Receita);
-          wregistro := wregistro + TBStrZero(TpInscricaoToStr(TipoContribuinte), 2);
+
+          if FPagFor.Geral.Banco = pagSicredi then
+          begin
+            wregistro := wregistro + PadRight(IntToStr(Receita), 6);
+
+            if TipoContribuinte = tiCNPJ then
+              wregistro := wregistro + FormatFloat('00', 1)
+            else
+              wregistro := wregistro + FormatFloat('00', 2);
+          end
+          else
+          begin
+            wregistro := wregistro + FormatFloat('000000', Receita);
+            wregistro := wregistro + FormatFloat('00', StrToInt(TpInscricaoToStr(TipoContribuinte)));
+          end;
+
           wregistro := wregistro + TBStrZero(idContribuinte, 14);
           wregistro := wregistro + '16';
           wregistro := wregistro + FormatDateTime('ddmmyyyy', Periodo);
@@ -1637,6 +1855,7 @@ begin
           wregistro := wregistro + FormatFloat('000000000000000', Juros * 100);
           wregistro := wregistro + FormatDateTime('ddmmyyyy', DataVencimento);
           wregistro := wregistro + Space(18);
+
           if FPagFor.Geral.Banco = pagBancoDoBrasil then
             wregistro := wregistro + '0000000000'
           else
@@ -1722,8 +1941,22 @@ begin
           wregistro := wregistro + PadRight(TiraAcentos(SegmentoN.NomeContribuinte), 30);
           wregistro := wregistro + FormatDateTime('ddmmyyyy', SegmentoN.DataPagamento);
           wregistro := wregistro + FormatFloat('000000000000000', SegmentoN.ValorPagamento * 100);
-          wregistro := wregistro + FormatFloat('000000', Receita);
-          wregistro := wregistro + TBStrZero(TpInscricaoToStr(TipoContribuinte), 2);
+          
+          if FPagFor.Geral.Banco = pagSicredi then
+          begin
+            wregistro := wregistro + PadRight(IntToStr(Receita), 6);
+
+            if TipoContribuinte = tiCNPJ then
+              wregistro := wregistro + FormatFloat('00', 1)
+            else
+              wregistro := wregistro + FormatFloat('00', 2);
+          end
+          else
+          begin
+            wregistro := wregistro + FormatFloat('000000', Receita);
+            wregistro := wregistro + FormatFloat('00', StrToInt(TpInscricaoToStr(TipoContribuinte)));
+          end;
+
           wregistro := wregistro + TBStrZero(idContribuinte, 14);
           wregistro := wregistro + '18';
           wregistro := wregistro + FormatDateTime('ddmmyyyy', Periodo);
@@ -1733,6 +1966,7 @@ begin
           wregistro := wregistro + FormatFloat('000000000000000', Multa * 100);
           wregistro := wregistro + FormatFloat('000000000000000', Juros * 100);
           wregistro := wregistro + Space(21);
+
           if FPagFor.Geral.Banco = pagBancoDoBrasil then
             wregistro := wregistro + '0000000000'
           else
@@ -1813,8 +2047,22 @@ begin
           wregistro := wregistro + PadRight(TiraAcentos(SegmentoN.NomeContribuinte), 30);
           wregistro := wregistro + FormatDateTime('ddmmyyyy', SegmentoN.DataPagamento);
           wregistro := wregistro + FormatFloat('000000000000000', SegmentoN.ValorPagamento * 100);
-          wregistro := wregistro + FormatFloat('000000', Receita);
-          wregistro := wregistro + TBStrZero(TpInscricaoToStr(TipoContribuinte), 2);
+          
+          if FPagFor.Geral.Banco = pagSicredi then
+          begin
+            wregistro := wregistro + PadRight(IntToStr(Receita), 6);
+
+            if TipoContribuinte = tiCNPJ then
+              wregistro := wregistro + FormatFloat('00', 1)
+            else
+              wregistro := wregistro + FormatFloat('00', 2);
+          end
+          else
+          begin
+            wregistro := wregistro + FormatFloat('000000', Receita);
+            wregistro := wregistro + FormatFloat('00', StrToInt(TpInscricaoToStr(TipoContribuinte)));
+          end;
+
           wregistro := wregistro + TBStrZero(idContribuinte, 14);
           wregistro := wregistro + TpIndTributoToStr(FPagFor.Geral.idTributo);
           wregistro := wregistro + FormatDateTime('ddmmyyyy', DataVencimento);
@@ -1826,6 +2074,7 @@ begin
           wregistro := wregistro + FormatFloat('00000000000000', Juros * 100);
           wregistro := wregistro + FormatFloat('00000000000000', Multa * 100);
           wregistro := wregistro + Space(1);
+
           if FPagFor.Geral.Banco = pagBancoDoBrasil then
             wregistro := wregistro + '0000000000'
           else
@@ -1930,8 +2179,22 @@ begin
           wregistro := wregistro + PadRight(TiraAcentos(SegmentoN.NomeContribuinte), 30);
           wregistro := wregistro + FormatDateTime('ddmmyyyy', SegmentoN.DataPagamento);
           wregistro := wregistro + FormatFloat('000000000000000', SegmentoN.ValorPagamento * 100);
-          wregistro := wregistro + FormatFloat('000000', Receita);
-          wregistro := wregistro + TBStrZero(TpInscricaoToStr(TipoContribuinte), 2);
+          
+          if FPagFor.Geral.Banco = pagSicredi then
+          begin
+            wregistro := wregistro + PadRight(IntToStr(Receita), 6);
+
+            if TipoContribuinte = tiCNPJ then
+              wregistro := wregistro + FormatFloat('00', 1)
+            else
+              wregistro := wregistro + FormatFloat('00', 2);
+          end
+          else
+          begin
+            wregistro := wregistro + FormatFloat('000000', Receita);
+            wregistro := wregistro + FormatFloat('00', StrToInt(TpInscricaoToStr(TipoContribuinte)));
+          end;
+
           wregistro := wregistro + TBStrZero(idContribuinte, 14);
           wregistro := wregistro + TpIndTributoToStr(FPagFor.Geral.idTributo);
           wregistro := wregistro + FormatFloat('0000', Exercicio);
@@ -2047,8 +2310,22 @@ begin
           wregistro := wregistro + PadRight(TiraAcentos(SegmentoN.NomeContribuinte), 30);
           wregistro := wregistro + FormatDateTime('ddmmyyyy', SegmentoN.DataPagamento);
           wregistro := wregistro + FormatFloat('000000000000000', SegmentoN.ValorPagamento * 100);
-          wregistro := wregistro + FormatFloat('000000', Receita);
-          wregistro := wregistro + TBStrZero(TpInscricaoToStr(TipoContribuinte), 2);
+          
+          if FPagFor.Geral.Banco = pagSicredi then
+          begin
+            wregistro := wregistro + PadRight(IntToStr(Receita), 6);
+
+            if TipoContribuinte = tiCNPJ then
+              wregistro := wregistro + FormatFloat('00', 1)
+            else
+              wregistro := wregistro + FormatFloat('00', 2);
+          end
+          else
+          begin
+            wregistro := wregistro + FormatFloat('000000', Receita);
+            wregistro := wregistro + FormatFloat('00', StrToInt(TpInscricaoToStr(TipoContribuinte)));
+          end;
+
           wregistro := wregistro + TBStrZero(idContribuinte, 14);
           wregistro := wregistro + TBStrZero(InscEst, 8);
           wregistro := wregistro + TBStrZero(Origem, 16);
@@ -2058,6 +2335,7 @@ begin
           wregistro := wregistro + FormatFloat('000000000000000', Multa * 100);
           wregistro := wregistro + FormatDateTime('ddmmyyyy', DataVencimento);
           wregistro := wregistro + FormatFloat('000000', PeriodoParcela);
+
           if FPagFor.Geral.Banco = pagBancoDoBrasil then
             wregistro := wregistro + '0000000000'
           else
@@ -2103,7 +2381,13 @@ begin
             {Inicio -  Dados tributo}
             wregistro := wregistro + '11'; // FGTS- GRF/GRRF/GRDE
             wregistro := wregistro + FormatFloat('0000', Receita);
-            wregistro := wregistro + TpInscricaoToStr(TipoContribuinte);
+
+            // Não segue o padrão de codificação usado nos outros segmentos
+            if TipoContribuinte = tiCNPJ then
+              wregistro := wregistro + '1' // 1 = CNPJ
+            else
+              wregistro := wregistro + '2'; // 2 = CEI
+
             wregistro := wregistro + TBStrZero(idContribuinte, 14);
             wregistro := wregistro + PadRight(CodigoBarras, 48);
             wregistro := wregistro + FormatFloat('0000000000000000', Identificador);
@@ -2173,7 +2457,7 @@ begin
             wregistro := wregistro + '0000000000';
           end;
 
-        pagSantander, pagSicred, pagBancoSafra:
+        pagSantander, pagSicredi, pagSafra:
           begin
             wregistro := wregistro + PadRight(CodigoBarras, 44);
             wregistro := wregistro + PadRight(TiraAcentos(NomeConcessionaria), 30);
@@ -2245,6 +2529,7 @@ begin
       FArquivoTXT := FArquivoTXT + sLineBreak + wregistro;
 
       {opcionais segmento O}
+      GeraSegmentoW(SegmentoW);
       GeraSegmentoZ(SegmentoZ);
     end;
   end;
@@ -2284,6 +2569,7 @@ begin
             else
               wregistro := wregistro + PadRight(TiraAcentos(ContaCorrente.DV), 1);
           end;
+
         pagBancoDoBrasil:
           begin
             wregistro := wregistro + FormatFloat('00000', ContaCorrente.Agencia.Codigo);
@@ -2464,6 +2750,7 @@ begin
             else
               wregistro := wregistro + PadRight(TiraAcentos(DebitoAutomatico.ContaCorrente.DV), 1);
           end;
+
         pagBancoDoBrasil:
           begin
             wregistro := wregistro + FormatFloat('00000', DebitoAutomatico.ContaCorrente.Agencia.Codigo);
@@ -2541,9 +2828,9 @@ var
   wregistro: string;
   J: Integer;
 begin
-  for J := 0 to {FPagFor.Lote.Items[I].SegmentoW}mSegmentoWList.Count - 1 do
+  for J := 0 to mSegmentoWList.Count - 1 do
   begin
-    with {FPagFor.Lote.Items[I].SegmentoW}mSegmentoWList.Items[J] do
+    with mSegmentoWList.Items[J] do
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
@@ -2630,9 +2917,9 @@ var
   wregistro: string;
   J: Integer;
 begin
-  for J := 0 to {FPagFor.Lote.Items[I].SegmentoZ}mSegmentoZList.Count - 1 do
+  for J := 0 to mSegmentoZList.Count - 1 do
   begin
-    with {FPagFor.Lote.Items[I].SegmentoZ}mSegmentoZList.Items[J] do
+    with mSegmentoZList.Items[J] do
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);

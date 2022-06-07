@@ -95,7 +95,7 @@ implementation
 
 uses
   synautil,
-  ACBrGNRE2, ACBrUtil, ACBrDFeUtil;
+  ACBrGNRE2, ACBrUtil.XMLHTML, ACBrDFeUtil;
 
 { GuiaRetorno }
 
@@ -287,6 +287,11 @@ begin
       if Leitor.rExtrai(Nivel, 'contribuinteEmitente') <> '' then
       begin
         GNRERetorno.DocEmitente         := Leitor.rCampo(tcStr, 'CNPJ');
+        if GNRERetorno.DocEmitente = '' then
+          GNRERetorno.DocEmitente         := Leitor.rCampo(tcStr, 'CPF');
+        if GNRERetorno.DocEmitente = '' then
+          GNRERetorno.DocEmitente         := Leitor.rCampo(tcStr, 'IE');
+
         GNRERetorno.RazaoSocialEmitente := Leitor.rCampo(tcStr, 'razaoSocial');
         GNRERetorno.EnderecoEmitente    := Leitor.rCampo(tcStr, 'endereco');
         GNRERetorno.MunicipioEmitente   := Leitor.rCampo(tcStr, 'municipio');
@@ -415,7 +420,14 @@ begin
             GNRERetorno.MunicipioDestinatario := Leitor.rCampo(tcStr, 'municipio');
 
             if GNRERetorno.DocDestinatario = '' then
-              GNRERetorno.DocDestinatario := Leitor.rCampo(tcStr, 'CPF');
+              GNRERetorno.DocDestinatario       := Leitor.rCampo(tcStr, 'CPF');
+
+            case Length(GNRERetorno.DocDestinatario) of
+              11: GNRERetorno.TipoDocDestinatario := 1;
+              14: GNRERetorno.TipoDocDestinatario := 2;
+            else
+              GNRERetorno.TipoDocDestinatario   := 1;
+            end;
           end;
 
           if Leitor.rExtrai(Nivel, 'camposExtras') <> '' then

@@ -51,7 +51,8 @@ type
 
   TACBrTipoCampo = (tcStr, tcInt, tcInt64, tcDat, tcDatHor, tcEsp, tcDe2, tcDe3,
                     tcDe4, tcDe5, tcDe6, tcDe7, tcDe8, tcDe10, tcHor, tcDatCFe,
-                    tcHorCFe, tcDatVcto, tcDatHorCFe, tcBool, tcStrOrig, tcNumStr);
+                    tcHorCFe, tcDatVcto, tcDatHorCFe, tcBool, tcStrOrig,
+                    tcNumStr, tcDatUSA);
 
 const
   LineBreak = #13#10;
@@ -71,15 +72,13 @@ function XmlToStr(const AXML: string): string;
 function StrToXml(const AXML: string): string;
 function IncluirCDATA(const aXML: string): string;
 function RemoverCDATA(const aXML: string): string;
-//function ConverterUnicode(const aXML: string): string;
 function RemoverPrefixos(const aXML: string; APrefixo: array of string): string;
 function RemoverPrefixosDesnecessarios(const aXML: string): string;
 function RemoverCaracteresDesnecessarios(const aXML: string): string;
+function NormatizarBoolean(const aBool: string): string;
 
 function ObterConteudoTag(const AAtt: TACBrXmlAttribute): string; overload;
 function ObterConteudoTag(const ANode: TACBrXmlNode; const Tipo: TACBrTipoCampo): variant; overload;
-
-function LerDatas(const DataStr: string): TDateTime;
 
 function TipoEmissaoToStr(const t: TACBrTipoEmissao): string;
 function StrToTipoEmissao(out ok: boolean; const s: string): TACBrTipoEmissao;
@@ -90,7 +89,11 @@ function StrToTipoAmbiente(out ok: boolean; const s: string): TACBrTipoAmbiente;
 implementation
 
 uses
-  StrUtilsEx, ACBrUtil, DateUtils;
+  StrUtilsEx,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrUtil.DateTime;
 
 function FiltrarTextoXML(const RetirarEspacos: boolean; aTexto: String;
   RetirarAcentos: boolean; SubstituirQuebrasLinha: Boolean;
@@ -185,28 +188,6 @@ begin
   Result := FaststringReplace(Result, ']]>', '', [rfReplaceAll]);
 end;
 
-{
-function ConverterUnicode(const aXML: string): string;
-var
-  Xml: string;
-  p: Integer;
-begin
-  Xml := aXML;
-  p := Pos('&#', Xml);
-
-  while p > 0 do
-  begin
-    if Xml[p+5] = ';' then
-      Xml := FaststringReplace(Xml, Copy(Xml, p, 6), '\' + Copy(Xml, p+2, 3), [rfReplaceAll])
-    else
-      Xml := FaststringReplace(Xml, Copy(Xml, p, 5), '\' + Copy(Xml, p+2, 3), [rfReplaceAll]);
-
-    p := Pos('&#', Xml);
-  end;
-
-  Result := StringToBinaryString(Xml);
-end;
-}
 function RemoverPrefixos(const aXML: string; APrefixo: array of string): string;
 var
   i: Integer;
@@ -233,9 +214,26 @@ begin
   Result := FaststringReplace(Result, ''#$A#$A'', '', [rfReplaceAll]);
   Result := FaststringReplace(Result, '<br >', ';', [rfReplaceAll]);
   Result := FaststringReplace(Result, '<br>', ';', [rfReplaceAll]);
-  Result := FaststringReplace(Result, #9, '', [rfReplaceAll]);
   Result := FaststringReplace(Result, '&#xD;', '', [rfReplaceAll]);
   Result := FaststringReplace(Result, '&#xd;', '', [rfReplaceAll]);
+  Result := FaststringReplace(Result, '&amp;lt;', '', [rfReplaceAll]);
+  Result := FaststringReplace(Result, '&amp;gt;', '', [rfReplaceAll]);
+  Result := FaststringReplace(Result, '&#13;', '', [rfReplaceAll]);
+  Result := FaststringReplace(Result, #9, '', [rfReplaceAll]);
+  Result := FaststringReplace(Result, #10, '', [rfReplaceAll]);
+  Result := FaststringReplace(Result, #13, '', [rfReplaceAll]);
+end;
+
+function NormatizarBoolean(const aBool: string): string;
+var
+  xBool: string;
+begin
+  xBool := LowerCase(aBool);
+
+  if xBool = 'true' then
+    Result := 'True'
+  else
+    Result := 'False';
 end;
 
 function ObterConteudoTag(const AAtt: TACBrXmlAttribute): string; overload;
@@ -270,10 +268,27 @@ begin
 
     tcDat,
     tcDatHor,
+    tcDatCFe,
+    tcDatHorCFe:
+      begin
+        if length(ConteudoTag) > 0 then
+          result := EncodeDataHora(ConteudoTag, 'YYYY/MM/DD')
+        else
+          result := 0;
+      end;
+
     tcDatVcto:
       begin
         if length(ConteudoTag) > 0 then
-          result := LerDatas(ConteudoTag)
+          result := EncodeDataHora(ConteudoTag, 'DD/MM/YYYY')
+        else
+          result := 0;
+      end;
+
+    tcDatUSA:
+      begin
+        if length(ConteudoTag) > 0 then
+          result := EncodeDataHora(ConteudoTag, 'MM/DD/YYYY')
         else
           result := 0;
       end;
@@ -288,35 +303,12 @@ begin
           result := 0;
       end;
 
-    tcDatCFe:
-      begin
-        if length(ConteudoTag) > 0 then
-          result := EncodeDate(StrToInt(copy(ConteudoTag, 1, 4)),
-                               StrToInt(copy(ConteudoTag, 5, 2)),
-                               StrToInt(copy(ConteudoTag, 7, 2)))
-        else
-          result := 0;
-      end;
-
     tcHorCFe:
       begin
         if length(ConteudoTag) > 0 then
           result := EncodeTime(StrToInt(copy(ConteudoTag, 1, 2)),
                                StrToInt(copy(ConteudoTag, 3, 2)),
                                StrToInt(copy(ConteudoTag, 5, 2)), 0)
-        else
-          result := 0;
-      end;
-
-    tcDatHorCFe:
-      begin
-        if length(ConteudoTag) > 0 then
-          result := EncodeDate(StrToInt(copy(ConteudoTag, 1, 4)),
-                               StrToInt(copy(ConteudoTag, 05, 2)),
-                               StrToInt(copy(ConteudoTag, 07, 2))) +
-                    EncodeTime(StrToInt(copy(ConteudoTag, 9, 2)),
-                               StrToInt(copy(ConteudoTag, 11, 2)),
-                               StrToInt(copy(ConteudoTag, 13, 2)), 0)
         else
           result := 0;
       end;
@@ -363,7 +355,10 @@ begin
     tcBool:
       begin
         if length(ConteudoTag) > 0 then
-          result := StrToBool(ConteudoTag)
+        begin
+          ConteudoTag := NormatizarBoolean(ConteudoTag);
+          result := StrToBool(ConteudoTag);
+        end
         else
           result := False;
       end;
@@ -383,89 +378,6 @@ begin
   else
     raise Exception.Create('Node <' + ANode.Name + '> com conteúdo inválido. ' +
                            ConteudoTag);
-  end;
-end;
-
-function LerDatas(const DataStr: string): TDateTime;
-var
-  xData: string;
-begin
-  xData := Trim(DataStr);
-
-  if xData = '' then
-    Result := 0
-  else
-  begin
-    xData := StringReplace(xData, 'Z', '', [rfReplaceAll]);
-    xData := StringReplace(xData, '-', '/', [rfReplaceAll]);
-
-    // Alguns provedores retorna a data de competencia com o ano, mês e dia e
-    // sem a barra exemplo <Competencia>20220121</Competencia>
-    // Correção: Inclusão da barra "/"
-    if (Pos('/', xData) = 0) and (Length(xData) = 8) then
-    begin
-      if Copy(xData, 1, 4) = IntToStr(YearOf(Date)) then
-        xData := copy(xData, 1, 4) + '/' + copy(xData, 5, 2) + '/' + copy(xData, 7, 2)
-      else
-        xData := copy(xData, 1, 2) + '/' + copy(xData, 3, 2) + '/' + copy(xData, 5, 4);
-    end;
-
-    // Alguns provedores retorna a data de competencia só com o ano e mês e
-    // sem a barra exemplo <Competencia>202111</Competencia>
-    // Correção: Inclusão da barra "/"
-    if (Pos('/', xData) = 0) and (Length(xData) = 6) then
-    begin
-      if Copy(xData, 1, 4) = IntToStr(YearOf(Date)) then
-//      if Copy(xData, 1, 2) = Copy(IntToStr(YearOf(Date)), 1, 2) then
-        xData := copy(xData, 1, 4) + '/' + copy(xData, 5, 2)
-      else
-        xData := copy(xData, 1, 2) + '/' + copy(xData, 3, 4);
-    end;
-
-    // Alguns provedores retorna a data de competencia só com o mês e ano
-    // Correção: Inclusão do dia na data
-    if Length(xData) = 7 then
-    begin
-      if Pos('/', xData) = 3 then
-        xData := '01/' + xData
-      else
-        xData := xData + '/01';
-    end;
-
-    if (Length(xData) >= 16) and CharInSet(xData[11], ['T', ' ']) then
-    begin
-      if Pos('/', xData) = 5 then
-        // Le a data/hora no formato YYYY/MM/DDTHH:MM:SS
-        Result := EncodeDate(StrToInt(copy(xData, 1, 4)),
-                             StrToInt(copy(xData, 6, 2)),
-                             StrToInt(copy(xData, 9, 2))) +
-                  EncodeTime(StrToIntDef(copy(xData, 12, 2), 0),
-                             StrToIntDef(copy(xData, 15, 2), 0),
-                             StrToIntDef(copy(xData, 18, 2), 0),
-                             0)
-      else
-        // Le a data/hora no formato DD/MM/YYYYTHH:MM:SS
-        Result := EncodeDate(StrToInt(copy(xData, 7, 4)),
-                             StrToInt(copy(xData, 4, 2)),
-                             StrToInt(copy(xData, 1, 2))) +
-                  EncodeTime(StrToIntDef(copy(xData, 12, 2), 0),
-                             StrToIntDef(copy(xData, 15, 2), 0),
-                             StrToIntDef(copy(xData, 18, 2), 0),
-                             0)
-    end
-    else
-    begin
-      if Pos('/', xData) = 5 then
-        // Le a data no formato YYYY/MM/DD
-        Result := EncodeDate(StrToInt(copy(xData, 1, 4)),
-                             StrToInt(copy(xData, 6, 2)),
-                             StrToInt(copy(xData, 9, 2)))
-      else
-        // Le a data no formato DD/MM/YYYY
-        Result := EncodeDate(StrToInt(copy(xData, 7, 4)),
-                             StrToInt(copy(xData, 4, 2)),
-                             StrToInt(copy(xData, 1, 2)));
-    end;
   end;
 end;
 

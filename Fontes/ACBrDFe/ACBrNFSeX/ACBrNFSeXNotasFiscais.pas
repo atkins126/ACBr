@@ -45,7 +45,7 @@ uses
   {$Else}
    Contnrs,
   {$IfEnd}
-  ACBrBase, ACBrDFe, ACBrNFSeXConfiguracoes, ACBrNFSeXClass;
+  ACBrBase, ACBrDFe, ACBrNFSeXConfiguracoes, ACBrNFSeXClass, ACBrNFSeXConversao;
 
 type
 
@@ -65,6 +65,7 @@ type
 
     function CalcularNomeArquivo: String;
     function CalcularPathArquivo: String;
+    procedure SetXmlNfse(const Value: String);
   public
     constructor Create(AOwner: TACBrDFe);
     destructor Destroy; override;
@@ -77,7 +78,7 @@ type
 
     function GerarXML: String;
     function GravarXML(const NomeArquivo: String = '';
-      const PathArquivo: String = ''): Boolean;
+      const PathArquivo: String = ''; aTipo: TtpXML = txmlNFSe): Boolean;
 
     function GravarStream(AStream: TStream): Boolean;
 
@@ -94,7 +95,7 @@ type
     property NFSe: TNFSe read FNFSe;
 
     property XmlRps: String read FXmlRps write FXmlRps;
-    property XmlNfse: String read FXmlNfse write FXmlNfse;
+    property XmlNfse: String read FXmlNfse write SetXmlNfse;
 
     property Confirmada: Boolean read FConfirmada write FConfirmada;
     property Alertas: String     read FAlertas;
@@ -163,9 +164,11 @@ implementation
 uses
   synautil, IniFiles, StrUtilsEx,
   pcnAuxiliar,
-  ACBrUtil,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.FilesIO,
   ACBrDFeUtil,
-  ACBrNFSeX, ACBrNFSeXInterface, ACBrNFSeXConversao;
+  ACBrNFSeX, ACBrNFSeXInterface;
 
 function CompRpsPorNumero(const Item1,
   Item2: {$IfDef HAS_SYSTEM_GENERICS}TObject{$Else}Pointer{$EndIf}): Integer;
@@ -281,7 +284,7 @@ begin
 
       sSecao := 'IdentificacaoRps';
 
-      SituacaoTrib := StrToSituacaoTrib(Ok, INIRec.ReadString(sSecao, 'SituacaoTrib', 'tp'));
+      SituacaoTrib := FProvider.StrToSituacaoTrib(Ok, INIRec.ReadString(sSecao, 'SituacaoTrib', 'tp'));
 
       // Provedor AssessorPublico
       Situacao := INIRec.ReadInteger(sSecao, 'Situacao', 0);
@@ -295,7 +298,7 @@ begin
 
       IdentificacaoRps.Numero := INIRec.ReadString(sSecao, 'Numero', '0');
       IdentificacaoRps.Serie := INIRec.ReadString(sSecao, 'Serie', '0');
-      IdentificacaoRps.Tipo := StrToTipoRPS(Ok, INIRec.ReadString(sSecao, 'Tipo', '1'));
+      IdentificacaoRps.Tipo := FProvider.StrToTipoRPS(Ok, INIRec.ReadString(sSecao, 'Tipo', '1'));
 
       DataEmissao := INIRec.ReadDate(sSecao, 'DataEmissao', Now);
       Competencia := INIRec.ReadDate(sSecao, 'Competencia', Now);
@@ -314,7 +317,7 @@ begin
 
       RpsSubstituido.Numero := INIRec.ReadString(sSecao, 'Numero', '0');
       RpsSubstituido.Serie := INIRec.ReadString(sSecao, 'Serie', '0');
-      RpsSubstituido.Tipo := StrToTipoRPS(Ok, INIRec.ReadString(sSecao, 'Tipo', '1'));
+      RpsSubstituido.Tipo := FProvider.StrToTipoRPS(Ok, INIRec.ReadString(sSecao, 'Tipo', '1'));
 
       sSecao := 'Prestador';
 
@@ -359,7 +362,7 @@ begin
       begin
         with IdentificacaoTomador do
         begin
-          Tipo := StrToTipoPessoa(Ok, INIRec.ReadString(sSecao, 'Tipo', '1'));
+          Tipo := FProvider.StrToTipoPessoa(Ok, INIRec.ReadString(sSecao, 'Tipo', '1'));
           CpfCnpj := INIRec.ReadString(sSecao, 'CNPJCPF', '');
           InscricaoMunicipal := INIRec.ReadString(sSecao, 'InscricaoMunicipal', '');
           InscricaoEstadual := INIRec.ReadString(sSecao, 'InscricaoEstadual', '');
@@ -420,10 +423,11 @@ begin
         Discriminacao := INIRec.ReadString(sSecao, 'Discriminacao', '');
         CodigoMunicipio := INIRec.ReadString(sSecao, 'CodigoMunicipio', '');
         CodigoPais := INIRec.ReadInteger(sSecao, 'CodigoPais', 1058);
-        ExigibilidadeISS := StrToExigibilidadeISS(Ok, INIRec.ReadString(sSecao, 'ExigibilidadeISS', '1'));
+        ExigibilidadeISS := FProvider.StrToExigibilidadeISS(Ok, INIRec.ReadString(sSecao, 'ExigibilidadeISS', '1'));
         MunicipioIncidencia := INIRec.ReadInteger(sSecao, 'MunicipioIncidencia', 0);
         UFPrestacao := INIRec.ReadString(sSecao, 'UFPrestacao', '');
         ResponsavelRetencao := FProvider.StrToResponsavelRetencao(Ok, INIRec.ReadString(sSecao, 'ResponsavelRetencao', '1'));
+        TipoLancamento := StrToTipoLancamento(Ok, INIRec.ReadString(sSecao, 'TipoLancamento', 'P'));
 
         i := 1;
         while true do
@@ -563,27 +567,43 @@ function TNotaFiscal.LerXML(const AXML: String): Boolean;
 var
   FProvider: IACBrNFSeXProvider;
   TipoXml: TtpXML;
+  XmlTratado: string;
 begin
   FProvider := TACBrNFSeX(FACBrNFSe).Provider;
 
   if not Assigned(FProvider) then
     raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
 
-  Result := FProvider.LerXML(AXml, FNFSe, TipoXml);
+  Result := FProvider.LerXML(AXml, FNFSe, TipoXml, XmlTratado);
 
   if TipoXml = txmlNFSe then
-    FXmlNfse := AXML
+    FXmlNfse := XmlTratado
   else
-    FXmlRps := AXML;
+    FXmlRps := XmlTratado;
 end;
 
-function TNotaFiscal.GravarXML(const NomeArquivo: String; const PathArquivo: String): Boolean;
+procedure TNotaFiscal.SetXmlNfse(const Value: String);
+begin
+  LerXML(Value);
+  FXmlNfse := Value;
+end;
+
+function TNotaFiscal.GravarXML(const NomeArquivo: String;
+  const PathArquivo: String; aTipo: TtpXML): Boolean;
 begin
   if EstaVazio(FXmlRps) then
     GerarXML;
 
-  FNomeArqRps := CalcularNomeArquivoCompleto(NomeArquivo, PathArquivo);
-  Result := TACBrNFSeX(FACBrNFSe).Gravar(FNomeArqRps, FXmlRps);
+  if aTipo = txmlNFSe then
+  begin
+    FNomeArq := TACBrNFSeX(FACBrNFSe).GetNumID(NFSe) + '-nfse.xml';
+    Result := TACBrNFSeX(FACBrNFSe).Gravar(FNomeArq, FXmlNfse, PathArquivo);
+  end
+  else
+  begin
+    FNomeArqRps := CalcularNomeArquivoCompleto(NomeArquivo, PathArquivo);
+    Result := TACBrNFSeX(FACBrNFSe).Gravar(FNomeArqRps, FXmlRps);
+  end;
 end;
 
 function TNotaFiscal.GravarStream(AStream: TStream): Boolean;
@@ -592,7 +612,7 @@ begin
     GerarXML;
 
   AStream.Size := 0;
-  WriteStrToStream(AStream, AnsiString(FXmlRps));
+  WriteStrToStream(AStream, AnsiString(FXmlNfse));
   Result := True;
 end;
 

@@ -96,7 +96,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrXmlBase,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrXmlBase,
   SilTecnologia.GravarXml, SilTecnologia.LerXml;
 
 { TACBrNFSeXWebserviceSilTecnologia }
@@ -491,9 +492,10 @@ function TACBrNFSeXWebserviceSilTecnologia203.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
+  Result := RemoverCaracteresDesnecessarios(Result);
   Result := ParseText(AnsiString(Result), True, False);
   Result := RemoverDeclaracaoXML(Result);
-  Result := RemoverCaracteresDesnecessarios(Result);
+  Result := RemoverIdentacao(Result);
 end;
 
 end.

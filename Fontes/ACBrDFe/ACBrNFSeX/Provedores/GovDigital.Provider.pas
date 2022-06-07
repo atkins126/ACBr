@@ -72,7 +72,9 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, GovDigital.GravarXml, GovDigital.LerXml;
 
 { TACBrNFSeProviderGovDigital200 }
@@ -300,8 +302,9 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := ParseText(AnsiString(Result), True, False);
-  Result := RemoverDeclaracaoXML(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
+  Result := RemoverPrefixosDesnecessarios(Result);
+  Result := string(NativeStringToUTF8(RemoverDeclaracaoXML(Result)));
 end;
 
 end.

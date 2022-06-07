@@ -81,7 +81,7 @@ implementation
 
 uses
   {$ifdef COMPILER6_UP} DateUtils {$else} ACBrD5 {$endif}, StrUtils, Variants,
-  ACBrValidador, ACBrUtil ;
+  ACBrValidador, ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 constructor TACBrBancoBS2.Create(AOwner: TACBrBanco);
 begin
@@ -167,7 +167,7 @@ end;
 procedure TACBrBancoBS2.GerarRegistroTransacao400(ACBrTitulo: TACBrTitulo; ARemessa: TStringList);
 var
   ATipoCedente, ATipoSacado, ADataMoraJuros, ADataDesconto, wLinha,
-  wCarteira, EspecieDoc, codigoServico: string;
+  wCarteira, codigoServico: string;
 begin
 
   { Data Mora }

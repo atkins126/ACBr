@@ -72,7 +72,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, ISSVitoria.GravarXml, ISSVitoria.LerXml;
 
 { TACBrNFSeProviderISSVitoria200 }
@@ -297,6 +298,7 @@ function TACBrNFSeXWebserviceISSVitoria200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
+  Result := RemoverCaracteresDesnecessarios(Result);
   Result := ParseText(AnsiString(Result), True, False);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);

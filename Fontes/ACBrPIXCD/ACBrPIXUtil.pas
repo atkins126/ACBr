@@ -62,6 +62,7 @@ function DetectarTipoChave(const AChave: String): TACBrPIXTipoChave;
 function ValidarChave(const AChave: String): String;
 function ValidarChaveAleatoria(const AChave: String): Boolean;
 function CriarTxId: String;
+function FormatarGUID(const AString: String): String;
 function ValidarTxId(const ATxId: String; MaiorTamanho: Integer; MenorTamanho: Integer = 0): String;
 function ValidarPSS(const AValue: Integer): String;
 function ValidarEndToEndId(const AValue: String): String;
@@ -153,6 +154,15 @@ begin
     Result := '';
 end;
 
+function FormatarGUID(const AString: String): String;
+begin
+  Result := copy(AString, 1, 8) + '-' +
+            copy(AString, 9, 4) + '-' +
+            copy(AString,13, 4) + '-' +
+            copy(AString,17, 4) + '-' +
+            copy(AString,21, 8);
+end;
+
 function ValidarTxId(const ATxId: String; MaiorTamanho: Integer;
   MenorTamanho: Integer): String;
 var
@@ -205,31 +215,11 @@ begin
   Result := StringReplace(s, DecimalSeparator, '.', []);
 end;
 
-// Fonte: https://github.com/bacen/pix-api/issues/189#issuecomment-783712221
 function Crc16BRCode(const AString: String): String;
-const
-  polynomial = $1021;
 var
-  crc: WORD;
-  i, j: Integer;
-  b: Byte;
-  bit, c15: Boolean;
+  crc: Word;
 begin
-  crc := $FFFF;
-  for i := 1 to length(AString) do
-  begin
-    b := Byte(AString[i]);
-    for j := 0 to 7 do
-    begin
-      bit := (((b shr (7 - j)) and 1) = 1);
-      c15 := (((crc shr 15) and 1) = 1);
-      crc := crc shl 1;
-      if (c15 xor bit) then
-        crc := crc xor polynomial;
-    end;
-  end;
-  crc := crc and $FFFF;
-
+  crc := StringCrcCCITT(AString, $FFFF);
   Result := IntToHex(crc, 4);
 end;
 

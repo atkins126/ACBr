@@ -217,8 +217,7 @@ implementation
 
 Uses
   {$IFDEF MSWINDOWS} Windows, {$ENDIF MSWINDOWS}
-  strutils, math,
-  ACBrTEFD, ACBrUtil, ACBrTEFComum;
+  StrUtils, Math, ACBrTEFD, ACBrTEFComum, ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.Math;
 
 { TACBrTEFDRespCliSiTef }
 
@@ -332,7 +331,7 @@ end;
 
 procedure TACBrTEFDCliSiTef.SetNumVias(const AValue : Integer);
 begin
-   fpNumVias := 2;
+   fpNumVias := AValue;
 end;
 
 procedure TACBrTEFDCliSiTef.Inicializar;
@@ -369,6 +368,7 @@ begin
 
   // acertar quebras de linhas e abertura e fechamento da lista de parametros
   ParamAdic := StringReplace(Trim(ParametrosAdicionais.Text), sLineBreak, ';', [rfReplaceAll]);
+
   ParamAdic := '['+ ParamAdic + ']';
 
   if NaoEstaVazio(CNPJEstabelecimento) and NaoEstaVazio(CNPJSoftwareHouse) then

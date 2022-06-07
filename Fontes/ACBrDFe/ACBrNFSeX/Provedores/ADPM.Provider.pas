@@ -72,7 +72,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ADPM.GravarXml, ADPM.LerXml;
 
 { TACBrNFSeProviderADPM203 }
@@ -314,6 +315,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
 end;
 
 end.

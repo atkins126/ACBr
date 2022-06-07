@@ -52,6 +52,8 @@ type
     function ConsultarLote(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
+
     property DadosUsuario: string read GetDadosUsuario;
   end;
 
@@ -94,6 +96,7 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderSmarAPD203 = class (TACBrNFSeProviderABRASFv2)
@@ -135,7 +138,11 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, SynaCode,
+  SynaCode,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   ACBrNFSeXNotasFiscais, SmarAPD.GravarXml, SmarAPD.LerXml;
 
@@ -150,6 +157,7 @@ begin
     Identificador := 'id';
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
+    DetalharServico := True;
   end;
 
   with ConfigAssinar do
@@ -324,12 +332,10 @@ begin
 
           if AuxNode <> nil then
           begin
-            Response.Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('codrecibo'), tcStr);
-
             with Response do
             begin
-              Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('datahora'), tcDatHor);
               Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('codrecibo'), tcStr);
+              Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('datahora'), tcDatVcto);
               xSucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
               Sucesso := not (xSucesso = 'N');
             end;
@@ -557,6 +563,7 @@ var
   Request: string;
 begin
   FPMsgOrig := AMSG;
+  AMSG := StringReplace(AMSG, '&amp;', '&amp;amp;',[rfReplaceAll]);
 
   Request := '<sil:nfdEntrada xmlns:sil="http://webservices.sil.com/">';
   Request := Request + DadosUsuario;
@@ -596,6 +603,17 @@ begin
   Request := Request + '</sil:nfdEntradaCancelar>';
 
   Result := Executar('', Request, [], []);
+end;
+
+function TACBrNFSeXWebserviceSmarAPD.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverIdentacao(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 { TACBrNFSeProviderSmarAPD203 }
@@ -813,6 +831,17 @@ begin
   Result := Executar('', Request,
                      ['return', 'SubstituirNfseResposta'],
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceSmarAPD203.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverIdentacao(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 { TACBrNFSeProviderSmarAPD204 }

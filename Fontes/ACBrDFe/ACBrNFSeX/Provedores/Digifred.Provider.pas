@@ -72,7 +72,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, Digifred.GravarXml, Digifred.LerXml;
 
 { TACBrNFSeProviderDigifred200 }
@@ -80,6 +81,8 @@ uses
 procedure TACBrNFSeProviderDigifred200.Configuracao;
 begin
   inherited Configuracao;
+
+  ConfigGeral.ConsultaPorFaixaPreencherNumNfseFinal := True;
 
   with ConfigAssinar do
   begin

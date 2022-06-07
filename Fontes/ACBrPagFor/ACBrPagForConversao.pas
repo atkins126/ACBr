@@ -46,12 +46,69 @@ uses
 type
   TVersaoLayout = (ve084);
 
-  TBanco = (pagNenhum, pagBancoDoBrasil, pagSantander, pagCaixaEconomica,
-            pagCaixaSicob, pagBradesco, pagItau, pagBancoMercantil, pagSicred,
-            pagBancoob, pagBanrisul, pagBanestes, pagHSBC, pagBancoDoNordeste,
-            pagBRB, pagBicBanco, pagBradescoSICOOB, pagBancoSafra,
-            pagSafraBradesco, pagBancoCECRED, pagUnibanco);
-
+  TBanco = (pagNenhum,
+     pagBancodoBrasil, pagBancoDigito, pagNuBank,
+     pagPagSeguro, pagMercadoPago, pagBradesco, pagSofisaDireto, pagInter, pagItau,
+     pagCaixaEconomica, pagSantander, pagOriginal, pagBanCooB, pagVotorantim,
+     pagBanrisul, pagSafra, pagBRB, pagUnicredCooperativa, pagBancoRibeiraoPreto,
+     pagCetelem, pagSemear, pagPlannerCorretora, pagB3, pagRabobank, pagSicredi,
+     pagBNPParibasBrasil, pagUnicredCentralRS, pagKirtonBank, pagPortoCred,
+     pagKebHanaBrasil, pagXPInvestimentos, pagBancoXP, pagSuperPagamentos,
+     pagGerencianetPagamentos, pagUniprimeNortedoParana, pagCapitalMarkets,
+     pagMorganStanley, pagUBSBrasilCCTVM, pagTrevisoCC, pagHipercardBancoMultiplo,
+     pagJSafra, pagUniprimeCentral, pagAlfa, pagABNAmro, pagCargill, pagServiCoop,
+     pagBradescard, pagNovaFutura, pagGoldmanSachsBrasil, pagCCCNoroesteBrasileiro,
+     pagCCMDespTransSCeRS, pagInbursa, pagBancodaAmazonia, pagConfidenceCC,
+     pagBancodoEstadodoPara, pagCasaCredito, pagAlbatrossCCV, pagBancoCECRED,
+     pagCooperativaCreditoEspiritoSanto, pagBancoBBI, pagBradescoFinanciamentos,
+     pagBancoDoNordeste, pagCCBBrasil, pagHSFinanceira, pagLeccaCFI,
+     pagKDBBrasil, pagTopazio, pagCCROuro, pagPolocred, pagCCRSaoMigueldoOeste,
+     pagICAPBrasil, pagSocred, pagNatixisBrasil, pagCaruana,
+     pagCodepeCVC, pagOriginalAgronegocio, pagBancoBrasileiroNegocios,
+     pagStandardChartered, pagCresol, pagAgibank, pagBancodaChinaBrasil,
+     pagGetMoneyCC, pagBANDEPE, pagConfidenceCambio, pagFinaxis, pagSenff,
+     pagMultiMoneyCC, pagBRK, pagBancodoEstadodeSergipe, pagBEXSBancodeCambio,
+     pagBRPartners, pagBPP, pagBRLTrustDTVM, pagWesternUniondoBrasil,
+     pagParanaBanco, pagBariguiCH, pagBOCOMBBM, pagCapital, pagWooriBank, pagFacta,
+     pagStone, pagBrokerBrasilCC, pagMercantil, pagItauBBA, pagTriangulo,
+     pagSenso, pagICBCBrasil, pagVipsCC, pagUBSBrasil, pagMSBank, pagMarmetal,
+     pagVortx, pagCommerzbank, pagAvista, pagGuittaCC, pagCCRPrimaveraDoLeste,
+     pagDacasaFinanceira, pagGenial, pagIBCCTVM, pagBANESTES, pagABCBrasil,
+     pagScotiabankBrasil, pagBTGPactual, pagModal, pagClassico, pagGuanabara,
+     pagIndustrialdoBrasil, pagCreditSuisse, pagFairCC, pagLaNacionArgentina,
+     pagCitibankNA, pagCedula, pagBradescoBERJ, pagJPMorgan, pagCaixaGeralBrasil,
+     pagCitibank, pagRodobens, pagFator, pagBNDES, pagAtivaInvestimentos,
+     pagBGCLiquidez, pagAlvorada, pagItauConsignado, pagMaxima,
+     pagHaitongBi, pagOliveiraTrust, pagBNYMellonBanco, pagPernambucabasFinanc,
+     pagLaProvinciaBuenosAires, pagBrasilPlural, pagJPMorganChaseBank, pagAndbank,
+     pagINGBankNV, pagBCV, pagLevycamCCV, pagRepOrientalUruguay, pagBEXSCC,
+     pagHSBC, pagArbi, pagIntesaSanPaolo, pagTricury, pagInterCap, pagFibra,
+     pagLusoBrasileiro, pagPAN, pagBradescoCartoes, pagItauBank, pagMUFGBrasil,
+     pagSumitomoMitsui, pagOmniBanco, pagItauUnibancoHolding, pagIndusval,
+     pagCrefisa, pagMizuhodoBrasil, pagInvestcredUni, pagBMG, pagFicsa,
+     pagSagiturCC, pagSocieteGeneraleBrasil, pagMagliano, pagTullettPrebon,
+     pagCreditSuisseHedgingGriffo, pagPaulista, pagBankofAmericaMerrillLynch,
+     pagCCRRegMogiana, pagPine, pagEasynvest, pagDaycoval, pagCarol,
+     pagRenascenca, pagDeutscheBank, pagCifra, pagGuide, pagRendimento, pagBS2,
+     pagBS2DistribuidoraTitulos, pagOleBonsucessoConsignado, pagLastroRDV,
+     pagFrenteCC, pagBTCC, pagNovoBancoContinental, pagCreditAgricoleBrasil,
+     pagBancoSistema, pagCredialianca, pagVR, pagBancoOurinvest, pagCredicoamo,
+     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais);
+     {
+  pagABCBrasil, pagAgibank, pagAlfa, pagAndbank, pagB3, pagBancodaAmazonia, pagBancodaChinaBrasil,
+    pagBancodoBrasil, pagBancodoEstadodeSergipe, pagBancodoEstadodoPara, pagBanrisul, pagBancoDoNordeste, pagBANDEPE,
+    pagBANESTES, pagBankofAmericaMerrillLynch, pagBCV, pagBEXSBancodeCambio, pagBMG, pagBNPParibasBrasil, pagBNYMellonBanco,
+    pagBOCOMBBM, pagBradescard, pagBradesco, pagBRB, pagBS2, pagBTGPactual, pagC6Consignado, pagCaixaEconomica,
+    pagCaixaGeralBrasil, pagCargill, pagCetelem, pagChinaConstructionBank, pagCifra, pagCitibankNA, pagCitibank,
+    pagCreditAgricoleBrasil, pagCreditSuisse, pagDaycoval, pagDeutscheBank, pagDigimais, pagFibra, pagFinaxis, pagGenial,
+    pagGuanabara, pagHipercardBancoMultiplo, pagHSBC, pagInbursa, pagIndustrialdoBrasil, pagINGBankNV, pagInter,
+    pagInvestcredUni, pagItau, pagJPMorgan, pagJSafra, pagJohnDeere, pagJPMorganChaseBank, pagNationalAssociation,
+    pagKirtonBank, pagLetsbank, pagLusoBrasileiro, pagMaster, pagMercantil, pagMizuhodoBrasil, pagModal, pagMSBank,
+    pagMUFGBrasil, pagOleBonsucessoConsignado, pagOriginal, pagPAN, pagParanaBanco, pagPaulista, pagPine, pagRabobank,
+    pagRendimento, pagRodobens, pagSafra, pagSantander, pagScotiabankBrasil, pagSemear, pagSenff, pagSicoob, pagSicredi,
+    pagSocieteGeneraleBrasil, pagSorocred, pagStateStreetBrasil, pagSumitomoMitsui, pagTopazio, pagTravelex, pagTriangulo,
+    pagUBSBrasil, pagVoiter, pagVotorantim, pagVR, pagWesternUniondoBrasil, pagXP, pagBancoCECRED);
+    }
   TTipoInscricao = (tiIsento, tiCPF, tiCNPJ, tiPISPASEP, tiOutros);
 
   TTipoArquivo = (taRemessa, taRetorno);
@@ -87,7 +144,7 @@ type
                       flDebitoContaCorrente, flExtratoGestaoCaixa,
                       flDepositoJudicialContaCorrente, flCartaoSalarioItau,
                       flDepositoJudicialPoupanca, flExtratoContaInvestimento,
-                      flTributoGNRe, flNenhum);
+                      flTributoGNRe, flPIXTransferencia, flPIXQRCode, flNenhum);
 
   TTipoMovimento = (tmInclusao, tmConsulta, tmEstorno, tmAlteracao,
                     tmLiquidacao, tmExclusao);
@@ -142,6 +199,9 @@ type
                          cpgContribuicaoRetidaSobreNfFaturaEmpresaPrestadoraServicoCNPJ,
                          ReclamatoriaTrabalhistaCNPJ);
 
+  TTipoChavePix = (tcpNenhum, tcpTelefone, tcpEmail, tcpCPFCNPJ, tcpAleatoria);
+
+
 function StrToEnumerado(var ok: boolean; const s: string; const AString: array of string; const AEnumerados: array of variant): variant;
 function EnumeradoToStr(const t: variant; const AString: array of string; const AEnumerados: array of variant): variant;
 
@@ -170,6 +230,7 @@ function StrToInMovimento(var ok: boolean; const s: string): TInstrucaoMovimento
 function TpMoedaToStr(const t: TTipoMoeda): String;
 
 function TpIndTributoToStr(const t: TIndTributo): String;
+function StrToIndTributo(var ok: boolean; const s:string): TIndTributo;
 
 function TpOperacaoToStr(const t: TTipoOperacao): String;
 function StrToTpOperacao(var ok: boolean; const s:string): TTipoOperacao;
@@ -180,9 +241,14 @@ function StrToTpMovimentoPagto(var ok:boolean; const s:string): TTipoMovimentoPa
 function CodigoPagamentoGpsToStr(const t: TCodigoPagamentoGps): String;
 function StrToCodigoPagamentoGps(var ok: boolean; const s: string): TCodigoPagamentoGps;
 
+function TipoChavePixToStr(const t: TTipoChavePIX): String;
+function StrToTipoChavePIX(var ok:boolean; const s: string): TTipoChavePIX;
+
 function TpTributoToStr(const t: TTipoTributo): String;
 
-function DescricaoRetornoItau(const ADesc: string): string;
+function LinhaDigitavelParaBarras(const linha:string):string;
+
+function DescricaoRetornoItau(ADesc: string): string;
 
 function DescricaoRetornoSantander(const ADesc: string): string;
 
@@ -215,149 +281,285 @@ begin
       result := AString[i];
 end;
 
-///////////////////////////////////////////////////////////////////////////////
-(*
- cbBancos.Items.Add('246-D - Banco ABC Brasil S.A.');
- cbBancos.Items.Add('025-D - Banco Alfa S.A.');
- cbBancos.Items.Add('641-D - Banco Alvorada S.A.');
- cbBancos.Items.Add('029-D - Banco Banerj S.A.');
- cbBancos.Items.Add('000-D - Banco Bankpar S.A.');
- cbBancos.Items.Add('740-D - Banco Barclays S.A.');
- cbBancos.Items.Add('107-D - Banco BBM S.A.');
- cbBancos.Items.Add('031-D - Banco Beg S.A.');
- cbBancos.Items.Add('739-D - Banco BGN S.A.');
- cbBancos.Items.Add('096-D - Banco BM&F de Serviços de Liquidação e Custódia S.A');
- cbBancos.Items.Add('318-D - Banco BMG S.A.');
- cbBancos.Items.Add('752-D - Banco BNP Paribas Brasil S.A.');
- cbBancos.Items.Add('248-D - Banco Boavista Interatlântico S.A.');
- cbBancos.Items.Add('218-D - Banco Bonsucesso S.A.');
- cbBancos.Items.Add('036-D - Banco Bradesco BBI S.A.');
- cbBancos.Items.Add('204-D - Banco Bradesco Cartões S.A.');
- cbBancos.Items.Add('394-D - Banco Bradesco Financiamentos S.A.');
- cbBancos.Items.Add('225-D - Banco Brascan S.A.');
- cbBancos.Items.Add('208-D - Banco BTG Pactual S.A.');
- cbBancos.Items.Add('044-D - Banco BVA S.A.');
- cbBancos.Items.Add('263-D - Banco Cacique S.A.');
- cbBancos.Items.Add('473-D - Banco Caixa Geral - Brasil S.A.');
- cbBancos.Items.Add('040-D - Banco Cargill S.A.');
- cbBancos.Items.Add('745-D - Banco Citibank S.A.');
- cbBancos.Items.Add('215-D - Banco Comercial e de Investimento Sudameris S.A.');
- cbBancos.Items.Add('748-D - Banco Cooperativo Sicredi S.A.');
- cbBancos.Items.Add('222-D - Banco Credit Agricole Brasil S.A.');
- cbBancos.Items.Add('505-D - Banco Credit Suisse (Brasil) S.A.');
- cbBancos.Items.Add('229-D - Banco Cruzeiro do Sul S.A.');
- cbBancos.Items.Add('003-D - Banco da Amazônia S.A.');
- cbBancos.Items.Add('083-3 - Banco da China Brasil S.A.');
- cbBancos.Items.Add('707-D - Banco Daycoval S.A.');
- cbBancos.Items.Add('024-D - Banco de Pernambuco S.A. - BANDEPE');
- cbBancos.Items.Add('456-D - Banco de Tokyo-Mitsubishi UFJ Brasil S.A.');
- cbBancos.Items.Add('214-D - Banco Dibens S.A.');
- cbBancos.Items.Add('047-D - Banco do Estado de Sergipe S.A.');
- cbBancos.Items.Add('037-D - Banco do Estado do Pará S.A.');
- cbBancos.Items.Add('041-D - Banco do Estado do Rio Grande do Sul S.A.');
- cbBancos.Items.Add('004-D - Banco do Nordeste do Brasil S.A.');
- cbBancos.Items.Add('265-D - Banco Fator S.A.');
- cbBancos.Items.Add('224-D - Banco Fibra S.A.');
- cbBancos.Items.Add('626-D - Banco Ficsa S.A.');
- cbBancos.Items.Add('233-D - Banco GE Capital S.A.');
- cbBancos.Items.Add('612-D - Banco Guanabara S.A.');
- cbBancos.Items.Add('063-D - Banco Ibi S.A. Banco Múltiplo');
- cbBancos.Items.Add('604-D - Banco Industrial do Brasil S.A.');
- cbBancos.Items.Add('320-D - Banco Industrial e Comercial S.A.');
- cbBancos.Items.Add('653-D - Banco Indusval S.A.');
- cbBancos.Items.Add('630-D - Banco Intercap S.A.');
- cbBancos.Items.Add('249-D - Banco Investcred Unibanco S.A.');
- cbBancos.Items.Add('184-D - Banco Itaú BBA S.A.');
- cbBancos.Items.Add('479-D - Banco ItaúBank S.A');
- cbBancos.Items.Add('376-D - Banco J. P. Morgan S.A.');
- cbBancos.Items.Add('074-D - Banco J. Safra S.A.');
- cbBancos.Items.Add('217-D - Banco John Deere S.A.');
- cbBancos.Items.Add('065-D - Banco Lemon S.A.');
- cbBancos.Items.Add('600-D - Banco Luso Brasileiro S.A.');
- cbBancos.Items.Add('755-D - Banco Merrill Lynch de Investimentos S.A.');
- cbBancos.Items.Add('746-D - Banco Modal S.A.');
- cbBancos.Items.Add('045-D - Banco Opportunity S.A.');
- cbBancos.Items.Add('623-D - Banco Panamericano S.A.');
- cbBancos.Items.Add('611-D - Banco Paulista S.A.');
- cbBancos.Items.Add('643-D - Banco Pine S.A.');
- cbBancos.Items.Add('638-D - Banco Prosper S.A.');
- cbBancos.Items.Add('747-D - Banco Rabobank International Brasil S.A.');
- cbBancos.Items.Add('633-D - Banco Rendimento S.A.');
- cbBancos.Items.Add('072-D - Banco Rural Mais S.A.');
- cbBancos.Items.Add('453-D - Banco Rural S.A.');
- cbBancos.Items.Add('422-D - Banco Safra S.A.');
- cbBancos.Items.Add('250-D - Banco Schahin S.A.');
- cbBancos.Items.Add('749-D - Banco Simples S.A.');
- cbBancos.Items.Add('366-D - Banco Société Générale Brasil S.A.');
- cbBancos.Items.Add('637-D - Banco Sofisa S.A.');
- cbBancos.Items.Add('012-D - Banco Standard de Investimentos S.A.');
- cbBancos.Items.Add('464-D - Banco Sumitomo Mitsui Brasileiro S.A.');
- cbBancos.Items.Add('082-5 - Banco Topázio S.A.');
- cbBancos.Items.Add('634-D - Banco Triângulo S.A.');
- cbBancos.Items.Add('655-D - Banco Votorantim S.A.');
- cbBancos.Items.Add('610-D - Banco VR S.A.');
- cbBancos.Items.Add('370-D - Banco WestLB do Brasil S.A.');
- cbBancos.Items.Add('021-D - BANESTES S.A. Banco do Estado do Espírito Santo');
- cbBancos.Items.Add('719-D - Banif-Banco Internacional do Funchal (Brasil)S.A.');
- cbBancos.Items.Add('073-D - BB Banco Popular do Brasil S.A.');
- cbBancos.Items.Add('078-D - BES Investimento do Brasil S.A.-Banco de Investimento');
- cbBancos.Items.Add('069-D - BPN Brasil Banco Múltiplo S.A.');
- cbBancos.Items.Add('070-D - BRB - Banco de Brasília S.A.');
- cbBancos.Items.Add('477-D - Citibank N.A.');
- cbBancos.Items.Add('081-7 - Concórdia Banco S.A.');
- cbBancos.Items.Add('487-D - Deutsche Bank S.A. - Banco Alemão');
- cbBancos.Items.Add('751-D - Dresdner Bank Brasil S.A. - Banco Múltiplo');
- cbBancos.Items.Add('064-D - Goldman Sachs do Brasil Banco Múltiplo S.A.');
- cbBancos.Items.Add('062-D - Hipercard Banco Múltiplo S.A.');
- cbBancos.Items.Add('399-D - HSBC Bank Brasil S.A. - Banco Múltiplo');
- cbBancos.Items.Add('492-D - ING Bank N.V.');
- cbBancos.Items.Add('652-D - Itaú Unibanco Holding S.A.');
- cbBancos.Items.Add('341-D - Itaú Unibanco S.A.');
- cbBancos.Items.Add('488-D - JPMorgan Chase Bank');
- cbBancos.Items.Add('409-D - UNIBANCO - União de Bancos Brasileiros S.A.');
- cbBancos.Items.Add('230-D - Unicard Banco Múltiplo S.A.');
-*)
 function BancoToStr(const t: TBanco): String;
 begin
-  result := EnumeradoToStr(t, ['000', '001', '033', '104',
-                               '000', '237', '341', '389', '748',
-                               '756', '000', '000', '399', '000',
-                               '000', '000', '000', '422',
-                               '000', '085', '409'],
-           [pagNenhum, pagBancoDoBrasil, pagSantander, pagCaixaEconomica,
-            pagCaixaSicob, pagBradesco, pagItau, pagBancoMercantil, pagSicred,
-            pagBancoob, pagBanrisul, pagBanestes, pagHSBC, pagBancoDoNordeste,
-            pagBRB, pagBicBanco, pagBradescoSICOOB, pagBancoSafra,
-            pagSafraBradesco, pagBancoCECRED, pagUnibanco]);
+  result := EnumeradoToStr(t,
+    ['000',
+     '001', '335', '260', '290', '323', '237', '637', '077', '341', '104',
+     '033', '212', '756', '655', '041', '422', '070', '136', '741', '739',
+     '743', '100', '096', '747', '748', '752', '091', '399', '108', '757',
+     '102', '348', '340', '364', '084', '180', '066', '015', '143', '062',
+     '074', '099', '025', '075', '040', '190', '063', '191', '064', '097',
+     '016', '012', '003', '060', '037', '159', '172', '085', '114', '036',
+     '394', '004', '320', '189', '105', '076', '082', '286', '093', '273',
+     '157', '183', '014', '130', '127', '079', '081', '118', '133', '121',
+     '083', '138', '024', '095', '094', '276', '137', '092', '047', '144',
+     '126', '301', '173', '119', '254', '268', '107', '412', '124', '149',
+     '197', '142', '389', '184', '634', '545', '132', '298', '129', '128',
+     '194', '310', '163', '280', '146', '279', '182', '278', '271', '021',
+     '246', '751', '208', '746', '241', '612', '604', '505', '196', '300',
+     '477', '266', '122', '376', '473', '745', '120', '265', '007', '188',
+     '134', '641', '029', '243', '078', '111', '017', '174', '495', '125',
+     '488', '065', '492', '250', '145', '494', '253', '269', '213', '139',
+     '018', '630', '224', '600', '623', '204', '479', '456', '464', '613',
+     '652', '653', '069', '370', '249', '318', '626', '270', '366', '113',
+     '131', '011', '611', '755', '089', '643', '140', '707', '288', '101',
+     '487', '233', '117', '633', '218', '292', '169', '293', '285', '080',
+     '753', '222', '754', '098', '610', '712', '010', '283', '217', '117',
+     '336', '654'],
+    [pagNenhum,
+     pagBancodoBrasil, pagBancoDigito, pagNuBank,
+     pagPagSeguro, pagMercadoPago, pagBradesco, pagSofisaDireto, pagInter, pagItau,
+     pagCaixaEconomica, pagSantander, pagOriginal, pagBanCooB, pagVotorantim,
+     pagBanrisul, pagSafra, pagBRB, pagUnicredCooperativa, pagBancoRibeiraoPreto,
+     pagCetelem, pagSemear, pagPlannerCorretora, pagB3, pagRabobank, pagSicredi,
+     pagBNPParibasBrasil, pagUnicredCentralRS, pagKirtonBank, pagPortoCred,
+     pagKebHanaBrasil, pagXPInvestimentos, pagBancoXP, pagSuperPagamentos,
+     pagGerencianetPagamentos, pagUniprimeNortedoParana, pagCapitalMarkets,
+     pagMorganStanley, pagUBSBrasilCCTVM, pagTrevisoCC, pagHipercardBancoMultiplo,
+     pagJSafra, pagUniprimeCentral, pagAlfa, pagABNAmro, pagCargill, pagServiCoop,
+     pagBradescard, pagNovaFutura, pagGoldmanSachsBrasil, pagCCCNoroesteBrasileiro,
+     pagCCMDespTransSCeRS, pagInbursa, pagBancodaAmazonia, pagConfidenceCC,
+     pagBancodoEstadodoPara, pagCasaCredito, pagAlbatrossCCV, pagBancoCECRED,
+     pagCooperativaCreditoEspiritoSanto, pagBancoBBI, pagBradescoFinanciamentos,
+     pagBancoDoNordeste, pagCCBBrasil, pagHSFinanceira, pagLeccaCFI,
+     pagKDBBrasil, pagTopazio, pagCCROuro, pagPolocred, pagCCRSaoMigueldoOeste,
+     pagICAPBrasil, pagSocred, pagNatixisBrasil, pagCaruana,
+     pagCodepeCVC, pagOriginalAgronegocio, pagBancoBrasileiroNegocios,
+     pagStandardChartered, pagCresol, pagAgibank, pagBancodaChinaBrasil,
+     pagGetMoneyCC, pagBANDEPE, pagConfidenceCambio, pagFinaxis, pagSenff,
+     pagMultiMoneyCC, pagBRK, pagBancodoEstadodeSergipe, pagBEXSBancodeCambio,
+     pagBRPartners, pagBPP, pagBRLTrustDTVM, pagWesternUniondoBrasil,
+     pagParanaBanco, pagBariguiCH, pagBOCOMBBM, pagCapital, pagWooriBank, pagFacta,
+     pagStone, pagBrokerBrasilCC, pagMercantil, pagItauBBA, pagTriangulo,
+     pagSenso, pagICBCBrasil, pagVipsCC, pagUBSBrasil, pagMSBank, pagMarmetal,
+     pagVortx, pagCommerzbank, pagAvista, pagGuittaCC, pagCCRPrimaveraDoLeste,
+     pagDacasaFinanceira, pagGenial, pagIBCCTVM, pagBANESTES, pagABCBrasil,
+     pagScotiabankBrasil, pagBTGPactual, pagModal, pagClassico, pagGuanabara,
+     pagIndustrialdoBrasil, pagCreditSuisse, pagFairCC, pagLaNacionArgentina,
+     pagCitibankNA, pagCedula, pagBradescoBERJ, pagJPMorgan, pagCaixaGeralBrasil,
+     pagCitibank, pagRodobens, pagFator, pagBNDES, pagAtivaInvestimentos,
+     pagBGCLiquidez, pagAlvorada, pagItauConsignado, pagMaxima,
+     pagHaitongBi, pagOliveiraTrust, pagBNYMellonBanco, pagPernambucabasFinanc,
+     pagLaProvinciaBuenosAires, pagBrasilPlural, pagJPMorganChaseBank, pagAndbank,
+     pagINGBankNV, pagBCV, pagLevycamCCV, pagRepOrientalUruguay, pagBEXSCC,
+     pagHSBC, pagArbi, pagIntesaSanPaolo, pagTricury, pagInterCap, pagFibra,
+     pagLusoBrasileiro, pagPAN, pagBradescoCartoes, pagItauBank, pagMUFGBrasil,
+     pagSumitomoMitsui, pagOmniBanco, pagItauUnibancoHolding, pagIndusval,
+     pagCrefisa, pagMizuhodoBrasil, pagInvestcredUni, pagBMG, pagFicsa,
+     pagSagiturCC, pagSocieteGeneraleBrasil, pagMagliano, pagTullettPrebon,
+     pagCreditSuisseHedgingGriffo, pagPaulista, pagBankofAmericaMerrillLynch,
+     pagCCRRegMogiana, pagPine, pagEasynvest, pagDaycoval, pagCarol,
+     pagRenascenca, pagDeutscheBank, pagCifra, pagGuide, pagRendimento, pagBS2,
+     pagBS2DistribuidoraTitulos, pagOleBonsucessoConsignado, pagLastroRDV,
+     pagFrenteCC, pagBTCC, pagNovoBancoContinental, pagCreditAgricoleBrasil,
+     pagBancoSistema, pagCredialianca, pagVR, pagBancoOurinvest, pagCredicoamo,
+     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais]);
 end;
 
 function BancoToDesc(const t: TBanco): String;
 begin
-  result := EnumeradoToStr(t, ['Nenhum', 'Banco do Brasil', 'Santander',
-                               'Caixa Economica Federal', 'Caixa Sicob',
-                               'Bradesco', 'Itau', 'Banco Mercantil',
-                               'Sicred', 'Bancoob', 'Banrisul', 'Banestes',
-                               'HSBC', 'Banco do Nordeste', 'BRB',
-                               'Bic Banco', 'Bradesco Sicob', 'Banco Safra',
-                               'Safra Bradesco', 'Ailos', 'Unibanco'],
-           [pagNenhum, pagBancoDoBrasil, pagSantander, pagCaixaEconomica,
-            pagCaixaSicob, pagBradesco, pagItau, pagBancoMercantil, pagSicred,
-            pagBancoob, pagBanrisul, pagBanestes, pagHSBC, pagBancoDoNordeste,
-            pagBRB, pagBicBanco, pagBradescoSICOOB, pagBancoSafra,
-            pagSafraBradesco, pagBancoCECRED, pagUnibanco]);
+  result := EnumeradoToStr(t,
+    ['Nenhum',
+     'BANCO DO BRASIL S.A', 'Banco Digito S.A', 'NU PAGAMENTOS S.A',
+     'Pagseguro Internet S.A', 'Mercado Pago', 'BANCO SOFISA S.A', 'BANCO INTER S.A',
+     'ITAU UNIBANCO S.A', 'CAIXA ECONOMICA FEDERAL', 'BANCO SANTANDER BRASIL S.A',
+     'BANCO ORIGINAL S.A', 'BANCOOB', 'BANCO VOTORANTIM S.A', 'BANRISUL',
+     'BRADESCO S.A', 'BANCO SAFRA S.A', 'BANCO DE BRASILIA',
+     'UNICRED COOPERATIVA', 'BANCO RIBEIRAO PRETO', 'BANCO CETELEM S.A',
+     'BANCO SEMEAR S.A', 'PLANNER CORRETORA DE VALORES S.A', 'BANCO B3 S.A',
+     'RABOBANK INTERNACIONAL DO BRASIL S.A', 'SICREDI S.A', 'BNP PARIBAS BRASIL S.A',
+     'UNICRED CENTRAL RS', 'KIRTON BANK', 'PORTOCRED S.A',
+     'BANCO KEB HANA DO BRASIL S.A', 'XP INVESTIMENTOS S.A', 'BANCO XP S/A',
+     'SUPER PAGAMENTOS S/A', 'GERENCIANET PAGAMENTOS DO BRASIL',
+     'UNIPRIME NORTE DO PARANA', 'CM CAPITAL MARKETS CCTVM LTDA',
+     'BANCO MORGAN STANLEY S.A', 'UBS BRASIL CCTVM S.A', 'TREVISO CC S.A',
+     'HIPERCARD BM S.A', 'BCO. J.SAFRA S.A', 'UNIPRIME CENTRAL CCC LTDA',
+     'BANCO ALFA S.A.', 'BCO ABN AMRO S.A', 'BANCO CARGILL S.A', 'SERVICOOP',
+     'BANCO BRADESCARD', 'NOVA FUTURA CTVM LTDA', 'GOLDMAN SACHS DO BRASIL BM S.A',
+     'CCC NOROESTE BRASILEIRO LTDA', 'CCM DESP TRANS SC E RS', 'BANCO INBURSA',
+     'BANCO DA AMAZONIA S.A', 'CONFIDENCE CC S.A', 'BANCO DO ESTADO DO PARA S.A',
+     'CASA CREDITO S.A', 'ALBATROSS CCV S.A', 'COOP CENTRAL AILOS',
+     'CENTRAL COOPERATIVA DE CREDITO NO ESTADO DO ESPIRITO SANTO',
+     'BANCO BBI S.A', 'BANCO BRADESCO FINANCIAMENTOS S.A',
+     'BANCO DO NORDESTE DO BRASIL S.A.', 'BANCO CCB BRASIL S.A', 'HS FINANCEIRA',
+     'LECCA CFI S.A', 'BANCO KDB BRASIL S.A.', 'BANCO TOPAZIO S.A', 'CCR DE OURO',
+     'POLOCRED SCMEPP LTDA', 'CCR DE SAO MIGUEL DO OESTE',
+     'ICAP DO BRASIL CTVM LTDA', 'SOCRED S.A', 'NATIXIS BRASIL S.A', 'CARUANA SCFI',
+     'CODEPE CVC S.A', 'BANCO ORIGINAL DO AGRONEGOCIO S.A',
+     'BBN BANCO BRASILEIRO DE NEGOCIOS S.A', 'STANDARD CHARTERED BI S.A',
+     'CRESOL CONFEDERACAO', 'BANCO AGIBANK S.A', 'BANCO DA CHINA BRASIL S.A',
+     'GET MONEY CC LTDA', 'BCO BANDEPE S.A', 'BANCO CONFIDENCE DE CAMBIO S.A',
+     'BANCO FINAXIS', 'SENFF S.A', 'MULTIMONEY CC LTDA', 'BRK S.A',
+     'BANCO BCO DO ESTADO DE SERGIPE S.A', 'BEXS BANCO DE CAMBIO S.A.',
+     'BR PARTNERS BI', 'BPP INSTITUICAO DE PAGAMENTOS S.A', 'BRL TRUST DTVM SA',
+     'BANCO WESTERN UNION', 'PARANA BANCO S.A', 'BARIGUI CH', 'BANCO BOCOM BBM S.A',
+     'BANCO CAPITAL S.A', 'BANCO WOORI BANK DO BRASIL S.A', 'FACTA S.A. CFI',
+     'STONE PAGAMENTOS S.A', 'BROKER BRASIL CC LTDA', 'BANCO MERCANTIL DO BRASIL S.A.',
+     'BANCO ITAU BBA S.A', 'BANCO TRIANGULO S.A', 'SENSO CCVM S.A',
+     'ICBC DO BRASIL BM S.A', 'VIPS CC LTDA', 'UBS BRASIL BI S.A',
+     'MS BANK S.A BANCO DE CAMBIO', 'PARMETAL DTVM LTDA', 'VORTX DTVM LTDA',
+     'COMMERZBANK BRASIL S.A', 'AVISTA S.A', 'GUITTA CC LTDA',
+     'CCR DE PRIMAVERA DO LESTE', 'DACASA FINANCEIRA S/A',
+     'GENIAL INVESTIMENTOS CVM S.A', 'IB CCTVM LTDA', 'BANCO BANESTES S.A',
+     'BANCO ABC BRASIL S.A', 'SCOTIABANK BRASIL', 'BANCO BTG PACTUAL S.A',
+     'BANCO MODAL S.A', 'BANCO CLASSICO S.A', 'BANCO GUANABARA S.A',
+     'BANCO INDUSTRIAL DO BRASIL S.A', 'BANCO CREDIT SUISSE (BRL) S.A',
+     'BANCO FAIR CC S.A', 'BANCO LA NACION ARGENTINA', 'CITIBANK N.A',
+     'BANCO CEDULA S.A', 'BANCO BRADESCO BERJ S.A', 'BANCO J.P. MORGAN S.A',
+     'BANCO CAIXA GERAL BRASIL S.A', 'BANCO CITIBANK S.A', 'BANCO RODOBENS S.A',
+     'BANCO FATOR S.A', 'BNDES', 'ATIVA S.A INVESTIMENTOS', 'BGC LIQUIDEZ DTVM LTDA',
+     'BANCO ALVORADA S.A', 'BANCO ITAU CONSIGNADO S.A', 'BANCO MAXIMA S.A',
+     'HAITONG BI DO BRASIL S.A', 'BANCO OLIVEIRA TRUST DTVM S.A',
+     'BNY MELLON BANCO S.A', 'PERNAMBUCANAS FINANC S.A',
+     'LA PROVINCIA BUENOS AIRES BANCO', 'BRASIL PLURAL S.A BANCO',
+     'JPMORGAN CHASE BANK', 'BANCO ANDBANK S.A', 'ING BANK N.V', 'BANCO BCV',
+     'LEVYCAM CCV LTDA', 'BANCO REP ORIENTAL URUGUAY', 'BEXS CC S.A',
+     'HSBC BANCO DE INVESTIMENTO', 'BCO ARBI S.A', 'INTESA SANPAOLO BRASIL S.A',
+     'BANCO TRICURY S.A', 'BANCO INTERCAP S.A', 'BANCO FIBRA S.A',
+     'BANCO LUSO BRASILEIRO S.A', 'BANCO PAN', 'BANCO BRADESCO CARTOES S.A',
+     'BANCO ITAUBANK S.A', 'BANCO MUFG BRASIL S.A',
+     'BANCO SUMITOMO MITSUI BRASIL S.A', 'OMNI BANCO S.A',
+     'ITAU UNIBANCO HOLDING BM S.A', 'BANCO INDUSVAL S.A', 'BANCO CREFISA S.A',
+     'BANCO MIZUHO S.A', 'BANCO INVESTCRED UNIBANCO S.A', 'BANCO BMG S.A',
+     'BANCO FICSA S.A', 'SAGITUR CC LTDA', 'BANCO SOCIETE GENERALE BRASIL',
+     'MAGLIANO S.A', 'TULLETT PREBON BRASIL CVC LTDA',
+     'C.SUISSE HEDGING-GRIFFO CV S.A', 'BANCO PAULISTA',
+     'BOFA MERRILL LYNCH BM S.A', 'CCR REG MOGIANA', 'BANCO PINE S.A',
+     'EASYNVEST – TITULO CV S.A', 'BANCO DAYCOVAL S.A', 'CAROL DTVM LTDA',
+     'RENASCENCA DTVM LTDA', 'DEUTSCHE BANK S.A', 'BANCO CIFRA', 'GUIDE',
+     'BANCO RENDIMENTO S.A', 'BANCO BS2 S.A',
+     'BS2 DISTRIBUIDORA DE TITULOS E INVESTIMENTOS',
+     'BANCO OLE BONSUCESSO CONSIGNADO S.A', 'LASTRO RDV DTVM LTDA',
+     'FRENTE CC LTDA', 'B&T CC LTDA', 'NOVO BANCO CONTINENTAL S.A',
+     'BANCO CREDIT AGRICOLE BR S.A', 'BANCO SISTEMA', 'CREDIALIANCA CCR',
+     'BANCO VR S.A', 'BANCO OURINVEST S.A', 'CREDICOAMO',
+     'RB CAPITAL INVESTIMENTOS DTVM LTDA', 'BANCO JOHN DEERE S.A',
+     'ADVANCED CC LTDA', 'BANCO C6 S.A', 'BANCO DIGIMAIS S.A'],
+    [pagNenhum,
+     pagBancodoBrasil, pagBancoDigito, pagNuBank, pagPagSeguro, pagMercadoPago,
+     pagSofisaDireto, pagInter, pagItau, pagCaixaEconomica, pagSantander,
+     pagOriginal, pagBanCooB, pagVotorantim, pagBanrisul, pagBradesco, pagSafra,
+     pagBRB, pagUnicredCooperativa, pagBancoRibeiraoPreto, pagCetelem, pagSemear,
+     pagPlannerCorretora, pagB3, pagRabobank, pagSicredi, pagBNPParibasBrasil,
+     pagUnicredCentralRS, pagKirtonBank, pagPortoCred, pagKebHanaBrasil,
+     pagXPInvestimentos, pagBancoXP, pagSuperPagamentos,
+     pagGerencianetPagamentos, pagUniprimeNortedoParana, pagCapitalMarkets,
+     pagMorganStanley, pagUBSBrasilCCTVM, pagTrevisoCC, pagHipercardBancoMultiplo,
+     pagJSafra, pagUniprimeCentral, pagAlfa, pagABNAmro, pagCargill, pagServiCoop,
+     pagBradescard, pagNovaFutura, pagGoldmanSachsBrasil, pagCCCNoroesteBrasileiro,
+     pagCCMDespTransSCeRS, pagInbursa, pagBancodaAmazonia, pagConfidenceCC,
+     pagBancodoEstadodoPara, pagCasaCredito, pagAlbatrossCCV, pagBancoCECRED,
+     pagCooperativaCreditoEspiritoSanto, pagBancoBBI, pagBradescoFinanciamentos,
+     pagBancoDoNordeste, pagCCBBrasil, pagHSFinanceira, pagLeccaCFI,
+     pagKDBBrasil, pagTopazio, pagCCROuro, pagPolocred, pagCCRSaoMigueldoOeste,
+     pagICAPBrasil, pagSocred, pagNatixisBrasil, pagCaruana,
+     pagCodepeCVC, pagOriginalAgronegocio, pagBancoBrasileiroNegocios,
+     pagStandardChartered, pagCresol, pagAgibank, pagBancodaChinaBrasil,
+     pagGetMoneyCC, pagBANDEPE, pagConfidenceCambio, pagFinaxis, pagSenff,
+     pagMultiMoneyCC, pagBRK, pagBancodoEstadodeSergipe, pagBEXSBancodeCambio,
+     pagBRPartners, pagBPP, pagBRLTrustDTVM, pagWesternUniondoBrasil,
+     pagParanaBanco, pagBariguiCH, pagBOCOMBBM, pagCapital, pagWooriBank, pagFacta,
+     pagStone, pagBrokerBrasilCC, pagMercantil, pagItauBBA, pagTriangulo,
+     pagSenso, pagICBCBrasil, pagVipsCC, pagUBSBrasil, pagMSBank, pagMarmetal,
+     pagVortx, pagCommerzbank, pagAvista, pagGuittaCC, pagCCRPrimaveraDoLeste,
+     pagDacasaFinanceira, pagGenial, pagIBCCTVM, pagBANESTES, pagABCBrasil,
+     pagScotiabankBrasil, pagBTGPactual, pagModal, pagClassico, pagGuanabara,
+     pagIndustrialdoBrasil, pagCreditSuisse, pagFairCC, pagLaNacionArgentina,
+     pagCitibankNA, pagCedula, pagBradescoBERJ, pagJPMorgan, pagCaixaGeralBrasil,
+     pagCitibank, pagRodobens, pagFator, pagBNDES, pagAtivaInvestimentos,
+     pagBGCLiquidez, pagAlvorada, pagItauConsignado, pagMaxima,
+     pagHaitongBi, pagOliveiraTrust, pagBNYMellonBanco, pagPernambucabasFinanc,
+     pagLaProvinciaBuenosAires, pagBrasilPlural, pagJPMorganChaseBank, pagAndbank,
+     pagINGBankNV, pagBCV, pagLevycamCCV, pagRepOrientalUruguay, pagBEXSCC,
+     pagHSBC, pagArbi, pagIntesaSanPaolo, pagTricury, pagInterCap, pagFibra,
+     pagLusoBrasileiro, pagPAN, pagBradescoCartoes, pagItauBank, pagMUFGBrasil,
+     pagSumitomoMitsui, pagOmniBanco, pagItauUnibancoHolding, pagIndusval,
+     pagCrefisa, pagMizuhodoBrasil, pagInvestcredUni, pagBMG, pagFicsa,
+     pagSagiturCC, pagSocieteGeneraleBrasil, pagMagliano, pagTullettPrebon,
+     pagCreditSuisseHedgingGriffo, pagPaulista, pagBankofAmericaMerrillLynch,
+     pagCCRRegMogiana, pagPine, pagEasynvest, pagDaycoval, pagCarol,
+     pagRenascenca, pagDeutscheBank, pagCifra, pagGuide, pagRendimento, pagBS2,
+     pagBS2DistribuidoraTitulos, pagOleBonsucessoConsignado, pagLastroRDV,
+     pagFrenteCC, pagBTCC, pagNovoBancoContinental, pagCreditAgricoleBrasil,
+     pagBancoSistema, pagCredialianca, pagVR, pagBancoOurinvest, pagCredicoamo,
+     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais]);
 end;
 
 function StrToBanco(var ok: boolean; const s: String): TBanco;
 begin
   Result := StrToEnumerado(ok, s,
-                           ['000', '001', '033', '104', '000', '237', '341',
-                            '389', '748', '756', '000', '000', '399', '000',
-                            '000', '000', '000', '422', '000', '085', '409'],
-                           [pagNenhum, pagBancoDoBrasil, pagSantander, pagCaixaEconomica,
-                            pagCaixaSicob, pagBradesco, pagItau, pagBancoMercantil, pagSicred,
-                            pagBancoob, pagBanrisul, pagBanestes, pagHSBC, pagBancoDoNordeste,
-                            pagBRB, pagBicBanco, pagBradescoSICOOB, pagBancoSafra,
-                            pagSafraBradesco, pagBancoCECRED, pagUnibanco]);
+    ['000',
+     '001', '335', '260', '290', '323', '237', '637', '077', '341', '104',
+     '033', '212', '756', '655', '041', '422', '070', '136', '741', '739',
+     '743', '100', '096', '747', '748', '752', '091', '399', '108', '757',
+     '102', '348', '340', '364', '084', '180', '066', '015', '143', '062',
+     '074', '099', '025', '075', '040', '190', '063', '191', '064', '097',
+     '016', '012', '003', '060', '037', '159', '172', '085', '114', '036',
+     '394', '004', '320', '189', '105', '076', '082', '286', '093', '273',
+     '157', '183', '014', '130', '127', '079', '081', '118', '133', '121',
+     '083', '138', '024', '095', '094', '276', '137', '092', '047', '144',
+     '126', '301', '173', '119', '254', '268', '107', '412', '124', '149',
+     '197', '142', '389', '184', '634', '545', '132', '298', '129', '128',
+     '194', '310', '163', '280', '146', '279', '182', '278', '271', '021',
+     '246', '751', '208', '746', '241', '612', '604', '505', '196', '300',
+     '477', '266', '122', '376', '473', '745', '120', '265', '007', '188',
+     '134', '641', '029', '243', '078', '111', '017', '174', '495', '125',
+     '488', '065', '492', '250', '145', '494', '253', '269', '213', '139',
+     '018', '630', '224', '600', '623', '204', '479', '456', '464', '613',
+     '652', '653', '069', '370', '249', '318', '626', '270', '366', '113',
+     '131', '011', '611', '755', '089', '643', '140', '707', '288', '101',
+     '487', '233', '117', '633', '218', '292', '169', '293', '285', '080',
+     '753', '222', '754', '098', '610', '712', '010', '283', '217', '117',
+     '336', '654'],
+    [pagNenhum,
+     pagBancodoBrasil, pagBancoDigito, pagNuBank,
+     pagPagSeguro, pagMercadoPago, pagBradesco, pagSofisaDireto, pagInter, pagItau,
+     pagCaixaEconomica, pagSantander, pagOriginal, pagBanCooB, pagVotorantim,
+     pagBanrisul, pagSafra, pagBRB, pagUnicredCooperativa, pagBancoRibeiraoPreto,
+     pagCetelem, pagSemear, pagPlannerCorretora, pagB3, pagRabobank, pagSicredi,
+     pagBNPParibasBrasil, pagUnicredCentralRS, pagKirtonBank, pagPortoCred,
+     pagKebHanaBrasil, pagXPInvestimentos, pagBancoXP, pagSuperPagamentos,
+     pagGerencianetPagamentos, pagUniprimeNortedoParana, pagCapitalMarkets,
+     pagMorganStanley, pagUBSBrasilCCTVM, pagTrevisoCC, pagHipercardBancoMultiplo,
+     pagJSafra, pagUniprimeCentral, pagAlfa, pagABNAmro, pagCargill, pagServiCoop,
+     pagBradescard, pagNovaFutura, pagGoldmanSachsBrasil, pagCCCNoroesteBrasileiro,
+     pagCCMDespTransSCeRS, pagInbursa, pagBancodaAmazonia, pagConfidenceCC,
+     pagBancodoEstadodoPara, pagCasaCredito, pagAlbatrossCCV, pagBancoCECRED,
+     pagCooperativaCreditoEspiritoSanto, pagBancoBBI, pagBradescoFinanciamentos,
+     pagBancoDoNordeste, pagCCBBrasil, pagHSFinanceira, pagLeccaCFI,
+     pagKDBBrasil, pagTopazio, pagCCROuro, pagPolocred, pagCCRSaoMigueldoOeste,
+     pagICAPBrasil, pagSocred, pagNatixisBrasil, pagCaruana,
+     pagCodepeCVC, pagOriginalAgronegocio, pagBancoBrasileiroNegocios,
+     pagStandardChartered, pagCresol, pagAgibank, pagBancodaChinaBrasil,
+     pagGetMoneyCC, pagBANDEPE, pagConfidenceCambio, pagFinaxis, pagSenff,
+     pagMultiMoneyCC, pagBRK, pagBancodoEstadodeSergipe, pagBEXSBancodeCambio,
+     pagBRPartners, pagBPP, pagBRLTrustDTVM, pagWesternUniondoBrasil,
+     pagParanaBanco, pagBariguiCH, pagBOCOMBBM, pagCapital, pagWooriBank, pagFacta,
+     pagStone, pagBrokerBrasilCC, pagMercantil, pagItauBBA, pagTriangulo,
+     pagSenso, pagICBCBrasil, pagVipsCC, pagUBSBrasil, pagMSBank, pagMarmetal,
+     pagVortx, pagCommerzbank, pagAvista, pagGuittaCC, pagCCRPrimaveraDoLeste,
+     pagDacasaFinanceira, pagGenial, pagIBCCTVM, pagBANESTES, pagABCBrasil,
+     pagScotiabankBrasil, pagBTGPactual, pagModal, pagClassico, pagGuanabara,
+     pagIndustrialdoBrasil, pagCreditSuisse, pagFairCC, pagLaNacionArgentina,
+     pagCitibankNA, pagCedula, pagBradescoBERJ, pagJPMorgan, pagCaixaGeralBrasil,
+     pagCitibank, pagRodobens, pagFator, pagBNDES, pagAtivaInvestimentos,
+     pagBGCLiquidez, pagAlvorada, pagItauConsignado, pagMaxima,
+     pagHaitongBi, pagOliveiraTrust, pagBNYMellonBanco, pagPernambucabasFinanc,
+     pagLaProvinciaBuenosAires, pagBrasilPlural, pagJPMorganChaseBank, pagAndbank,
+     pagINGBankNV, pagBCV, pagLevycamCCV, pagRepOrientalUruguay, pagBEXSCC,
+     pagHSBC, pagArbi, pagIntesaSanPaolo, pagTricury, pagInterCap, pagFibra,
+     pagLusoBrasileiro, pagPAN, pagBradescoCartoes, pagItauBank, pagMUFGBrasil,
+     pagSumitomoMitsui, pagOmniBanco, pagItauUnibancoHolding, pagIndusval,
+     pagCrefisa, pagMizuhodoBrasil, pagInvestcredUni, pagBMG, pagFicsa,
+     pagSagiturCC, pagSocieteGeneraleBrasil, pagMagliano, pagTullettPrebon,
+     pagCreditSuisseHedgingGriffo, pagPaulista, pagBankofAmericaMerrillLynch,
+     pagCCRRegMogiana, pagPine, pagEasynvest, pagDaycoval, pagCarol,
+     pagRenascenca, pagDeutscheBank, pagCifra, pagGuide, pagRendimento, pagBS2,
+     pagBS2DistribuidoraTitulos, pagOleBonsucessoConsignado, pagLastroRDV,
+     pagFrenteCC, pagBTCC, pagNovoBancoContinental, pagCreditAgricoleBrasil,
+     pagBancoSistema, pagCredialianca, pagVR, pagBancoOurinvest, pagCredicoamo,
+     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais]);
 end;
 
 function TpInscricaoToStr(const t: TTipoInscricao): String;
@@ -437,7 +639,7 @@ begin
                           ['01', '02', '03', '04', '05', '06', '07', '10', '11', '13',
                            '16', '17', '18', '19', '20', '21', '22', '23', '24', '25',
                            '26', '27', '30', '31', '32', '33', '35', '40', '41', '43',
-                           '44', '50', '60', '70', '71', '72', '73', '91', '  '],
+                           '44', '50', '60', '70', '71', '72', '73', '91', '45', '47', '  '],
                          [flCreditoContaCorrente, flChequePagamento, flDocTed,
                           flCartaoSalario, flCreditoContaPoupanca, flCreditoContaCorrenteMesmaTitularidade, flDocMesmaTitularidade, flOPDisposicao,
                           flPagamentoContas, flPagamentoConcessionarias, flTributoDARFNormal, flTributoGPS,
@@ -454,7 +656,7 @@ begin
                           flDebitoContaCorrente, flCartaoSalarioItau,
                           flExtratoGestaoCaixa, flDepositoJudicialContaCorrente,
                           flDepositoJudicialPoupanca, flExtratoContaInvestimento,
-                          flTributoGNRe, flNenhum]);
+                          flTributoGNRe, flPIXTransferencia, flPIXQRCode, flNenhum]);
 end;
 
 function FmLancamentoToStr(const t: TFormaLancamento): String;
@@ -463,7 +665,7 @@ begin
                           ['01', '02', '03', '04', '05', '06', '07', '10', '11', '13',
                            '16', '17', '18', '19', '20', '21', '22', '23', '24', '25',
                            '26', '27', '30', '31', '32', '33', '35', '40', '41', '43',
-                           '44', '50', '60', '70', '71', '72', '73', '91', '  '],
+                           '44', '50', '60', '70', '71', '72', '73', '91', '45', '47', '  '],
                          [flCreditoContaCorrente, flChequePagamento, flDocTed,
                           flCartaoSalario, flCreditoContaPoupanca, flCreditoContaCorrenteMesmaTitularidade, flDocMesmaTitularidade, flOPDisposicao,
                           flPagamentoContas, flPagamentoConcessionarias, flTributoDARFNormal, flTributoGPS,
@@ -480,7 +682,7 @@ begin
                           flDebitoContaCorrente, flCartaoSalarioItau,
                           flExtratoGestaoCaixa, flDepositoJudicialContaCorrente,
                           flDepositoJudicialPoupanca, flExtratoContaInvestimento,
-                          flTributoGNRe, flNenhum]);
+                          flTributoGNRe, flPIXTransferencia, flPIXQRCode, flNenhum]);
 end;
 
 function TpMovimentoToStr(const t: TTipoMovimento): String;
@@ -554,6 +756,14 @@ begin
                            itIPVA, itLicenciamento, itDPVAT]);
 end;
 
+function StrToIndTributo(var ok: boolean; const s:string): TIndTributo;
+begin
+  result := StrToEnumerado(ok, s,
+                           ['00', '16', '18', '17', '21', '25', '26', '27'],
+                           [itNenhum, itDANFNormal, itDARFSimples, itGPS, itDARJ,
+                           itIPVA, itLicenciamento, itDPVAT]);
+end;
+
 function TpOperacaoToStr(const t: TTipoOperacao): String;
 begin
   result := EnumeradoToStr(t, ['C', 'D', 'E', 'G', 'I', 'R', 'T'],
@@ -623,6 +833,18 @@ begin
                                    ReclamatoriaTrabalhistaCNPJ]);
 end;
 
+function TipoChavePixToStr(const t: TTipoChavePIX): String;
+begin
+  result := EnumeradoToStr(t, ['  ', '01', '02', '03', '04'],
+                  [tcpnenhum, tcpTelefone, tcpEmail, tcpCPFCNPJ, tcpAleatoria]);
+end;
+
+function StrToTipoChavePIX(var ok:boolean; const s: string): TTipoChavePIX;
+begin
+  result := StrToEnumerado(ok, s, ['', '  ', '01', '02', '03', '04'],
+       [tcpNenhum, tcpNenhum, tcpTelefone, tcpEmail, tcpCPFCNPJ, tcpAleatoria]);
+end;
+
 function TpTributoToStr(const t: TTipoTributo): String;
 begin
   Result := EnumeradoToStr(t, ['01', '02', '03', '04', '05', '07', '08', '', '11'],
@@ -630,242 +852,266 @@ begin
                              ttIPVA, ttDPVAT, ttLicenciamento, ttFGTS])
 end;
 
-function DescricaoRetornoItau(const ADesc: string): string;
+function LinhaDigitavelParaBarras(const linha:string):string;
 begin
-  if ADesc = '00' then
-    Result := 'PAGAMENTO EFETUADO'
-  else if ADesc = 'AE' then
-    Result := 'DATA DE PAGAMENTO ALTERADA'
-  else if ADesc = 'AG' then
-    Result := 'NÚMERO DO LOTE INVÁLIDO'
-  else if ADesc = 'AH' then
-    Result := 'NÚMERO SEQUENCIAL DO REGISTRO NO LOTE INVÁLIDO'
-  else if ADesc = 'AI' then
-    Result := 'PRODUTO DEMONSTRATIVO DE PAGAMENTO NÃO CONTRATADO'
-  else if ADesc = 'AJ' then
-    Result := 'TIPO DE MOVIMENTO INVÁLIDO'
-  else if ADesc = 'AL' then
-    Result := 'CÓDIGO DO BANCO FAVORECIDO INVÁLIDO'
-  else if ADesc = 'AM' then
-    Result := 'AGÊNCIA DO FAVORECIDO INVÁLIDA'
-  else if ADesc = 'AN' then
-    Result := 'CONTA CORRENTE DO FAVORECIDO INVÁLIDA / CONTA INVESTIMENTO EXTINTA EM 30/04/2011'
-  else if ADesc = 'AO' then
-    Result := 'NOME DO FAVORECIDO INVÁLIDO'
-  else if ADesc = 'AP' then
-    Result := 'DATA DE PAGAMENTO / DATA DE VALIDADE / HORA DE LANÇAMENTO / ARRECADAÇÃO / APURAÇÃO INVÁLIDA'
-  else if ADesc = 'AQ' then
-    Result := 'QUANTIDADE DE REGISTROS MAIOR QUE 999999'
-  else if ADesc = 'AR' then
-    Result := 'VALOR ARRECADADO / LANÇAMENTO INVÁLIDO'
-  else if ADesc = 'BC' then
-    Result := 'NOSSO NÚMERO INVÁLIDO'
-  else if ADesc = 'BD' then
-    Result := 'PAGAMENTO AGENDADO'
-  else if ADesc = 'BDCI' then
-    Result := 'PAGAMENTO ACATADO, PORÉM O CPF/CNPJ É INVÁLIDO.'
-  else if ADesc = 'BDCD' then
-    Result := 'PAGAMENTO ACATADO, PORÉM O CPF/CNPJ INFORMADO NÃO É O MESMO QUE ESTÁ CADASTRADO PARA A AGÊNCIA CONTA CREDITADA'
-  else if ADesc = 'BDCN' then
-    Result := 'PAGAMENTO ACATADO, PORÉM A AGÊNCIA/CONTA INFORMADA (AINDA) NÃO EXISTE'
-  else if ADesc = 'BE' then
-    Result := 'PAGAMENTO AGENDADO COM FORMA ALTEARADA PARA OP'
-  else if ADesc = 'BI' then
-    Result := 'CNPJ/CPF DO BENEFICIÁRIO INVÁLIDO NO SEGMENTO J-52 ou B INVÁLIDO'
-  else if ADesc = 'BL' then
-    Result := 'VALOR DA PARCELA INVÁLIDO'
-  else if ADesc = 'CD' then
-    Result := 'CNPJ / CPF INFORMADO DIVERGENTE DO CADASTRADO'
-  else if ADesc = 'CE' then
-    Result := 'PAGAMENTO CANCELADO'
-  else if ADesc = 'CF' then
-    Result := 'VALOR DO DOCUMENTO INVÁLIDO'
-  else if ADesc = 'CG' then
-    Result := 'VALOR DO ABATIMENTO INVÁLIDO'
-  else if ADesc = 'CH' then
-    Result := 'VALOR DO DESCONTO INVÁLIDO'
-  else if ADesc = 'CI' then
-    Result := 'CNPJ / CPF / IDENTIFICADOR / INSCRIÇÃO ESTADUAL / INSCRIÇÃO NO CAD / ICMS INVÁLIDO'
-  else if ADesc = 'CJ' then
-    Result := 'VALOR DA MULTA INVÁLIDO'
-  else if ADesc = 'CK' then
-    Result := 'TIPO DE INSCRIÇÃO INVÁLIDA'
-  else if ADesc = 'CL' then
-    Result := 'VALOR DO INSS INVÁLIDO'
-  else if ADesc = 'CM' then
-    Result := 'VALOR DO COFINS INVÁLIDO'
-  else if ADesc = 'CN' then
-    Result := 'CONTA NÃO CADASTRADA'
-  else if ADesc = 'CO' then
-    Result := 'VALOR DE OUTRAS ENTIDADES INVÁLIDO'
-  else if ADesc = 'CP' then
-    Result := 'CONFIRMAÇÃO DE OP CUMPRIDA'
-  else if ADesc = 'CQ' then
-    Result := 'SOMA DAS FATURAS DIFERE DO PAGAMENTO'
-  else if ADesc = 'CR' then
-    Result := 'VALOR DO CSLL INVÁLIDO'
-  else if ADesc = 'CS' then
-    Result := 'DATA DE VENCIMENTO DA FATURA INVÁLIDA'
-  else if ADesc = 'DA' then
-    Result := 'NÚMERO DE DEPEND. SALÁRIO FAMILIA INVALIDO'
-  else if ADesc = 'DB' then
-    Result := 'NÚMERO DE HORAS SEMANAIS INVÁLIDO'
-  else if ADesc = 'DC' then
-    Result := 'SALÁRIO DE CONTRIBUIÇÃO INSS INVÁLIDO'
-  else if ADesc = 'DD' then
-    Result := 'SALÁRIO DE CONTRIBUIÇÃO FGTS INVÁLIDO'
-  else if ADesc = 'DE' then
-    Result := 'VALOR TOTAL DOS PROVENTOS INVÁLIDO'
-  else if ADesc = 'DF' then
-    Result := 'VALOR TOTAL DOS DESCONTOS INVÁLIDO'
-  else if ADesc = 'DG' then
-    Result := 'VALOR LÍQUIDO NÃO NUMÉRICO'
-  else if ADesc = 'DH' then
-    Result := 'VALOR LIQ. INFORMADO DIFERE DO CALCULADO'
-  else if ADesc = 'DI' then
-    Result := 'VALOR DO SALÁRIO-BASE INVÁLIDO'
-  else if ADesc = 'DJ' then
-    Result := 'BASE DE CÁLCULO IRRF INVÁLIDA'
-  else if ADesc = 'DK' then
-    Result := 'BASE DE CÁLCULO FGTS INVÁLIDA'
-  else if ADesc = 'DL' then
-    Result := 'FORMA DE PAGAMENTO INCOMPATÍVEL COM HOLERITE'
-  else if ADesc = 'DM' then
-    Result := 'E-MAIL DO FAVORECIDO INVÁLIDO'
-  else if ADesc = 'DV' then
-    Result := 'DOC / TED DEVOLVIDO PELO BANCO FAVORECIDO'
-  else if ADesc = 'D0' then
-    Result := 'FINALIDADE DO HOLERITE INVÁLIDA'
-  else if ADesc = 'D1' then
-    Result := 'MÊS DE COMPETENCIA DO HOLERITE INVÁLIDA'
-  else if ADesc = 'D2' then
-    Result := 'DIA DA COMPETENCIA DO HOLETITE INVÁLIDA'
-  else if ADesc = 'D3' then
-    Result := 'CENTRO DE CUSTO INVÁLIDO'
-  else if ADesc = 'D4' then
-    Result := 'CAMPO NUMÉRICO DA FUNCIONAL INVÁLIDO'
-  else if ADesc = 'D5' then
-    Result := 'DATA INÍCIO DE FÉRIAS NÃO NUMÉRICA'
-  else if ADesc = 'D6' then
-    Result := 'DATA INÍCIO DE FÉRIAS INCONSISTENTE'
-  else if ADesc = 'D7' then
-    Result := 'DATA FIM DE FÉRIAS NÃO NUMÉRICO'
-  else if ADesc = 'D8' then
-    Result := 'DATA FIM DE FÉRIAS INCONSISTENTE'
-  else if ADesc = 'D9' then
-    Result := 'NÚMERO DE DEPENDENTES IR INVÁLIDO'
-  else if ADesc = 'EM' then
-    Result := 'CONFIRMAÇÃO DE OP EMITIDA'
-  else if ADesc = 'EX' then
-    Result := 'DEVOLUÇÃO DE OP NÃO SACADA PELO FAVORECIDO'
-  else if ADesc = 'E0' then
-    Result := 'TIPO DE MOVIMENTO HOLERITE INVÁLIDO'
-  else if ADesc = 'E1' then
-    Result := 'VALOR 01 DO HOLERITE / INFORME INVÁLIDO'
-  else if ADesc = 'E2' then
-    Result := 'VALOR 02 DO HOLERITE / INFORME INVÁLIDO'
-  else if ADesc = 'E3' then
-    Result := 'VALOR 03 DO HOLERITE / INFORME INVÁLIDO'
-  else if ADesc = 'E4' then
-    Result := 'VALOR 04 DO HOLERITE / INFORME INVÁLIDO'
-  else if ADesc = 'FC' then
-    Result := 'PAGAMENTO EFETUADO ATRAVÉS DE FINANCIAMENTO COMPROR'
-  else if ADesc = 'FD' then
-    Result := 'PAGAMENTO EFETUADO ATRAVÉS DE FINANCIAMENTO DESCOMPROR'
-  else if ADesc = 'HA' then
-    Result := 'ERRO NO HEADER DE ARQUIVO'
-  else if ADesc = 'HM' then
-    Result := 'ERRO NO HEADER DE LOTE'
-  else if ADesc = 'IB' then
-    Result := 'VALOR E/OU DATA DO DOCUMENTO INVÁLIDO'
-  else if ADesc = 'IC' then
-    Result := 'VALOR DO ABATIMENTO INVÁLIDO'
-  else if ADesc = 'ID' then
-    Result := 'VALOR DO DESCONTO INVÁLIDO'
-  else if ADesc = 'IE' then
-    Result := 'VALOR DA MORA INVÁLIDO'
-  else if ADesc = 'IF' then
-    Result := 'VALOR DA MULTA INVÁLIDO'
-  else if ADesc = 'IG' then
-    Result := 'VALOR DA DEDUÇÃO INVÁLIDO'
-  else if ADesc = 'IH' then
-    Result := 'VALOR DO ACRÉSCIMO INVÁLIDO'
-  else if ADesc = 'II' then
-    Result := 'DATA DE VENCIMENTO INVÁLIDA'
-  else if ADesc = 'IJ' then
-    Result := 'COMPETÊNCIA / PERÍODO REFERÊNCIA / PARCELA INVÁLIDA'
-  else if ADesc = 'IK' then
-    Result := 'TRIBUTO NÃO LIQUIDÁVEL VIA SISPAG OU NÃO CONVENIADO COM ITAÚ'
-  else if ADesc = 'IL' then
-    Result := 'CÓDIGO DE PAGAMENTO / EMPRESA /RECEITA INVÁLIDO'
-  else if ADesc = 'IM' then
-    Result := 'TIPO X FORMA NÃO COMPATÍVEL'
-  else if ADesc = 'IN' then
-    Result := 'BANCO/AGENCIA NÃO CADASTRADOS'
-  else if ADesc = 'IO' then
-    Result := 'DAC / VALOR / COMPETÊNCIA / IDENTIFICADOR DO LACRE INVÁLIDO'
-  else if ADesc = 'IP' then
-    Result := 'DAC DO CÓDIGO DE BARRAS INVÁLIDO'
-  else if ADesc = 'IQ' then
-    Result := 'DÍVIDA ATIVA OU NÚMERO DE ETIQUETA INVÁLIDO'
-  else if ADesc = 'IR' then
-    Result := 'PAGAMENTO ALTERADO'
-  else if ADesc = 'IS' then
-    Result := 'CONCESSIONÁRIA NÃO CONVENIADA COM ITAÚ'
-  else if ADesc = 'IT' then
-    Result := 'VALOR DO TRIBUTO INVÁLIDO'
-  else if ADesc = 'IU' then
-    Result := 'VALOR DA RECEITA BRUTA ACUMULADA INVÁLIDO'
-  else if ADesc = 'IV' then
-    Result := 'NÚMERO DO DOCUMENTO ORIGEM / REFERÊNCIA INVÁLIDO'
-  else if ADesc = 'IX' then
-    Result := 'CÓDIGO DO PRODUTO INVÁLIDO'
-  else if ADesc = 'LA' then
-    Result := 'DATA DE PAGAMENTO DE UM LOTE ALTERADA'
-  else if ADesc = 'LC' then
-    Result := 'LOTE DE PAGAMENTOS CANCELADO'
-  else if ADesc = 'NA' then
-    Result := 'PAGAMENTO CANCELADO POR FALTA DE AUTORIZAÇÃO'
-  else if ADesc = 'NB' then
-    Result := 'IDENTIFICAÇÃO DO TRIBUTO INVÁLIDA'
-  else if ADesc = 'NC' then
-    Result := 'EXERCÍCIO (ANO BASE) INVÁLIDO'
-  else if ADesc = 'ND' then
-    Result := 'CÓDIGO RENAVAM NÃO ENCONTRADO/INVÁLIDO'
-  else if ADesc = 'NE' then
-    Result := 'UF INVÁLIDA'
-  else if ADesc = 'NF' then
-    Result := 'CÓDIGO DO MUNICÍPIO INVÁLIDO'
-  else if ADesc = 'NG' then
-    Result := 'PLACA INVÁLIDA'
-  else if ADesc = 'NH' then
-    Result := 'OPÇÃO/PARCELA DE PAGAMENTO INVÁLIDA'
-  else if ADesc = 'NI' then
-    Result := 'TRIBUTO JÁ FOI PAGO OU ESTÁ VENCIDO'
-  else if ADesc = 'NR' then
-    Result := 'OPERAÇÃO NÃO REALIZADA'
-  else if ADesc = 'PD' then
-    Result := 'AQUISIÇÃO CONFIRMADA (EQUIVALE A OCORRÊNCIA 02 NO LAYOUT DE RISCO SACADO)'
-  else if ADesc = 'RJ' then
-    Result := 'REGISTRO REJEITADO'
-  else if ADesc = 'RS' then
-    Result := 'PAGAMENTO DISPONÍVEL PARA ANTECIPAÇÃO NO RISCO SACADO – MODALIDADE RISCO SACADO PÓS AUTORIZADO'
-  else if ADesc = 'SS' then
-    Result := 'PAGAMENTO CANCELADO POR INSUFICIÊNCIA DE SALDO/LIMITE DIÁRIO DE PAGTO'
-  else if ADesc = 'TA' then
-    Result := 'LOTE NÃO ACEITO - TOTAIS DO LOTE COM DIFERENÇA'
-  else if ADesc = 'TI' then
-    Result := 'TITULARIDADE INVÁLIDA'
-  else if ADesc = 'X1' then
-    Result := 'FORMA INCOMPATÍVEL COM LAYOUT 010'
-  else if ADesc = 'X2' then
-    Result := 'NÚMERO DA NOTA FISCAL INVÁLIDO'
-  else if ADesc = 'X3' then
-    Result := 'IDENTIFICADOR DE NF/CNPJ INVÁLIDO'
-  else if ADesc = 'X4' then
-    Result := 'FORMA 32 INVÁLIDA'
+  if length(linha) <> 47 then
+    raise Exception.Create('O tamanho da string não corresponde a uma linha digitável!')
   else
-    Result := 'RETORNO NÃO IDENTIFICADO'
+    Result := copy(linha, 01, 01) + copy(linha, 02, 03) + copy(linha, 33, 01) +
+           copy(linha, 34, 04) + copy(linha, 38, 10) + copy(linha, 05, 05) +
+           copy(linha, 11, 10) + copy(linha, 22, 10);
+end;
+
+function DescricaoRetornoItau(ADesc: string): string;
+
+  function GetOcorrencia(Codigo:string): string;
+  begin
+    if Codigo = '00' then
+      Result := 'PAGAMENTO EFETUADO'
+    else if Codigo = 'AE' then
+      Result := 'DATA DE PAGAMENTO ALTERADA'
+    else if Codigo = 'AG' then
+      Result := 'NÚMERO DO LOTE INVÁLIDO'
+    else if Codigo = 'AH' then
+      Result := 'NÚMERO SEQUENCIAL DO REGISTRO NO LOTE INVÁLIDO'
+    else if Codigo = 'AI' then
+      Result := 'PRODUTO DEMONSTRATIVO DE PAGAMENTO NÃO CONTRATADO'
+    else if Codigo = 'AJ' then
+      Result := 'TIPO DE MOVIMENTO INVÁLIDO'
+    else if Codigo = 'AL' then
+      Result := 'CÓDIGO DO BANCO FAVORECIDO INVÁLIDO'
+    else if Codigo = 'AM' then
+      Result := 'AGÊNCIA DO FAVORECIDO INVÁLIDA'
+    else if Codigo = 'AN' then
+      Result := 'CONTA CORRENTE DO FAVORECIDO INVÁLIDA / CONTA INVESTIMENTO EXTINTA EM 30/04/2011'
+    else if Codigo = 'AO' then
+      Result := 'NOME DO FAVORECIDO INVÁLIDO'
+    else if Codigo = 'AP' then
+      Result := 'DATA DE PAGAMENTO / DATA DE VALIDADE / HORA DE LANÇAMENTO / ARRECADAÇÃO / APURAÇÃO INVÁLIDA'
+    else if Codigo = 'AQ' then
+      Result := 'QUANTIDADE DE REGISTROS MAIOR QUE 999999'
+    else if Codigo = 'AR' then
+      Result := 'VALOR ARRECADADO / LANÇAMENTO INVÁLIDO'
+    else if Codigo = 'BC' then
+      Result := 'NOSSO NÚMERO INVÁLIDO'
+    else if Codigo = 'BD' then
+      Result := 'PAGAMENTO AGENDADO'
+    else if Codigo = 'BDCI' then
+      Result := 'PAGAMENTO ACATADO, PORÉM O CPF/CNPJ É INVÁLIDO.'
+    else if Codigo = 'BDCD' then
+      Result := 'PAGAMENTO ACATADO, PORÉM O CPF/CNPJ INFORMADO NÃO É O MESMO QUE ESTÁ CADASTRADO PARA A AGÊNCIA CONTA CREDITADA'
+    else if Codigo = 'BDCN' then
+      Result := 'PAGAMENTO ACATADO, PORÉM A AGÊNCIA/CONTA INFORMADA (AINDA) NÃO EXISTE'
+    else if Codigo = 'BE' then
+      Result := 'PAGAMENTO AGENDADO COM FORMA ALTEARADA PARA OP'
+    else if Codigo = 'BI' then
+      Result := 'CNPJ/CPF DO BENEFICIÁRIO INVÁLIDO NO SEGMENTO J-52 ou B INVÁLIDO'
+    else if Codigo = 'BL' then
+      Result := 'VALOR DA PARCELA INVÁLIDO'
+    else if Codigo = 'CD' then
+      Result := 'CNPJ / CPF INFORMADO DIVERGENTE DO CADASTRADO'
+    else if Codigo = 'CE' then
+      Result := 'PAGAMENTO CANCELADO'
+    else if Codigo = 'CF' then
+      Result := 'VALOR DO DOCUMENTO INVÁLIDO'
+    else if Codigo = 'CG' then
+      Result := 'VALOR DO ABATIMENTO INVÁLIDO'
+    else if Codigo = 'CH' then
+      Result := 'VALOR DO DESCONTO INVÁLIDO'
+    else if Codigo = 'CI' then
+      Result := 'CNPJ / CPF / IDENTIFICADOR / INSCRIÇÃO ESTADUAL / INSCRIÇÃO NO CAD / ICMS INVÁLIDO'
+    else if Codigo = 'CJ' then
+      Result := 'VALOR DA MULTA INVÁLIDO'
+    else if Codigo = 'CK' then
+      Result := 'TIPO DE INSCRIÇÃO INVÁLIDA'
+    else if Codigo = 'CL' then
+      Result := 'VALOR DO INSS INVÁLIDO'
+    else if Codigo = 'CM' then
+      Result := 'VALOR DO COFINS INVÁLIDO'
+    else if Codigo = 'CN' then
+      Result := 'CONTA NÃO CADASTRADA'
+    else if Codigo = 'CO' then
+      Result := 'VALOR DE OUTRAS ENTIDADES INVÁLIDO'
+    else if Codigo = 'CP' then
+      Result := 'CONFIRMAÇÃO DE OP CUMPRIDA'
+    else if Codigo = 'CQ' then
+      Result := 'SOMA DAS FATURAS DIFERE DO PAGAMENTO'
+    else if Codigo = 'CR' then
+      Result := 'VALOR DO CSLL INVÁLIDO'
+    else if Codigo = 'CS' then
+      Result := 'DATA DE VENCIMENTO DA FATURA INVÁLIDA'
+    else if Codigo = 'DA' then
+      Result := 'NÚMERO DE DEPEND. SALÁRIO FAMILIA INVALIDO'
+    else if Codigo = 'DB' then
+      Result := 'NÚMERO DE HORAS SEMANAIS INVÁLIDO'
+    else if Codigo = 'DC' then
+      Result := 'SALÁRIO DE CONTRIBUIÇÃO INSS INVÁLIDO'
+    else if Codigo = 'DD' then
+      Result := 'SALÁRIO DE CONTRIBUIÇÃO FGTS INVÁLIDO'
+    else if Codigo = 'DE' then
+      Result := 'VALOR TOTAL DOS PROVENTOS INVÁLIDO'
+    else if Codigo = 'DF' then
+      Result := 'VALOR TOTAL DOS DESCONTOS INVÁLIDO'
+    else if Codigo = 'DG' then
+      Result := 'VALOR LÍQUIDO NÃO NUMÉRICO'
+    else if Codigo = 'DH' then
+      Result := 'VALOR LIQ. INFORMADO DIFERE DO CALCULADO'
+    else if Codigo = 'DI' then
+      Result := 'VALOR DO SALÁRIO-BASE INVÁLIDO'
+    else if Codigo = 'DJ' then
+      Result := 'BASE DE CÁLCULO IRRF INVÁLIDA'
+    else if Codigo = 'DK' then
+      Result := 'BASE DE CÁLCULO FGTS INVÁLIDA'
+    else if Codigo = 'DL' then
+      Result := 'FORMA DE PAGAMENTO INCOMPATÍVEL COM HOLERITE'
+    else if Codigo = 'DM' then
+      Result := 'E-MAIL DO FAVORECIDO INVÁLIDO'
+    else if Codigo = 'DV' then
+      Result := 'DOC / TED DEVOLVIDO PELO BANCO FAVORECIDO'
+    else if Codigo = 'D0' then
+      Result := 'FINALIDADE DO HOLERITE INVÁLIDA'
+    else if Codigo = 'D1' then
+      Result := 'MÊS DE COMPETENCIA DO HOLERITE INVÁLIDA'
+    else if Codigo = 'D2' then
+      Result := 'DIA DA COMPETENCIA DO HOLETITE INVÁLIDA'
+    else if Codigo = 'D3' then
+      Result := 'CENTRO DE CUSTO INVÁLIDO'
+    else if Codigo = 'D4' then
+      Result := 'CAMPO NUMÉRICO DA FUNCIONAL INVÁLIDO'
+    else if Codigo = 'D5' then
+      Result := 'DATA INÍCIO DE FÉRIAS NÃO NUMÉRICA'
+    else if Codigo = 'D6' then
+      Result := 'DATA INÍCIO DE FÉRIAS INCONSISTENTE'
+    else if Codigo = 'D7' then
+      Result := 'DATA FIM DE FÉRIAS NÃO NUMÉRICO'
+    else if Codigo = 'D8' then
+      Result := 'DATA FIM DE FÉRIAS INCONSISTENTE'
+    else if Codigo = 'D9' then
+      Result := 'NÚMERO DE DEPENDENTES IR INVÁLIDO'
+    else if Codigo = 'EM' then
+      Result := 'CONFIRMAÇÃO DE OP EMITIDA'
+    else if Codigo = 'EX' then
+      Result := 'DEVOLUÇÃO DE OP NÃO SACADA PELO FAVORECIDO'
+    else if Codigo = 'E0' then
+      Result := 'TIPO DE MOVIMENTO HOLERITE INVÁLIDO'
+    else if Codigo = 'E1' then
+      Result := 'VALOR 01 DO HOLERITE / INFORME INVÁLIDO'
+    else if Codigo = 'E2' then
+      Result := 'VALOR 02 DO HOLERITE / INFORME INVÁLIDO'
+    else if Codigo = 'E3' then
+      Result := 'VALOR 03 DO HOLERITE / INFORME INVÁLIDO'
+    else if Codigo = 'E4' then
+      Result := 'VALOR 04 DO HOLERITE / INFORME INVÁLIDO'
+    else if Codigo = 'FC' then
+      Result := 'PAGAMENTO EFETUADO ATRAVÉS DE FINANCIAMENTO COMPROR'
+    else if Codigo = 'FD' then
+      Result := 'PAGAMENTO EFETUADO ATRAVÉS DE FINANCIAMENTO DESCOMPROR'
+    else if Codigo = 'HA' then
+      Result := 'ERRO NO HEADER DE ARQUIVO'
+    else if Codigo = 'HM' then
+      Result := 'ERRO NO HEADER DE LOTE'
+    else if Codigo = 'IB' then
+      Result := 'VALOR E/OU DATA DO DOCUMENTO INVÁLIDO'
+    else if Codigo = 'IC' then
+      Result := 'VALOR DO ABATIMENTO INVÁLIDO'
+    else if Codigo = 'ID' then
+      Result := 'VALOR DO DESCONTO INVÁLIDO'
+    else if Codigo = 'IE' then
+      Result := 'VALOR DA MORA INVÁLIDO'
+    else if Codigo = 'IF' then
+      Result := 'VALOR DA MULTA INVÁLIDO'
+    else if Codigo = 'IG' then
+      Result := 'VALOR DA DEDUÇÃO INVÁLIDO'
+    else if Codigo = 'IH' then
+      Result := 'VALOR DO ACRÉSCIMO INVÁLIDO'
+    else if Codigo = 'II' then
+      Result := 'DATA DE VENCIMENTO INVÁLIDA'
+    else if Codigo = 'IJ' then
+      Result := 'COMPETÊNCIA / PERÍODO REFERÊNCIA / PARCELA INVÁLIDA'
+    else if Codigo = 'IK' then
+      Result := 'TRIBUTO NÃO LIQUIDÁVEL VIA SISPAG OU NÃO CONVENIADO COM ITAÚ'
+    else if Codigo = 'IL' then
+      Result := 'CÓDIGO DE PAGAMENTO / EMPRESA /RECEITA INVÁLIDO'
+    else if Codigo = 'IM' then
+      Result := 'TIPO X FORMA NÃO COMPATÍVEL'
+    else if Codigo = 'IN' then
+      Result := 'BANCO/AGENCIA NÃO CADASTRADOS'
+    else if Codigo = 'IO' then
+      Result := 'DAC / VALOR / COMPETÊNCIA / IDENTIFICADOR DO LACRE INVÁLIDO'
+    else if Codigo = 'IP' then
+      Result := 'DAC DO CÓDIGO DE BARRAS INVÁLIDO'
+    else if Codigo = 'IQ' then
+      Result := 'DÍVIDA ATIVA OU NÚMERO DE ETIQUETA INVÁLIDO'
+    else if Codigo = 'IR' then
+      Result := 'PAGAMENTO ALTERADO'
+    else if Codigo = 'IS' then
+      Result := 'CONCESSIONÁRIA NÃO CONVENIADA COM ITAÚ'
+    else if Codigo = 'IT' then
+      Result := 'VALOR DO TRIBUTO INVÁLIDO'
+    else if Codigo = 'IU' then
+      Result := 'VALOR DA RECEITA BRUTA ACUMULADA INVÁLIDO'
+    else if Codigo = 'IV' then
+      Result := 'NÚMERO DO DOCUMENTO ORIGEM / REFERÊNCIA INVÁLIDO'
+    else if Codigo = 'IX' then
+      Result := 'CÓDIGO DO PRODUTO INVÁLIDO'
+    else if Codigo = 'LA' then
+      Result := 'DATA DE PAGAMENTO DE UM LOTE ALTERADA'
+    else if Codigo = 'LC' then
+      Result := 'LOTE DE PAGAMENTOS CANCELADO'
+    else if Codigo = 'NA' then
+      Result := 'PAGAMENTO CANCELADO POR FALTA DE AUTORIZAÇÃO'
+    else if Codigo = 'NB' then
+      Result := 'IDENTIFICAÇÃO DO TRIBUTO INVÁLIDA'
+    else if Codigo = 'NC' then
+      Result := 'EXERCÍCIO (ANO BASE) INVÁLIDO'
+    else if Codigo = 'ND' then
+      Result := 'CÓDIGO RENAVAM NÃO ENCONTRADO/INVÁLIDO'
+    else if Codigo = 'NE' then
+      Result := 'UF INVÁLIDA'
+    else if Codigo = 'NF' then
+      Result := 'CÓDIGO DO MUNICÍPIO INVÁLIDO'
+    else if Codigo = 'NG' then
+      Result := 'PLACA INVÁLIDA'
+    else if Codigo = 'NH' then
+      Result := 'OPÇÃO/PARCELA DE PAGAMENTO INVÁLIDA'
+    else if Codigo = 'NI' then
+      Result := 'TRIBUTO JÁ FOI PAGO OU ESTÁ VENCIDO'
+    else if Codigo = 'NR' then
+      Result := 'OPERAÇÃO NÃO REALIZADA'
+    else if Codigo = 'PD' then
+      Result := 'AQUISIÇÃO CONFIRMADA (EQUIVALE A OCORRÊNCIA 02 NO LAYOUT DE RISCO SACADO)'
+    else if Codigo = 'RJ' then
+      Result := 'REGISTRO REJEITADO'
+    else if Codigo = 'RS' then
+      Result := 'PAGAMENTO DISPONÍVEL PARA ANTECIPAÇÃO NO RISCO SACADO – MODALIDADE RISCO SACADO PÓS AUTORIZADO'
+    else if Codigo = 'SS' then
+      Result := 'PAGAMENTO CANCELADO POR INSUFICIÊNCIA DE SALDO/LIMITE DIÁRIO DE PAGTO'
+    else if Codigo = 'TA' then
+      Result := 'LOTE NÃO ACEITO - TOTAIS DO LOTE COM DIFERENÇA'
+    else if Codigo = 'TI' then
+      Result := 'TITULARIDADE INVÁLIDA'
+    else if Codigo = 'X1' then
+      Result := 'FORMA INCOMPATÍVEL COM LAYOUT 010'
+    else if Codigo = 'X2' then
+      Result := 'NÚMERO DA NOTA FISCAL INVÁLIDO'
+    else if Codigo = 'X3' then
+      Result := 'IDENTIFICADOR DE NF/CNPJ INVÁLIDO'
+    else if Codigo = 'X4' then
+      Result := 'FORMA 32 INVÁLIDA'
+    else
+      Result := 'RETORNO NÃO IDENTIFICADO'
+  end;
+
+begin
+  // O código de ocorrencia pode ter até 5 códigos de 2 dígitos cada
+  while length(ADesc) > 0 do
+  begin
+    Result := Result + '/' + GetOcorrencia(Copy(ADesc, 1, 2));
+    Delete(ADesc, 1, 2);
+  end;
+
+  if Result <> '' then
+    Delete(Result, 1, 1);
 end;
 
 function DescricaoRetornoSantander(const ADesc: string): string;

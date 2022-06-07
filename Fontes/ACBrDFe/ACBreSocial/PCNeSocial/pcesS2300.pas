@@ -54,7 +54,7 @@ uses
   {$ELSE}
    Contnrs,
   {$IFEND}
-  ACBrBase, pcnConversao, ACBrUtil, pcnConsts,
+  ACBrBase, pcnConversao, pcnConsts,
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
@@ -132,6 +132,7 @@ type
     Ftermino: TTermino;
     FMudancaCPF: TMudancaCPF2;
     Fmatricula: String;
+    FnrProcTrab: String;
   public
     constructor Create;
     destructor  Destroy; override;
@@ -145,6 +146,7 @@ type
     property afastamento: TAfastamento read Fafastamento write Fafastamento;
     property termino: TTermino read Ftermino write Ftermino;
     property matricula: String read Fmatricula write FMatricula;
+    property nrProcTrab: String read FnrProcTrab write FnrProcTrab;
   end;
 
   TinfoComplementares = class(TObject)
@@ -230,6 +232,9 @@ implementation
 
 uses
   IniFiles,
+  ACBrUtil.Base,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
   ACBreSocial;
 
 { TS2300Collection }
@@ -464,7 +469,10 @@ begin
     
     if VersaoDF > ve02_05_00 then
     begin
-      Gerador.wCampo(tcStr, '', 'tpRegTrab',   1,  1, 0, eSTpRegTrabToStr(obj.tpRegTrab));
+      //preenchimento é obrigatório e exclusivo se infoDirigenteSindical/categOrig corresponder a "Empregado" ou "Agente Público"
+      case obj.categOrig of
+        101..199, 301..399 : Gerador.wCampo(tcStr, '', 'tpRegTrab',   1,  1, 0, eSTpRegTrabToStr(obj.tpRegTrab));
+      end;
       Gerador.wCampo(tcStr, '', 'tpRegPrev',   1,  1, 1, eSTpRegPrevToStr(obj.tpRegPrev));
     end;
 
@@ -527,6 +535,9 @@ begin
 
   Gerador.wCampo(tcStr, '', 'codCateg',      0,  3, 1, obj.codCateg);
   Gerador.wCampo(tcDat, '', 'dtInicio',     10, 10, 1, obj.dtInicio);
+
+  if VersaoDF > ve02_05_00 then
+    Gerador.wCampo(tcStr, '', 'nrProcTrab',   1, 20, 0, obj.nrProcTrab);
 
   //    Validação: **Preenchimento obrigatório** para as categorias de avulso, cooperado e dirigente sindical.
   //               Não deve ser preenchido para as categorias Diretor não empregado, servidor público indicado a conselho, membro de conselho tutelar e estagiário.

@@ -103,7 +103,9 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   DSF.GravarXml, DSF.LerXml;
 
 { TACBrNFSeXWebserviceDSF }
@@ -215,7 +217,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := ParseText(AnsiString(Result), True, False);
-  Result := RemoverDeclaracaoXML(Result);
+  Result := string(NativeStringToUTF8(RemoverDeclaracaoXML(Result)));
 end;
 
 { TACBrNFSeProviderDSF }
@@ -435,6 +437,8 @@ procedure TACBrNFSeProviderDSF200.Configuracao;
 begin
   inherited Configuracao;
 
+  ConfigGeral.QuebradeLinha := '&#xD;&#xA;';
+
   with ConfigAssinar do
   begin
     Rps := True;
@@ -492,6 +496,11 @@ begin
   with ConfigAssinar do
   begin
     Rps := False;
+    ConsultarLote := True;
+    ConsultarNFSeRps := True;
+    ConsultarNFSePorFaixa := True;
+    ConsultarNFSeServicoPrestado := True;
+    ConsultarNFSeServicoTomado := True;
     CancelarNFSe := True;
     RpsGerarNFSe := True;
     RpsSubstituirNFSe := True;
