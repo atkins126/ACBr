@@ -481,14 +481,7 @@ begin
 
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
-          if Assigned(ANota) then
-            ANota.XmlNfse := ANode.OuterXml
-          else
-          begin
-            TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-            ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-          end;
-
+          ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
           SalvarXmlNfse(ANota);
         end;
       end;
@@ -705,14 +698,7 @@ begin
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
-        if Assigned(ANota) then
-          ANota.XmlNfse := ANode.OuterXml
-        else
-        begin
-          TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-          ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-        end;
-
+        ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
         SalvarXmlNfse(ANota);
 
         Response.Situacao := '4'; // Processado com sucesso pois retornou a nota
@@ -838,7 +824,7 @@ end;
 procedure TACBrNFSeProviderABRASFv2.TratarRetornoConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse);
 var
   Document: TACBrXmlDocument;
-  ANode, AuxNode: TACBrXmlNode;
+  ANode, AuxNode, AuxNodeConf: TACBrXmlNode;
   AErro: TNFSeEventoCollectionItem;
   ANota: TNotaFiscal;
   NumNFSe, NumRps: String;
@@ -880,12 +866,12 @@ begin
 
       if AuxNode <> nil then
       begin
-        AuxNode := AuxNode.Childrens.FindAnyNs('Confirmacao');
+        AuxNodeConf := AuxNode.Childrens.FindAnyNs('Confirmacao');
 
-        if AuxNode = nil then
-          AuxNode := AuxNode.Childrens.FindAnyNs('ConfirmacaoCancelamento');
+        if AuxNodeConf = nil then
+          AuxNodeConf := AuxNode.Childrens.FindAnyNs('ConfirmacaoCancelamento');
 
-        Response.DataCanc := LerDatas(ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataHora'), tcStr));
+        Response.DataCanc := LerDatas(ObterConteudoTag(AuxNodeConf.Childrens.FindAnyNs('DataHora'), tcStr));
         Response.DescSituacao := '';
 
         if Response.DataCanc > 0 then
@@ -923,14 +909,7 @@ begin
           end;
         end;
 
-        if Assigned(ANota) then
-          ANota.XmlNfse := ANode.OuterXml
-        else
-        begin
-          TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-          ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-        end;
-
+        ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
         SalvarXmlNfse(ANota);
       end
       else
@@ -1220,14 +1199,7 @@ begin
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
-        if Assigned(ANota) then
-          ANota.XmlNfse := ANode.OuterXml
-        else
-        begin
-          TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-          ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-        end;
-
+        ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
         SalvarXmlNfse(ANota);
       end;
     except
@@ -1466,14 +1438,7 @@ begin
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
-        if Assigned(ANota) then
-          ANota.XmlNfse := ANode.OuterXml
-        else
-        begin
-          TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-          ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-        end;
-
+        ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
         SalvarXmlNfse(ANota);
       end;
     except
@@ -1721,14 +1686,7 @@ begin
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
-        if Assigned(ANota) then
-          ANota.XmlNfse := ANode.OuterXml
-        else
-        begin
-          TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-          ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-        end;
-
+        ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
         SalvarXmlNfse(ANota);
       end;
     except
@@ -2213,14 +2171,7 @@ var
 
       ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
-      if Assigned(ANota) then
-        ANota.XmlNfse := ANode.OuterXml
-      else
-      begin
-        TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-        ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-      end;
-
+      ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
       SalvarXmlNfse(ANota);
       Result := NumNFSe;
     end;
@@ -2289,14 +2240,7 @@ begin
 
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
-          if Assigned(ANota) then
-            ANota.XmlNfse := ANode.OuterXml
-          else
-          begin
-            TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-            ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-          end;
-
+          ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
           SalvarXmlNfse(ANota);
         end;
         }
@@ -2334,14 +2278,7 @@ begin
 
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
-          if Assigned(ANota) then
-            ANota.XmlNfse := ANode.OuterXml
-          else
-          begin
-            TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-            ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-          end;
-
+          ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
           SalvarXmlNfse(ANota);
         end;
         }

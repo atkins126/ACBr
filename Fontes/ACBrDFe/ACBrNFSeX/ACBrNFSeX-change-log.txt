@@ -42,6 +42,101 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+
+17/06/2022
+-- Etherium.Provider --
+[*] Alterado para assinar o Rps também.
+   Por: Italo Giurizzato Junior
+
+15/06/2022
+-- ACBrNFSeXServicos --
+[*] Alterado as URLs da cidade: Alta Floresta/MT - Provedor Coplan.
+   Por: Marcus Smith
+[*] Alterado as URLs da cidade: Sinop/MT - Provedor Coplan.
+   Por: Renato E
+-- ACBrNFSeXClass --
+[*] Acrescentado a limpeza de algumas classes de lista no método Clear da classe
+    NFSe
+-- ISSDSF.GravarXml --
+[*] Alterado para opcional a tag DocTomadorEstrangeiro.
+   Por: Italo Giurizzato Junior
+
+14/06/2022
+-- DSF.GravarXml --
+[*] Incluido na Configuração a linha que define que a aliquota tem 2 casas
+    decimais.
+   Por: Italo Giurizzato Junior
+-- ISSGoiania.Provider --
+[*] Correção na sequencia de tags para extrair o retorno da consulta.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] Alterado as URLs da cidade: Videira/SC - Provedor IPM.
+   Por: Metasis Sistemas
+[*] Alterado as URLs da cidade: Guaranta do Norte/MT - Provedor Coplan.
+   Por: Francelin
+-- Diversos --
+[*] Implementado a função CarregarXmlNfse com o objetivo de simplificar o código
+    de diversos provedores.
+-- BHISS.Provider --
+[*] Nas funções que geram a requisição de envio foi trocado o CDATA pela conversão
+    do XML em String.
+-- ISSSaoPaulo.Provider --
+[*] Implementado as funções LerChaveNFe e LerChaveRPS com o objetivo de simplificar
+    o código e verificar se o componente esta carregado com o XML da NFSe ou RPS.
+   Por: Italo Giurizzato Junior
+
+10/06/2022
+-- ACBrNFSeXProviderABRASFv2 --
+[*] Correção na leitura das tags referente ao cancelamento da nota ao 
+    tratar o retorno do Consultar NFS-e por Rps.
+   Por: eazschornack
+-- ACBrNFSeXServicos --
+[*] Alterado as URLs da cidade: Barra do Garças/MT - Provedor Coplan.
+   Por: Márcio Baroni
+[+] Incluída a cidade: Corbelia/PR - Provedor IPM.
+   Por: oespiao
+
+09/06/2022
+-- ACBrNFSeXServicos --
+[+] Incluída as cidades: Campina Verde/MG, Delfinopolis/MG e Comendador Gomes/MG
+    - Provedor Horus.
+   Por: Victor Gonzales/Italo Giurizzato Junior
+[+] Incluída a cidade: Marmeleiro/PR - Provedor IPM.
+   Por: Microsys Sistemas
+
+08/06/2022
+-- ACBrNFSeXServicos --
+[+] Incluída a cidade: Fronteira/MG - Provedor Horus.
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[+] Implementado o provedor Horus para atender a cidade Fronteira/MG
+   Por: Italo Giurizzato Junior
+-- IPM.Provider --
+[*] Incluido a função TiraAcentos no TratarXmlRetornado.
+   Por: Italo Giurizzato Junior
+-- IPM.GravarXml --
+[*] Alterado a forma como é ajustado a geração da tag codigo_atividade.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] Ajustado as URLs da cidade: Itaitinga/CE - Provedor SSInformatica
+   Por: Jarbas DSW
+-- ACBrNFSeXServicos --
+[*] Incluída a cidade: Iguaba Grande/RJ - Provedor ISSDigital
+   Por: Bill Barsch
+-- SSInformatica.Provider --
+[+] Incluida a função TratarXmlRetornado para tratar o XML retornado pelo 
+    WebServico do provedor.
+   Por: Italo Giurizzato Junior
+
+07/06/2022
+-- Centi.GravarXml --
+[*] Alteração na configuração para não gerar algumas tags conforme consta no
+    Schema do provedor.
+   Por: Robson Lopes
+-- IPM.GravarXml/IPM.LerXml --
+[*] Alteração para gerar a tag codigo_atividade nos itens de serviço.
+   Por: Microsys Sistemas
+
 06/06/2022
 -- ACBrNFSeXServicos --
 [*] Incluída a cidade: Iacanga/SP - Provedor Fiorilli

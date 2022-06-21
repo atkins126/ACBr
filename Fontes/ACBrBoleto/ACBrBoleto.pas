@@ -56,7 +56,7 @@ const
   CConta      = 'CONTA';
   CTitulo     = 'TITULO';
   CWebService = 'WEBSERVICE';
-  cACBrTipoOcorrenciaDecricao: array[0..309] of String = (
+  cACBrTipoOcorrenciaDecricao: array[0..310] of String = (
     {Ocorrências para arquivo remessa}
     'Remessa Registrar',
     'Remessa Baixar',
@@ -369,7 +369,8 @@ const
     'Retorno Sustação Solicitada',
     'Retorno Título Utilizado Como Garantia em Operação de Desconto',
     'Retorno Título Descontável Com Desistência de Garantia em Operação de Desconto',
-    'Retorno Intenção de Pagamento'
+    'Retorno Intenção de Pagamento',
+    'Retorno Entrada Confirmada na CIP'
 );
 
 type
@@ -418,7 +419,8 @@ type
     cobBancoRendimento,
 	  cobBancoInter,
     cobBancoSofisaSantander,
-    cobBS2
+    cobBS2,
+    cobPenseBankAPI
     );
 
   TACBrTitulo = class;
@@ -759,7 +761,8 @@ type
     toRetornoSustacaoSolicitada,
     toRetornoTituloDescontado,
     toRetornoTituloDescontavel,
-    toRetornoIntensaoPagamento
+    toRetornoIntensaoPagamento ,
+    toRetornoEntradaConfirmadaNaCip
   );
 
   //Complemento de instrução para alterar outros dados
@@ -1054,6 +1057,8 @@ type
     FKeyUser: string;
     FScope: string;
     FIndicadorPix: boolean;
+    FIndicadorSMS: Boolean;
+    FIndicadorEmail: Boolean;
 
     procedure SetClientID(const Value: string);
     procedure SetClientSecret(const Value: string);
@@ -1069,6 +1074,9 @@ type
     property KeyUser: string read fKeyUser write setKeyUser;
     property Scope: string read fScope write setScope;
     property IndicadorPix: boolean read FIndicadorPix write SetIndicadorPix default False;
+    property IndicadorEmail: Boolean read FIndicadorEmail write FIndicadorEmail default False;
+    property IndicadorSMS: Boolean read FIndicadorSMS write FIndicadorSMS default False;
+
   end;
 
   { TACBrCedente }
@@ -1842,7 +1850,7 @@ type
 
 implementation
 
-Uses Forms, Math, dateutils, strutils,  ACBrBoletoWS,
+Uses {$IFNDEF NOGUI}Forms,{$ENDIF} Math, dateutils, strutils,  ACBrBoletoWS,
      ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime, ACBrUtil.Math,ACBrUtil.XMLHTML,
      ACBrUtil.FilesIO,
      ACBrBancoBradesco, ACBrBancoBrasil, ACBrBancoAmazonia, ACBrBancoBanestes,
@@ -1854,7 +1862,7 @@ Uses Forms, Math, dateutils, strutils,  ACBrBoletoWS,
      ACBrBancoCresolSCRS, ACBrBancoCitiBank, ACBrBancoABCBrasil, ACBrBancoDaycoval, ACBrUniprimeNortePR,
      ACBrBancoPine, ACBrBancoPineBradesco, ACBrBancoUnicredSC, ACBrBancoAlfa, ACBrBancoCresol,
      ACBrBancoBradescoMoneyPlus, ACBrBancoC6, ACBrBancoRendimento, ACBrBancoInter, ACBrBancoSofisaSantander,
-     ACBrBancoBS2;
+     ACBrBancoBS2, ACBrBancoPenseBank;
 
 {$IFNDEF FPC}
    {$R ACBrBoleto.dcr}
@@ -4380,6 +4388,7 @@ begin
      cobBancoInter           : fBancoClass := TACBrBancoInter.Create(Self);          {077}
      cobBancoSofisaSantander : fBancoClass := TACBrBancoSofisaSantander.Create(Self); {637}
      cobBS2                  : fBancoClass := TACBrBancoBS2.Create(Self);             {218}
+     cobPenseBankAPI         : fBancoClass := TACBrBancoPenseBank.Create(Self);
    else
      fBancoClass := TACBrBancoClass.create(Self);
    end;
