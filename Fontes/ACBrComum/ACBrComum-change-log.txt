@@ -37,6 +37,28 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+11/07/2022
+-- ACBrUitl.DateTime --
+[-] Correção de AV ao enviar uma string vazia para função 'TimezoneToBias()'
+[*] Remoção de warning
+
+11/07/2022
+-- ACBrUtil.DateTime --
+[+] Inclusão de funções para conversões entre a string em Timezone e Bias 
+    (Bias = minutos de diferença entre UTC e o horário local)
+	Por: Elias César
+
+29/06/2022
+-- ACBrUtil.DateTime --
+[*] Possível correção para datas que estejam no formato: "2022-06-27-03:00".
+   Por: Gil Spider
+
+24/06/2022
+-- ACBrUtil.DateTime --
+[*] Incluida a função AjustarData com o objetivo de detectar datas que tem
+    apenas 1 digito no dia e ou no mês e mudar para 2 digitos.
+   Por: Italo Giurizzato Junior
+
 20/06/2022
 -- ACBrUtil.DateTime --
 [*] Incluida a função ParseDataHora com o objetivo de formatar a data/hora

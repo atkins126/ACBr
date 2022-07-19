@@ -57,6 +57,7 @@ type
     procedure LerInfNfse(const ANode: TACBrXmlNode);
     procedure LerIdentificacaoRps(const ANode: TACBrXmlNode);
     procedure LerServico(const ANode: TACBrXmlNode);
+    procedure LerItensServico(const ANode: TACBrXmlNode);
     procedure LerValores(const ANode: TACBrXmlNode);
 
     procedure LerPrestadorServico(const ANode: TACBrXmlNode);
@@ -398,6 +399,7 @@ begin
       end;
 
       InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('InscricaoMunicipal'), tcStr);
+      InscricaoEstadual := ObterConteudo(AuxNode.Childrens.FindAnyNs('InscricaoEstadual'), tcStr);
     end;
   end;
 end;
@@ -654,6 +656,30 @@ begin
 
       if CodigoMunicipio = '' then
         CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('MunicipioPrestacaoServico'), tcStr);
+    end;
+
+    LerItensServico(AuxNode);
+  end;
+end;
+
+procedure TNFSeR_ABRASFv1.LerItensServico(const ANode: TACBrXmlNode);
+var
+  ANodes: TACBrXmlNodeArray;
+  i: integer;
+begin
+  if not Assigned(ANode) or (ANode = nil) then Exit;
+
+  ANodes := ANode.Childrens.FindAllAnyNs('ItensServico');
+
+  for i := 0 to Length(ANodes) - 1 do
+  begin
+    NFSe.Servico.ItemServico.New;
+
+    with NFSe.Servico.ItemServico[i] do
+    begin
+      Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Descricao'), tcStr);
+      Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Quantidade'), tcDe2);
+      ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorUnitario'), tcDe4);
     end;
   end;
 end;

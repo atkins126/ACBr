@@ -71,7 +71,7 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, Tributus.GravarXml, Tributus.LerXml;
 
 { TACBrNFSeProviderTributus204 }
@@ -120,6 +120,8 @@ var
   URL: string;
 begin
   URL := GetWebServiceURL(AMetodo);
+  URL := URL + '?tokenAuth=' +
+    trim(TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente.WSChaveAutoriz);
 
   if URL <> '' then
     Result := TACBrNFSeXWebserviceTributus204.Create(FAOwner, AMetodo, URL)

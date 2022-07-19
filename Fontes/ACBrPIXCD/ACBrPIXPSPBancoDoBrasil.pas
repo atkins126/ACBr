@@ -75,6 +75,8 @@ type
       var AResultCode: Integer; var RespostaHttp: AnsiString);
   protected
     function ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String; override;
+    function CalcularEndPointPath(const aMethod, aEndPoint: String): String; override;
+
     procedure ConfigurarQueryParameters(const Method, EndPoint: String); override;
     procedure TratarRetornoComErro(ResultCode: Integer; const RespostaHttp: AnsiString;
       Problema: TACBrPIXProblema); override;
@@ -242,14 +244,9 @@ end;
 procedure TACBrPSPBancoDoBrasil.QuandoAcessarEndPoint(
   const AEndPoint: String; var AURL: String; var AMethod: String);
 begin
-  // Banco do Brasil, não tem: POST /cob   Mudando para /PUT com "txid" vazio
+  // BB não tem: POST /cob - Mudando para /PUT com "txid" vazio
   if (UpperCase(AMethod) = ChttpMethodPOST) then
     AMethod := ChttpMethodPUT;
-
-  if ((UpperCase(AMethod) = ChttpMethodPOST) or
-      (UpperCase(AMethod) = ChttpMethodPUT)) and
-      (AEndPoint = cEndPointCob) and (ACBrPixCD.Ambiente = ambTeste) then
-    AURL := StringReplace(AURL, cEndPointCob, '/cobqrcode', [rfReplaceAll]);
 end;
 
 procedure TACBrPSPBancoDoBrasil.QuandoReceberRespostaEndPoint(const AEndPoint,
@@ -278,6 +275,18 @@ begin
     Result := cBBURLSandbox;
 
   Result := Result + cBBPathAPIPix;
+end;
+
+function TACBrPSPBancoDoBrasil.CalcularEndPointPath(const aMethod,
+  aEndPoint: String): String;
+begin
+  Result := Trim(aEndPoint);
+
+  // BB deve utilizar /cobqrcode em ambiente de homologação
+  if ((UpperCase(aMethod) = ChttpMethodPOST) or
+      (UpperCase(aMethod) = ChttpMethodPUT)) and
+      (aEndPoint = cEndPointCob) and (ACBrPixCD.Ambiente = ambTeste) then
+    Result := URLComDelimitador(cBBEndPointCobHomologacao);
 end;
 
 procedure TACBrPSPBancoDoBrasil.ConfigurarQueryParameters(const Method, EndPoint: String);
