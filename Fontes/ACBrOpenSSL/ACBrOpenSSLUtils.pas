@@ -195,6 +195,9 @@ function ExtractModulusAndExponentFromKey(AKey: PEVP_PKEY;
 procedure SetModulusAndExponentToKey(AKey: PEVP_PKEY;
   const Modulus: String; const Exponent: String);
 
+function StringIsPEM(aStr: String): Boolean;
+
+function ConvertPEMToASN1(aPEM: String): AnsiString;
 function ConvertPEMToOpenSSH(APubKey: PEVP_PKEY): String;
 function ConvertOpenSSHToPEM(const AOpenSSHKey: String): String;
 
@@ -304,7 +307,6 @@ begin
   InitOpenSSL;
   Modulus := '';
   Exponent := '';
-  Result := False;
   bio := BioNew(BioSMem);
   RsaKey := EvpPkeyGet1RSA(AKey);
   try
@@ -367,6 +369,49 @@ begin
   err := EvpPkeyAssign(AKey, EVP_PKEY_RSA, rsa);
   if (err < 1) then
     raise EACBrOpenSSLException.Create(sErrSettingRSAKey + sLineBreak + GetLastOpenSSLError);
+end;
+
+function StringIsPEM(aStr: String): Boolean;
+var
+  b: Integer;
+begin
+  b := Pos('BEGIN', aStr);
+  Result := (b > 0) and (PosFrom('END', aStr, b) > 0);
+end;
+
+function ConvertPEMToASN1(aPEM: String): AnsiString;
+var
+  sl: TStringList;
+  b64: Boolean;
+  I: Integer;
+begin
+  Result := EmptyStr;
+  if (not StringIsPEM(aPEM)) then
+    Exit;
+
+  sl := TStringList.Create;
+  try
+    sl.Text := aPEM;
+    b64 := False;
+
+    for I := 0 to sl.Count - 1 do
+    begin
+      if (Pos('BEGIN', UpperCase(sl[I])) > 0) then
+      begin
+        b64 := True;
+        Continue;
+      end
+      else if b64 and (Pos('END', UpperCase(sl[I])) > 0) then
+        Break;
+
+      if b64 then
+        Result := Result + sl[I];
+    end;
+
+    Result := DecodeBase64(Result);
+  finally
+    sl.Free;
+  end;
 end;
 
 // https://www.netmeister.org/blog/ssh2pkcs8.html
@@ -458,8 +503,8 @@ var
 begin
   Result := '';
   bio := BioNew(BioSMem);
+  rsa := EvpPkeyGet1RSA(APrivKey);
   try
-    rsa := EvpPkeyGet1RSA(APrivKey);
     if (Password <> '') then
       ret := PEM_write_bio_RSAPrivateKey( bio, rsa,
                                           EVP_aes_256_cbc,
@@ -1254,35 +1299,3 @@ finalization
   FreeOpenSSL;
 
 end.
-
-property KeyPassword: String read fKeyPassword write fKeyPassword;
-
-property PFXFile: String read fPFXFile write fPFXFile;
-property CertificateFile: String read fCertificateFile write fCertificateFile;
-property PrivateKeyFile: String read fPrivateKeyFile write fPrivateKeyFile;
-property PublicKeyFile: String read fPublicKeyFile write fPublicKeyFile;
-
-property PFXStr: AnsiString read fPFXStr write fPFXStr;
-property CertificateStr: AnsiString read fCertificateStr write fCertificateStr;
-property PrivateKeyStr: AnsiString read fPrivateKeyStr write fPrivateKeyStr;
-property PublicKeyStr: AnsiString read fPublicKeyStr write fPublicKeyStr;
-
-fCertificateFile: String;
-fCertificateStr: AnsiString;
-fPFXFile: String;
-fPFXStr: AnsiString;
-fPrivateKeyFile: String;
-fPrivateKeyStr: AnsiString;
-fPublicKeyFile: String;
-fPublicKeyStr: AnsiString;
-
-fKeyPassword := '';
-fCertificateFile := '';
-fCertificateStr := '';
-fPFXFile := '';
-fPFXStr := '';
-fPrivateKeyFile := '';
-fPrivateKeyStr := '';
-fPublicKeyFile := '';
-fPublicKeyStr := '';
-

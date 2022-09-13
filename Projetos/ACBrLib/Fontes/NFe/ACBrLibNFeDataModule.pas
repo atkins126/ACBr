@@ -72,9 +72,9 @@ implementation
 
 uses
   pcnConversao, pcnConversaoNFe,
-  ACBrUtil, FileUtil, ACBrDeviceSerial, ACBrNFeDANFEClass,
+  FileUtil, ACBrDeviceSerial, ACBrNFeDANFEClass,
   {$IFDEF Demo}ACBrNFeNotasFiscais, pcnEnvEventoNFe,{$ENDIF}
-  ACBrDeviceConfig, ACBrLibNFeConfig, ACBrUtil.Base;
+  ACBrDeviceConfig, ACBrLibNFeConfig, ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings;
 
 {$R *.lfm}
 
@@ -338,7 +338,10 @@ begin
      (ACBrNFe1.Configuracoes.WebServices.UF = 'CE') and
      ( NaoEstaVazio(ACBrIntegrador1.PastaInput)) and
      ( NaoEstaVazio(ACBrIntegrador1.PastaOutput))  then
+  begin
+    GravarLog('ValidarIntegradorNFCe - Atribuido', logParanoico);
     ACBrNFe1.Integrador := ACBrIntegrador1
+  end
   else
     ACBrNFe1.Integrador := nil;
 end;

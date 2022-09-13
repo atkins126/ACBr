@@ -81,8 +81,8 @@ type
 implementation
 
 uses
-  ACBrUtil.Base,
-  ACBrUtil.Strings;
+  ACBrUtil.Base, ACBrUtil.Strings,
+  ACBrDFeUtil;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -199,6 +199,8 @@ end;
 procedure TNFSeR_Agili.LerEnderecoPrestador(const ANode: TACBrXmlNode);
 var
   AuxNode, AuxMun, AuxPais: TACBrXmlNode;
+  CodigoIBGE: Integer;
+  xUF: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('Endereco');
 
@@ -222,8 +224,15 @@ begin
           CodigoMunicipio := Copy(CodigoMunicipio, 1, 2) +
               FormatFloat('00000', StrToIntDef(Copy(CodigoMunicipio, 3, 5), 0));
 
-        xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
         UF := ObterConteudo(AuxMun.Childrens.FindAnyNs('Uf'), tcStr);
+
+        CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+
+        if CodigoIBGE > 0 then
+          xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+
+        if UF = '' then
+          UF := xUF;
       end;
 
       AuxPais := AuxNode.Childrens.FindAnyNs('Pais');
@@ -241,6 +250,8 @@ end;
 procedure TNFSeR_Agili.LerEnderecoTomador(const ANode: TACBrXmlNode);
 var
   AuxNode, AuxMun, AuxPais: TACBrXmlNode;
+  CodigoIBGE: Integer;
+  xUF: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('Endereco');
 
@@ -264,8 +275,15 @@ begin
           CodigoMunicipio := Copy(CodigoMunicipio, 1, 2) +
               FormatFloat('00000', StrToIntDef(Copy(CodigoMunicipio, 3, 5), 0));
 
-        xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
         UF := ObterConteudo(AuxMun.Childrens.FindAnyNs('Uf'), tcStr);
+
+        CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+
+        if CodigoIBGE > 0 then
+          xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+
+        if UF = '' then
+          UF := xUF;
       end;
 
       AuxPais := AuxNode.Childrens.FindAnyNs('Pais');
@@ -432,9 +450,15 @@ begin
 
       case FpAOwner.StrToSimNao(Ok, aValor) of
         snSim:
-          ValorIssRetido := ValorIss;
+          begin
+            ValorIssRetido := ValorIss;
+            IssRetido := stRetencao;
+          end;
         snNao:
-          ValorIssRetido := 0;
+          begin
+            ValorIssRetido := 0;
+            IssRetido := stNormal;
+          end;
       end;
 
       ValorLiquidoNfse := ObterConteudo(ANode.Childrens.FindAnyNs('ValorLiquido'), tcDe2);
@@ -465,7 +489,8 @@ begin
       begin
         Descricao  := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Discriminacao'), tcStr);
         Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Quantidade'), tcDe6);
-        ValorTotal := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorServico'), tcDe2);
+        ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorServico'), tcDe2);
+        ValorTotal := ValorUnitario * Quantidade;
 
         DescontoIncondicionado := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorDesconto'), tcDe2);
 

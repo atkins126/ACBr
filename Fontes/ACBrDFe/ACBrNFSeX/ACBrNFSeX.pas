@@ -170,6 +170,10 @@ type
     // Usado pelos provedores que geram token por WebService
     procedure GerarToken;
 
+
+    // Usado pelo provedor PadraoNacional
+    procedure EnviarEvento(aInfEvento: TInfEvento);
+
     function LinkNFSe(ANumNFSe: String; const ACodVerificacao: String;
       const AChaveAcesso: String = ''; const AValorServico: String = ''): String;
 
@@ -386,7 +390,6 @@ begin
   if not Assigned(FProvider) then
     raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
 
-
   FWebService.Emite.Clear;
   FWebService.Emite.Lote := aLote;
   FWebService.Emite.ModoEnvio := aModoEnvio;
@@ -521,6 +524,7 @@ begin
     CadEconomico := aInfConsultaNFSe.CadEconomico;
     CodServ := aInfConsultaNFSe.CodServ;
     CodVerificacao := aInfConsultaNFSe.CodVerificacao;
+    Tipo:= aInfConsultaNFSe.Tipo;
   end;
 
   ConsultarNFSe;
@@ -817,6 +821,7 @@ begin
     NumeroNFSeSubst := aInfCancelamento.NumeroNFSeSubst;
     SerieNFSeSubst := aInfCancelamento.SerieNFSeSubst;
     CodServ := aInfCancelamento.CodServ;
+    Tipo:= aInfCancelamento.Tipo;
 
     if (ChaveNFSe <> '') and (NumeroNFSe = '') then
       NumeroNFSe := Copy(ChaveNFSe, 22, 9);
@@ -862,6 +867,7 @@ begin
     raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
 
   FWebService.SubstituiNFSe.Clear;
+
   with FWebService.SubstituiNFSe.InfCancelamento do
   begin
     NumeroNFSe := aNumNFSe;
@@ -879,7 +885,38 @@ procedure TACBrNFSeX.GerarToken;
 begin
   if not Assigned(FProvider) then raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
 
+  FWebService.GerarToken.Clear;
+
   FProvider.GerarToken;
+end;
+
+procedure TACBrNFSeX.EnviarEvento(aInfEvento: TInfEvento);
+begin
+  if not Assigned(FProvider) then
+    raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
+
+  FWebService.EnviarEvento.Clear;
+
+  with FWebService.EnviarEvento.InfEvento.pedRegEvento do
+  begin
+    tpAmb := aInfEvento.pedRegEvento.tpAmb;
+    verAplic := aInfEvento.pedRegEvento.verAplic;
+    dhEvento := aInfEvento.pedRegEvento.dhEvento;
+    chNFSe := aInfEvento.pedRegEvento.chNFSe;
+    nPedRegEvento := aInfEvento.pedRegEvento.nPedRegEvento;
+    tpEvento := aInfEvento.pedRegEvento.tpEvento;
+    cMotivo := aInfEvento.pedRegEvento.cMotivo;
+    xMotivo := TiraAcentos(ChangeLineBreak(aInfEvento.pedRegEvento.xMotivo));
+    chSubstituta := aInfEvento.pedRegEvento.chSubstituta;
+    CPFAgTrib := aInfEvento.pedRegEvento.CPFAgTrib;
+    nProcAdm := aInfEvento.pedRegEvento.nProcAdm;
+    idEvManifRej := aInfEvento.pedRegEvento.idEvManifRej;
+    xProcAdm := aInfEvento.pedRegEvento.xProcAdm;
+    codEvento := aInfEvento.pedRegEvento.codEvento;
+    idBloqOfic := aInfEvento.pedRegEvento.idBloqOfic;
+  end;
+
+  FProvider.EnviarEvento;
 end;
 
 function TACBrNFSeX.LinkNFSe(ANumNFSe: String; const ACodVerificacao,

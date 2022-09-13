@@ -53,6 +53,9 @@ implementation
 uses
   ACBrNFSeX, ACBrNFSeXConversao,
 
+  // Provedor utilizado pelas cidades que aderiram o Padão Nacional
+  PadraoNacional.Provider,
+
   // Provedores que seguem a versão 1 do layout da ABRASF
   BHISS.Provider,
   CIGA.Provider,
@@ -89,7 +92,6 @@ uses
   Centi.Provider,
   Citta.Provider,
   Coplan.Provider,
-  CTA.Provider,
   DataSmart.Provider,
   DeISS.Provider,
   Desenvolve.Provider,
@@ -158,8 +160,11 @@ uses
   Agili.Provider,
   AssessorPublico.Provider,
   Conam.Provider,
+  CTA.Provider,
+  CTAConsult.Provider,
   eGoverneISS.Provider,
   Equiplano.Provider,
+  Facundo.Provider,
   FGMaiss.Provider,
   GeisWeb.Provider,
   Giap.Provider,
@@ -234,7 +239,11 @@ begin
       proCitta:     Result := TACBrNFSeProviderCitta203.Create(ACBrNFSe);
       proConam:     Result := TACBrNFSeProviderConam.Create(ACBrNFSe);
       proCoplan:    Result := TACBrNFSeProviderCoplan201.Create(ACBrNFSe);
-      proCTA:       Result := TACBrNFSeProviderCTA203.Create(ACBrNFSe);
+      proCTA:       Result := TACBrNFSeProviderCTA200.Create(ACBrNFSe);
+
+      proCTAConsult:
+        Result := TACBrNFSeProviderCTAConsult.Create(ACBrNFSe);
+
       proDataSmart: Result := TACBrNFSeProviderDataSmart202.Create(ACBrNFSe);
       proDBSeller:  Result := TACBrNFSeProviderDBSeller.Create(ACBrNFSe);
       proDeISS:     Result := TACBrNFSeProviderDeISS203.Create(ACBrNFSe);
@@ -277,6 +286,7 @@ begin
 
       proeReceita: Result := TACBrNFSeProvidereReceita202.Create(ACBrNFSe);
       proEtherium: Result := TACBrNFSeProviderEtherium203.Create(ACBrNFSe);
+      proFacundo:  Result :=TACBrNFSeProviderFacundo.Create(ACBrNFSe);
       proFGMaiss:  Result :=TACBrNFSeProviderFGMaiss.Create(ACBrNFSe);
 
       profintelISS:
@@ -339,7 +349,7 @@ begin
 
       proISSDigital: Result := TACBrNFSeProviderISSDigital200.Create(ACBrNFSe);
       proISSDSF:     Result := TACBrNFSeProviderISSDSF.Create(ACBrNFSe);
-      proISSe:       Result := TACBrNFSeProviderISSe200.Create(ACBrNFSe);
+      proISSe:       Result := TACBrNFSeProviderISSe201.Create(ACBrNFSe);
 
       proISSFortaleza:
         Result := TACBrNFSeProviderISSFortaleza.Create(ACBrNFSe);
@@ -384,6 +394,9 @@ begin
 
       proNotaInteligente:
         Result := TACBrNFSeProviderNotaInteligente200.Create(ACBrNFSe);
+
+      proPadraoNacional:
+        Result := TACBrNFSeProviderPadraoNacional.Create(ACBrNFSe);
 
       proProdata: Result := TACBrNFSeProviderProdata201.Create(ACBrNFSe);
 

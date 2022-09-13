@@ -78,6 +78,8 @@ const
   DSC_INSCMUN = 'Inscrição Municipal';
   DSC_GENERICOSTITULO = 'Título do campo livre';
   DESC_GENERICOSDESCRICAO = 'Conteúdo do campo livre.';
+  DSC_VTTS = 'Valor Taxa Turismo';
+  DSC_QDiaria = 'Quantidade Diaria';
 
   // Códigos e Descrições das mensagens
   Cod001 = 'X001';
@@ -133,6 +135,10 @@ const
   Desc122 = 'Data Emissão da NFSe não informada.';
   Cod123 = 'X123';
   Desc123 = 'Código do Serviço não informado.';
+  Cod124 = 'X124';
+  Desc124	= 'Emitente.WSChaveAcesso não informada.';
+  Cod125 = 'X125';
+  Desc125	= 'Emitente.WSChaveAutoriz não informada.';
 
   Cod201 = 'X201';
   Desc201 = 'WebService retornou um XML vazio.';

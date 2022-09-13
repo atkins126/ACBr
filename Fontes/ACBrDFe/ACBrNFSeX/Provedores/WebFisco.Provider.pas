@@ -263,38 +263,46 @@ begin
     Exit;
   end;
 
-  if EstaVazio(Response.InfConsultaNFSe.Tipo) then
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  if EstaVazio(Emitente.WSUser) then
   begin
     AErro := Response.Erros.New;
-    AErro.Codigo := Cod114;
-    AErro.Descricao := Desc114;
+    AErro.Codigo := Cod119;
+    AErro.Descricao := Desc119;
     Exit;
   end;
 
-  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+  if EstaVazio(Emitente.WSSenha) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod120;
+    AErro.Descricao := Desc120;
+    Exit;
+  end;
 
   Response.Metodo := tmConsultarNFSe;
 
   Response.ArquivoEnvio := '<ConsultaNfe>' +
-                         '<usuario xsi:type="xsd:string">' +
-                           Trim(Emitente.WSUser) +
-                         '</usuario>' +
-                         '<pass xsi:type="xsd:string">' +
-                           Trim(Emitente.WSSenha) +
-                         '</pass>' +
-                         '<prf xsi:type="xsd:string">' +
-                           TACBrNFSeX(FAOwner).Configuracoes.Geral.CNPJPrefeitura +
-                         '</prf>' +
-                         '<usr xsi:type="xsd:string">' +
-                           Trim(Emitente.CNPJ) +
-                         '</usr>' +
-                         '<ctr xsi:type="xsd:string">' +
-                           Response.InfConsultaNFSe.NumeroIniNFSe +
-                         '</ctr>' +
-                         '<tipo xsi:type="xsd:string">' +
-                           Response.InfConsultaNFSe.Tipo +
-                         '</tipo>' +
-                       '</ConsultaNfe>';
+                             '<usuario xsi:type="xsd:string">' +
+                               Trim(Emitente.WSUser) +
+                             '</usuario>' +
+                             '<pass xsi:type="xsd:string">' +
+                               Trim(Emitente.WSSenha) +
+                             '</pass>' +
+                             '<prf xsi:type="xsd:string">' +
+                               TACBrNFSeX(FAOwner).Configuracoes.Geral.CNPJPrefeitura +
+                             '</prf>' +
+                             '<usr xsi:type="xsd:string">' +
+                               Trim(Emitente.CNPJ) +
+                             '</usr>' +
+                             '<ctr xsi:type="xsd:string">' +
+                               Response.InfConsultaNFSe.NumeroIniNFSe +
+                             '</ctr>' +
+                             '<tipo xsi:type="xsd:string">' +
+                               TipoDocToStr(Response.InfConsultaNFSe.Tipo) +
+                             '</tipo>' +
+                           '</ConsultaNfe>';
 end;
 
 procedure TACBrNFSeProviderWebFisco.TratarRetornoConsultaNFSe(
@@ -302,11 +310,9 @@ procedure TACBrNFSeProviderWebFisco.TratarRetornoConsultaNFSe(
 var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
-  ANode{, AuxNode}: TACBrXmlNode;
-//  ANodeArray: TACBrXmlNodeArray;
-//  i: Integer;
-//  NumRps: String;
-//  ANota: NotaFiscal;
+  ANode: TACBrXmlNode;
+  ANota: TNotaFiscal;
+  xStatus: string;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -324,42 +330,32 @@ begin
 
       ANode := Document.Root;
 
-      ProcessarMensagemErros(ANode, Response, '', 'okk');
+//      ProcessarMensagemErros(ANode, Response, '', 'okk');
 
-      Response.Sucesso := (Response.Erros.Count = 0);
-
-      {
-      AuxNode := ANode.Childrens.FindAnyNs('okk');
-
-      if AuxNode <> nil then
+      with Response do
       begin
-        with Response do
-        begin
-          Sucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
-        end;
+        Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('okk'), tcStr);
+        NumeroRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('nfenumerorps'), tcStr);
+        NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('nfenumero'), tcStr);
+        Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('nfedata'), tcDat);
+        Data := Data + ObterConteudoTag(ANode.Childrens.FindAnyNs('nfehora'), tcHor);
+        CodVerif := ObterConteudoTag(ANode.Childrens.FindAnyNs('nfeautenticacao'), tcStr);
+        Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('nfelink'), tcStr);
+        xStatus := ObterConteudoTag(ANode.Childrens.FindAnyNs('nfestatus'), tcStr);
+
+        if xStatus = 'SIM' then
+          DescSituacao := 'NFSe Cancelada';
       end;
 
-      ANodeArray := ANode.Childrens.FindAllAnyNs('NFe');
-      if not Assigned(ANodeArray) then
-      begin
-        AErro := Response.Erros.New;
-        AErro.Codigo := Cod203;
-        AErro.Descricao := Desc203;
-        Exit;
-      end;
+      Response.Sucesso := (Response.Situacao = 'OK');
 
-      for i := Low(ANodeArray) to High(ANodeArray) do
-      begin
-        ANode := ANodeArray[i];
-        AuxNode := ANode.Childrens.FindAnyNs('ChaveNFe');
-        NumRps := AuxNode.AsString;
+      ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(Response.NumeroRps);
 
-        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+      if ANota = nil then
+        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(Response.NumeroNota);
 
-        ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
-        SalvarXmlNfse(ANota);
-      end;
-      }
+      ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
+      SalvarXmlNfse(ANota);
     except
       on E:Exception do
       begin
@@ -406,28 +402,28 @@ begin
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
   Response.ArquivoEnvio := '<CancelaNfe>' +
-                         '<usuario xsi:type="xsd:string">' +
-                           Trim(Emitente.WSUser) +
-                         '</usuario>' +
-                         '<pass xsi:type="xsd:string">' +
-                           Trim(Emitente.WSSenha) +
-                         '</pass>' +
-                         '<prf xsi:type="xsd:string">' +
-                           TACBrNFSeX(FAOwner).Configuracoes.Geral.CNPJPrefeitura +
-                         '</prf>' +
-                         '<usr xsi:type="xsd:string">' +
-                           Trim(Emitente.CNPJ) +
-                         '</usr>' +
-                         '<ctr xsi:type="xsd:string">' +
-                           Response.InfCancelamento.NumeroNFSe +
-                         '</ctr>' +
-                         '<tipo xsi:type="xsd:string">' +
-                           Response.InfCancelamento.SerieNFSe +
-                         '</tipo>' +
-                         '<obs xsi:type="xsd:string">' +
-                           Response.InfCancelamento.MotCancelamento +
-                         '</obs>' +
-                       '</CancelaNfe>';
+                             '<usuario xsi:type="xsd:string">' +
+                               Trim(Emitente.WSUser) +
+                             '</usuario>' +
+                             '<pass xsi:type="xsd:string">' +
+                               Trim(Emitente.WSSenha) +
+                             '</pass>' +
+                             '<prf xsi:type="xsd:string">' +
+                               TACBrNFSeX(FAOwner).Configuracoes.Geral.CNPJPrefeitura +
+                             '</prf>' +
+                             '<usr xsi:type="xsd:string">' +
+                               Trim(Emitente.CNPJ) +
+                             '</usr>' +
+                             '<ctr xsi:type="xsd:string">' +
+                               Response.InfCancelamento.NumeroNFSe +
+                             '</ctr>' +
+                             '<tipo xsi:type="xsd:string">' +
+                               TipoDocToStr(Response.InfCancelamento.Tipo) +
+                             '</tipo>' +
+                             '<obs xsi:type="xsd:string">' +
+                               Response.InfCancelamento.MotCancelamento +
+                             '</obs>' +
+                           '</CancelaNfe>';
 end;
 
 procedure TACBrNFSeProviderWebFisco.TratarRetornoCancelaNFSe(

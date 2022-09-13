@@ -439,6 +439,10 @@ begin
                            tsPagamentoRemuneracao, tsPagamentoRepresentantes,
                            tsPagamentoBeneficios, tsPagamentosDiversos);
       }
+
+      // Usado pela caixa (T=Teste; P=Produção)
+      Geral.AmbienteCliente := 'T';
+
       Geral.Banco := Configuracoes.Geral.Banco;
       // Utilizado Somente quando houver o segmento C
       Geral.SubstitutaBanco := Configuracoes.Geral.SubstitutaBanco;
@@ -470,6 +474,10 @@ begin
       Registro0.Arquivo.HoraGeracao := Time;
       Registro0.Arquivo.Sequencia := 1;
       Registro0.Arquivo.Densidade := 01600;
+
+      // Usado pela Caixa (Parâmetro de Transmissão) Código Informado pelo Banco
+      Registro0.Arquivo.ParamTransm := '00';
+
       Registro0.ReservadoBanco := '';
       Registro0.ReservadoEmpresa := '';
 
@@ -524,6 +532,10 @@ begin
         }
         Registro1.IndFormaPag := ifpDebitoContaCorrente;
 
+        // Usado pela Caixa
+        Registro1.TipoCompromisso := 1;
+        Registro1.CodigoCompromisso := 1;
+
         ////////////////////////////////////////////////////////////////////////
         // Segmento A - Exemplo de pagamento via DOC
         ////////////////////////////////////////////////////////////////////////
@@ -558,6 +570,13 @@ begin
             NossoNumero    := '';
             DataReal       := StrToDate('25/07/2016');
             ValorReal      := 100.0;
+
+            // Usado pela Caixa
+            QtdeParcelas   := 1;
+            IndBloqueio    := 'N';
+            FormaParcelamento := 1;
+            DiaVencimento  := 5;
+            NumParcela := 0;
           end;
 
           Informacao2 := '';
@@ -763,7 +782,7 @@ begin
             I = Código do ISPB (8 dígitos)
             R = Tipo de Conta  (2 dígitos = 01 – Conta corrente)
           }
-          Informacao2 := '00008201178971' + '12345678' + '01';
+          Informacao2 := '00008201178971' + BancoToIspb(Geral.Banco) + '01';
           CodigoDOC   := '';
           CodigoTED   := '';
           CodigoComp  := '';
@@ -782,7 +801,7 @@ begin
               Numero := '08201178971';
             end;
 
-            CodigoISPB := 0;
+            CodigoISPB := StrToInt(BancoToIspb(Geral.Banco));
             PixTipoChave := tcpCPFCNPJ;
             PixMensagem := '';
             PixTXID := '';
@@ -867,6 +886,10 @@ begin
           QtdeMoeda := 0.0;
           ReferenciaSacado := '';
           CodigoMoeda := 09;
+
+          // Usado pela Caixa
+          SeuNumero := '123456';
+          NossoNumero := '123456';
 
           TotalLote := TotalLote + ValorPagamento;
         end;

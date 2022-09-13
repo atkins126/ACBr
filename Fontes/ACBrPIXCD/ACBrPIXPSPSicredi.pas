@@ -45,7 +45,7 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrPIXCD, ACBrOpenSSLUtils;
+  ACBrPIXCD, ACBrBase, ACBrOpenSSLUtils;
 
 const
   cSicrediURLSandbox = 'https://api-pix-h.sicredi.com.br';
@@ -61,22 +61,22 @@ type
   { TACBrPSPItau }
 
   { TACBrPSPSicredi }
-
-  TACBrPSPSicredi = class(TACBrPSP)
+  
+  {$IFDEF RTL230_UP}
+  [ComponentPlatformsAttribute(piacbrAllPlatforms)]
+  {$ENDIF RTL230_UP}
+  TACBrPSPSicredi = class(TACBrPSPCertificate)
   private
     fSandboxStatusCode: String;
     fxCorrelationID: String;
     fSSLUtils: TACBrOpenSSLUtils;
-    fArquivoCertificado: String;
-    fArquivoChavePrivada: String;
     fQuandoNecessitarCredenciais: TACBrQuandoNecessitarCredencial;
 
-    procedure SetArquivoCertificado(AValue: String);
-    procedure SetArquivoChavePrivada(AValue: String);
+    procedure QuandoReceberRespostaEndPoint(const aEndPoint, aURL, aMethod: String;
+      var aResultCode: Integer; var aRespostaHttp: AnsiString);
   protected
     function ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String; override;
     procedure ConfigurarQueryParameters(const Method, EndPoint: String); override;
-    procedure ConfigurarHeaders(const Method, AURL: String); override;
   public
     constructor Create(AOwner: TComponent); override;
     procedure Clear; override;
@@ -87,8 +87,6 @@ type
     property ClientID;
     property ClientSecret;
 
-    property ArquivoChavePrivada: String read fArquivoChavePrivada write SetArquivoChavePrivada;
-    property ArquivoCertificado: String read fArquivoCertificado write SetArquivoCertificado;
     property SandboxStatusCode: String read fSandboxStatusCode write fSandboxStatusCode;
 
     property QuandoNecessitarCredenciais: TACBrQuandoNecessitarCredencial
@@ -98,14 +96,8 @@ type
 implementation
 
 uses
-  synautil, synacode,
-  ACBrUtil.Strings,
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-   JsonDataObjects_ACBr
-  {$Else}
-   Jsons
-  {$EndIf},
-  DateUtils;
+  synautil, synacode, DateUtils,
+  ACBrUtil.Strings, ACBrJSON;
 
 { TACBrPSPItau }
 
@@ -113,6 +105,7 @@ constructor TACBrPSPSicredi.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   fSSLUtils := TACBrOpenSSLUtils.Create(Self);  // Self irá destruir ele...
+  fpQuandoReceberRespostaEndPoint := QuandoReceberRespostaEndPoint;
   Clear;
 end;
 
@@ -121,8 +114,6 @@ begin
   inherited Clear;
   fxCorrelationID := '';
   fSandboxStatusCode := '';
-  fArquivoCertificado := '';
-  fArquivoChavePrivada := '';
   fQuandoNecessitarCredenciais := Nil;
 end;
 
@@ -131,7 +122,7 @@ var
   AURL, Body, BasicAutentication: String;
   RespostaHttp: AnsiString;
   ResultCode, sec: Integer;
-  js: TJsonObject;
+  js: TACBrJSONObject;
   qp: TACBrQueryParams;
 begin
   LimparHTTP;
@@ -143,8 +134,8 @@ begin
 
   qp := TACBrQueryParams.Create;
   try
-    qp.Values['grant_type']    := 'client_credentials';
-    qp.Values['scope']         := 'cob.read cob.write pix.read pix.write';
+    qp.Values['grant_type'] := 'client_credentials';
+    qp.Values['scope'] := 'cob.read cob.write pix.read pix.write';
     Body := qp.AsURL;
     WriteStrToStream(Http.Document, Body);
     Http.MimeType := CContentTypeApplicationWwwFormUrlEncoded;
@@ -158,52 +149,32 @@ begin
 
   if (ResultCode = HTTP_OK) then
   begin
-   {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    js := TJsonObject.Parse(RespostaHttp) as TJsonObject;
+    js := TACBrJSONObject.Parse(RespostaHttp);
     try
-      fpToken        := js.S['access_token'];
-      sec            := js.I['expires_in'];
-      fpRefreshToken := '';
+      fpToken := js.AsString['access_token'];
+      sec := js.AsInteger['expires_in'];
+      fpRefreshToken := EmptyStr;
     finally
       js.Free;
     end;
-   {$Else}
-    js := TJsonObject.Create;
-    try
-      js.Parse(RespostaHttp);
-      fpToken        := js['access_token'].AsString;
-      sec            := js['expires_in'].AsInteger;
-      fpRefreshToken := '';
-    finally
-      js.Free;
-    end;
-   {$EndIf}
 
-   if (Trim(fpToken) = '') then
-     DispararExcecao(EACBrPixHttpException.Create(ACBrStr(sErroAutenticacao)));
+    if (Trim(fpToken) = '') then
+      DispararExcecao(EACBrPixHttpException.Create(ACBrStr(sErroAutenticacao)));
 
-   fpValidadeToken := IncSecond(Now, sec);
-   fpAutenticado := True;
+    fpValidadeToken := IncSecond(Now, sec);
+    fpAutenticado := True;
   end
   else
     DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
       [Http.ResultCode, ChttpMethodPOST, AURL]));
 end;
 
-procedure TACBrPSPSicredi.SetArquivoCertificado(AValue: String);
+procedure TACBrPSPSicredi.QuandoReceberRespostaEndPoint(const aEndPoint, aURL,
+  aMethod: String; var aResultCode: Integer; var aRespostaHttp: AnsiString);
 begin
-  if (fArquivoCertificado = AValue) then
-    Exit;
-
-  fArquivoCertificado := Trim(AValue);
-end;
-
-procedure TACBrPSPSicredi.SetArquivoChavePrivada(AValue: String);
-begin
-  if (fArquivoChavePrivada = AValue) then
-    Exit;
-
-  fArquivoChavePrivada := (AValue);
+  // Sicredi responde HTTP_OK ao método PUT do Endpoint PIX, de forma diferente da especificada
+  if (UpperCase(AMethod) = ChttpMethodPUT) and (AEndPoint = cEndPointPix) and (AResultCode = HTTP_CREATED) then
+    AResultCode := HTTP_OK;
 end;
 
 function TACBrPSPSicredi.ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String;
@@ -216,14 +187,6 @@ begin
   Result := Result + cSicrediPathAPIPix;
 end;
 
-procedure TACBrPSPSicredi.ConfigurarHeaders(const Method, AURL: String);
-begin
-  inherited ConfigurarHeaders(Method, AURL);
-
-  Http.Sock.SSL.CertificateFile := fArquivoCertificado;
-  Http.Sock.SSL.PrivateKeyFile  := fArquivoChavePrivada;
-end;
-
 procedure TACBrPSPSicredi.ConfigurarQueryParameters(const Method, EndPoint: String);
 begin
   if (fSandboxStatusCode <> '') then
@@ -231,5 +194,4 @@ begin
 end;
 
 end.
-
 

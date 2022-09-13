@@ -62,6 +62,7 @@ type
     FConfirmada: Boolean;
     FXmlRps: String;
     FXmlNfse: String;
+    FXmlEspelho: String;
 
     function CalcularNomeArquivo: String;
     function CalcularPathArquivo: String;
@@ -96,6 +97,7 @@ type
 
     property XmlRps: String read FXmlRps write FXmlRps;
     property XmlNfse: String read FXmlNfse write SetXmlNfse;
+    property XmlEspelho: String read FXmlEspelho write FXmlEspelho;
 
     property Confirmada: Boolean read FConfirmada write FConfirmada;
     property Alertas: String     read FAlertas;
@@ -257,9 +259,9 @@ end;
 function TNotaFiscal.LerArqIni(const AIniString: String): Boolean;
 var
   INIRec: TMemIniFile;
-  sSecao, sFim: String;
+  sSecao, sFim, xUF: String;
   Ok: Boolean;
-  i: Integer;
+  i, CodigoIBGE: Integer;
   FProvider: IACBrNFSeXProvider;
 begin
   FProvider := TACBrNFSeX(FACBrNFSe).Provider;
@@ -340,11 +342,18 @@ begin
           Numero := INIRec.ReadString(sSecao, 'Numero', '');
           Bairro := INIRec.ReadString(sSecao, 'Bairro', '');
           CodigoMunicipio := INIRec.ReadString(sSecao, 'CodigoMunicipio', '');
-          xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
           UF := INIRec.ReadString(sSecao, 'UF', '');
           CodigoPais := INIRec.ReadInteger(sSecao, 'CodigoPais', 0);
           xPais := INIRec.ReadString(sSecao, 'xPais', '');
           CEP := INIRec.ReadString(sSecao, 'CEP', '');
+
+          CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+
+          if CodigoIBGE > 0 then
+            xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+
+          if UF = '' then
+            UF := xUF;
         end;
 
         with Contato do
@@ -376,12 +385,19 @@ begin
           Complemento := INIRec.ReadString(sSecao, 'Complemento', '');
           Bairro := INIRec.ReadString(sSecao, 'Bairro', '');
           CodigoMunicipio := INIRec.ReadString(sSecao, 'CodigoMunicipio', '');
-          xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
           UF := INIRec.ReadString(sSecao, 'UF', '');
           CodigoPais := INIRec.ReadInteger(sSecao, 'CodigoPais', 0);
           CEP := INIRec.ReadString(sSecao, 'CEP', '');
           // Provedor Equiplano é obrigatório o pais e IE
           xPais := INIRec.ReadString(sSecao, 'xPais', '');
+
+          CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+
+          if CodigoIBGE > 0 then
+            xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+
+          if UF = '' then
+            UF := xUF;
         end;
 
         with Contato do
@@ -396,10 +412,10 @@ begin
 
       sSecao := 'Intermediario';
 
-      with IntermediarioServico do
+      with Intermediario do
       begin
-        CpfCnpj := INIRec.ReadString(sSecao, 'CNPJCPF', '');
-        InscricaoMunicipal := INIRec.ReadString(sSecao, 'InscricaoMunicipal', '');
+        Identificacao.CpfCnpj := INIRec.ReadString(sSecao, 'CNPJCPF', '');
+        Identificacao.InscricaoMunicipal := INIRec.ReadString(sSecao, 'InscricaoMunicipal', '');
         RazaoSocial := INIRec.ReadString(sSecao, 'RazaoSocial', '');
       end;
 
@@ -577,7 +593,10 @@ begin
   if TipoXml = txmlNFSe then
     FXmlNfse := XmlTratado
   else
-    FXmlRps := XmlTratado;
+    if TipoXml = txmlEspelho then
+      FXmlEspelho := XmlTratado
+    else
+      FXmlRps := XmlTratado;
 end;
 
 procedure TNotaFiscal.SetXmlNfse(const Value: String);

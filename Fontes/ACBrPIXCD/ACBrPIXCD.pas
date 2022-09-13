@@ -43,13 +43,16 @@ unit ACBrPIXCD;
 interface
 
 uses
-  Classes, SysUtils,
-  httpsend, ssl_openssl, ACBrOpenSSLUtils,
-  ACBrBase,
-  ACBrPIXBase, ACBrPIXBRCode,
+  Classes, SysUtils, httpsend, ssl_openssl,
+  ACBrOpenSSLUtils, ACBrBase, ACBrPIXBase, ACBrPIXBRCode,
+  ACBrPIXSchemasPix,
+  ACBrPIXSchemasCob,
+  ACBrPIXSchemasCobV,
   ACBrPIXSchemasProblema,
-  ACBrPIXSchemasPixConsultados, ACBrPIXSchemasPix, ACBrPIXSchemasDevolucao,
-  ACBrPIXSchemasCobsConsultadas, ACBrPIXSchemasCob;
+  ACBrPIXSchemasDevolucao,
+  ACBrPIXSchemasPixConsultados,
+  ACBrPIXSchemasCobsConsultadas,
+  ACBrPIXSchemasCobsVConsultadas;
 
 const
   ChttpTimeOutDef = 90000;
@@ -60,8 +63,9 @@ const
   ChttpMethodPATCH = 'PATCH';
   ChttpMethodDELETE = 'DELETE';
 
-  cEndPointCob = '/cob';
   cEndPointPix = '/pix';
+  cEndPointCob = '/cob';
+  cEndPointCobV = '/cobv';
 
   CContentTypeUTF8 = 'charset=utf-8';
   CContentTypeTextPlain = 'text/plain';
@@ -138,7 +142,7 @@ resourcestring
   sErroHttp = 'Erro HTTP: %d, Metodo: %s, URL: %s';
   sErroAutenticacao = 'Erro de Autenticação';
   sErroPropriedadeNaoDefinida = 'Propriedade %s não atribuida';
-
+  sErroCertificadoAmbiente = 'Rotina disponível apenas em ambiente de produção';
 
 type
 
@@ -226,6 +230,35 @@ type
     property CobCompleta: TACBrPIXCobCompleta read fCobCompleta;
   end;
 
+  { TACBrPixEndPointCobV - EndPoint /cobv }
+
+  TACBrPixEndPointCobV = class(TACBrPixEndPoint)
+  private
+    fCobVCompleta: TACBrPIXCobVCompleta;
+    fCobVRevisada: TACBrPIXCobVRevisada;
+    fCobsVConsultadas: TACBrPIXCobsVConsultadas;
+    fCobVSolicitada: TACBrPIXCobVSolicitada;
+    fCobVGerada: TACBrPIXCobVGerada;
+  public
+    constructor Create(aOwner: TACBrPSP);
+    destructor Destroy; override;
+    procedure Clear;
+
+    function CriarCobranca(const TxId: String): Boolean;
+    function RevisarCobranca(const TxId: String): Boolean;
+    function ConsultarCobranca(const TxId: String; Revisao: Integer = 0) : Boolean;
+    function ConsultarCobrancas(aInicio: TDateTime; aFim: TDateTime;
+      const aCpfCnpj: String = ''; aLocationPresente: Boolean = False;
+      aStatus: TACBrPIXStatusCobranca = stcNENHUM; aPagAtual: Integer = 0;
+      aItensPorPagina: Integer = 100): Boolean;
+
+    property CobsVConsultadas: TACBrPIXCobsVConsultadas read fCobsVConsultadas;
+    property CobVSolicitada: TACBrPIXCobVSolicitada read fCobVSolicitada;
+    property CobVGerada: TACBrPIXCobVGerada read fCobVGerada;
+    property CobVRevisada: TACBrPIXCobVRevisada read fCobVRevisada;
+    property CobVCompleta: TACBrPIXCobVCompleta read fCobVCompleta;
+  end;
+
   TACBrQuandoAcessarEndPoint = procedure(const AEndPoint: String;
     var AURL: String; var AMethod: String) of object;
 
@@ -273,6 +306,7 @@ type
 
     fepPix: TACBrPixEndPointPix;
     fepCob: TACBrPixEndPointCob;
+    fepCobV: TACBrPixEndPointCobV;
     fPixCD: TACBrPixCD;
     fHttpSend: THTTPSend;
     fHttpRespStream: TMemoryStream;
@@ -352,6 +386,7 @@ type
 
     property epPix: TACBrPixEndPointPix read fepPix;
     property epCob: TACBrPixEndPointCob read fepCob;
+    property epCobV: TACBrPixEndPointCobV read fepCobV;
 
     property Http: THTTPSend read fHttpSend;
   published
@@ -364,6 +399,35 @@ type
       read fQuandoTransmitirHttp write fQuandoTransmitirHttp;
     property QuandoReceberRespostaHttp: TACBrQuandoReceberRespostaHttp
       read fQuandoReceberRespostaHttp write fQuandoReceberRespostaHttp;
+  end;
+
+  { TACBrPSPCertificate }
+
+  TACBrPSPCertificate = class(TACBrPSP)
+  private
+    fArquivoCertificado: String;
+    fArquivoChavePrivada: String;
+    fCertificado: AnsiString;
+    fChavePrivada: AnsiString;
+
+    procedure SetArquivoCertificado(aValue: String);
+    procedure SetArquivoChavePrivada(aValue: String);
+    procedure SetCertificado(aValue: AnsiString);
+    procedure SetChavePrivada(aValue: AnsiString);
+
+  protected
+    procedure ConfigurarHeaders(const Method, AURL: String); override;
+
+    function VerificarSeIncluiCertificado(const Method, AURL: String): Boolean; virtual;
+    function VerificarSeIncluiChavePrivada(const Method, AURL: String): Boolean;  virtual;
+  public
+    constructor Create(AOwner: TComponent); override;
+
+    property ArquivoCertificado: String read fArquivoCertificado write SetArquivoCertificado;
+    property ArquivoChavePrivada: String read fArquivoChavePrivada write SetArquivoChavePrivada;
+
+    property Certificado: AnsiString read fCertificado write SetCertificado;
+    property ChavePrivada: AnsiString read fChavePrivada write SetChavePrivada;
   end;
 
   { TACBrPixRecebedor }
@@ -470,7 +534,8 @@ type
       const TxId: String = ''): String; overload;
     function GerarQRCodeEstatico(const ChavePix: String; Valor: Currency;
       const infoAdicional: String = ''; const TxId: String = ''): String; overload;
-    function GerarQRCodeDinamico(const Location: String): String;
+    function GerarQRCodeDinamico(const Location: String; const TxID: String = '';
+      const Valor: Currency = 0): String;
 
   published
     property Recebedor: TACBrPixRecebedor read fRecebedor write SetRecebedor;
@@ -572,6 +637,267 @@ begin
   end
   else
     Result := UnZip(AStream);
+end;
+
+{ TACBrPixEndPointCobV }
+
+constructor TACBrPixEndPointCobV.Create(aOwner: TACBrPSP);
+begin
+  if (aOwner = nil) then
+    raise EACBrPixException.Create(ACBrStr(sErroPSPNaoAtribuido));
+
+  inherited Create(AOwner);
+  fpEndPoint := cEndPointCobV;
+
+  fCobVGerada := TACBrPIXCobVGerada.Create;
+  fCobVRevisada := TACBrPIXCobVRevisada.Create;
+  fCobVCompleta := TACBrPIXCobVCompleta.Create;
+  fCobVSolicitada := TACBrPIXCobVSolicitada.Create;
+  fCobsVConsultadas := TACBrPIXCobsVConsultadas.Create;
+end;
+
+destructor TACBrPixEndPointCobV.Destroy;
+begin
+  fCobVGerada.Free;
+  fCobVRevisada.Free;
+  fCobVCompleta.Free;
+  fCobVSolicitada.Free;
+  fCobsVConsultadas.Free;
+  inherited Destroy;
+end;
+
+procedure TACBrPixEndPointCobV.Clear;
+begin
+  inherited Clear;
+  fCobVGerada.Clear;
+  fCobVRevisada.Clear;
+  fCobVCompleta.Clear;
+  fCobVSolicitada.Clear;
+  fCobsVConsultadas.Clear;
+end;
+
+function TACBrPixEndPointCobV.CriarCobranca(const TxId: String): Boolean;
+var
+  Body, ep: String;
+  RespostaHttp: AnsiString;
+  ResultCode: Integer;
+begin
+  if (NivelLog > 1) then
+    RegistrarLog('CriarCobrancaVencimento( '+TxId+' )');
+  if EstaVazio(Trim(TxId)) then
+    raise EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['txid']);
+
+  Body := Trim(fCobVSolicitada.AsJSON);
+  if EstaVazio(Body) then
+    raise EACBrPixException.CreateFmt(ACBrStr(sErroObjetoNaoPrenchido), ['CobVSolicitada']);
+
+  Clear;
+  fPSP.PrepararHTTP;
+  fPSP.URLPathParams.Add(TxId);
+  ep := ChttpMethodPUT;
+
+  fPSP.ConfigurarBody(ep, EndPoint, Body);
+  WriteStrToStream(fPSP.Http.Document, Body);
+  fPSP.Http.MimeType := CContentTypeApplicationJSon;
+  fPSP.AcessarEndPoint(ep, EndPoint, ResultCode, RespostaHttp);
+  Result := (ResultCode = HTTP_CREATED);
+
+  if Result then
+    fCobVGerada.AsJSON := String(RespostaHttp)
+  else
+    fPSP.TratarRetornoComErro(ResultCode, RespostaHttp, Problema);
+end;
+
+function TACBrPixEndPointCobV.RevisarCobranca(const TxId: String): Boolean;
+var
+  Body: String;
+  RespostaHttp: AnsiString;
+  ResultCode: Integer;
+begin
+  if (NivelLog > 1) then
+    RegistrarLog('RevisarCobranca('+TxId+')');
+
+  if EstaVazio(Trim(TxId)) then
+    raise EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['txid']);
+
+  Body := Trim(fCobVRevisada.AsJSON);
+  if EstaVazio(Body) then
+    raise EACBrPixException.CreateFmt(ACBrStr(sErroObjetoNaoPrenchido), ['CobVRevisada']);
+
+  Clear;
+  fPSP.PrepararHTTP;
+  fPSP.URLPathParams.Add(TxId);
+  fPSP.ConfigurarBody(ChttpMethodPATCH, EndPoint, Body);
+  WriteStrToStream(fPSP.Http.Document, Body);
+  fPSP.Http.MimeType := CContentTypeApplicationJSon;
+  fPSP.AcessarEndPoint(ChttpMethodPATCH, EndPoint, ResultCode, RespostaHttp);
+  Result := (ResultCode = HTTP_OK);
+
+  if Result then
+    fCobVGerada.AsJSON := String(RespostaHttp)
+  else
+    fPSP.TratarRetornoComErro(ResultCode, RespostaHttp, Problema);
+end;
+
+function TACBrPixEndPointCobV.ConsultarCobranca(const TxId: String;
+  Revisao: Integer): Boolean;
+var
+  RespostaHttp: AnsiString;
+  ResultCode: Integer;
+begin
+  if (NivelLog > 1) then
+    RegistrarLog('ConsultarCobrancaVencimento( '+TxId+', '+IntToStr(Revisao)+' )');
+  if EstaVazio(Trim(TxId)) then
+    raise EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['txid']);
+
+  Clear;
+  fPSP.PrepararHTTP;
+  fPSP.URLPathParams.Add(TxId);
+  if (Revisao <> 0) then
+    fPSP.URLQueryParams.Values['revisao'] := IntToStr(Revisao);
+
+  fPSP.AcessarEndPoint(ChttpMethodGET, EndPoint, ResultCode, RespostaHttp);
+  Result := (ResultCode = HTTP_OK);
+
+  if Result then
+    fCobVCompleta.AsJSON := String(RespostaHttp)
+  else
+    fPSP.TratarRetornoComErro(ResultCode, RespostaHttp, Problema);
+end;
+
+function TACBrPixEndPointCobV.ConsultarCobrancas(aInicio: TDateTime;
+  aFim: TDateTime; const aCpfCnpj: String; aLocationPresente: Boolean;
+  aStatus: TACBrPIXStatusCobranca; aPagAtual: Integer; aItensPorPagina: Integer): Boolean;
+var
+  s, e: String;
+  RespostaHttp: AnsiString;
+  ResultCode: Integer;
+begin
+  if (NivelLog > 1) then
+    RegistrarLog(Format('ConsultarCobrancas(%s, %s, %s, %s, %s, %s, %s)',
+      [FormatDateTimeBr(aInicio), FormatDateTimeBr(aFim), aCpfCnpj,
+       BoolToStr(aLocationPresente, True), PIXStatusCobrancaToString(aStatus),
+       IntToStr(aPagAtual), IntToStr(aItensPorPagina)]));
+
+  Clear;
+  fPSP.PrepararHTTP;
+  with fPSP.URLQueryParams do
+  begin
+    Values['inicio'] := DateTimeToIso8601(aInicio);
+    Values['fim'] := DateTimeToIso8601(aFim);
+
+    s := OnlyNumber(aCpfCnpj);
+    if NaoEstaVazio(s) then
+    begin
+      e := ValidarCNPJouCPF(s);
+      if NaoEstaVazio(e) then
+        raise EACBrPixException.Create(ACBrStr(e));
+
+      if (Length(s) < 12) then
+        Values['cpf'] := s
+      else
+        Values['cnpj'] := s;
+    end;
+
+    Values['locationPresente'] := IfThen(aLocationPresente, 'true', 'false');
+    if (aStatus <> stcNENHUM) then
+      Values['status'] := PIXStatusCobrancaToString(aStatus);
+
+    if (aPagAtual > 0) then
+      Values['paginacao.paginaAtual'] := IntToStr(aPagAtual);
+
+    if (aItensPorPagina > 0) then
+      Values['paginacao.itensPorPagina'] := IntToStr(aItensPorPagina);
+  end;
+
+  fPSP.AcessarEndPoint(ChttpMethodGET, EndPoint, ResultCode, RespostaHttp);
+  Result := (ResultCode = HTTP_OK);
+
+  if Result then
+    fCobsVConsultadas.AsJSON := String(RespostaHttp)
+  else
+    fPSP.TratarRetornoComErro(ResultCode, RespostaHttp, Problema);
+end;
+
+{ TACBrPSPCertificate }
+
+procedure TACBrPSPCertificate.SetArquivoCertificado(aValue: String);
+begin
+  fArquivoCertificado := Trim(aValue);
+  fCertificado := EmptyStr;
+end;
+
+procedure TACBrPSPCertificate.SetArquivoChavePrivada(aValue: String);
+begin
+  fArquivoChavePrivada := Trim(aValue);
+  fChavePrivada := EmptyStr;
+end;
+
+procedure TACBrPSPCertificate.SetCertificado(aValue: AnsiString);
+begin
+  fCertificado := aValue;
+  fArquivoCertificado := EmptyStr;
+end;
+
+procedure TACBrPSPCertificate.SetChavePrivada(aValue: AnsiString);
+begin
+  fChavePrivada := aValue;
+  fArquivoChavePrivada := EmptyStr;
+end;
+
+procedure TACBrPSPCertificate.ConfigurarHeaders(const Method, AURL: String);
+begin
+  inherited ConfigurarHeaders(Method, AURL);
+                                      
+  // Adicionando o Certificado
+  if VerificarSeIncluiCertificado(Method, AURL) then
+  begin
+    if NaoEstaVazio(Certificado) then
+    begin
+      if StringIsPEM(Certificado) then
+        Http.Sock.SSL.Certificate := ConvertPEMToASN1(Certificado)
+      else
+        Http.Sock.SSL.Certificate := Certificado;
+    end
+    else if NaoEstaVazio(ArquivoCertificado) then
+      Http.Sock.SSL.CertificateFile := ArquivoCertificado;
+  end;
+
+  // Adicionando a Chave Privada
+  if VerificarSeIncluiChavePrivada(Method, AURL) then
+  begin
+    if NaoEstaVazio(ChavePrivada) then
+    begin
+      if StringIsPEM(ChavePrivada) then
+        Http.Sock.SSL.PrivateKey := ConvertPEMToASN1(ChavePrivada)
+      else
+        Http.Sock.SSL.PrivateKey := ChavePrivada;
+    end
+    else if NaoEstaVazio(ArquivoChavePrivada) then
+      Http.Sock.SSL.PrivateKeyFile := ArquivoChavePrivada;
+  end;
+end;
+
+function TACBrPSPCertificate.VerificarSeIncluiCertificado(const Method,
+  AURL: String): Boolean;
+begin
+  Result := NaoEstaVazio(fCertificado) or NaoEstaVazio(fArquivoCertificado);
+end;
+
+function TACBrPSPCertificate.VerificarSeIncluiChavePrivada(const Method,
+  AURL: String): Boolean;
+begin
+  Result := NaoEstaVazio(fChavePrivada) or NaoEstaVazio(fArquivoChavePrivada);
+end;
+
+constructor TACBrPSPCertificate.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+
+  fCertificado := EmptyStr;
+  fChavePrivada := EmptyStr;
+  fArquivoCertificado := EmptyStr;
+  fArquivoChavePrivada := EmptyStr;
 end;
 
 { TACBrPixEndPoint }
@@ -920,8 +1246,7 @@ end;
 
 function TACBrPixEndPointCob.ConsultarCobrancas(Inicio: TDateTime;
   Fim: TDateTime; const CpfCnpj: String; LocationPresente: Boolean;
-  AStatus: TACBrPIXStatusCobranca; PagAtual: Integer; ItensPorPagina: Integer
-  ): Boolean;
+  AStatus: TACBrPIXStatusCobranca; PagAtual: Integer; ItensPorPagina: Integer): Boolean;
 var
   s, e: String;
   RespostaHttp: AnsiString;
@@ -1037,6 +1362,7 @@ begin
 
   fepPix := TACBrPixEndPointPix.Create(Self);
   fepCob := TACBrPixEndPointCob.Create(Self);
+  fepCobV := TACBrPixEndPointCobV.Create(Self);
   fURLQueryParams := TACBrQueryParams.Create;
   fURLPathParams := TStringList.Create;
 
@@ -1050,6 +1376,7 @@ begin
   fHttpRespStream.Free;
   fepPix.Free;
   fepCob.Free;
+  fepCobV.Free;
   fURLQueryParams.Free;
   fURLPathParams.Free;
 
@@ -1062,6 +1389,7 @@ begin
   fURLQueryParams.Clear;
   fepPix.Clear;
   fepCob.Clear;
+  fepCobV.Clear;
 end;
 
 procedure TACBrPSP.SetACBrPixCD(AValue: TACBrPixCD);
@@ -1912,12 +2240,15 @@ begin
   end;
 end;
 
-function TACBrPixCD.GerarQRCodeDinamico(const Location: String): String;
+function TACBrPixCD.GerarQRCodeDinamico(const Location: String;
+  const TxID: String; const Valor: Currency): String;
 var
   Erros: String;
   QRCodeDinamico: TACBrPIXQRCodeDinamico;
 begin
-  RegistrarLog('GerarQRCodeDinamico( '+Location+' )');
+  RegistrarLog('GerarQRCodeDinamico( ' + Location +
+    IfThen(NaoEstaVazio(TxID), ', ' + TxID, EmptyStr) +
+    IfThen(Valor > 0, ', ' + FloatToString(Valor), EmptyStr) + ' )');
 
   Erros := '';
   if (fRecebedor.Nome = '') then
@@ -1936,6 +2267,11 @@ begin
     QRCodeDinamico.MerchantCity := fRecebedor.Cidade;
     QRCodeDinamico.PostalCode := fRecebedor.CEP;
     QRCodeDinamico.URL := Location;
+
+    if NaoEstaVazio(TxID) then
+      QRCodeDinamico.TxId := TxID;
+    if (Valor <> 0) then
+      QRCodeDinamico.TransactionAmount := Valor;
 
     Result := QRCodeDinamico.AsString;
     RegistrarLog('   '+Result);

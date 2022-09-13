@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -824,15 +824,13 @@ begin
     if EstaVazio(FPServico) then
       FPServico := GetUrlWsd + 'NF3eRecepcaoSinc';
     if EstaVazio(FPSoapAction) then
-      FPSoapAction := FPServico + '/NF3eRecepcao';
+      FPSoapAction := FPServico + '/nf3eRecepcao';
   end
   else
   begin
     FPServico := GetUrlWsd + 'NF3eRecepcao';
-    FPSoapAction := FPServico + '/NF3eRecepcaoLote';
+    FPSoapAction := FPServico + '/nf3eRecepcaoLote';
   end;
-
-//  FPBodyElement := 'NF3eDadosMsg';
 end;
 
 procedure TNF3eRecepcao.DefinirDadosMsg;
@@ -851,10 +849,6 @@ begin
       FPDadosMsg := '<NF3e' +
         RetornarConteudoEntre(FNotasFiscais.Items[0].XMLAssinado, '<NF3e', '</NF3e>') +
         '</NF3e>';
-
-    FMsgUnZip := FPDadosMsg;
-
-    FPDadosMsg := EncodeBase64(GZipCompress(FPDadosMsg));
   end
   else
   begin
@@ -868,6 +862,10 @@ begin
       FPVersaoServico + '">' + '<idLote>' + FLote + '</idLote>' +
       vNotas + '</enviNF3e>';
   end;
+
+  FMsgUnZip := FPDadosMsg;
+
+  FPDadosMsg := EncodeBase64(GZipCompress(FPDadosMsg));
 
   // Lote tem mais de 1 Mb ? //
   if Length(FPDadosMsg) > (1024 * 1024) then

@@ -45,7 +45,7 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrPIXCD, ACBrPIXSchemasProblema;
+  ACBrPIXCD, ACBrBase, ACBrPIXSchemasProblema;
 
 const
   cBBParamDevAppKey = 'gw-dev-app-key';
@@ -64,7 +64,10 @@ const
 type
 
   { TACBrPSPBancoDoBrasil }
-
+  
+  {$IFDEF RTL230_UP}
+  [ComponentPlatformsAttribute(piacbrAllPlatforms)]
+  {$ENDIF RTL230_UP}
   TACBrPSPBancoDoBrasil = class(TACBrPSP)
   private
     fDeveloperApplicationKey: String;
@@ -100,12 +103,8 @@ implementation
 uses
   synautil, synacode,
   ACBrUtil.Strings,
+  ACBrJSON,
   ACBrPIXBase,
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-   JsonDataObjects_ACBr
-  {$Else}
-   Jsons
-  {$EndIf},
   DateUtils;
 
 { TACBrPSPBancoDoBrasil }
@@ -123,7 +122,7 @@ var
   AURL, Body, BasicAutentication: String;
   RespostaHttp: AnsiString;
   ResultCode, sec: Integer;
-  js: TJsonObject;
+  js: TACBrJSONObject;
   qp: TACBrQueryParams;
 begin
   LimparHTTP;
@@ -150,24 +149,13 @@ begin
 
   if (ResultCode = HTTP_OK) then
   begin
-   {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    js := TJsonObject.Parse(RespostaHttp) as TJsonObject;
+    js := TACBrJSONObject.Parse(RespostaHttp);
     try
-      fpToken := js.S['access_token'];
-      sec := js.I['expires_in'];
+      fpToken := js.AsString['access_token'];
+      sec := js.AsInteger['expires_in'];
     finally
       js.Free;
     end;
-   {$Else}
-    js := TJsonObject.Create;
-    try
-      js.Parse(RespostaHttp);
-      fpToken := js['access_token'].AsString;
-      sec := js['expires_in'].AsInteger;
-    finally
-      js.Free;
-    end;
-   {$EndIf}
 
    if (Trim(fpToken) = '') then
      DispararExcecao(EACBrPixHttpException.Create(ACBrStr(sErroAutenticacao)));
@@ -186,20 +174,15 @@ var
   Body, AURL: String;
   RespostaHttp: AnsiString;
   ResultCode: Integer;
-  js: TJsonObject;
+  js: TACBrJSONObject;
 begin
   if (Trim(pixCopiaECola) = '') then
     raise EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['pixCopiaECola']);
     
-  js := TJsonObject.Create;
+  js := TACBrJSONObject.Create;
   try
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    js.S['pix'] := pixCopiaECola;
-    Body := js.ToJSON();
-  {$Else}
-    js['pix'].AsString := pixCopiaECola;
-    Body := js.Stringify;
-  {$EndIf}
+    js.AddPair('pix', pixCopiaECola);
+    Body := js.ToJSON;
   finally
     js.Free;
   end;
@@ -213,28 +196,17 @@ begin
   TransmitirHttp(ChttpMethodPOST, AURL, ResultCode, RespostaHttp);
   if (ResultCode = HTTP_OK) then
   begin
-   {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    js := TJsonObject.Parse(RespostaHttp) as TJsonObject;
+    js := TACBrJSONObject.Parse(RespostaHttp);
     try
-      code := js.I['code'];
-      texto := js.S['texto'];
+      code := js.AsInteger['code'];
+      texto := js.AsString['texto'];
     finally
       js.Free;
     end;
-   {$Else}
-    js := TJsonObject.Create;
-    try
-      js.Parse(RespostaHttp);
-      code := js['code'].AsInteger;
-      texto := js['texto'].AsString;
-    finally
-      js.Free;
-    end;
-   {$EndIf}
 
-   if (code <> 0) then
-     DispararExcecao(EACBrPixHttpException.Create( 'Code: '+IntToStr(code)+' - '+
-                                                   UTF8ToNativeString(texto) ));
+    if (code <> 0) then
+      DispararExcecao(EACBrPixHttpException.Create('Code: '+
+        IntToStr(code) +' - '+ UTF8ToNativeString(texto)));
   end
   else
     DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
@@ -286,25 +258,26 @@ begin
   if ((UpperCase(aMethod) = ChttpMethodPOST) or
       (UpperCase(aMethod) = ChttpMethodPUT)) and
       (aEndPoint = cEndPointCob) and (ACBrPixCD.Ambiente = ambTeste) then
-    Result := URLComDelimitador(cBBEndPointCobHomologacao);
+    Result := cBBEndPointCobHomologacao;
+
+  // BB utiliza delimitador antes dos parâmetros de query
+  if (aEndPoint = cEndPointCob) then
+    Result := URLComDelimitador(Result);
 end;
 
 procedure TACBrPSPBancoDoBrasil.ConfigurarQueryParameters(const Method, EndPoint: String);
 begin
   inherited ConfigurarQueryParameters(Method, EndPoint);
 
-  with URLQueryParams do
-  begin
-    if (fDeveloperApplicationKey <> '') then
-      Values[cBBParamDevAppKey] := fDeveloperApplicationKey;
-  end;
+  if (fDeveloperApplicationKey <> '') then
+    URLQueryParams.Values[cBBParamDevAppKey] := fDeveloperApplicationKey;
 end;
 
 procedure TACBrPSPBancoDoBrasil.TratarRetornoComErro(ResultCode: Integer;
   const RespostaHttp: AnsiString; Problema: TACBrPIXProblema);
 var
-  js, ej: TJsonObject;
-  ae: TJsonArray;
+  js, ej: TACBrJSONObject;
+  ae: TACBrJSONArray;
 begin
   if (pos('"ocorrencia"', RespostaHttp) > 0) then   // Erro no formato próprio do B.B.
   begin
@@ -318,36 +291,20 @@ begin
 	    }]
        }
      *)
-    {$IfDef USE_JSONDATAOBJECTS_UNIT}
-     js := TJsonObject.Parse(RespostaHttp) as TJsonObject;
-     try
-       ae := js.A['erros'];
-       if Assigned(ae) and (ae.Count > 0) then
-       begin
-         ej := ae.O[0];
-         Problema.title := ej.S['ocorrencia'];
-         Problema.status := StrToIntDef(ej.S['codigo'], -1);
-         Problema.detail := ej.S['mensagem'];
-       end;
-     finally
-       js.Free;
-     end;
-    {$Else}
-     js := TJsonObject.Create;
-     try
-       js.Parse(RespostaHttp);
-       ae := js['erros'].AsArray;
-       if Assigned(ae) and (ae.Count > 0) then
-       begin
-         ej := ae[0].AsObject;
-         Problema.title := ej['ocorrencia'].AsString;
-         Problema.status := StrToIntDef(ej['codigo'].AsString, -1);
-         Problema.detail := ej['mensagem'].AsString;
-       end;
-     finally
-       js.Free;
-     end;
-    {$EndIf}
+
+    js := TACBrJSONObject.Parse(RespostaHttp);
+    try
+      ae := js.AsJSONArray['erros'];
+      if Assigned(ae) and (ae.Count > 0) then
+      begin
+        ej := ae.ItemAsJSONObject[0];
+        Problema.title := ej.AsString['ocorrencia'];
+        Problema.status := StrToIntDef(ej.AsString['codigo'], -1);
+        Problema.detail := ej.AsString['mensagem'];
+      end;
+    finally
+      js.Free;
+    end;
 
     if (Problema.title = '') then
       AtribuirErroHTTPProblema(Problema);
@@ -357,26 +314,14 @@ begin
     // Exemplo de Retorno
     // {"statusCode":401,"error":"Unauthorized","message":"Bad Credentials","attributes":{"error":"Bad Credentials"}}
 
-    {$IfDef USE_JSONDATAOBJECTS_UNIT}
-     js := TJsonObject.Parse(RespostaHttp) as TJsonObject;
-     try
-       Problema.title := js.S['error'];
-       Problema.status := js.I['statusCode'];
-       Problema.detail := js.S['message'];
-     finally
-       js.Free;
-     end;
-    {$Else}
-     js := TJsonObject.Create;
-     try
-       js.Parse(RespostaHttp);
-       Problema.title := js['error'].AsString;
-       Problema.status := js['statusCode'].AsInteger;
-       Problema.detail := js['message'].AsString;
-     finally
-       js.Free;
-     end;
-    {$EndIf}
+    js := TACBrJSONObject.Parse(RespostaHttp);
+    try
+      Problema.title := js.AsString['error'];
+      Problema.status := js.AsInteger['statusCode'];
+      Problema.detail := js.AsString['message'];
+    finally
+      js.Free;
+    end;
 
     if (Problema.title = '') then
       AtribuirErroHTTPProblema(Problema);

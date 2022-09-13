@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -219,7 +219,7 @@ begin
     if ((EstaZerado(cMun)) and (xMun <> XMUN_EXTERIOR)) then
       cMun := ObterCodigoMunicipio(xMun, xUF, Opcoes.FPathArquivoMunicipios)
     else if ((EstaVazio(xMun)) and (cMun <> CMUN_EXTERIOR)) then
-      xMun := ObterNomeMunicipio(xUF, cMun, Opcoes.FPathArquivoMunicipios);
+      xMun := ObterNomeMunicipio(cMun, xUF, Opcoes.FPathArquivoMunicipios);
 
 end;
 

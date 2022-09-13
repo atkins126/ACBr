@@ -431,7 +431,8 @@ end;
 procedure TfrmACBrNFSe.AlimentarNFSe(NumDFe, NumLote: String);
 var
   vValorISS: Double;
-  i: Integer;
+  i, CodigoIBGE: Integer;
+  xMunicipio, xUF: string;
 begin
   with ACBrNFSeX1 do
   begin
@@ -440,6 +441,9 @@ begin
 
     with NotasFiscais.New.NFSe do
     begin
+      // Provedor PadraoNacional
+      verAplic := 'ACBrNFSeX-1.00';
+
       // Provedor SigISS
       {
         Situação pode ser:
@@ -587,8 +591,9 @@ begin
 
       // Provedores que permitem informar mais de 1 serviço:
       if (ACBrNFSeX1.Configuracoes.Geral.Provedor in [proAgili, proAssessorPublico,
-           proEloTech, proEquiplano, proFGMaiss, profintelISS, proGoverna, proInfisc,
-           proIPM, proISSDSF, proRLZ, proSimple, proSimplISS, proSmarAPD, proWebFisco]) or
+           proCTA, proEloTech, proEquiplano, proFacundo, proFGMaiss, profintelISS,
+           proGoverna, proInfisc, proIPM, proISSDSF, proRLZ, proSimple, proSimplISS,
+           proSmarAPD, proWebFisco]) or
          ((ACBrNFSeX1.Configuracoes.Geral.Provedor in [proEL]) and
           (ACBrNFSeX1.Configuracoes.Geral.Versao = ve100)) then
       begin
@@ -695,6 +700,9 @@ begin
         Servico.Valores.ValorInss := 0.00;
         Servico.Valores.ValorIr := 0.00;
         Servico.Valores.ValorCsll := 0.00;
+        // Usado pelo provedor SystemPro
+        Servico.Valores.ValorTaxaTurismo := 0.00;
+        Servico.Valores.QtdeDiaria := 0.00;
 
         // TnfseSituacaoTributaria = ( stRetencao, stNormal, stSubstituicao );
         // stRetencao = snSim
@@ -735,6 +743,9 @@ begin
           proSiapSistemas:
             // código padrão ABRASF acrescido de um sub-item
             Servico.ItemListaServico := '01.05.00';
+
+          proPadraoNacional:
+            Servico.ItemListaServico := '010500';
         else
           // código padrão da ABRASF
           Servico.ItemListaServico := '09.01';
@@ -763,6 +774,9 @@ begin
 
         proIPM, proSystemPro:
           Servico.CodigoTributacaoMunicipio := '';
+
+        proPadraoNacional:
+          Servico.CodigoTributacaoMunicipio := '123';
       else
         Servico.CodigoTributacaoMunicipio := '63194';
       end;
@@ -809,7 +823,13 @@ begin
       Prestador.Endereco.Numero   := edtEmitNumero.Text;
       Prestador.Endereco.Bairro   := edtEmitBairro.Text;
       Prestador.Endereco.CodigoMunicipio := edtCodCidade.Text;
-      Prestador.Endereco.xMunicipio := CodIBGEToCidade(StrToIntDef(edtCodCidade.Text, 0));
+
+      CodigoIBGE := StrToIntDef(edtCodCidade.Text, 0);
+
+      if CodigoIBGE > 0 then
+        xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+
+      Prestador.Endereco.xMunicipio := xMunicipio;
       Prestador.Endereco.UF := edtEmitUF.Text;
       Prestador.Endereco.CodigoPais := 1058;
       Prestador.Endereco.xPais := 'BRASIL';
@@ -848,7 +868,13 @@ begin
       Tomador.Endereco.TipoBairro := 'BAIRRO';
       Tomador.Endereco.Bairro := 'CENTRO';
       Tomador.Endereco.CodigoMunicipio := edtCodCidade.Text;
-      Tomador.Endereco.xMunicipio := CodIBGEToCidade(StrToIntDef(edtCodCidade.Text, 0));
+
+      CodigoIBGE := StrToIntDef(edtCodCidade.Text, 0);
+
+      if CodigoIBGE > 0 then
+        xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+
+      Tomador.Endereco.xMunicipio := xMunicipio;
       Tomador.Endereco.UF := edtEmitUF.Text;
       Tomador.Endereco.CodigoPais := 1058; // Brasil
       Tomador.Endereco.CEP := edtEmitCEP.Text;
@@ -865,16 +891,16 @@ begin
         Dados do Intermediario na prestação do serviço
       =========================================================================}
 
-      // IntermediarioServico.RazaoSocial        := 'razao';
-      // IntermediarioServico.CpfCnpj            := '00000000000';
-      // IntermediarioServico.InscricaoMunicipal := '12547478';
+//       Intermediario.RazaoSocial := 'razao';
+//       Intermediario.Identificacao.CpfCnpj := '00000000000';
+//       Intermediario.Identificacao.InscricaoMunicipal := '12547478';
 
       {=========================================================================
         Dados da Obra (quando o serviço for uma obra)
       =========================================================================}
 
-      // ConstrucaoCivil.CodigoObra := '88888';
-      // ConstrucaoCivil.Art        := '433';
+//      ConstrucaoCivil.CodigoObra := '88888';
+//      ConstrucaoCivil.Art        := '433';
 
       {=========================================================================
         Dados da Condição de Pagamento (no momento somente o provedor Betha
@@ -955,10 +981,11 @@ procedure TfrmACBrNFSe.btnCancNFSeClick(Sender: TObject);
 var
   Titulo, NumNFSe, Codigo, Motivo, NumLote, CodVerif, SerNFSe, NumRps,
   SerRps, ValNFSe, ChNFSe, eMailTomador, vNumRPS, xCodServ,
-  xDataEmissao: String;
+  xDataEmissao, xTipo: String;
   DataEmissao: TDateTime;
   CodCanc: Integer;
   InfCancelamento: TInfCancelamento;
+  Ok: Boolean;
 begin
   Titulo := 'Cancelar NFSe';
   DataEmissao := 0;
@@ -1052,7 +1079,7 @@ begin
       proConam, proEquiplano, proFGMaiss, proGoverna, proIPM, proISSBarueri,
       proISSDSF, proISSLencois, proModernizacaoPublica, proPublica, proSiat,
       proSigISS, proSigep, proSimple, proSmarAPD, proSudoeste, proTecnos,
-      proWebFisco, proCenti] then
+      proWebFisco, proCenti, proCTA] then
     begin
       Motivo := 'Motivo do Cancelamento';
       if not (InputQuery(Titulo, 'Motivo do Cancelamento', Motivo)) then
@@ -1113,6 +1140,13 @@ begin
     AlimentarNFSe(vNumRPS, '1');
   end;
 
+  xTipo := '';
+  if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proFGMaiss, proWebFisco] then
+  begin
+    if not(InputQuery(Titulo, 'Tipo (1 = NFSe, 2 = Rps):', xTipo)) then
+      exit;
+  end;
+
   InfCancelamento := TInfCancelamento.Create;
 
   try
@@ -1131,6 +1165,7 @@ begin
       email           := eMailTomador;
       DataEmissaoNFSe := DataEmissao;
       CodServ         := xCodServ;
+      Tipo            := StrToTipoDoc(Ok, xTipo);
     end;
 
     ACBrNFSeX1.CancelarNFSe(InfCancelamento);
@@ -1315,6 +1350,7 @@ var
   xTitulo, NumeroNFSe, SerNFSe, NumPagina, NumLote, xDataIni, xDataFin,
   xTipo, xCodServ, xCodVerif: String;
   InfConsultaNFSe: TInfConsultaNFSe;
+  Ok: Boolean;
 begin
   xTitulo := 'Consultar NFSe Por Numero';
 
@@ -1356,7 +1392,7 @@ begin
   xTipo := '';
   if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proFGMaiss, proWebFisco] then
   begin
-    if not(InputQuery(xTitulo, 'Tipo da NFSe:', xTipo)) then
+    if not(InputQuery(xTitulo, 'Tipo (1 = NFSe, 2 = Rps):', xTipo)) then
       exit;
   end;
 
@@ -1412,7 +1448,7 @@ begin
             tpConsulta := tcPorNumero;
 
             NumeroIniNFSe := NumeroNFSe;
-            Tipo := xTipo;
+            Tipo := StrToTipoDoc(Ok, xTipo);
           end;
 
           ACBrNFSeX1.ConsultarNFSeGenerico(InfConsultaNFSe);
@@ -2627,6 +2663,14 @@ begin
   memoLog.Clear;
   memoLog.Lines.Clear;
   memoLog.Update;
+
+  memoLog.Lines.Add('Requisição');
+  memoLog.Lines.Add('Ambiente: ' + TpAmbToStr(ACBrNFSeX1.Configuracoes.WebServices.Ambiente));
+  memoLog.Lines.Add('Cidade  : ' + ACBrNFSeX1.Configuracoes.Geral.xMunicipio + '/' +
+                                   ACBrNFSeX1.Configuracoes.Geral.xUF);
+  memoLog.Lines.Add('Provedor: ' + ACBrNFSeX1.Configuracoes.Geral.xProvedor +
+          ' Versão: ' + VersaoNFSeToStr(ACBrNFSeX1.Configuracoes.Geral.Versao));
+  memoLog.Lines.Add(' ');
 
   with ACBrNFSeX1.WebService do
   begin
