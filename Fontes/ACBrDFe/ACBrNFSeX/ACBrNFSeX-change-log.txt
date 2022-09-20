@@ -43,6 +43,48 @@ Símbolo : Significado
 [-]     : Correção de Bug (assim esperamos)
 
 
+16/09/2022
+-- ABase.Provider --
+[*] Desfeito a alteração realizada no dia 06/09/2022, pois gerou um efeito colateral,
+    passou a ocorrer erro de validação.
+   Por: Italo Giurizzato Junior
+
+15/09/2022
+-- Diversos --
+[*] Inicio da implementação do provedor SigISSWeb.
+   Por: Italo Giurizzato Junior
+-- WebFisco.Provider/WebFisco.LerXml --
+[*] Ajustes na leitura do XML da NFS-e e no tratamento do retorno dos serviços.
+   Por: Leandro Coelho
+-- ACBrNFSeXServicos --
+[*] A cidade Feira de Santana/BA - Ajuste na versão e URL.
+   Por: João Antônio
+[*] A cidade Santo Antonio do Monte/MG - Ajuste na versão e URL.
+   Por: Paula Pires
+[*] A cidade Santo Antonio da Platina/SC trocou de provedor, agora é IPM.
+   Por: Gustavo Totta
+[*] A cidade Monte Castelo/SC trocou de provedor, agora é Betha.
+   Por: Andreus
+
+14/09/2022
+-- Diversos --
+[+] DANFSE especifico para o provedor SimplISS, alterações no componente para 
+    detectar o provedor, caso não seja o SimplISS usar o DANFSE padrão.
+    Essas alterações foram realizadas somente no Fortes Report.
+   Por: Elisângela Borato / Italo Giurizzato Junior
+
+13/09/2022
+-- ACBrNFSeXConversao/PadraoNacional.LerXml --
+[+] Implementado as funções de conversão: CodIBGEPaisToSiglaISO2 e SiglaISO2ToCodIBGEPais,
+    essas funções são utilizadas pelo provedor PadraoNacional.
+   Por: Italo Giurizzato Junior
+-- Agili.LerXml --
+[*] Ajustes para ler o campo: Codigo que é inteiro e tem valor negativo.
+   Por: Plenustech
+-- ACBrNFSeXServicos --
+[*] Revertido a alteração na URL da cidade Rondonopolis/MT - Provedor Coplan
+   Por: Rafael Vivan
+
 09/09/2022
 -- Diversos --
 [+] Implementado a geração do XML, a emissão e o cancelamento de nota para o provedor

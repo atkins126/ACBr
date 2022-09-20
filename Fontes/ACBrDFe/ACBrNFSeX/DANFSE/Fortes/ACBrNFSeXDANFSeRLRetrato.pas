@@ -246,7 +246,7 @@ type
     function ManterAliquota(dAliquota: Double): String;
   public
     { Public declarations }
-    class procedure QuebradeLinha(const sQuebradeLinha: String);
+    class procedure QuebradeLinha(const sQuebradeLinha: String); override;
   end;
 
 var
