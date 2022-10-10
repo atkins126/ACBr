@@ -68,6 +68,7 @@ type
     function GetSubstituiNFSeResponse: TNFSeSubstituiNFSeResponse;
     function GetGerarTokenResponse: TNFSeGerarTokenResponse;
     function GetEnviarEventoResponse: TNFSeEnviarEventoResponse;
+    function GetConsultarEventoResponse: TNFSeConsultarEventoResponse;
 
   protected
     FAOwner: TACBrDFe;
@@ -79,6 +80,8 @@ type
     procedure SetXmlNameSpace(const aNameSpace: string);
     procedure SalvarXmlRps(aNota: TNotaFiscal);
     procedure SalvarXmlNfse(aNota: TNotaFiscal);
+    procedure SalvarPDFNfse(const aNome: string; const aPDF: AnsiString);
+    procedure SalvarXmlEvento(const aNome: string; const  aEvento: AnsiString);
 
     function CarregarXmlNfse(aNota: TNotaFiscal; aXml: string): TNotaFiscal;
 
@@ -160,6 +163,13 @@ type
     procedure AssinarEnviarEvento(Response: TNFSeEnviarEventoResponse); virtual;
     procedure TratarRetornoEnviarEvento(Response: TNFSeEnviarEventoResponse); virtual; abstract;
 
+    //metodos para geração e tratamento dos dados do metodo ConsultarEvento
+    procedure PrepararConsultarEvento(Response: TNFSeConsultarEventoResponse); virtual; abstract;
+    procedure GerarMsgDadosConsultarEvento(Response: TNFSeConsultarEventoResponse;
+      Params: TNFSeParamsResponse); virtual; abstract;
+    procedure AssinarConsultarEvento(Response: TNFSeConsultarEventoResponse); virtual;
+    procedure TratarRetornoConsultarEvento(Response: TNFSeConsultarEventoResponse); virtual; abstract;
+
   public
     constructor Create(AOwner: TACBrDFe);
     destructor Destroy; override;
@@ -180,6 +190,7 @@ type
     procedure SubstituiNFSe; virtual;
     procedure GerarToken; virtual;
     procedure EnviarEvento; virtual;
+    procedure ConsultarEvento; virtual;
 
     property ConfigGeral: TConfigGeral read GetConfigGeral;
     property ConfigWebServices: TConfigWebServices read GetConfigWebServices;
@@ -197,6 +208,7 @@ type
     property SubstituiNFSeResponse: TNFSeSubstituiNFSeResponse read GetSubstituiNFSeResponse;
     property GerarTokenResponse: TNFSeGerarTokenResponse read GetGerarTokenResponse;
     property EnviarEventoResponse: TNFSeEnviarEventoResponse read GetEnviarEventoResponse;
+    property ConsultarEventoResponse: TNFSeConsultarEventoResponse read GetConsultarEventoResponse;
 
     function SimNaoToStr(const t: TnfseSimNao): string; virtual;
     function StrToSimNao(out ok: boolean; const s: string): TnfseSimNao; virtual;
@@ -331,6 +343,11 @@ begin
   Result := TACBrNFSeX(FAOwner).Webservice.ConsultaNFSe;
 end;
 
+function TACBrNFSeXProvider.GetConsultarEventoResponse: TNFSeConsultarEventoResponse;
+begin
+  Result := TACBrNFSeX(FAOwner).Webservice.ConsultarEvento;
+end;
+
 function TACBrNFSeXProvider.GetCancelaNFSeResponse: TNFSeCancelaNFSeResponse;
 begin
   Result := TACBrNFSeX(FAOwner).Webservice.CancelaNFSe;
@@ -415,6 +432,7 @@ begin
         tmFecharSessao: Result := FecharSessao;
         tmTeste: Result := TesteEnvio;
         tmEnviarEvento: Result := EnviarEvento;
+        tmConsultarEvento: Result := ConsultarEvento;
       else
         Result := '';
       end;
@@ -447,6 +465,7 @@ begin
         tmFecharSessao: Result := FecharSessao;
         tmTeste: Result := TesteEnvio;
         tmEnviarEvento: Result := EnviarEvento;
+        tmConsultarEvento: Result := ConsultarEvento;
       else
         Result := '';
       end;
@@ -650,6 +669,30 @@ begin
       InfElemento := '';
       DocElemento := '';
     end;
+
+    // Usado para geração do Gerar Token
+    with GerarToken do
+    begin
+      xmlns := '';
+      InfElemento := '';
+      DocElemento := '';
+    end;
+
+    // Usado para geração do Enviar Evento
+    with EnviarEvento do
+    begin
+      xmlns := '';
+      InfElemento := '';
+      DocElemento := '';
+    end;
+
+    // Usado para geração do Consultar Evento
+    with EnviarEvento do
+    begin
+      xmlns := '';
+      InfElemento := '';
+      DocElemento := '';
+    end;
   end;
 
   // Inicializa os parâmetros de configuração: Assinar
@@ -671,6 +714,9 @@ begin
     SubstituirNFSe := False;
     AbrirSessao := False;
     FecharSessao := False;
+    GerarToken := False;
+    EnviarEvento := False;
+    ConsultarEvento := False;
 
     IncluirURI := True;
 
@@ -839,6 +885,40 @@ begin
     TACBrNFSeX(FAOwner).Gravar(aNota.NomeArq, aNota.XmlNfse);
 end;
 
+procedure TACBrNFSeXProvider.SalvarPDFNfse(const aNome: string;
+  const aPDF: AnsiString);
+var
+  aPath, aNomeArq: string;
+  aConfig: TConfiguracoesNFSe;
+begin
+  aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
+
+  aPath := aConfig.Arquivos.GetPathNFSe(0, aConfig.Geral.Emitente.CNPJ,
+                        aConfig.Geral.Emitente.DadosEmitente.InscricaoEstadual);
+
+  aNomeArq := PathWithDelim(aPath) + aNome + '-nfse.pdf';
+
+  if FAOwner.Configuracoes.Arquivos.Salvar then
+    WriteToTXT(aNomeArq, aPDF, False, False);
+end;
+
+procedure TACBrNFSeXProvider.SalvarXmlEvento(const aNome: string;
+  const  aEvento: AnsiString);
+var
+  aPath, aNomeArq: string;
+  aConfig: TConfiguracoesNFSe;
+begin
+  aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
+
+  aPath := aConfig.Arquivos.GetPathEvento(0, aConfig.Geral.Emitente.CNPJ,
+                        aConfig.Geral.Emitente.DadosEmitente.InscricaoEstadual);
+
+  aNomeArq := PathWithDelim(aPath) + aNome + '.xml';
+
+  if FAOwner.Configuracoes.Arquivos.Salvar then
+    WriteToTXT(aNomeArq, aEvento, False, False);
+end;
+
 procedure TACBrNFSeXProvider.SetNomeXSD(const aNome: string);
 begin
   with ConfigSchemas do
@@ -858,6 +938,10 @@ begin
     AbrirSessao := aNome;
     FecharSessao := aNome;
     Teste := aNome;
+    GerarToken := aNome;
+    EnviarEvento := aNome;
+    ConsultarEvento := aNome;
+
     Validar := True;
   end;
 end;
@@ -881,6 +965,9 @@ begin
     SubstituirNFSe.xmlns := aNameSpace;
     AbrirSessao.xmlns := aNameSpace;
     FecharSessao.xmlns := aNameSpace;
+    GerarToken.xmlns := aNameSpace;
+    EnviarEvento.xmlns := aNameSpace;
+    ConsultarEvento.xmlns := aNameSpace;
   end;
 
   TACBrNFSeX(FAOwner).SSL.NameSpaceURI := aNameSpace;
@@ -897,24 +984,24 @@ function TACBrNFSeXProvider.StrToSimNao(out ok: boolean;
   const s: string): TnfseSimNao;
 begin
   Result := StrToEnumerado(ok, s,
-                           ['1', '2'],
-                           [snSim, snNao]);
+                           ['1', '2', ''],
+                           [snSim, snNao, snNao]);
 end;
 
 function TACBrNFSeXProvider.SituacaoTributariaToStr(
   const t: TnfseSituacaoTributaria): string;
 begin
   Result := EnumeradoToStr(t,
-                             ['1', '2', '3'],
-                             [stRetencao, stNormal, stSubstituicao]);
+                             ['1', '2', '3', ''],
+                             [stRetencao, stNormal, stSubstituicao, stNenhum]);
 end;
 
 function TACBrNFSeXProvider.StrToSituacaoTributaria(out ok: boolean;
   const s: string): TnfseSituacaoTributaria;
 begin
   Result := StrToEnumerado(ok, s,
-                             ['1', '2', '3'],
-                             [stRetencao, stNormal, stSubstituicao]);
+                             ['1', '2', '3', ''],
+                             [stRetencao, stNormal, stSubstituicao, stNenhum]);
 end;
 
 function TACBrNFSeXProvider.SituacaoTributariaDescricao(
@@ -924,6 +1011,7 @@ begin
     stRetencao     : Result := '1 - Sim' ;
     stNormal       : Result := '2 - Não' ;
     stSubstituicao : Result := '3 - Substituição' ;
+    stNenhum       : Result := '' ;
   else
     Result := '';
   end;
@@ -1327,6 +1415,9 @@ begin
     tmSubstituirNFSe: Schema := ConfigSchemas.SubstituirNFSe;
     tmAbrirSessao: Schema := ConfigSchemas.AbrirSessao;
     tmFecharSessao: Schema := ConfigSchemas.FecharSessao;
+    tmGerarToken: Schema := ConfigSchemas.GerarToken;
+    tmEnviarEvento: Schema := ConfigSchemas.EnviarEvento;
+    tmConsultarEvento: Schema := ConfigSchemas.ConsultarEvento;
   else
     // tmTeste
     Schema := ConfigSchemas.Teste;
@@ -1698,6 +1789,71 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
 end;
 
+procedure TACBrNFSeXProvider.ConsultarEvento;
+var
+  AService: TACBrNFSeXWebservice;
+  AErro: TNFSeEventoCollectionItem;
+begin
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeConsultarEvento);
+
+  PrepararConsultarEvento(ConsultarEventoResponse);
+  if (ConsultarEventoResponse.Erros.Count > 0) then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  AssinarConsultarEvento(ConsultarEventoResponse);
+  if (ConsultarEventoResponse.Erros.Count > 0) then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  ValidarSchema(ConsultarEventoResponse, tmConsultarEvento);
+  if (ConsultarEventoResponse.Erros.Count > 0) then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  AService := nil;
+
+  try
+    try
+      TACBrNFSeX(FAOwner).SetStatus(stNFSeEnvioWebService);
+      AService := CriarServiceClient(tmConsultarEvento);
+      AService.Prefixo := ConsultarEventoResponse.ChaveNFSe;
+
+      ConsultarEventoResponse.ArquivoRetorno := AService.ConsultarEvento(ConfigMsgDados.DadosCabecalho,
+                                                           ConsultarEventoResponse.ArquivoEnvio);
+
+      ConsultarEventoResponse.Sucesso := True;
+      ConsultarEventoResponse.EnvelopeEnvio := AService.Envio;
+      ConsultarEventoResponse.EnvelopeRetorno := AService.Retorno;
+    except
+      on E:Exception do
+      begin
+        AErro := ConsultarEventoResponse.Erros.New;
+        AErro.Codigo := Cod999;
+        AErro.Descricao := Desc999 + E.Message;
+      end;
+    end;
+  finally
+    FreeAndNil(AService);
+  end;
+
+  if not ConsultarEventoResponse.Sucesso then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
+  TratarRetornoConsultarEvento(ConsultarEventoResponse);
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+end;
+
 procedure TACBrNFSeXProvider.ConsultaNFSe;
 var
   AService: TACBrNFSeXWebservice;
@@ -2053,6 +2209,7 @@ begin
     try
       TACBrNFSeX(FAOwner).SetStatus(stNFSeEnvioWebService);
       AService := CriarServiceClient(tmEnviarEvento);
+      AService.Prefixo := EnviarEventoResponse.InfEvento.pedRegEvento.ID;
 
       EnviarEventoResponse.ArquivoRetorno := AService.EnviarEvento(ConfigMsgDados.DadosCabecalho,
                                                            EnviarEventoResponse.ArquivoEnvio);
@@ -2201,6 +2358,38 @@ begin
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.ConsultarNFSeRps.DocElemento,
       ConfigMsgDados.ConsultarNFSeRps.InfElemento, '', '', '', IdAttr);
+  except
+    on E:Exception do
+    begin
+      AErro := Response.Erros.New;
+      AErro.Codigo := Cod801;
+      AErro.Descricao := Desc801 + E.Message;
+    end;
+  end;
+end;
+
+procedure TACBrNFSeXProvider.AssinarConsultarEvento(
+  Response: TNFSeConsultarEventoResponse);
+var
+  IdAttr, Prefixo: string;
+  AErro: TNFSeEventoCollectionItem;
+begin
+  if not ConfigAssinar.ConsultarEvento then Exit;
+
+  if ConfigAssinar.IncluirURI then
+    IdAttr := ConfigGeral.Identificador
+  else
+    IdAttr := 'ID';
+
+  if ConfigMsgDados.Prefixo = '' then
+    Prefixo := ''
+  else
+    Prefixo := ConfigMsgDados.Prefixo + ':';
+
+  try
+    Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
+      Prefixo + ConfigMsgDados.ConsultarEvento.DocElemento,
+      ConfigMsgDados.ConsultarEvento.InfElemento, '', '', '', IdAttr);
   except
     on E:Exception do
     begin

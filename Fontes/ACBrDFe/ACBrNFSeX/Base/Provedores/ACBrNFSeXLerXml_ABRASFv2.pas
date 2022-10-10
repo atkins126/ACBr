@@ -259,8 +259,6 @@ procedure TNFSeR_ABRASFv2.LerEnderecoPrestadorServico(const ANode: TACBrXmlNode;
   aTag: string);
 var
   AuxNode: TACBrXmlNode;
-  xUF: string;
-  CodigoIBGE: Integer;
 begin
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
@@ -278,14 +276,6 @@ begin
       UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('Uf'), tcStr);
       CodigoPais      := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoPais'), tcInt);
       CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
-
-      CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
-
-      if CodigoIBGE > 0 then
-        xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
-
-      if UF = '' then
-        UF := xUF;
     end;
   end;
 end;
@@ -293,8 +283,6 @@ end;
 procedure TNFSeR_ABRASFv2.LerEnderecoTomador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
-  xUF: string;
-  CodigoIBGE: Integer;
 begin
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
@@ -311,14 +299,6 @@ begin
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoMunicipio'), tcStr);
       UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('Uf'), tcStr);
       CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
-
-      CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
-
-      if CodigoIBGE > 0 then
-        xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
-
-      if UF = '' then
-        UF := xUF;
     end;
   end;
 end;
@@ -527,6 +507,7 @@ procedure TNFSeR_ABRASFv2.LerInfNfse(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
   IdAttr: string;
+  Ok: Boolean;
 begin
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
@@ -546,6 +527,8 @@ begin
     NFSe.InformacoesComplementares := ObterConteudo(AuxNode.Childrens.FindAnyNs('InformacoesComplementares'), tcStr);
     NFSe.Link := ObterConteudo(AuxNode.Childrens.FindAnyNs('UrlNfse'), tcStr);
     NFSe.Competencia := LerCompetencia(AuxNode);
+
+    NFSe.Servico.Valores.IssRetido := FpAOwner.StrToSituacaoTributaria(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('IssRetido'), tcStr));
 
     if NFSe.Link = '' then
       NFSe.Link := ObterConteudo(AuxNode.Childrens.FindAnyNs('LinkNota'), tcStr);
@@ -892,7 +875,8 @@ begin
 
       with Valores do
       begin
-        IssRetido := FpAOwner.StrToSituacaoTributaria(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('IssRetido'), tcStr));
+        if IssRetido = stNenhum then
+          IssRetido := FpAOwner.StrToSituacaoTributaria(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('IssRetido'), tcStr));
 
         if IssRetido = stRetencao then
           ValorIssRetido := ValorIss

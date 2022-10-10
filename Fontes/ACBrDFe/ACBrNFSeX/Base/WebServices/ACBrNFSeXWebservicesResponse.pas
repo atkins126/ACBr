@@ -200,6 +200,9 @@ type
     FNumeroRps: string;
     FSerieRps: string;
     FCodVerif: string;
+    FidEvento: string;
+    FtpEvento: TtpEvento;
+    FnSeqEvento: Integer;
 
     FAlertas: TNFSeEventoCollection;
     FErros: TNFSeEventoCollection;
@@ -234,6 +237,9 @@ type
     property NumeroRps: string read FNumeroRps write FNumeroRps;
     property SerieRps: string read FSerieRps write FSerieRps;
     property CodVerif: string read FCodVerif write FCodVerif;
+    property idEvento: string read FidEvento write FidEvento;
+    property tpEvento: TtpEvento read FtpEvento write FtpEvento;
+    property nSeqEvento: Integer read FnSeqEvento write FnSeqEvento;
 
     property Alertas: TNFSeEventoCollection read FAlertas;
     property Erros: TNFSeEventoCollection read FErros;
@@ -421,6 +427,18 @@ type
     property InfEvento: TInfEvento read FInfEvento write FInfEvento;
   end;
 
+  TNFSeConsultarEventoResponse = class(TNFSeWebserviceResponse)
+  private
+    FChaveNFSe: string;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure Clear; override;
+
+    property ChaveNFSe: string read FChaveNFSe write FChaveNFSe;
+  end;
+
 implementation
 
 uses
@@ -518,6 +536,9 @@ begin
   Protocolo := '';
   NumeroRps := '';
   SerieRps := '';
+  idEvento := '';
+  tpEvento := teCancelamento;
+  nSeqEvento := 0;
 
   if Assigned(FErros) then
   begin
@@ -870,6 +891,29 @@ end;
 destructor TNFSeEnviarEventoResponse.Destroy;
 begin
   FInfEvento.Free;
+
+  inherited Destroy;
+end;
+
+{ TNFSeConsultarEventoResponse }
+
+procedure TNFSeConsultarEventoResponse.Clear;
+begin
+  inherited Clear;
+
+  ChaveNFSe := '';
+  tpEvento := teNenhum;
+  nSeqEvento := 0;
+end;
+
+constructor TNFSeConsultarEventoResponse.Create;
+begin
+  inherited Create;
+
+end;
+
+destructor TNFSeConsultarEventoResponse.Destroy;
+begin
 
   inherited Destroy;
 end;

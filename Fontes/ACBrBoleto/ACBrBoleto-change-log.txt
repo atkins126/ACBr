@@ -49,6 +49,39 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+06/10/2022
+-- ACBrBoletoW_Sicredi_API ACBrBoletoRet_Sicredi_API --
+[*] TK3084 Boleto WS Sicredi - Metodo de alteração
+  https://www.projetoacbr.com.br/forum/topic/69046-boleto-ws-sicredi-altera%C3%A7%C3%A3o-de-vencimento/
+  por : Thiago S
+
+06/10/2022
+-- ACBrBancoBTGPactual --
+[-] TK-3050-1-1 Ajustes Campo Livre e Nosso Número
+  por Pandaaa / Daniel Moraes / Luizhbr
+
+30/09/2022
+--ACBrBancoInter--
+[*] TK-3115 ACbrBoleto - Ajuste leitura retorno CNAB400 do Banco Inter Motivo de Rejeição
+  por : Daniel Infocotidiano / Michel Ouriques
+
+--ACBrBancoBTGPactual--
+[+] TK-3050 ACBrBoleto - Inclusão do Banco 208 BTG Pactual
+  por : Daniel Infocotidiano / Victor H Gonzales - Pandaaa / Luizhbr
+
+--ACBrBoletoW_Sicredi_API-- 
+[-] TK-3116 ACBrBoleto - Ajuste na integração via API com Sicredi parametro url nossoNumero camelCase
+  por : Sergio Mattos
+
+23/09/2022
+-- ACBrBancoUnicredES --
+[*] TK-2030 ACBrBoleto - Ajuste leitura retorno CNAB400 quanto ao método CodMotivoRejeicaoToDescricao
+  Por : Pandaaa / José Luiz
+
+-- ACBrBoletoRetorno ACBrBoletoRet_BancoBrasil_API --
+[*] TK-3089 ACBrBoleto - Ajuste integração por API do BB para leitura de mais campos
+  Por : Aggille Sistemas de Gestão / Pandaaa
+
 19/09/2022
 --ACBrBoletoRet_BancoBrasil_API--
 TK-3033 Alimentar propriedades Outros Valores Retorno Banco do Brasil API (tpConsultaDetalhada)  ValorRecebido,ValorMoraJuros,ValorDesconto,ValorOutrosCreditos,ValorIOF 

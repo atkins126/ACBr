@@ -75,21 +75,21 @@ type
 
     FPConfiguracoes: TConfiguracoes;
     FPDFeOwner: TACBrDFe;
-    FPURL: String;
-    FPMimeType: String;
+    FPURL: string;
+    FPMimeType: string;
     FPEnvio: string;
     FPRetorno: string;
     FUseOuterXml: Boolean;
 
-    FPArqEnv: String;
-    FPArqResp: String;
+    FPArqEnv: string;
+    FPArqResp: string;
     FPMsgOrig: string;
 
-    procedure FazerLog(const Msg: String; Exibir: Boolean = False); virtual;
-    procedure GerarException(const Msg: String; E: Exception = nil); virtual;
+    procedure FazerLog(const Msg: string; Exibir: Boolean = False); virtual;
+    procedure GerarException(const Msg: string; E: Exception = nil); virtual;
     function GetSoapBody(const Response: string): string; virtual;
 
-    function GerarPrefixoArquivo: String; virtual;
+    function GerarPrefixoArquivo: string; virtual;
 
     procedure SalvarEnvio(ADadosSoap, ADadosMsg: string); virtual;
     procedure SalvarRetornoWebService(ADadosSoap: string); virtual;
@@ -122,23 +122,24 @@ type
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
       AMethod: string = 'POST');
 
-    function Recepcionar(ACabecalho, AMSG: String): string; virtual;
-    function ConsultarLote(ACabecalho, AMSG: String): string; virtual;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; virtual;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; virtual;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; virtual;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; virtual;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; virtual;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; virtual;
-    function Cancelar(ACabecalho, AMSG: String): string; virtual;
-    function GerarNFSe(ACabecalho, AMSG: String): string; virtual;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; virtual;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; virtual;
-    function GerarToken(ACabecalho, AMSG: String): string; virtual;
-    function AbrirSessao(ACabecalho, AMSG: String): string; virtual;
-    function FecharSessao(ACabecalho, AMSG: String): string; virtual;
-    function TesteEnvio(ACabecalho, AMSG: String): string; virtual;
-    function EnviarEvento(ACabecalho, AMSG: String): string; virtual;
+    function Recepcionar(ACabecalho, AMSG: string): string; virtual;
+    function ConsultarLote(ACabecalho, AMSG: string): string; virtual;
+    function ConsultarSituacao(ACabecalho, AMSG: string): string; virtual;
+    function ConsultarNFSePorRps(ACabecalho, AMSG: string): string; virtual;
+    function ConsultarNFSe(ACabecalho, AMSG: string): string; virtual;
+    function ConsultarNFSePorFaixa(ACabecalho, AMSG: string): string; virtual;
+    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: string): string; virtual;
+    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: string): string; virtual;
+    function Cancelar(ACabecalho, AMSG: string): string; virtual;
+    function GerarNFSe(ACabecalho, AMSG: string): string; virtual;
+    function RecepcionarSincrono(ACabecalho, AMSG: string): string; virtual;
+    function SubstituirNFSe(ACabecalho, AMSG: string): string; virtual;
+    function GerarToken(ACabecalho, AMSG: string): string; virtual;
+    function AbrirSessao(ACabecalho, AMSG: string): string; virtual;
+    function FecharSessao(ACabecalho, AMSG: string): string; virtual;
+    function TesteEnvio(ACabecalho, AMSG: string): string; virtual;
+    function EnviarEvento(ACabecalho, AMSG: string): string; virtual;
+    function ConsultarEvento(ACabecalho, AMSG: string): string; virtual;
 
     property URL: string read FPURL;
     property BaseURL: string read GetBaseUrl;
@@ -156,7 +157,7 @@ type
                                   namespace: array of string): string; override;
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'text/xml');
 
   end;
 
@@ -166,7 +167,7 @@ type
                                   namespace: array of string): string; override;
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'application/soap+xml');
 
   end;
 
@@ -178,7 +179,7 @@ type
                                   namespace: array of string): string; override;
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'application/xml');
 
   end;
 
@@ -189,7 +190,18 @@ type
 
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'application/json');
+
+  end;
+
+  TACBrNFSeXWebserviceRest2 = class(TACBrNFSeXWebserviceNoSoap)
+  protected
+    function DefinirMsgEnvio(const Message, SoapAction, SoapHeader: string;
+                           namespace: array of string): string; override;
+
+  public
+    constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
+      AMethod: string = 'POST'; AMimeType: string = 'application/json');
 
   end;
 
@@ -201,7 +213,7 @@ type
                                   namespace: array of string): string; override;
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'text/xml');
 
   end;
 
@@ -214,7 +226,7 @@ type
 
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'text/xml');
 
   end;
 
@@ -226,48 +238,50 @@ type
    FDataInicial: TDateTime;
    FDataFinal: TDateTime;
 
-   FCNPJPrestador: String;
-   FIMPrestador: String;
-   FCNPJTomador: String;
-   FIMTomador: String;
-   FCNPJInter: String;
-   FIMInter: String;
-   FRazaoInter: String;
+   FCNPJPrestador: string;
+   FIMPrestador: string;
+   FCNPJTomador: string;
+   FIMTomador: string;
+   FCNPJInter: string;
+   FIMInter: string;
+   FRazaoInter: string;
 
    FPagina: Integer;
    FtpConsulta: TtpConsulta;
    FtpPeriodo: TtpPeriodo;
-   FTipo: TTipoDoc;
-   FCadEconomico: String;
-   FSerieNFSe: String;
-   FCodServ: String;
-   FCodVerificacao: String;
+   FtpDocumento: TtpDocumento;
+   FCadEconomico: string;
+   FSerieNFSe: string;
+   FCodServ: string;
+   FCodVerificacao: string;
+   FtpRetorno: TtpRetorno;
 
  public
    constructor Create;
 
-   function LerFromIni(const AIniString: String): Boolean;
+   function LerFromIni(const AIniStr: string): Boolean;
 
    property NumeroIniNFSe: string   read FNumeroIniNFSe write FNumeroIniNFSe;
    property NumeroFinNFSe: string   read FNumeroFinNFSe write FNumeroFinNFSe;
    property NumeroLote: string      read FNumeroLote    write FNumeroLote;
    property DataInicial: TDateTime  read FDataInicial   write FDataInicial;
    property DataFinal: TDateTime    read FDataFinal     write FDataFinal;
-   property CNPJPrestador: String   read FCNPJPrestador write FCNPJPrestador;
-   property IMPrestador: String     read FIMPrestador   write FIMPrestador;
-   property CNPJTomador: String     read FCNPJTomador   write FCNPJTomador;
-   property IMTomador: String       read FIMTomador     write FIMTomador;
-   property CNPJInter: String       read FCNPJInter     write FCNPJInter;
-   property IMInter: String         read FIMInter       write FIMInter;
-   property RazaoInter: String      read FRazaoInter    write FRazaoInter;
+   property CNPJPrestador: string   read FCNPJPrestador write FCNPJPrestador;
+   property IMPrestador: string     read FIMPrestador   write FIMPrestador;
+   property CNPJTomador: string     read FCNPJTomador   write FCNPJTomador;
+   property IMTomador: string       read FIMTomador     write FIMTomador;
+   property CNPJInter: string       read FCNPJInter     write FCNPJInter;
+   property IMInter: string         read FIMInter       write FIMInter;
+   property RazaoInter: string      read FRazaoInter    write FRazaoInter;
    property Pagina: Integer         read FPagina        write FPagina;
    property tpConsulta: TtpConsulta read FtpConsulta    write FtpConsulta;
    property tpPeriodo: TtpPeriodo   read FtpPeriodo     write FtpPeriodo;
-   property Tipo: TTipoDoc          read FTipo          write FTipo;
-   property CadEconomico: String    read FCadEconomico  write FCadEconomico;
-   property SerieNFSe: String       read FSerieNFSe     write FSerieNFSe;
-   property CodServ: String         read FCodServ       write FCodServ;
-   property CodVerificacao: String  read FCodVerificacao write FCodVerificacao;
+   property tpDocumento: TtpDocumento read FtpDocumento write FtpDocumento;
+   property CadEconomico: string    read FCadEconomico  write FCadEconomico;
+   property SerieNFSe: string       read FSerieNFSe     write FSerieNFSe;
+   property CodServ: string         read FCodServ       write FCodServ;
+   property CodVerificacao: string  read FCodVerificacao write FCodVerificacao;
+   property tpRetorno: TtpRetorno   read FtpRetorno     write FtpRetorno;
  end;
 
   TInfCancelamento = class
@@ -287,12 +301,12 @@ type
     FNumeroNFSeSubst: string;
     FSerieNFSeSubst: string;
     FCodServ: string;
-    FTipo: TTipoDoc;
+    FtpDocumento: TtpDocumento;
 
   public
     constructor Create;
 
-    function LerFromIni(const AIniString: String): Boolean;
+    function LerFromIni(const AIniStr: string): Boolean;
 
     property NumeroNFSe: string      read FNumeroNFSe      write FNumeroNFSe;
     property SerieNFSe: string       read FSerieNFSe       write FSerieNFSe;
@@ -309,7 +323,7 @@ type
     property NumeroNFSeSubst: string read FNumeroNFSeSubst write FNumeroNFSeSubst;
     property SerieNFSeSubst: string  read FSerieNFSeSubst  write FSerieNFSeSubst;
     property CodServ: string         read FCodServ         write FCodServ;
-    property Tipo: TTipoDoc          read FTipo            write FTipo;
+    property tpDocumento: TtpDocumento read FtpDocumento   write FtpDocumento;
 
   end;
 
@@ -325,17 +339,10 @@ type
     FcMotivo: Integer;
     FxMotivo: string;
     FchSubstituta: string;
-    FCPFAgTrib: string;
-    FnProcAdm: string;
-    FidEvManifRej: string;
-    FxProcAdm: string;
-    FcodEvento: TtpEvento;
-    FidBloqOfic: string;
-
   public
     constructor Create;
 
-    property ID: string             read FID;
+    property ID: string             read FID            write FID;
     property tpAmb: Integer         read FtpAmb         write FtpAmb;
     property verAplic: string       read FverAplic      write FverAplic;
     property dhEvento: TDateTime    read FdhEvento      write FdhEvento;
@@ -345,12 +352,6 @@ type
     property cMotivo: Integer       read FcMotivo       write FcMotivo;
     property xMotivo: string        read FxMotivo       write FxMotivo;
     property chSubstituta: string   read FchSubstituta  write FchSubstituta;
-    property CPFAgTrib: string      read FCPFAgTrib     write FCPFAgTrib;
-    property nProcAdm: string       read FnProcAdm      write FnProcAdm;
-    property idEvManifRej: string   read FidEvManifRej  write FidEvManifRej;
-    property xProcAdm: string       read FxProcAdm      write FxProcAdm;
-    property codEvento: TtpEvento   read FcodEvento     write FcodEvento;
-    property idBloqOfic: string     read FidBloqOfic    write FidBloqOfic;
   end;
 
  TInfEvento = class
@@ -365,7 +366,7 @@ type
   public
     constructor Create;
 
-    function LerFromIni(const AIniString: String): Boolean;
+    function LerFromIni(const AIniStr: string): Boolean;
 
     property ID: string                  read FID;
     property verAplic: string            read FverAplic     write FverAplic;
@@ -496,13 +497,25 @@ begin
         FPArqEnv := 'fec-ses';
         FPArqResp := 'ret-fec';
       end;
+
+    tmEnviarEvento:
+      begin
+        FPArqEnv := 'env-eve';
+        FPArqResp := 'eve';
+      end;
+
+    tmConsultarEvento:
+      begin
+        FPArqEnv := 'con-eve';
+        FPArqResp := 'eve';
+      end;
   end;
 
   FPURL := AURL;
   FPMethod := AMethod;
 end;
 
-procedure TACBrNFSeXWebservice.FazerLog(const Msg: String; Exibir: Boolean);
+procedure TACBrNFSeXWebservice.FazerLog(const Msg: string; Exibir: Boolean);
 var
   Tratado: Boolean;
 begin
@@ -519,7 +532,7 @@ begin
   end;
 end;
 
-procedure TACBrNFSeXWebservice.GerarException(const Msg: String; E: Exception);
+procedure TACBrNFSeXWebservice.GerarException(const Msg: string; E: Exception);
 begin
   FPDFeOwner.GerarException(ACBrStr(Msg), E);
 end;
@@ -545,7 +558,7 @@ begin
   Result := Copy(Url, 1, i);
 end;
 
-function TACBrNFSeXWebservice.GerarPrefixoArquivo: String;
+function TACBrNFSeXWebservice.GerarPrefixoArquivo: string;
 begin
   if FPrefixo = '' then
     Result := FormatDateTime('yyyymmddhhnnss', Now)
@@ -555,7 +568,7 @@ end;
 
 procedure TACBrNFSeXWebservice.SalvarEnvio(ADadosSoap, ADadosMsg: string);
 var
-  Prefixo, ArqEnv: String;
+  Prefixo, ArqEnv: string;
 begin
   { Sobrescrever apenas se necessário }
 
@@ -580,7 +593,7 @@ end;
 
 procedure TACBrNFSeXWebservice.SalvarRetornoDadosMsg(ADadosMsg: string);
 var
-  Prefixo, ArqEnv: String;
+  Prefixo, ArqEnv: string;
 begin
   { Sobrescrever apenas se necessário }
 
@@ -598,7 +611,7 @@ end;
 
 procedure TACBrNFSeXWebservice.SalvarRetornoWebService(ADadosSoap: string);
 var
-  Prefixo, ArqEnv: String;
+  Prefixo, ArqEnv: string;
 begin
   { Sobrescrever apenas se necessário }
 
@@ -698,6 +711,12 @@ begin
 
   if xRetorno = '' then
     Exit;
+
+  if not StringIsXML(xRetorno) then
+  begin
+    Result := xRetorno;
+    Exit;
+  end;
 
   if (Length(responseTag) = 0) then
   begin
@@ -860,7 +879,8 @@ begin
     if FPRetorno = '' then
       raise EACBrDFeException.Create('WebService retornou um XML vazio.');
 
-    LevantarExcecaoHttp;
+    if StringIsXML(FPRetorno) then
+      LevantarExcecaoHttp;
   except
     on E:Exception do
     begin
@@ -886,103 +906,109 @@ begin
   SalvarRetornoDadosMsg(Result);
 end;
 
-function TACBrNFSeXWebservice.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.Recepcionar(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.ConsultarEvento(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.ConsultarSituacao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.ConsultarLote(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.ConsultarSituacao(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.ConsultarNFSePorRps(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.ConsultarNFSe(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.ConsultarNFSePorFaixa(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.ConsultarNFSeServicoPrestado(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.ConsultarNFSeServicoTomado(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.GerarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.Cancelar(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.RecepcionarSincrono(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.GerarNFSe(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.SubstituirNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.RecepcionarSincrono(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.GerarToken(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.SubstituirNFSe(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.AbrirSessao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.GerarToken(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.FecharSessao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.AbrirSessao(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.TesteEnvio(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.FecharSessao(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
-function TACBrNFSeXWebservice.EnviarEvento(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice.TesteEnvio(ACabecalho, AMSG: string): string;
+begin
+  Result := '';
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+function TACBrNFSeXWebservice.EnviarEvento(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
@@ -991,11 +1017,11 @@ end;
 { TACBrNFSeXWebserviceSoap11 }
 
 constructor TACBrNFSeXWebserviceSoap11.Create(AOwner: TACBrDFe; AMetodo: TMetodo;
-  AURL: string; AMethod: string);
+  AURL: string; AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
-  FPMimeType := 'text/xml';
+  FPMimeType := AMimeType;
 end;
 
 function TACBrNFSeXWebserviceSoap11.DefinirMsgEnvio(const Message, SoapAction,
@@ -1031,11 +1057,11 @@ end;
 { TACBrNFSeXWebserviceSoap12 }
 
 constructor TACBrNFSeXWebserviceSoap12.Create(AOwner: TACBrDFe; AMetodo: TMetodo;
-  AURL: string; AMethod: string);
+  AURL: string; AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
-  FPMimeType := 'application/soap+xml';
+  FPMimeType := AMimeType;
 end;
 
 function TACBrNFSeXWebserviceSoap12.DefinirMsgEnvio(const Message, SoapAction,
@@ -1072,11 +1098,11 @@ end;
 { TACBrNFSeXWebserviceNoSoap }
 
 constructor TACBrNFSeXWebserviceNoSoap.Create(AOwner: TACBrDFe;
-  AMetodo: TMetodo; AURL: string; AMethod: string);
+  AMetodo: TMetodo; AURL: string; AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
-  FPMimeType := 'application/xml';
+  FPMimeType := AMimeType;
 end;
 
 function TACBrNFSeXWebserviceNoSoap.DefinirMsgEnvio(const Message, SoapAction,
@@ -1100,17 +1126,37 @@ end;
 { TACBrNFSeXWebserviceRest }
 
 constructor TACBrNFSeXWebserviceRest.Create(AOwner: TACBrDFe; AMetodo: TMetodo;
-  AURL: string; AMethod: string);
+  AURL, AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
-  FPMimeType := 'application/json';
+  FPMimeType := AMimeType;
 end;
 
 function TACBrNFSeXWebserviceRest.DefinirMsgEnvio(const Message, SoapAction,
   SoapHeader: string; namespace: array of string): string;
+begin
+  Result := Message;
+
+  HttpClient := FPDFeOwner.SSL.SSLHttpClass;
+
+  HttpClient.Clear;
+end;
+
+{ TACBrNFSeXWebserviceRest2 }
+
+constructor TACBrNFSeXWebserviceRest2.Create(AOwner: TACBrDFe; AMetodo: TMetodo;
+  AURL: string; AMethod: string; AMimeType: string);
+begin
+  inherited Create(AOwner, AMetodo, AURL, AMethod);
+
+  FPMimeType := AMimeType;
+end;
+
+function TACBrNFSeXWebserviceRest2.DefinirMsgEnvio(const Message, SoapAction,
+  SoapHeader: string; namespace: array of string): string;
 var
-  UsuarioWeb, SenhaWeb, Texto: String;
+  UsuarioWeb, SenhaWeb, Texto: string;
 begin
   UsuarioWeb := Trim(TConfiguracoesNFSe(FPConfiguracoes).Geral.Emitente.WSUser);
 
@@ -1124,7 +1170,6 @@ begin
     GerarException(ACBrStr('O provedor ' + TConfiguracoesNFSe(FPConfiguracoes).Geral.xProvedor +
       ' necessita que a propriedade: Configuracoes.Geral.Emitente.WSSenha seja informada.'));
 
-//  Texto := StringReplace(Message, '"', '''', [rfReplaceAll]);
   Texto := StringReplace(Message, '"', '\"', [rfReplaceAll]);
   Texto := StringReplace(Texto, #10, '', [rfReplaceAll]);
   Texto := StringReplace(Texto, #13, '', [rfReplaceAll]);
@@ -1139,7 +1184,7 @@ end;
 { TACBrNFSeXWebserviceMulti1 }
 
 constructor TACBrNFSeXWebserviceMulti1.Create(AOwner: TACBrDFe; AMetodo: TMetodo;
-  AURL: string; AMethod: string);
+  AURL: string; AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
@@ -1150,7 +1195,7 @@ end;
 function TACBrNFSeXWebserviceMulti1.DefinirMsgEnvio(const Message, SoapAction,
   SoapHeader: string; namespace: array of string): string;
 var
-  UsuarioWeb, SenhaWeb: String;
+  UsuarioWeb, SenhaWeb: string;
 begin
   UsuarioWeb := Trim(TConfiguracoesNFSe(FPConfiguracoes).Geral.Emitente.WSUser);
 
@@ -1185,7 +1230,7 @@ end;
 { TACBrNFSeXWebserviceMulti2 }
 
 constructor TACBrNFSeXWebserviceMulti2.Create(AOwner: TACBrDFe; AMetodo: TMetodo;
-  AURL: string; AMethod: string);
+  AURL: string; AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
@@ -1196,7 +1241,7 @@ end;
 function TACBrNFSeXWebserviceMulti2.DefinirMsgEnvio(const Message, SoapAction,
   SoapHeader: string; namespace: array of string): string;
 var
-  NomeArq: String;
+  NomeArq: string;
 begin
   NomeArq := GerarPrefixoArquivo + '-' + FPArqEnv + '.xml';
 
@@ -1204,6 +1249,8 @@ begin
             'Content-Type: text/xml; charset=Cp1252; name=' +
             NomeArq + sLineBreak +
             'Content-Transfer-Encoding: binary' + sLineBreak +
+            'Content-Length: ' + IntToStr(Length(Message)) + sLineBreak +
+//            'Content-Length: ' + IntToStr(TEncoding.UTF8.GetByteCount(Message)) + sLineBreak +
             'Content-Disposition: form-data; name=' + AnsiQuotedStr(NomeArq, '"') +
             '; filename=' + AnsiQuotedStr(NomeArq, '"') + sLineBreak +
             sLineBreak +
@@ -1238,12 +1285,13 @@ begin
   CodServ       := '';
   CodVerificacao:= '';
   Pagina        := 1;
-  Tipo          := tdNFSe;
+  tpDocumento   := tdNFSe;
+  tpRetorno     := trXml;
 end;
 
-function TInfConsultaNFSe.LerFromIni(const AIniString: String): Boolean;
+function TInfConsultaNFSe.LerFromIni(const AIniStr: string): Boolean;
 var
-  sSecao: String;
+  sSecao: string;
   INIRec: TMemIniFile;
   Ok: Boolean;
 begin
@@ -1253,12 +1301,13 @@ begin
 
   INIRec := TMemIniFile.Create('');
   try
-    LerIniArquivoOuString(AIniString, INIRec);
+    LerIniArquivoOuString(AIniStr, INIRec);
 
     sSecao := 'ConsultarNFSe';
 
     tpConsulta := StrTotpConsulta(Ok, INIRec.ReadString(sSecao, 'tpConsulta', '1'));
     tpPeriodo  := StrTotpPeriodo(Ok, INIRec.ReadString(sSecao, 'tpPeriodo', '1'));
+    tpRetorno  := StrTotpRetorno(Ok, INIRec.ReadString(sSecao, 'tpRetorno', 'XML'));
 
     NumeroIniNFSe := INIRec.ReadString(sSecao, 'NumeroIniNFSe', '');
     NumeroFinNFSe := INIRec.ReadString(sSecao, 'NumeroFinNFSe', '');
@@ -1273,7 +1322,7 @@ begin
     CNPJInter     := INIRec.ReadString(sSecao, 'CNPJInter', '');
     IMInter       := INIRec.ReadString(sSecao, 'IMInter', '');
     RazaoInter    := INIRec.ReadString(sSecao, 'RazaoInter', '');
-    Tipo          := StrToTipoDoc(Ok, INIRec.ReadString(sSecao, 'Tipo', '1'));
+    tpDocumento   := StrTotpDocumento(Ok, INIRec.ReadString(sSecao, 'Tipo', '1'));
     CadEconomico  := INIRec.ReadString(sSecao, 'CadEconomico', '');
     SerieNFSe     := INIRec.ReadString(sSecao, 'SerieNFSe', '');
     CodServ       := INIRec.ReadString(sSecao, 'CodServ', '');
@@ -1283,7 +1332,7 @@ begin
 
     Result := True;
   finally
-     INIRec.Free;
+    INIRec.Free;
   end;
 end;
 
@@ -1306,12 +1355,12 @@ begin
   FNumeroNFSeSubst := '';
   FSerieNFSeSubst := '';
   FCodServ := '';
-  FTipo := tdNFSe;
+  FtpDocumento := tdNFSe;
 end;
 
-function TInfCancelamento.LerFromIni(const AIniString: String): Boolean;
+function TInfCancelamento.LerFromIni(const AIniStr: string): Boolean;
 var
-  sSecao: String;
+  sSecao: string;
   INIRec: TMemIniFile;
   Ok: Boolean;
 begin
@@ -1321,7 +1370,7 @@ begin
 
   INIRec := TMemIniFile.Create('');
   try
-    LerIniArquivoOuString(AIniString, INIRec);
+    LerIniArquivoOuString(AIniStr, INIRec);
 
     sSecao := 'CancelarNFSe';
 
@@ -1340,7 +1389,7 @@ begin
     NumeroNFSeSubst := INIRec.ReadString(sSecao, 'NumeroNFSeSubst', '');
     SerieNFSeSubst  := INIRec.ReadString(sSecao, 'SerieNFSeSubst', '');
     CodServ         := INIRec.ReadString(sSecao, 'CodServ', '');
-    Tipo            := StrToTipoDoc(Ok, INIRec.ReadString(sSecao, 'Tipo', '1'));
+    tpDocumento     := StrTotpDocumento(Ok, INIRec.ReadString(sSecao, 'Tipo', '1'));
 
     Result := True;
   finally
@@ -1360,9 +1409,9 @@ begin
   FpedRegEvento := TpedRegEvento.Create;
 end;
 
-function TInfEvento.LerFromIni(const AIniString: String): Boolean;
+function TInfEvento.LerFromIni(const AIniStr: string): Boolean;
 var
-  sSecao: String;
+  sSecao: string;
   INIRec: TMemIniFile;
   Ok: Boolean;
 begin
@@ -1372,7 +1421,7 @@ begin
 
   INIRec := TMemIniFile.Create('');
   try
-    LerIniArquivoOuString(AIniString, INIRec);
+    LerIniArquivoOuString(AIniStr, INIRec);
 
     sSecao := 'Evento';
 
@@ -1387,12 +1436,6 @@ begin
       cMotivo := INIRec.ReadInteger(sSecao, 'cMotivo', 0);
       xMotivo := INIRec.ReadString(sSecao, 'xMotivo', '');
       chSubstituta := INIRec.ReadString(sSecao, 'chSubstituta', '');
-      CPFAgTrib := INIRec.ReadString(sSecao, 'CPFAgTrib', '');
-      nProcAdm := INIRec.ReadString(sSecao, 'nProcAdm', '');
-      idEvManifRej := INIRec.ReadString(sSecao, 'idEvManifRej', '');
-      xProcAdm := INIRec.ReadString(sSecao, 'xProcAdm', '');
-      codEvento := StrTotpEvento(Ok, INIRec.ReadString(sSecao, 'codEvento', 'e101101'));
-      idBloqOfic := INIRec.ReadString(sSecao, 'idBloqOfic', '');
     end;
 
     Result := True;
@@ -1414,12 +1457,6 @@ begin
   FcMotivo := 0;
   FxMotivo := '';
   FchSubstituta := '';
-  FCPFAgTrib := '';
-  FnProcAdm := '';
-  FidEvManifRej := '';
-  FxProcAdm := '';
-  FcodEvento := teCancelamento;
-  FidBloqOfic := '';
 end;
 
 end.

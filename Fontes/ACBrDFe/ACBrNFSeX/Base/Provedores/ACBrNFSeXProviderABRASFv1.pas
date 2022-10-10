@@ -100,6 +100,11 @@ type
       Params: TNFSeParamsResponse); override;
     procedure TratarRetornoEnviarEvento(Response: TNFSeEnviarEventoResponse); override;
 
+    procedure PrepararConsultarEvento(Response: TNFSeConsultarEventoResponse); override;
+    procedure GerarMsgDadosConsultarEvento(Response: TNFSeConsultarEventoResponse;
+      Params: TNFSeParamsResponse); override;
+    procedure TratarRetornoConsultarEvento(Response: TNFSeConsultarEventoResponse); override;
+
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'ListaMensagemRetorno';
@@ -323,8 +328,8 @@ begin
   ListaRps := ChangeLineBreak(ListaRps, '');
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := ListaRps;
     aParams.TagEnvio := TagEnvio;
     aParams.Prefixo := Prefixo;
@@ -462,8 +467,8 @@ begin
   end;
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := '';
     aParams.TagEnvio := '';
     aParams.Prefixo := Prefixo;
@@ -527,6 +532,10 @@ begin
 
       Response.Lote := ObterConteudoTag(Document.Root.Childrens.FindAnyNs('NumeroLote'), tcStr);
       Response.Situacao := ObterConteudoTag(Document.Root.Childrens.FindAnyNs('Situacao'), tcStr);
+
+      if not Response.Sucesso then
+        Response.Situacao := '3';
+
     except
       on E:Exception do
       begin
@@ -592,8 +601,8 @@ begin
   end;
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := '';
     aParams.TagEnvio := '';
     aParams.Prefixo := Prefixo;
@@ -790,8 +799,8 @@ begin
   TagEnvio := ConfigMsgDados.ConsultarNFSeRps.DocElemento;
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := '';
     aParams.TagEnvio := TagEnvio;
     aParams.Prefixo := Prefixo;
@@ -1029,8 +1038,8 @@ begin
   TagEnvio := ConfigMsgDados.ConsultarNFSe.DocElemento;
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := XmlConsulta;
     aParams.TagEnvio := TagEnvio;
     aParams.Prefixo := Prefixo;
@@ -1243,8 +1252,8 @@ begin
     xMotivo := '';
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := '';
     aParams.TagEnvio := '';
     aParams.Prefixo := Prefixo;
@@ -1483,6 +1492,28 @@ end;
 
 procedure TACBrNFSeProviderABRASFv1.TratarRetornoEnviarEvento(
   Response: TNFSeEnviarEventoResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+procedure TACBrNFSeProviderABRASFv1.PrepararConsultarEvento(
+  Response: TNFSeConsultarEventoResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv1.GerarMsgDadosConsultarEvento(
+  Response: TNFSeConsultarEventoResponse; Params: TNFSeParamsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv1.TratarRetornoConsultarEvento(
+  Response: TNFSeConsultarEventoResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;

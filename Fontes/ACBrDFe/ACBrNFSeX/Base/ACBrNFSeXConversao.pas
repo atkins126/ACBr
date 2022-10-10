@@ -49,7 +49,8 @@ type
                      stNFSeConsulta, stNFSeCancelamento, stNFSeSubstituicao,
                      stNFSeImprimir, stNFSeEmail, stNFSeAbrirSessao,
                      stNFSeFecharSessao, stNFSeAguardaProcesso,
-                     stNFSeEnvioWebService, stNFSeGerarToken);
+                     stNFSeEnvioWebService, stNFSeGerarToken,
+                     stNFSeConsultarEvento);
 
   TVersaoNFSe = (ve100, ve101, ve103,
                  ve200, ve201, ve202, ve203, ve204);
@@ -133,7 +134,7 @@ type
                    proTiplan, proTributus, proVersaTecnologia, proVirtual,
                    proWebFisco, proWebISS);
 
-  TnfseSituacaoTributaria = (stRetencao, stNormal, stSubstituicao);
+  TnfseSituacaoTributaria = (stRetencao, stNormal, stSubstituicao, stNenhum);
 
   TnfseResponsavelRetencao = (rtTomador, rtPrestador, rtIntermediario, rtNenhum);
 
@@ -177,7 +178,7 @@ type
              tmConsultarNFSeServicoTomado, tmCancelarNFSe,
              tmGerar, tmGerarLote, tmRecepcionarSincrono, tmSubstituirNFSe,
              tmAbrirSessao, tmFecharSessao, tmTeste, tmTodos,
-             tmGerarToken, tmEnviarEvento);
+             tmGerarToken, tmEnviarEvento, tmConsultarEvento);
 
   TFormatoItemListaServico = (filsComFormatacao, filsSemFormatacao,
                               filsComFormatacaoSemZeroEsquerda,
@@ -203,7 +204,9 @@ type
   TTipoLancamento = (tlDevidoNoMunicPrestador, tlDevidoNoMunicTomador,
                      tlSimplesNacional, tlIsentoImune, tlCancelado);
 
-  TTipoDoc = (tdNFSe, tdRPS);
+  TtpDocumento = (tdNFSe, tdRPS);
+
+  TtpRetorno = (trXml, trPDF);
 
   // Usado pelo PadraoNacional
   TtpEmit = (tePrestador, teTomador, teIntermediario);
@@ -276,11 +279,11 @@ type
   TtpEvento = (teCancelamento, teCancelamentoSubstituicao,
                teAnaliseParaCancelamento, teCancelamentoDeferido,
                teCancelamentoIndeferido, teConfirmacaoPrestador,
-               teConfirmacaoTomador, ConfirmacaoIntermediario,
+               teConfirmacaoTomador, teConfirmacaoIntermediario,
                teConfirmacaoTacita, teRejeicaoPrestador, teRejeicaoTomador,
-               teRejeicaoIntermediario, AnulacaoRejeicao,
+               teRejeicaoIntermediario, teAnulacaoRejeicao,
                teCancelamentoPorOficio, teBloqueioPorOficio,
-               teDesbloqueioPorOficio);
+               teDesbloqueioPorOficio, teNenhum);
 
 function StatusRPSToStr(const t: TStatusRPS): string;
 function StrToStatusRPS(out ok: boolean; const s: string): TStatusRPS;
@@ -363,6 +366,9 @@ function StrTotpConsulta(out ok: boolean; const s: string): TtpConsulta;
 function tpPeriodoToStr(const t: TtpPeriodo): string;
 function StrTotpPeriodo(out ok: boolean; const s: string): TtpPeriodo;
 
+function tpRetornoToStr(const t: TtpRetorno): string;
+function StrTotpRetorno(out ok: boolean; const s: string): TtpRetorno;
+
 function MetodoToStr(const t: TMetodo): string;
 
 function ModoEnvioToStr(const t: TmodoEnvio): string;
@@ -370,8 +376,8 @@ function ModoEnvioToStr(const t: TmodoEnvio): string;
 function TipoLancamentoToStr(const t: TTipoLancamento): string;
 function StrToTipoLancamento(out ok: boolean; const s: string): TTipoLancamento;
 
-function TipoDocToStr(const t: TTipoDoc): string;
-function StrToTipoDoc(out ok: boolean; const s: string): TTipoDoc;
+function tpDocumentoToStr(const t: TtpDocumento): string;
+function StrTotpDocumento(out ok: boolean; const s: string): TtpDocumento;
 
 function tpEmitToStr(const t: TtpEmit): string;
 function StrTotpEmit(out ok: Boolean; const s: string): TtpEmit;
@@ -450,6 +456,7 @@ function StrToprocEmi(out ok: Boolean; const s: string): TprocEmi;
 
 function tpEventoToStr(const t: TtpEvento): string;
 function StrTotpEvento(out ok: Boolean; const s: string): TtpEvento;
+function tpEventoToDesc(const t: TtpEvento): string;
 
 function TipoDeducaoToStr(const t: TTipoDeducao): string;
 function StrToTipoDeducao(out ok: Boolean; const s: string): TTipoDeducao;
@@ -12639,6 +12646,20 @@ begin
                            [tpEmissao, tpCompetencia]);
 end;
 
+function tpRetornoToStr(const t: TtpRetorno): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['XML', 'PDF'],
+                           [trXml, trPDF]);
+end;
+
+function StrTotpRetorno(out ok: boolean; const s: string): TtpRetorno;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['XML', 'PDF'],
+                           [trXml, trPDF]);
+end;
+
 function MetodoToStr(const t: TMetodo): string;
 begin
   Result := EnumeradoToStr(t,
@@ -12681,12 +12702,12 @@ begin
                           tlSimplesNacional, tlIsentoImune, tlCancelado]);
 end;
 
-function TipoDocToStr(const t: TTipoDoc): string;
+function tpDocumentoToStr(const t: TtpDocumento): string;
 begin
   Result := EnumeradoToStr(t, ['1', '2'], [tdNFSe, tdRPS]);
 end;
 
-function StrToTipoDoc(out ok: boolean; const s: string): TTipoDoc;
+function StrTotpDocumento(out ok: boolean; const s: string): TtpDocumento;
 begin
   Result := StrToEnumerado(ok, s, ['1', '2'], [tdNFSe, tdRPS]);
 end;
@@ -13087,9 +13108,9 @@ begin
                    [teCancelamento, teCancelamentoSubstituicao,
                     teAnaliseParaCancelamento, teCancelamentoDeferido,
                     teCancelamentoIndeferido, teConfirmacaoPrestador,
-                    teConfirmacaoTomador, ConfirmacaoIntermediario,
+                    teConfirmacaoTomador, teConfirmacaoIntermediario,
                     teConfirmacaoTacita, teRejeicaoPrestador, teRejeicaoTomador,
-                    teRejeicaoIntermediario, AnulacaoRejeicao,
+                    teRejeicaoIntermediario, teAnulacaoRejeicao,
                     teCancelamentoPorOficio, teBloqueioPorOficio,
                     teDesbloqueioPorOficio]);
 end;
@@ -13104,9 +13125,38 @@ begin
                    [teCancelamento, teCancelamentoSubstituicao,
                     teAnaliseParaCancelamento, teCancelamentoDeferido,
                     teCancelamentoIndeferido, teConfirmacaoPrestador,
-                    teConfirmacaoTomador, ConfirmacaoIntermediario,
+                    teConfirmacaoTomador, teConfirmacaoIntermediario,
                     teConfirmacaoTacita, teRejeicaoPrestador, teRejeicaoTomador,
-                    teRejeicaoIntermediario, AnulacaoRejeicao,
+                    teRejeicaoIntermediario, teAnulacaoRejeicao,
+                    teCancelamentoPorOficio, teBloqueioPorOficio,
+                    teDesbloqueioPorOficio]);
+end;
+
+function tpEventoToDesc(const t: TtpEvento): string;
+begin
+  result := EnumeradoToStr(t,
+                         ['Cancelamento de NFS-e',
+                          'Cancelamento de NFS-e por Substituicao',
+                          'Solicitacao de Analise Fiscal para Cancelamento de NFS-e',
+                          'Cancelamento de NFS-e Deferido por Análise Fiscal',
+                          'Cancelamento de NFS-e Indeferido por Análise Fiscal',
+                          'Confirmação do Prestador',
+                          'Confirmação do Tomador',
+                          'Confirmação do Intermediário',
+                          'Confirmação Tácita',
+                          'Rejeição do Prestador',
+                          'Rejeição do Tomador',
+                          'Rejeição do Intermediário',
+                          'Anulação da Rejeição',
+                          'Cancelamento de NFS-e por Ofício',
+                          'Bloqueio de NFS-e por Ofício',
+                          'Desbloqueio de NFS-e por Ofício'],
+                   [teCancelamento, teCancelamentoSubstituicao,
+                    teAnaliseParaCancelamento, teCancelamentoDeferido,
+                    teCancelamentoIndeferido, teConfirmacaoPrestador,
+                    teConfirmacaoTomador, teConfirmacaoIntermediario,
+                    teConfirmacaoTacita, teRejeicaoPrestador, teRejeicaoTomador,
+                    teRejeicaoIntermediario, teAnulacaoRejeicao,
                     teCancelamentoPorOficio, teBloqueioPorOficio,
                     teDesbloqueioPorOficio]);
 end;

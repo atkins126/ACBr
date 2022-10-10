@@ -186,8 +186,6 @@ type
     rllMsgTeste: TRLLabel;
     rbOutrasInformacoes: TRLBand;
     rlmDadosAdicionais: TRLMemo;
-    rllDataHoraImpressao: TRLLabel;
-    rllSistema: TRLLabel;
     RLLabel6: TRLLabel;
     rlbCanhoto: TRLBand;
     RLLabel26: TRLLabel;
@@ -228,6 +226,9 @@ type
     rlmDescCodTributacaoMunicipio: TRLMemo;
     RLLabel69: TRLLabel;
     rllPrestInscEstadual: TRLLabel;
+    RLBand1: TRLBand;
+    rllDataHoraImpressao: TRLLabel;
+    rllSistema: TRLLabel;
 
     procedure rlbCabecalhoBeforePrint(Sender: TObject; var PrintIt: Boolean);
     procedure rlbItensServicoBeforePrint(Sender: TObject; var PrintIt: Boolean);
@@ -384,14 +385,27 @@ begin
     rllCompetencia.Caption := IfThen(Competencia > 0, FormatDateTime('mm/yyyy', Competencia), '');
 
     rllNumeroRPS.Caption := IdentificacaoRps.Numero;
+
+    if IdentificacaoRps.Serie <> '' then
+      rllNumeroRPS.Caption := rllNumeroRPS.Caption + '/' + IdentificacaoRps.Serie;
+
     rllNumNFSeSubstituida.Caption := NfseSubstituida;
 
-  	// Será necessário uma analise melhor para saber em que condições devemos usar o código do municipio
-	  // do tomador em vez do que foi informado em Serviço.
+    // Será necessário uma analise melhor para saber em que condições devemos usar o código do municipio
+    // do tomador em vez do que foi informado em Serviço.
     CodigoIBGE := StrToIntDef(Servico.CodigoMunicipio, 0);
+    xMunicipio := '';
+    xUF := '';
 
-    if CodigoIBGE > 0 then
+    try
       xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+    except
+      on E:Exception do
+      begin
+        xMunicipio := '';
+        xUF := '';
+      end;
+    end;
 
     rllMunicipioPrestacaoServico.Caption := xMunicipio;
   end;
@@ -515,6 +529,9 @@ begin
 end;
 
 procedure TfrlXDANFSeRLRetrato.rlbPrestadorBeforePrint(Sender: TObject; var PrintIt: Boolean);
+var
+  CodigoIBGE: Integer;
+  xUF: string;
 begin
   inherited;
 
@@ -551,10 +568,23 @@ begin
           rllPrestMunicipio.Caption := CodigoMunicipio + ' - ' + xMunicipio
         else
         begin
-          if xMunicipio <> '' then
-            rllPrestMunicipio.Caption := xMunicipio
-          else
-            rllPrestMunicipio.Caption := CodigoMunicipio;
+          xUF := '';
+          CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+
+          try
+            xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+          except
+            on E:Exception do
+            begin
+              xMunicipio := '';
+              xUF := '';
+            end;
+          end;
+
+          if UF = '' then
+            UF := xUF;
+
+          rllPrestMunicipio.Caption := CodigoMunicipio + ' - ' + xMunicipio;
         end;
       end
       else
@@ -584,6 +614,9 @@ end;
 
 procedure TfrlXDANFSeRLRetrato.rlbTomadorBeforePrint(Sender: TObject;
   var PrintIt: Boolean);
+var
+  CodigoIBGE: Integer;
+  xUF: string;
 begin
   inherited;
 
@@ -624,10 +657,23 @@ begin
           rllTomaMunicipio.Caption := CodigoMunicipio + ' - ' + xMunicipio
         else
         begin
-          if xMunicipio <> '' then
-            rllTomaMunicipio.Caption := xMunicipio
-          else
-            rllTomaMunicipio.Caption := CodigoMunicipio;
+          xUF := '';
+          CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+
+          try
+            xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+          except
+            on E:Exception do
+            begin
+              xMunicipio := '';
+              xUF := '';
+            end;
+          end;
+
+          if UF = '' then
+            UF := xUF;
+
+          rllTomaMunicipio.Caption := CodigoMunicipio + ' - ' + xMunicipio;
         end;
       end;
 

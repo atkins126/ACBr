@@ -144,10 +144,6 @@ type
     lblPatrocinador: TLabel;
     lblDoar1: TLabel;
     lblDoar2: TLabel;
-    pgcBotoes: TPageControl;
-    tsEnvios: TTabSheet;
-    tsConsultas: TTabSheet;
-    tsCancelamento: TTabSheet;
     pgRespostas: TPageControl;
     TabSheet5: TTabSheet;
     TabSheet6: TTabSheet;
@@ -174,44 +170,13 @@ type
     Label42: TLabel;
     edtEmailRemetente: TEdit;
     cbEmailTLS: TCheckBox;
-    btnGerarEnviarLote: TButton;
-    btnGerarEnviarNFSe: TButton;
-    btnGerarEnviarSincrono: TButton;
-    btnImprimir: TButton;
-    btnEnviaremail: TButton;
-    btnLinkNFSe: TButton;
-    btnGerarLoteRPS: TButton;
-    btnSubsNFSe: TButton;
-    btnConsultarSitLote: TButton;
-    btnConsultarLote: TButton;
-    btnConsultarNFSeRPS: TButton;
-    btnConsultarNFSePeriodo: TButton;
-    btnCancNFSe: TButton;
     ACBrMail1: TACBrMail;
-    btnConsultarNFSePeloNumero: TButton;
-    btnConsultarNFSeFaixa: TButton;
     ACBrNFSeX1: TACBrNFSeX;
-    btnEmitir: TButton;
     Label43: TLabel;
     edtCNPJPrefeitura: TEdit;
-    tsTeste: TTabSheet;
-    btnGerarEnviarTeste_SP: TButton;
-    mmoObs: TMemo;
     chkConsultaLoteAposEnvio: TCheckBox;
     chkConsultaAposCancelar: TCheckBox;
     ACBrNFSeXDANFSeRL1: TACBrNFSeXDANFSeRL;
-    tsConsServPrest: TTabSheet;
-    btnConsultarNFSeServicoPrestadoPorNumero: TButton;
-    tsConsServTom: TTabSheet;
-    btnConsultarNFSeServicoTomadoPorNumero: TButton;
-    btnConsultarNFSeServicoPrestadoPorPeriodo: TButton;
-    btnConsultarNFSeServicoPrestadoPorTomador: TButton;
-    btnConsultarNFSeServicoPrestadoPorIntermediario: TButton;
-    btnConsultarNFSeServicoTomadoPorPeriodo: TButton;
-    btnConsultarNFSeServicoTomadoPorPrestador: TButton;
-    btnConsultarNFSeServicoTomadoPorIntermediario: TButton;
-    btnConsultarNFSeServicoTomadoPorTomador: TButton;
-    btnConsultarNFSeGenerico: TButton;
     Label30: TLabel;
     edtSenhaWeb: TEdit;
     Label33: TLabel;
@@ -232,8 +197,66 @@ type
     lblSchemas: TLabel;
     Label45: TLabel;
     lblVersaoSchemas: TLabel;
+    pgcProvedores: TPageControl;
+    tsDemais: TTabSheet;
+    tsPadraoNacional: TTabSheet;
+    pgcBotoes: TPageControl;
+    tsEnvios: TTabSheet;
+    btnGerarEnviarLote: TButton;
+    btnGerarEnviarNFSe: TButton;
+    btnGerarEnviarSincrono: TButton;
+    btnImprimir: TButton;
+    btnEnviaremail: TButton;
+    btnLinkNFSe: TButton;
+    btnGerarLoteRPS: TButton;
+    btnSubsNFSe: TButton;
+    btnEmitir: TButton;
+    tsConsultas: TTabSheet;
+    btnConsultarSitLote: TButton;
+    btnConsultarLote: TButton;
+    btnConsultarNFSeRPS: TButton;
+    btnConsultarNFSePeriodo: TButton;
+    btnConsultarNFSePeloNumero: TButton;
+    btnConsultarNFSeFaixa: TButton;
+    btnConsultarNFSeGenerico: TButton;
+    tsConsServPrest: TTabSheet;
+    btnConsultarNFSeServicoPrestadoPorNumero: TButton;
+    btnConsultarNFSeServicoPrestadoPorPeriodo: TButton;
+    btnConsultarNFSeServicoPrestadoPorTomador: TButton;
+    btnConsultarNFSeServicoPrestadoPorIntermediario: TButton;
+    tsConsServTom: TTabSheet;
+    btnConsultarNFSeServicoTomadoPorNumero: TButton;
+    btnConsultarNFSeServicoTomadoPorPeriodo: TButton;
+    btnConsultarNFSeServicoTomadoPorPrestador: TButton;
+    btnConsultarNFSeServicoTomadoPorIntermediario: TButton;
+    btnConsultarNFSeServicoTomadoPorTomador: TButton;
+    tsCancelamento: TTabSheet;
+    btnCancNFSe: TButton;
+    tsTeste: TTabSheet;
+    btnGerarEnviarTeste_SP: TButton;
+    mmoObs: TMemo;
     tsOutros: TTabSheet;
     btnGerarToken: TButton;
+    pgcBotoes1: TPageControl;
+    tsEnvios1: TTabSheet;
+    btnImprimirPN: TButton;
+    btnEnviaremailPN: TButton;
+    btnEmitirPN: TButton;
+    tsEventos1: TTabSheet;
+    btnEventoCancNFSePN: TButton;
+    btnEventoCancPorSubPN: TButton;
+    btnEventoAnaliseCancPN: TButton;
+    btnEventoConfPrestPN: TButton;
+    btnEventoConfTomPN: TButton;
+    btnEventoConfInterPN: TButton;
+    btnEventoRejPrestPN: TButton;
+    btnEventoRejTomPN: TButton;
+    btnEventoRejInterPN: TButton;
+    tsConsultas1: TTabSheet;
+    btnConsultarNFSeRPSPN: TButton;
+    btnConsultarNFSePeloNumeroPN: TButton;
+    btnObterPDFdoDANFSEPN: TButton;
+    btnConsEventoChavPN: TButton;
 
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
@@ -299,6 +322,18 @@ type
     procedure btnConsultarNFSeGenericoClick(Sender: TObject);
     procedure sbtnPathPDFClick(Sender: TObject);
     procedure btnGerarTokenClick(Sender: TObject);
+    procedure btnObterPDFdoDANFSEPNClick(Sender: TObject);
+    procedure btnEventoCancNFSePNClick(Sender: TObject);
+    procedure btnEventoCancPorSubPNClick(Sender: TObject);
+    procedure btnEventoAnaliseCancPNClick(Sender: TObject);
+    procedure btnEventoConfPrestPNClick(Sender: TObject);
+    procedure btnEventoConfTomPNClick(Sender: TObject);
+    procedure btnEventoConfInterPNClick(Sender: TObject);
+    procedure btnEventoRejPrestPNClick(Sender: TObject);
+    procedure btnEventoRejTomPNClick(Sender: TObject);
+    procedure btnEventoRejInterPNClick(Sender: TObject);
+    procedure btnConsultarNFSeRPSPNClick(Sender: TObject);
+    procedure btnConsEventoChavPNClick(Sender: TObject);
   private
     { Private declarations }
     procedure GravarConfiguracao;
@@ -508,6 +543,9 @@ begin
 
         proSystemPro:
           IdentificacaoRps.Serie := 'RPP';
+
+        proPadraoNacional:
+          IdentificacaoRps.Serie := '900';
       else
         IdentificacaoRps.Serie := '85';
       end;
@@ -537,19 +575,18 @@ begin
         NaturezaOperacao := no1;
       end;
 
-      {
-        TnfseRegimeEspecialTributacao =
-        ( retNenhum, retMicroempresaMunicipal, retEstimativa,
-          retSociedadeProfissionais, retCooperativa,
-          retMicroempresarioIndividual, retMicroempresarioEmpresaPP,
-          retLucroReal, retLucroPresumido, retSimplesNacional,
-          retImune, retEmpresaIndividualRELI, retEmpresaPP,
-          retMicroEmpresario, retOutros);
-      }
-      RegimeEspecialTributacao := retMicroempresaMunicipal;
+      case ACBrNFSeX1.Configuracoes.Geral.Provedor of
+        proPadraoNacional:
+          RegimeEspecialTributacao := retCooperativa;
+      else
+        RegimeEspecialTributacao := retMicroempresaMunicipal;
+      end;
 
       // TnfseSimNao = ( snSim, snNao );
-      OptanteSimplesNacional := snNao;
+      OptanteSimplesNacional := snSim;
+
+      // Provedor PadraoNacional
+      OptanteSN := osnNaoOptante;
 
       // TnfseSimNao = ( snSim, snNao );
       IncentivadorCultural := snNao;
@@ -725,6 +762,25 @@ begin
 
         Servico.Valores.Aliquota := 2;
 
+        // Provedor PadraoNacional
+        Servico.Valores.tribMun.tribISSQN := tiOperacaoTributavel;
+        Servico.Valores.tribMun.cPaisResult := 0;
+
+        Servico.Valores.tribNac.CST := cst01;
+        Servico.Valores.tribNac.vBCPisCofins := Servico.Valores.BaseCalculo;
+        Servico.Valores.tribNac.pAliqPis := 1.65;
+        Servico.Valores.tribNac.pAliqCofins := 7.60;
+        Servico.Valores.tribNac.vPis := Servico.Valores.tribNac.vBCPisCofins *
+                                         Servico.Valores.tribNac.pAliqPis / 100;
+        Servico.Valores.tribNac.vCofins := Servico.Valores.tribNac.vBCPisCofins *
+                                      Servico.Valores.tribNac.pAliqCofins / 100;
+        Servico.Valores.tribNac.tpRetPisCofins := trpcNaoRetido;
+
+        Servico.Valores.totTrib.vTotTribFed := Servico.Valores.tribNac.vPis;
+        Servico.Valores.totTrib.vTotTribEst := 0;
+        Servico.Valores.totTrib.vTotTribMun := Servico.Valores.tribNac.vCofins;
+
+
         vValorISS := Servico.Valores.BaseCalculo * Servico.Valores.Aliquota / 100;
 
         // A função RoundTo5 é usada para arredondar valores, sendo que o segundo
@@ -753,7 +809,7 @@ begin
           Servico.ItemListaServico := '01.05.00';
 
         proPadraoNacional:
-          Servico.ItemListaServico := '010500';
+          Servico.ItemListaServico := '010201';
 
         proCTAConsult:
           Servico.ItemListaServico := '01050';
@@ -782,7 +838,7 @@ begin
           Servico.CodigoTributacaoMunicipio := '';
 
         proPadraoNacional:
-          Servico.CodigoTributacaoMunicipio := '123';
+          Servico.CodigoTributacaoMunicipio := '';
       else
         Servico.CodigoTributacaoMunicipio := '63194';
       end;
@@ -839,7 +895,7 @@ begin
       Prestador.Endereco.UF := edtEmitUF.Text;
       Prestador.Endereco.CodigoPais := 1058;
       Prestador.Endereco.xPais := 'BRASIL';
-      Prestador.Endereco.CEP := '14800123';
+      Prestador.Endereco.CEP := edtEmitCEP.Text;
 
       Prestador.Contato.DDD := '16';
 
@@ -850,7 +906,7 @@ begin
         Prestador.Contato.Telefone := '1633224455';
       end;
 
-      Prestador.Contato.Email    := 'nome@provedor.com.br';
+      Prestador.Contato.Email := 'nome@provedor.com.br';
 
       {=========================================================================
         Dados do Tomador de Serviço
@@ -865,7 +921,7 @@ begin
 
       // Para o provedor SigISS usar os valores acima de forma adquada
       Tomador.IdentificacaoTomador.Tipo := tpPF;
-      Tomador.IdentificacaoTomador.CpfCnpj := '12345678900';
+      Tomador.IdentificacaoTomador.CpfCnpj := '12345678901';
       Tomador.IdentificacaoTomador.InscricaoMunicipal := '';
       Tomador.IdentificacaoTomador.InscricaoEstadual := '';
 
@@ -891,7 +947,7 @@ begin
       Tomador.Endereco.xMunicipio := xMunicipio;
       Tomador.Endereco.UF := edtEmitUF.Text;
       Tomador.Endereco.CodigoPais := 1058; // Brasil
-      Tomador.Endereco.CEP := edtEmitCEP.Text;
+      Tomador.Endereco.CEP := '14800000';
       Tomador.Endereco.xPais := 'BRASIL';
 
       Tomador.Contato.DDD := '16';
@@ -1198,7 +1254,7 @@ begin
       email           := eMailTomador;
       DataEmissaoNFSe := DataEmissao;
       CodServ         := xCodServ;
-      Tipo            := StrToTipoDoc(Ok, xTipo);
+      tpDocumento     := StrTotpDocumento(Ok, xTipo);
     end;
 
     ACBrNFSeX1.CancelarNFSe(InfCancelamento);
@@ -1212,6 +1268,21 @@ end;
 procedure TfrmACBrNFSe.btnCNPJClick(Sender: TObject);
 begin
   ShowMessage(ACBrNFSeX1.SSL.CertCNPJ);
+end;
+
+procedure TfrmACBrNFSe.btnConsEventoChavPNClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe: String;
+begin
+  xTitulo := 'Consultar Evento pela chave da NFSe';
+
+  xChaveNFSe := '';
+  if not(InputQuery(xTitulo, 'Chave da NFS-e:', xChaveNFSe)) then
+    exit;
+
+  ACBrNFSeX1.ConsultarEvento(xChaveNFSe);
+
+  ChecarResposta(tmConsultarEvento);
 end;
 
 procedure TfrmACBrNFSe.btnConsultarLoteClick(Sender: TObject);
@@ -1387,64 +1458,73 @@ var
 begin
   xTitulo := 'Consultar NFSe Por Numero';
 
-  NumeroNFSe := '';
-  if not(InputQuery(xTitulo, 'Numero da NFSe:', NumeroNFSe)) then
-    exit;
-
-  SerNFSe := '';
-  if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proIPM] then
+  if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proPadraoNacional] then
   begin
-    if not(InputQuery(xTitulo, 'Série da NFSe:', SerNFSe)) then
+    NumeroNFSe := '';
+    if not(InputQuery(xTitulo, 'Chave da NFS-e:', NumeroNFSe)) then
+      exit;
+  end
+  else
+  begin
+    NumeroNFSe := '';
+    if not(InputQuery(xTitulo, 'Numero da NFSe:', NumeroNFSe)) then
+      exit;
+
+    SerNFSe := '';
+    if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proIPM] then
+    begin
+      if not(InputQuery(xTitulo, 'Série da NFSe:', SerNFSe)) then
+        exit;
+    end;
+
+    NumLote := '1';
+    xDataIni := '';
+    xDataFin := '';
+
+    if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proAssessorPublico] then
+    begin
+      if not(InputQuery(xTitulo, 'Numero do Lote:', NumLote)) then
+        exit;
+    end;
+
+    if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proISSDSF, proSiat] then
+    begin
+      if not(InputQuery(xTitulo, 'Numero do Lote:', NumLote)) then
+        exit;
+
+      xDataIni := DateToStr(Date);
+      if not (InputQuery(xTitulo, 'Data Inicial (DD/MM/AAAA):', xDataIni)) then
+        exit;
+
+      xDataFin := DateToStr(Date);
+      if not (InputQuery(xTitulo, 'Data Final (DD/MM/AAAA):', xDataFin)) then
+        exit;
+    end;
+
+    xTipo := '';
+    if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proFGMaiss, proWebFisco] then
+    begin
+      if not(InputQuery(xTitulo, 'Tipo (1 = NFSe, 2 = Rps):', xTipo)) then
+        exit;
+    end;
+
+    if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proSiappa] then
+    begin
+      xDataIni := FormatDateTime('MM/YYYY',Date);
+      if not (InputQuery(xTitulo, 'Período (MM/AAAA):', xDataIni)) then
+        exit;
+
+      if not(InputQuery(xTitulo, 'Codigo do Serviço', xCodServ)) then
+        exit;
+
+      if not(InputQuery(xTitulo, 'Codigo de Verificacao', xCodVerif)) then
+        exit;
+    end;
+
+    NumPagina := '1';
+    if not(InputQuery(xTitulo, 'Pagina:', NumPagina)) then
       exit;
   end;
-
-  NumLote := '1';
-  xDataIni := '';
-  xDataFin := '';
-
-  if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proAssessorPublico] then
-  begin
-    if not(InputQuery(xTitulo, 'Numero do Lote:', NumLote)) then
-      exit;
-  end;
-
-  if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proISSDSF, proSiat] then
-  begin
-    if not(InputQuery(xTitulo, 'Numero do Lote:', NumLote)) then
-      exit;
-
-    xDataIni := DateToStr(Date);
-    if not (InputQuery(xTitulo, 'Data Inicial (DD/MM/AAAA):', xDataIni)) then
-      exit;
-
-    xDataFin := DateToStr(Date);
-    if not (InputQuery(xTitulo, 'Data Final (DD/MM/AAAA):', xDataFin)) then
-      exit;
-  end;
-
-  xTipo := '';
-  if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proFGMaiss, proWebFisco] then
-  begin
-    if not(InputQuery(xTitulo, 'Tipo (1 = NFSe, 2 = Rps):', xTipo)) then
-      exit;
-  end;
-
-  if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proSiappa] then
-  begin
-    xDataIni := FormatDateTime('MM/YYYY',Date);
-    if not (InputQuery(xTitulo, 'Período (MM/AAAA):', xDataIni)) then
-      exit;
-
-    if not(InputQuery(xTitulo, 'Codigo do Serviço', xCodServ)) then
-      exit;
-
-    if not(InputQuery(xTitulo, 'Codigo de Verificacao', xCodVerif)) then
-      exit;
-  end;
-
-  NumPagina := '1';
-  if not(InputQuery(xTitulo, 'Pagina:', NumPagina)) then
-    exit;
 
   case ACBrNFSeX1.Configuracoes.Geral.Provedor of
     proISSDSF,
@@ -1481,7 +1561,7 @@ begin
             tpConsulta := tcPorNumero;
 
             NumeroIniNFSe := NumeroNFSe;
-            Tipo := StrToTipoDoc(Ok, xTipo);
+            tpDocumento := StrTotpDocumento(Ok, xTipo);
           end;
 
           ACBrNFSeX1.ConsultarNFSeGenerico(InfConsultaNFSe);
@@ -1644,6 +1724,21 @@ begin
   end;
 
   ACBrNFSeX1.ConsultarNFSeporRps(NumeroRps, SerieRps, TipoRps, CodVerificacao);
+
+  ChecarResposta(tmConsultarNFSePorRps);
+end;
+
+procedure TfrmACBrNFSe.btnConsultarNFSeRPSPNClick(Sender: TObject);
+var
+  xTitulo, xChaveDPS: String;
+begin
+  xTitulo := 'Consultar NFSe pela Chave do DPS';
+
+  xChaveDPS := '';
+  if not (InputQuery(xTitulo, 'Chave do DPS:', xChaveDPS)) then
+    exit;
+
+  ACBrNFSeX1.ConsultarNFSeporRps(xChaveDPS, '', '');
 
   ChecarResposta(tmConsultarNFSePorRps);
 end;
@@ -1890,6 +1985,359 @@ begin
   end;
 end;
 
+procedure TfrmACBrNFSe.btnEventoAnaliseCancPNClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe, xCodigo, xMotivoCanc: String;
+  InfEvento: TInfEvento;
+begin
+  xTitulo := 'Evento de Analise de Cancelamento';
+
+  xChaveNFSe := '';
+  if not(InputQuery(xTitulo, 'Chave da NFS-e:', xChaveNFSe)) then
+    exit;
+
+  xCodigo := '1';
+  if not(InputQuery(xTitulo, 'Código de Cancelamento:', xCodigo)) then
+    exit;
+
+  xMotivoCanc := 'Movido do Cancelamento da nota';
+  if not(InputQuery(xTitulo, 'Motivo do Cancelamento:', xMotivoCanc)) then
+    exit;
+
+  InfEvento := TInfEvento.Create;
+
+  try
+    with InfEvento.pedRegEvento do
+    begin
+      tpAmb := ACBrNFSeX1.Configuracoes.WebServices.AmbienteCodigo;
+      verAplic := 'ACBrNFSeX-1.0';
+      dhEvento := Now;
+      chNFSe := xChaveNFSe;
+      nPedRegEvento := 1;
+      tpEvento := ACBrNFSeXConversao.teAnaliseParaCancelamento;
+      cMotivo := StrToIntDef(xCodigo, 1);
+      xMotivo := xMotivoCanc;
+    end;
+
+    ACBrNFSeX1.EnviarEvento(InfEvento);
+  finally
+    InfEvento.Free;
+  end;
+
+  ChecarResposta(tmEnviarEvento);
+end;
+
+procedure TfrmACBrNFSe.btnEventoCancNFSePNClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe, xCodigo, xMotivoCanc: String;
+  InfEvento: TInfEvento;
+begin
+  xTitulo := 'Evento de Cancelamento';
+
+  xChaveNFSe := '';
+  if not(InputQuery(xTitulo, 'Chave da NFS-e:', xChaveNFSe)) then
+    exit;
+
+  xCodigo := '1';
+  if not(InputQuery(xTitulo, 'Código de Cancelamento:', xCodigo)) then
+    exit;
+
+  xMotivoCanc := 'Movido do Cancelamento da nota';
+  if not(InputQuery(xTitulo, 'Motivo do Cancelamento:', xMotivoCanc)) then
+    exit;
+
+  InfEvento := TInfEvento.Create;
+
+  try
+    with InfEvento.pedRegEvento do
+    begin
+      tpAmb := ACBrNFSeX1.Configuracoes.WebServices.AmbienteCodigo;
+      verAplic := 'ACBrNFSeX-1.0';
+      dhEvento := Now;
+      chNFSe := xChaveNFSe;
+      nPedRegEvento := 1;
+      tpEvento := ACBrNFSeXConversao.teCancelamento;
+      cMotivo := StrToIntDef(xCodigo, 1);
+      xMotivo := xMotivoCanc;
+    end;
+
+    ACBrNFSeX1.EnviarEvento(InfEvento);
+  finally
+    InfEvento.Free;
+  end;
+
+  ChecarResposta(tmEnviarEvento);
+end;
+
+procedure TfrmACBrNFSe.btnEventoCancPorSubPNClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe, xCodigo, xMotivoCanc, xChaveSub: String;
+  InfEvento: TInfEvento;
+begin
+  xTitulo := 'Evento de Cancelamento Por Substituição';
+
+  xChaveNFSe := '';
+  if not(InputQuery(xTitulo, 'Chave da NFS-e:', xChaveNFSe)) then
+    exit;
+
+  xCodigo := '1';
+  if not(InputQuery(xTitulo, 'Código de Cancelamento:', xCodigo)) then
+    exit;
+
+  xMotivoCanc := 'Movido do Cancelamento da nota';
+  if not(InputQuery(xTitulo, 'Motivo do Cancelamento:', xMotivoCanc)) then
+    exit;
+
+  xChaveSub := '';
+  if not(InputQuery(xTitulo, 'Chave da NFS-e Substitutiva:', xChaveSub)) then
+    exit;
+
+  InfEvento := TInfEvento.Create;
+
+  try
+    with InfEvento.pedRegEvento do
+    begin
+      tpAmb := ACBrNFSeX1.Configuracoes.WebServices.AmbienteCodigo;
+      verAplic := 'ACBrNFSeX-1.0';
+      dhEvento := Now;
+      chNFSe := xChaveNFSe;
+      nPedRegEvento := 1;
+      tpEvento := ACBrNFSeXConversao.teCancelamentoSubstituicao;
+      cMotivo := StrToIntDef(xCodigo, 1);
+      xMotivo := xMotivoCanc;
+      chSubstituta := xChaveSub;
+    end;
+
+    ACBrNFSeX1.EnviarEvento(InfEvento);
+  finally
+    InfEvento.Free;
+  end;
+
+  ChecarResposta(tmEnviarEvento);
+end;
+
+procedure TfrmACBrNFSe.btnEventoConfInterPNClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe: String;
+  InfEvento: TInfEvento;
+begin
+  xTitulo := 'Evento de Confirmação do Intermediário';
+
+  xChaveNFSe := '';
+  if not(InputQuery(xTitulo, 'Chave da NFS-e:', xChaveNFSe)) then
+    exit;
+
+  InfEvento := TInfEvento.Create;
+
+  try
+    with InfEvento.pedRegEvento do
+    begin
+      tpAmb := ACBrNFSeX1.Configuracoes.WebServices.AmbienteCodigo;
+      verAplic := 'ACBrNFSeX-1.0';
+      dhEvento := Now;
+      chNFSe := xChaveNFSe;
+      nPedRegEvento := 1;
+      tpEvento := ACBrNFSeXConversao.teConfirmacaoIntermediario;
+    end;
+
+    ACBrNFSeX1.EnviarEvento(InfEvento);
+  finally
+    InfEvento.Free;
+  end;
+
+  ChecarResposta(tmEnviarEvento);
+end;
+
+procedure TfrmACBrNFSe.btnEventoConfPrestPNClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe: String;
+  InfEvento: TInfEvento;
+begin
+  xTitulo := 'Evento de Confirmação do Prestador';
+
+  xChaveNFSe := '';
+  if not(InputQuery(xTitulo, 'Chave da NFS-e:', xChaveNFSe)) then
+    exit;
+
+  InfEvento := TInfEvento.Create;
+
+  try
+    with InfEvento.pedRegEvento do
+    begin
+      tpAmb := ACBrNFSeX1.Configuracoes.WebServices.AmbienteCodigo;
+      verAplic := 'ACBrNFSeX-1.0';
+      dhEvento := Now;
+      chNFSe := xChaveNFSe;
+      nPedRegEvento := 1;
+      tpEvento := ACBrNFSeXConversao.teConfirmacaoPrestador;
+    end;
+
+    ACBrNFSeX1.EnviarEvento(InfEvento);
+  finally
+    InfEvento.Free;
+  end;
+
+  ChecarResposta(tmEnviarEvento);
+end;
+
+procedure TfrmACBrNFSe.btnEventoConfTomPNClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe: String;
+  InfEvento: TInfEvento;
+begin
+  xTitulo := 'Evento de Confirmação do Tomador';
+
+  xChaveNFSe := '';
+  if not(InputQuery(xTitulo, 'Chave da NFS-e:', xChaveNFSe)) then
+    exit;
+
+  InfEvento := TInfEvento.Create;
+
+  try
+    with InfEvento.pedRegEvento do
+    begin
+      tpAmb := ACBrNFSeX1.Configuracoes.WebServices.AmbienteCodigo;
+      verAplic := 'ACBrNFSeX-1.0';
+      dhEvento := Now;
+      chNFSe := xChaveNFSe;
+      nPedRegEvento := 1;
+      tpEvento := ACBrNFSeXConversao.teConfirmacaoTomador;
+    end;
+
+    ACBrNFSeX1.EnviarEvento(InfEvento);
+  finally
+    InfEvento.Free;
+  end;
+
+  ChecarResposta(tmEnviarEvento);
+end;
+
+procedure TfrmACBrNFSe.btnEventoRejInterPNClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe, xCodigo, xMotivoRej: String;
+  InfEvento: TInfEvento;
+begin
+  xTitulo := 'Evento de Rejeição do Intermediário';
+
+  xChaveNFSe := '';
+  if not(InputQuery(xTitulo, 'Chave da NFS-e:', xChaveNFSe)) then
+    exit;
+
+  xCodigo := '1';
+  if not(InputQuery(xTitulo, 'Código de Rejeição:', xCodigo)) then
+    exit;
+
+  xMotivoRej := 'Movido da Rejeição da nota';
+  if not(InputQuery(xTitulo, 'Motivo da Rejeição:', xMotivoRej)) then
+    exit;
+
+  InfEvento := TInfEvento.Create;
+
+  try
+    with InfEvento.pedRegEvento do
+    begin
+      tpAmb := ACBrNFSeX1.Configuracoes.WebServices.AmbienteCodigo;
+      verAplic := 'ACBrNFSeX-1.0';
+      dhEvento := Now;
+      chNFSe := xChaveNFSe;
+      nPedRegEvento := 1;
+      tpEvento := ACBrNFSeXConversao.teRejeicaoIntermediario;
+      cMotivo := StrToIntDef(xCodigo, 1);
+      xMotivo := xMotivoRej;
+    end;
+
+    ACBrNFSeX1.EnviarEvento(InfEvento);
+  finally
+    InfEvento.Free;
+  end;
+
+  ChecarResposta(tmEnviarEvento);
+end;
+
+procedure TfrmACBrNFSe.btnEventoRejPrestPNClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe, xCodigo, xMotivoRej: String;
+  InfEvento: TInfEvento;
+begin
+  xTitulo := 'Evento de Rejeição do Prestador';
+
+  xChaveNFSe := '';
+  if not(InputQuery(xTitulo, 'Chave da NFS-e:', xChaveNFSe)) then
+    exit;
+
+  xCodigo := '1';
+  if not(InputQuery(xTitulo, 'Código de Rejeição:', xCodigo)) then
+    exit;
+
+  xMotivoRej := 'Movido da Rejeição da nota';
+  if not(InputQuery(xTitulo, 'Motivo da Rejeição:', xMotivoRej)) then
+    exit;
+
+  InfEvento := TInfEvento.Create;
+
+  try
+    with InfEvento.pedRegEvento do
+    begin
+      tpAmb := ACBrNFSeX1.Configuracoes.WebServices.AmbienteCodigo;
+      verAplic := 'ACBrNFSeX-1.0';
+      dhEvento := Now;
+      chNFSe := xChaveNFSe;
+      nPedRegEvento := 1;
+      tpEvento := ACBrNFSeXConversao.teRejeicaoPrestador;
+      cMotivo := StrToIntDef(xCodigo, 1);
+      xMotivo := xMotivoRej;
+    end;
+
+    ACBrNFSeX1.EnviarEvento(InfEvento);
+  finally
+    InfEvento.Free;
+  end;
+
+  ChecarResposta(tmEnviarEvento);
+end;
+
+procedure TfrmACBrNFSe.btnEventoRejTomPNClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe, xCodigo, xMotivoRej: String;
+  InfEvento: TInfEvento;
+begin
+  xTitulo := 'Evento de Rejeição do Tomador';
+
+  xChaveNFSe := '';
+  if not(InputQuery(xTitulo, 'Chave da NFS-e:', xChaveNFSe)) then
+    exit;
+
+  xCodigo := '1';
+  if not(InputQuery(xTitulo, 'Código de Rejeição:', xCodigo)) then
+    exit;
+
+  xMotivoRej := 'Movido da Rejeição da nota';
+  if not(InputQuery(xTitulo, 'Motivo da Rejeição:', xMotivoRej)) then
+    exit;
+
+  InfEvento := TInfEvento.Create;
+
+  try
+    with InfEvento.pedRegEvento do
+    begin
+      tpAmb := ACBrNFSeX1.Configuracoes.WebServices.AmbienteCodigo;
+      verAplic := 'ACBrNFSeX-1.0';
+      dhEvento := Now;
+      chNFSe := xChaveNFSe;
+      nPedRegEvento := 1;
+      tpEvento := ACBrNFSeXConversao.teRejeicaoTomador;
+      cMotivo := StrToIntDef(xCodigo, 1);
+      xMotivo := xMotivoRej;
+    end;
+
+    ACBrNFSeX1.EnviarEvento(InfEvento);
+  finally
+    InfEvento.Free;
+  end;
+
+  ChecarResposta(tmEnviarEvento);
+end;
+
 procedure TfrmACBrNFSe.btnGerarEnviarLoteClick(Sender: TObject);
 var
   sQtde, vNumRPS, vNumLote: String;
@@ -2072,8 +2520,18 @@ begin
     // LoadFromLoteNfse - Usado para carregar um lote de notas
 //    ACBrNFSeX1.NotasFiscais.LoadFromLoteNfse(OpenDialog1.FileName);
 
+    {
+      Se o webservice não retorna o conteudo de OutrasInformacoes, mas a
+      prefeitura tem um texto padrão a ser impresso no DANFSE, pode-se alimentar
+      o campo OutrasInformacoes antes de executar o método Imprimir
+    }
+//    ACBrNFSeX1.NotasFiscais.Items[0].NFSe.OutrasInformacoes := 'Outras Informações 1;Outras Informações 2';
     ACBrNFSeX1.NotasFiscais.Imprimir;
-    ACBrNFSeX1.NotasFiscais.ImprimirPDF;
+
+    {
+      Se desejar gerar o PDF do DANFSE basta descomentar a linha abaixo
+    }
+//    ACBrNFSeX1.NotasFiscais.ImprimirPDF;
 
     if ACBrNFSeX1.NotasFiscais.Items[0].NomeArqRps <> '' then
       memoLog.Lines.Add('Arquivo Carregado de: ' + ACBrNFSeX1.NotasFiscais.Items[0].NomeArqRps)
@@ -2144,6 +2602,22 @@ end;
 procedure TfrmACBrNFSe.btnNumSerieClick(Sender: TObject);
 begin
   ShowMessage(ACBrNFSeX1.SSL.CertNumeroSerie);
+end;
+
+procedure TfrmACBrNFSe.btnObterPDFdoDANFSEPNClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe: String;
+begin
+  xTitulo := 'Obter PDF do DANFSE';
+
+  xChaveNFSe := '';
+
+  if not(InputQuery(xTitulo, 'Chave da NFS-e:', xChaveNFSe)) then
+    exit;
+
+  ACBrNFSeX1.ObterDANFSE(xChaveNFSe);
+
+  ChecarResposta(tmConsultarNFSe);
 end;
 
 procedure TfrmACBrNFSe.btnSalvarConfigClick(Sender: TObject);
@@ -3373,8 +3847,59 @@ begin
       tmFecharSessao:
         begin
         end;
-    end;
 
+      tmEnviarEvento:
+        begin
+          with EnviarEvento do
+          begin
+            memoLog.Lines.Add('Método Executado: ' + MetodoToStr(tmEnviarEvento));
+            memoLog.Lines.Add(' ');
+            memoLog.Lines.Add('Parâmetros de Envio');
+            with InfEvento.pedRegEvento do
+            begin
+              memoLog.Lines.Add('Chave NFSe : ' + chNFSe);
+              memoLog.Lines.Add('Evento     : ' + tpEventoToDesc(tpEvento));
+            end;
+            memoLog.Lines.Add(' ');
+            memoLog.Lines.Add('Parâmetros de Retorno');
+            memoLog.Lines.Add('Chave NFSe      : ' + idNota);
+            memoLog.Lines.Add('Data            : ' + DateToStr(Data));
+            memoLog.Lines.Add('Tipo Evento     : ' + tpEventoToDesc(tpEvento));
+            memoLog.Lines.Add('Num. Seq. Evento: ' + IntToStr(nSeqEvento));
+            memoLog.Lines.Add('ID do Evento    : ' + idEvento);
+            memoLog.Lines.Add('Sucesso         : ' + BoolToStr(Sucesso, True));
+
+            LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
+            LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
+
+            if Erros.Count > 0 then
+            begin
+              memoLog.Lines.Add(' ');
+              memoLog.Lines.Add('Erro(s):');
+              for i := 0 to Erros.Count -1 do
+              begin
+                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
+                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
+                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
+                memoLog.Lines.Add('---------');
+              end;
+            end;
+
+            if Alertas.Count > 0 then
+            begin
+              memoLog.Lines.Add(' ');
+              memoLog.Lines.Add('Alerta(s):');
+              for i := 0 to Alertas.Count -1 do
+              begin
+                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
+                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
+                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
+                memoLog.Lines.Add('---------');
+              end;
+            end;
+          end;
+        end;
+    end;
   end;
 
   for i := 0 to ACBrNFSeX1.NotasFiscais.Count -1 do
@@ -3520,7 +4045,6 @@ begin
     PathGer          := edtPathLogs.Text;
     PathMensal       := GetPathGer(0);
     PathSalvar       := PathMensal;
-    PathCan          := PathMensal;
   end;
 
   if ACBrNFSeX1.DANFSe <> nil then
@@ -3563,6 +4087,17 @@ begin
 
   lblSchemas.Caption := ACBrNFSeX1.Configuracoes.Geral.xProvedor;
   lblVersaoSchemas.Caption := VersaoNFSeToStr(ACBrNFSeX1.Configuracoes.Geral.Versao);
+
+  if ACBrNFSeX1.Configuracoes.Geral.Provedor = proPadraoNacional then
+  begin
+    pgcProvedores.Pages[0].TabVisible := False;
+    pgcProvedores.Pages[1].TabVisible := True;
+  end
+  else
+  begin
+    pgcProvedores.Pages[0].TabVisible := True;
+    pgcProvedores.Pages[1].TabVisible := False;
+  end
 end;
 
 procedure TfrmACBrNFSe.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser;
