@@ -42,6 +42,99 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+19/10/2022
+-- DBSeller.Provider/DBSeller.GravarXml --
+[*] Alterado para não gerar o atributo "versao" e alteração na Configuração
+    para esse provedor algumas tags são obrigatórias mesmo os valores sendo
+    zero.
+   Por: Italo Giurizzato Junior
+-- DSF.Provider --
+[*] Alterado a função TratarXmlRetornado visando sanar o problema do "&" no 
+    nome do prestador/tomador.
+   Por: Italo Giurizzato Junior
+-- Ginfes.Provider --
+[*] Incluído na function TratarXmlRetornado a chamada a função:
+    RemoverCaracteresDesnecessarios. O provedor estava gerando no meio da 
+    mensagem de erro os caracteres < e >.
+   Por: Italo Giurizzato Junior
+-- DBSeller.Provider --
+[*] Alterado para não gerar o atributo "Id".
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[+] Implementação do provedor Bauhaus. 
+   Por: Celo G
+
+18/10/2022
+-- ACBrNFSeXServicos.ini --
+[+] Incluída a cidade: Presidente Medici/RO - Provedor: Fiorilli
+   Por: Gabriel Bobello
+-- PadraoNacional.Provider/PadraoNacional.GravarXml/PadraoNacional.LerXml --
+[*] Alteração visando atender a ateração realizada nos schemas.
+   Por: Italo Giurizzato Junior
+-- DBSeller.Provider --
+[*] Alterado o namespace e setado para assinar o lote de Rps.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXLerXml_ABRASFv2 --
+[*] Ao ler o XML de um Rps não estava setando o valor stNenhum ao campo IssRetido.
+   Por: Márcio Baroni
+-- ACBrNFSeXServicos.ini --
+[+] Incluída a cidade: Rio Branco do Sul/PR - Provedor: Equiplano
+   Por: Alexandre Felippeto Henzen
+[+] Incluída a cidade: Praia Grande/SC - Provedor: IPM
+   Por: Mario Inacio
+
+14/10/2022
+-- IPM.LerXml --
+[*] Corrigido a leitura dos campos cidade, pois não estava convertendo o código
+    TOM para IBGE.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXDANFSeRLRetrato --
+[*] Ajustes para autoajustar a altura do quadro: Outras Informações.
+   Por: Diego Foliene
+-- RLZ.GravarXml --
+[*] As tags: fatura e orcamento são opcionais e não obrigatórias.
+   Por: Willian Delan
+
+13/10/2022
+-- ISSNet.Provider --
+[*] Alteração visando o problema da tag com vogal acentuada.
+   Por: Catedral Ranieri
+-- ACBrNFSeXServicos.ini --
+[+] Incluida a cidade: Dom Pedrito/RS - Provedor: Pronim
+   Por: Gabriel Rogelin
+[+] Incluida a cidade: Sarandi/PR - Provedor: SigISS
+[*] Desfeita a alteração na cidade: Sarandi/RS.
+   Por: Marcelo Alpha
+
+11/10/2022
+-- ISSNet.Provider --
+[*] Possível solução para o problema da tag com vogal acentuada.
+   Por: Italo Giurizzato Junior
+-- ISSBarueri.GravarXml --
+[*] Alteração para aceitar Inscrição Municipal com letras.
+   Por: Patrick Knopf
+-- Diversos --
+[+] Implementado a versão 2.04 para o provedor DBSeller.
+   Por: Italo Giurizzato Junior
+
+10/10/2022
+-- CTA.Provider --
+[*] Possível solução para gerar a ChaveSeguranca corretamente.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[+] Incluida a cidade: Piritiba/BA - Provedor: Saatri
+[+] Incluida a cidade: Corumbá de Goiás/GO - Provedor: MegaSoft
+   Por: Arimateia
+-- SigISS.Provider --
+[*] Possível solução para a leitura do XML de retorno.
+   Por: Italo Giurizzato Junior
+
+07/10/2022
+-- ACBrNFSeXServicos.ini --
+[+] Incluida a cidade: Pirapozinho/SP - Provedor: Fiorilli
+[*] A cidade: Aquidauana/MS trocou de provedor agora é: Fiorilli
+   Por: Digibyte
+
 06/10/2022
 -- Diversos --
 [*] Realizado varias melhorias em diversas units para atender o provedor:

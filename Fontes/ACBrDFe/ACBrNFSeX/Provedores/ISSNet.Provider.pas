@@ -556,9 +556,11 @@ end;
 function TACBrNFSeXWebserviceISSNet204.TratarXmlRetornado(
   const aXML: string): string;
 begin
-  Result := inherited TratarXmlRetornado(aXML);
+  Result := inherited TratarXmlRetornado(UTF8Decode(aXML));
 
+  Result := ParseText(AnsiString(Result), True, False);
   Result := RemoverIdentacao(Result);
+  Result := TiraAcentos(Result);
 end;
 
 { TACBrNFSeProviderISSNet204 }

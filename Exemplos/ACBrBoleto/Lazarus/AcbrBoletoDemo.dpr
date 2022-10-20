@@ -1,17 +1,19 @@
 program AcbrBoletoDemo;
 
-{$MODE Delphi}
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
 
-{$I Report.inc}
 uses
-  Forms, Interfaces,
+{$IFnDEF FPC}
+{$ELSE}
+  Interfaces,
+{$ENDIF}
+  Forms,
   uDemo    in 'uDemo.pas'    {frmDemo},
   uDMForte in 'uDMForte.pas' {dmForte: TDataModule};
 
-{.$R *.res}
-
 {$R *.res}
-
 begin
   Application.Initialize;
   Application.CreateForm(TdmForte, dmForte);
