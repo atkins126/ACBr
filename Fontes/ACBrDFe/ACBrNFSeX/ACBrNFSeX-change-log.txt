@@ -42,6 +42,114 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+
+31/10/2022
+-- SH3.Provider --
+[*] Possível solução para a leitura correta do retorno da consulta ao lote.
+   Por: Italo Giurizzato Junior
+-- ISSNet.GravarXml --
+[*] Alterado a configuração para gerar a aliquota com 2 casas decimais.
+   Por: Alan Lucas/Italo Giurizzato Junior
+
+28/10/2022
+-- ACBrNFSeXServicos.ini --
+[+] Incluída a URL de homologação da cidade Sao Joao Del Rei/MG.
+   Por: Italo Giurizzato Junior
+[*] A cidade Silvania/GO - mudou de provedor agora é MegaSoft.
+   Por: Lucio Bittes
+[*] A cidade Vargem Alta/ES - provedor EL mudou para o layout versão 2.04 da ABRASF.
+   Por: Italo Giurizzato Junior
+[+] Incluído a cidade Ilheus/BA - provedor MetropolisWeb
+   Por: Flávio Exata
+-- Governa.Provider/Governa.GravarXml/Governa.LerXml --
+[*] Ajustes necessário para que a emissão da nota ocorra sem nenhum 
+    problema.
+-- ACBrNFSeXServicos.ini --
+[*] Atualizado os parâmetros da cidade de Patos de Minas
+   Por: Fabio Luiz Binhara
+-- ACBrNFSeXServicos.ini --
+[+] Incluído o link para baixar o PDF - Vila Velha/ES
+   Por: Calos Tedex
+-- ACBrNFSeXProvider_ABRASFv1 --
+[*] Possível solução para a leitura de listas de notas quando no 
+    retorno tem o grupo <tcCompNfse>
+   Por: Italo Giurizzato Junior
+-- SoftPlan.Provider/SoftPlan.GravarXml/SoftPlan.LerXml --
+[+] Inicio da implementação do provedor SoftPlan.
+    Já esta pronto a geração do XML da nota e o seu envio,
+    esta faltando a leitura do XML e depois a consulta e
+    cancelamento.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXGravarXml_ABRASFv2 --
+[+] Incluído a geração da tag CodigoNbs, mas por padrão o numero de 
+    ocorrências é -1, pois somente as versões 2.03 e 2.04 tem essa
+    tag, logo se faz necessário na unit .GravarXml incluir a linha
+    para mudar o numero de ocorrências para zero.
+   Por: Italo Giurizzato Junior
+
+27/10/2022
+-- Publica.Provider --
+[*] Possível solução para o problema da consulta a NFSe.
+   Por: Italo Giurizzato Junior
+-- EloTech.GravarXml --
+[*] Alteração para gerar a tag InscricaoEstadual no local correto.
+   Por: Sandro Felipe Adad
+
+26/10/2022
+-- ISSNet.Provider --
+[*] Incluído as chamadas para gerar os XML de consultas segundo o que o provedor
+    fez.
+    Incluído também a chamada para gerar o XML de cancelamento.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] As URLs de Homologação para a cidade de Bauru foram alteradas.
+   Por: Innovae Brasil Engenharia
+
+25/10/2022
+-- Diversos --
+[+] Implementado o método ConsultarDFe que vai ser utilizado pelo provedor
+    PadraoNacional para poder baixar os XML das notas e eventos, algo semelhante
+    ao DistribuicaoDFe.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXLerXml_ABRASFv1 --
+[*] Possível solução para os provedores que ao gerar o XML da nota não gera o
+    CNPJ com 14 digitos.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[+] Incluída a cidade Bezerros/PE - provedor Tributus
+   Por: Marcelo Santos
+
+21/10/2022
+-- ISSNet.Provider --
+[*] Incluído na Configuração para realizar a assinatura do RPS em todos os serviços
+    e nas consultas que requer que a mesma seja assinada.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeX --
+[*] Incluído do Create do componente a execução do LerCidades.
+   Por: Italo Giurizzato Junior
+-- MegaSoft.Provider --
+[*] Incluído na Function TratarXmlRetornado a chamada para remover identação do XML.
+   Por: Italo Giurizzato Junior
+-- Bauhaus.LerJson --
+[*] Eliminação de Hits
+   Por: Italo Giurizzato Junior
+-- ISSFortaleza.Provider --
+[*] Possível solução para vogais acentuadas e o cedilha.
+   Por: Italo Giurizzato Junior
+
+20/10/2022
+-- ISSNet.Provider --
+[*] Alterado a função TratarXmlRetornado visando sanar o problema do "&" no 
+    nome do prestador/tomador.
+   Por: Fabio Pasquali
+-- ACBrNFSeXServicos.ini --
+[*] Acrescentado a URL de homologação para as cidades atendidas pelo provedor
+    ISSDigital.
+   Por: SupraMAIS/Italo Giurizzato Junior
+-- Bauhaus.GravarJson Bauhaus.Provider --
+[*] Adaptando funções para utilizar de maneira mais otimizada a ACBrJSON.
+    Por: Elias César
+
 19/10/2022
 -- DBSeller.Provider/DBSeller.GravarXml --
 [*] Alterado para não gerar o atributo "versao" e alteração na Configuração

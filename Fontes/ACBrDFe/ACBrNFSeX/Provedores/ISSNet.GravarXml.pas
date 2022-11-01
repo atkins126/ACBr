@@ -133,7 +133,11 @@ procedure TNFSeW_ISSNet204.Configuracao;
 begin
   inherited Configuracao;
 
+  FormatoAliq := tcDe2;
+
   NrOcorrNIFTomador := 0;
+  NrOcorrCodigoNBS := 0;
+
   NrOcorrCodigoPaisServico := -1;
   NrOcorrCodigoPaisTomador := -1;
 

@@ -119,6 +119,11 @@ type
       Params: TNFSeParamsResponse); override;
     procedure TratarRetornoConsultarEvento(Response: TNFSeConsultarEventoResponse); override;
 
+    procedure PrepararConsultarDFe(Response: TNFSeConsultarDFeResponse); override;
+    procedure GerarMsgDadosConsultarDFe(Response: TNFSeConsultarDFeResponse;
+      Params: TNFSeParamsResponse); override;
+    procedure TratarRetornoConsultarDFe(Response: TNFSeConsultarDFeResponse); override;
+
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'ListaMensagemRetorno';
@@ -2421,6 +2426,28 @@ begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;
 
+procedure TACBrNFSeProviderABRASFv2.PrepararConsultarDFe(
+  Response: TNFSeConsultarDFeResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv2.GerarMsgDadosConsultarDFe(
+  Response: TNFSeConsultarDFeResponse; Params: TNFSeParamsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv2.TratarRetornoConsultarDFe(
+  Response: TNFSeConsultarDFeResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
 procedure TACBrNFSeProviderABRASFv2.ProcessarMensagemErros(RootNode: TACBrXmlNode;
   Response: TNFSeWebserviceResponse; const AListTag, AMessageTag: string);
 var
@@ -2446,7 +2473,7 @@ begin
         Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
         Mensagem := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
 
-        if (Mensagem <> '') and (Codigo <> 'L000') then
+        if Mensagem <> '' then
         begin
           AErro := Response.Erros.New;
           AErro.Codigo := Codigo;
