@@ -62,7 +62,7 @@ uses
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
-//     Lencois
+//     ISSLencois
 //==============================================================================
 
 { TNFSeW_ISSLencois }
@@ -84,7 +84,8 @@ begin
 
   FDocument.Root := NFSeNode;
 
-  NFSe.InfID.ID := OnlyNumber(NFSe.IdentificacaoRps.Numero) + NFSe.IdentificacaoRps.Serie;
+  NFSe.InfID.ID := OnlyNumber(NFSe.IdentificacaoRps.Numero) +
+                   NFSe.IdentificacaoRps.Serie;
 
   NFSeNode.AppendChild(AddNode(tcStr, '#', 'Versao', 1, 3, 1, '1.1', ''));
 
@@ -101,7 +102,7 @@ begin
                                              NFSe.Servico.CodigoMunicipio, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#', 'Descricao', 1, 1000, 1,
-                                                   NFSe.Servico.Descricao, ''));
+                                               NFSe.Servico.Discriminacao, ''));
 
   NFSeNode.AppendChild(AddNode(tcDe2, '#', 'ValorTotal', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorServicos, ''));
@@ -195,7 +196,7 @@ begin
     xmlNode := GerarEnderecoTomador;
     Result.AppendChild(xmlNode);
 
-    Result.AppendChild(AddNode(tcStr, '#1', 'Email', 1, 50, 0,
+    Result.AppendChild(AddNode(tcStr, '#1', 'Email', 1, 50, 1,
                                                NFSe.Tomador.Contato.Email, ''));
 
     if Length(OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.CpfCnpj)) <= 11 then

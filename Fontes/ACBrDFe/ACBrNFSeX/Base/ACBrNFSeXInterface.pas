@@ -57,6 +57,7 @@ type
     procedure EnviarEvento;
     procedure ConsultarEvento;
     procedure ConsultarDFe;
+    procedure ConsultarParam;
 
     function GetConfigGeral: TConfigGeral;
     function GetConfigWebServices: TConfigWebServices;
@@ -105,6 +106,9 @@ type
     function TributacaoToStr(const t: TTributacao): string;
     function StrToTributacao(out ok: boolean; const s: string): TTributacao;
     function TributacaoDescricao(const t: TTributacao): String;
+
+    function TipoDeducaoToStr(const t: TTipoDeducao): string;
+    function StrToTipoDeducao(out ok: Boolean; const s: string): TTipoDeducao;
   end;
 
 implementation

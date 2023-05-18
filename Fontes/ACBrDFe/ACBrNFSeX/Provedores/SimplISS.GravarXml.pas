@@ -99,7 +99,7 @@ begin
     Result[i].AppendChild(AddNode(tcDe2, '#34', 'Quantidade   ', 1, 015, 1,
                              NFSe.Servico.ItemServico[i].Quantidade, DSC_QTDE));
 
-    Result[i].AppendChild(AddNode(tcDe4, '#35', 'ValorUnitario', 1, 015, 1,
+    Result[i].AppendChild(AddNode(tcDe2, '#35', 'ValorUnitario', 1, 015, 1,
                          NFSe.Servico.ItemServico[i].ValorUnitario, DSC_VUNIT));
   end;
 
@@ -115,6 +115,9 @@ begin
 
   FormatoAliq := tcDe2;
 
+  if FpAOwner.ConfigGeral.Params.TemParametro('Aliquota4Casas') then
+    FormatoAliq := tcDe4;
+
   NrOcorrValorDeducoes := 1;
   NrOcorrValorPis := 1;
   NrOcorrValorCofins := 1;
@@ -129,6 +132,7 @@ begin
   NrOcorrDescCond := 1;
   NrOcorrCodigoPaisServico := 1;
   NrOcorrNIFTomador := 1;
+  NrOcorrOutrasInformacoes := 0;
 
   GerarIDRps := True;
 end;

@@ -406,7 +406,7 @@ begin
   try
     Self.VersaoDF := TACBrReinf(FACBrReinf).Configuracoes.Geral.VersaoDF;
 
-    Self.Id := GerarChaveReinf(now, self.ideContri.NrInsc, self.Sequencial);
+    Self.Id := GerarChaveReinf(now, self.ideContri.NrInsc, self.Sequencial, self.ideContri.TpInsc);
 
     GerarCabecalho('evt2055AquisicaoProdRural');
     Gerador.wGrupo('evtAqProd id="' + Self.Id + '"');
@@ -461,7 +461,7 @@ begin
       ideEvento.ProcEmi  := StrToProcEmiReinf(Ok, INIRec.ReadString(sSecao, 'procEmi', '1'));
       ideEvento.VerProc     := INIRec.ReadString(sSecao, 'verProc', EmptyStr);
 
-      {
+      { Excluído na Versão 2.01
       Indicativo de retificação de informação enviada ao ambiente nacional do eSocial.
       Validação: Informação permitida apenas se perApur for anterior ao início
       de vigência do evento R-2055 na EFD-Reinf.

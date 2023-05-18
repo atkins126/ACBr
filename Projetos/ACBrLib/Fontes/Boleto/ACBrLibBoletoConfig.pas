@@ -39,7 +39,7 @@ interface
 
 uses
   Classes, SysUtils, IniFiles,
-  ACBrBoleto, ACBrBoletoConversao, ACBrLibConfig, ACBrLibComum, pcnConversao, ACBrDFeConfiguracoes;
+  ACBrBoleto, ACBrBoletoConversao, ACBrLibConfig, ACBrLibComum, pcnConversao, ACBrDFeConfiguracoes, ACBrPIXBase;
 
 type
 
@@ -54,6 +54,7 @@ type
     FImprimirMensagemPadrao: Boolean;
     FLayoutRemessa: TACBrLayoutRemessa;
     FLeCedenteRetorno: Boolean;
+    FLerNossoNumeroCompleto: Boolean;
     FNomeArqRemessa: String;
     FNomeArqRetorno: String;
     FNumeroArquivo: Integer;
@@ -74,6 +75,7 @@ type
     property ImprimirMensagemPadrao: Boolean read FImprimirMensagemPadrao write FImprimirMensagemPadrao;
     property LayoutRemessa: TACBrLayoutRemessa read FLayoutRemessa write FLayoutRemessa;
     property LeCedenteRetorno: Boolean read FLeCedenteRetorno write FLeCedenteRetorno;
+    property LerNossoNumeroCompleto: Boolean read FLerNossoNumeroCompleto write FLerNossoNumeroCompleto;
     property NomeArqRemessa: String read FNomeArqRemessa write FNomeArqRemessa;
     property NomeArqRetorno: String read FNomeArqRetorno write FNomeArqRetorno;
     property NumeroArquivo: Integer read FNumeroArquivo write FNumeroArquivo;
@@ -169,6 +171,8 @@ type
     FDigitoVerificadorAgenciaConta: String;
     FIdentDistribuicao: TACBrIdentDistribuicao;
     FOperacao: String;
+    FPIXChave: String;
+    FPIXTipoChave : TACBrPIXTipoChave;
 
   public
     constructor Create;
@@ -202,6 +206,8 @@ type
     property DigitoVerificadorAgenciaConta : String read FDigitoVerificadorAgenciaConta   write FDigitoVerificadorAgenciaConta;
     property IdentDistribuicao: TACBrIdentDistribuicao read FIdentDistribuicao  write FIdentDistribuicao;
     property Operacao: string read FOperacao write FOperacao;
+    property PIXChave         :String read FPIXChave write FPIXChave;
+    property PIXTipoChave     : TACBrPIXTipoChave read FPIXTipoChave write FPIXTipoChave;
 
   end;
 
@@ -251,6 +257,8 @@ type
     FOperacao: TOperacao;
     FVersaoDF: String;
     FUseCertificateHTTP: Boolean;
+    FArquivoCRT: String;
+    FArquivoKEY: String;
 
   public
     constructor Create;
@@ -263,6 +271,8 @@ type
     property Operacao: TOperacao read FOperacao write FOperacao;
     property VersaoDF: String read FVersaoDF write FVersaoDF;
     property UseCertificateHTTP: Boolean read FUseCertificateHTTP write FUseCertificateHTTP;
+    property ArquivoCRT: String read FArquivoCRT write FArquivoCRT;
+    property ArquivoKEY: String read FArquivoKEY write FArquivoKEY;
 
   end;
 
@@ -337,6 +347,8 @@ begin
   FOperacao:= tpInclui;
   FVersaoDF:= '1.2';
   FUseCertificateHTTP:= False;
+  FArquivoCRT:= '';
+  FArquivoKEY:= '';
 
 end;
 
@@ -347,6 +359,8 @@ begin
   Operacao:= TOperacao( AIni.ReadInteger(CSessaoBoletoWebService, CChaveOperacao, integer(Operacao) ) );
   VersaoDF:= AIni.ReadString(CSessaoBoletoWebService, CChaveVersaoDF, VersaoDF );
   UseCertificateHTTP:= AIni.ReadBool(CSessaoBoletoWebService, CChaveUseCertificateHTTP, UseCertificateHTTP );
+  ArquivoCRT:= AIni.ReadString(CSessaoBoletoWebService, CChaveArquivoCRT, ArquivoCRT);
+  ArquivoKEY:= AIni.ReadString(CSessaoBoletoWebService, CChaveArquivoKEY, ArquivoKEY);
 end;
 
 procedure TBoletoConfigWS.GravarIni(const AIni: TCustomIniFile);
@@ -356,6 +370,8 @@ begin
   AIni.WriteInteger(CSessaoBoletoWebService, CChaveOperacao, integer(Operacao) );
   AIni.WriteString(CSessaoBoletoWebService, CChaveVersaoDF, VersaoDF );
   AIni.WriteBool(CSessaoBoletoWebService, CChaveUseCertificateHTTP, UseCertificateHTTP );
+  AIni.WriteString(CSessaoBoletoWebService, CChaveArquivoCRT, ArquivoCRT);
+  AIni.WriteString(CSessaoBoletoWebService, CChaveArquivoKEY, ArquivoKEY);
 end;
 
 { TBoletoCedenteWS }
@@ -580,6 +596,8 @@ begin
   FDigitoVerificadorAgenciaConta:= '';
   FIdentDistribuicao := tbClienteDistribui;
   FOperacao := '';
+  FPIXChave:= '';
+  FPIXTipoChave := tchNenhuma;
 end;
 
 procedure TBoletoCedenteConfig.LerIni(const AIni: TCustomIniFile);
@@ -610,7 +628,8 @@ begin
   DigitoVerificadorAgenciaConta:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveDigitoVerificadorAgenciaConta, DigitoVerificadorAgenciaConta);
   IdentDistribuicao:= TACBrIdentDistribuicao(AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveIdentDistribuicao, integer(FIdentDistribuicao)));
   Operacao:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveOperacao, Operacao);
-
+  PIXChave:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChavePIX, PIXChave);
+  PIXTipoChave := TACBrPIXTipoChave(AIni.ReadInteger(CSessaoBoletoCedenteConfig, CTipoChavePix, Integer(PIXTipoChave)));
 end;
 
 procedure TBoletoCedenteConfig.GravarIni(const AIni: TCustomIniFile);
@@ -641,7 +660,8 @@ begin
   AIni.WriteString(CSessaoBoletoCedenteConfig, CChaveDigitoVerificadorAgenciaConta, DigitoVerificadorAgenciaConta );
   AIni.WriteInteger(CSessaoBoletoCedenteConfig, CChaveIdentDistribuicao, integer(FIdentDistribuicao));
   AIni.WriteString(CSessaoBoletoCedenteConfig, CChaveOperacao, Operacao);
-
+  AIni.WriteString(CSessaoBoletoCedenteConfig, CChavePIX, PIXChave);
+  AIni.WriteInteger(CSessaoBoletoCedenteConfig, CTipoChavePix, integer(PIXTipoChave));
 end;
 
 { TBoletoBancoConfig }
@@ -721,6 +741,7 @@ begin
     LayoutRemessa:= c400;
   end;
   LeCedenteRetorno := AIni.ReadBool(CSessaoBoletoDiretorioConfig, CChaveLeCedenteRetorno, LeCedenteRetorno);
+  LerNossoNumeroCompleto:= AIni.ReadBool(CSessaoBoletoDiretorioConfig, CChaveLerNossoNumeroCompleto, LerNossoNumeroCompleto);
   NomeArqRemessa := AIni.ReadString(CSessaoBoletoDiretorioConfig, CChaveNomeArqRemessa, NomeArqRemessa);
   NomeArqRetorno := AIni.ReadString(CSessaoBoletoDiretorioConfig, CChaveNomeArqRetorno, NomeArqRetorno);
   NumeroArquivo := AIni.ReadInteger(CSessaoBoletoDiretorioConfig, CChaveNumeroArquivo, NumeroArquivo);
@@ -743,6 +764,7 @@ begin
     AIni.WriteInteger(CSessaoBoletoDiretorioConfig, CChaveLayoutRemessa, 0 );
   end;
   AIni.WriteBool(CSessaoBoletoDiretorioConfig, CChaveLeCedenteRetorno, LeCedenteRetorno);
+  Aini.WriteBool(CSessaoBoletoDiretorioConfig, CChaveLerNossoNumeroCompleto, LerNossoNumeroCompleto);
   AIni.WriteString(CSessaoBoletoDiretorioConfig, CChaveNomeArqRemessa, NomeArqRemessa);
   AIni.WriteString(CSessaoBoletoDiretorioConfig, CChaveNomeArqRetorno, NomeArqRetorno);
   AIni.WriteInteger(CSessaoBoletoDiretorioConfig, CChaveNumeroArquivo, NumeroArquivo);

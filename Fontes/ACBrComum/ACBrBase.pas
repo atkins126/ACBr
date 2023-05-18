@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Alexandre Rocha Lima e Marcondes                }
 {                                                                              }
@@ -565,11 +565,10 @@ begin
     DataStr := copy(DataStr,1,4) + copy(AnoStr,1,2) + copy(DataStr,5,2);
   end;
 
-  try
-    Result := EncodeDate( StrToInt(copy(DataStr,5,4)),
-                          StrToInt(copy(DataStr,3,2)),
-                          StrToInt(copy(DataStr,1,2)) ) ;
-  except
+  if (DataStr = EmptyStr) or (not TryEncodeDate( StrToInt(copy(DataStr,5,4)),
+                                                StrToInt(copy(DataStr,3,2)),
+                                                StrToInt(copy(DataStr,1,2)) , Result)) then
+  begin
     Result := 0 ;
   end;
 end;

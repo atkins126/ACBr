@@ -1,9 +1,9 @@
 {==============================================================================|
-| Project : Ararat Synapse                                       | 007.006.002 |
+| Project : Ararat Synapse                                       | 007.007.000 |
 |==============================================================================|
 | Content: Serial port support                                                 |
 |==============================================================================|
-| Copyright (c)2001-2021, Lukas Gebauer                                        |
+| Copyright (c)2001-2022, Lukas Gebauer                                        |
 | All rights reserved.                                                         |
 |                                                                              |
 | Redistribution and use in source and binary forms, with or without           |
@@ -38,7 +38,6 @@
 |==============================================================================|
 | Contributor(s):                                                              |
 |  (c)2002, Hans-Georg Joepgen (cpom Comport Ownership Manager and bugfixes)   |
-|   Silvio Clecio, Waldir Paim e DSA  (Delphi POSIX support)                   |
 |==============================================================================|
 | History: see HISTORY.HTM from distribution package                           |
 |          (Found at URL: http://www.ararat.cz/synapse/)                       |
@@ -128,8 +127,7 @@ interface
 uses
 {$IFNDEF MSWINDOWS}
   {$IFDEF POSIX}
-    Posix.Termios, Posix.Fcntl, Posix.Unistd, Posix.Stropts, Posix.SysSelect,
-    Posix.SysTime,
+    Posix.Termios, Posix.Fcntl, Posix.Unistd, Posix.Stropts, Posix.SysSelect, Posix.SysTime,
     {$IFDEF LINUX}
       Linuxapi.KernelIoctl,
     {$ENDIF}
@@ -296,6 +294,10 @@ const
   TIOCMSET = $5418;
   TIOCMGET = $5415;
   TCSBRK   = $5409;
+
+  TCSETS  = $5402;
+  TCSETSW = $5403;
+  TCSETSF = $5404;
 {$ENDIF}
 
 const
@@ -1704,18 +1706,27 @@ begin
 end;
 {$ENDIF}
 
-{$IFNDEF MSWINDOWS}
+{$IfNDef MSWINDOWS}
 procedure TBlockSerial.SetCommState;
 begin
   DcbToTermios(dcb, termiosstruc);
-  {$IfDef POSIX}
-    ioctl(Fhandle, TCSANOW, PInteger(@TermiosStruc));
+  {$IfDeF ANDROID}
+    // TCSETS = TCSANOW
+    {$IfNDef FPC}
+      ioctl(Fhandle, TCSETS, PInteger(@TermiosStruc));
+    {$Else}
+      fpioctl(Fhandle, TCSETS, PInteger(@TermiosStruc));
+    {$EndIf}
   {$Else}
-    SerialCheck(tcsetattr(FHandle, TCSANOW, termiosstruc));
+    {$IfDef POSIX}
+      ioctl(Fhandle, TCSANOW, PInteger(@TermiosStruc));
+    {$Else}
+      SerialCheck(tcsetattr(FHandle, TCSANOW, termiosstruc));
+    {$EndIf}
   {$EndIf}
   ExceptCheck;
 end;
-{$ELSE}
+{$Else}
 procedure TBlockSerial.SetCommState;
 begin
   SetSynaError(sOK);
@@ -1723,7 +1734,7 @@ begin
     SerialCheck(sErr);
   ExceptCheck;
 end;
-{$ENDIF}
+{$EndIf}
 
 {$IFNDEF MSWINDOWS}
 procedure TBlockSerial.GetCommState;
@@ -2006,10 +2017,19 @@ begin
 end;
 
 procedure TBlockSerial.Flush;
+{$IFDEF ANDROID}
+var
+ Data: Integer;
+{$ENDIF}
 begin
 {$IFNDEF MSWINDOWS}
   {$IFDEF ANDROID}
-    ioctl(FHandle, TCSBRK, 1);
+    Data := 1;
+    {$IFNDEF FPC}
+      ioctl(FHandle, TCSBRK, @Data);
+    {$ELSE}
+      fpIoctl(FHandle, TCSBRK, @Data);
+    {$ENDIF}
   {$ELSE}
     SerialCheck(tcdrain(FHandle));
   {$ENDIF}

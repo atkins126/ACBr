@@ -1,34 +1,34 @@
-{******************************************************************************}
-{ Projeto: Componentes ACBr                                                    }
-{  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
-{ mentos de Automação Comercial utilizados no Brasil                           }
-{                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
-{                                                                              }
-{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
-{                                                                              }
-{  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
-{ Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
-{                                                                              }
-{  Esta biblioteca é software livre; você pode redistribuí-la e/ou modificá-la }
-{ sob os termos da Licença Pública Geral Menor do GNU conforme publicada pela  }
-{ Free Software Foundation; tanto a versão 2.1 da Licença, ou (a seu critério) }
-{ qualquer versão posterior.                                                   }
-{                                                                              }
-{  Esta biblioteca é distribuída na expectativa de que seja útil, porém, SEM   }
-{ NENHUMA GARANTIA; nem mesmo a garantia implícita de COMERCIABILIDADE OU      }
-{ ADEQUAÇÃO A UMA FINALIDADE ESPECÍFICA. Consulte a Licença Pública Geral Menor}
-{ do GNU para mais detalhes. (Arquivo LICENÇA.TXT ou LICENSE.TXT)              }
-{                                                                              }
-{  Você deve ter recebido uma cópia da Licença Pública Geral Menor do GNU junto}
-{ com esta biblioteca; se não, escreva para a Free Software Foundation, Inc.,  }
-{ no endereço 59 Temple Street, Suite 330, Boston, MA 02111-1307 USA.          }
-{ Você também pode obter uma copia da licença em:                              }
-{ http://www.opensource.org/licenses/lgpl-license.php                          }
-{                                                                              }
-{ Daniel Simões de Almeida - daniel@projetoacbr.com.br - www.projetoacbr.com.br}
-{       Rua Coronel Aureliano de Camargo, 963 - Tatuí - SP - 18270-170         }
-{******************************************************************************}
+{ ****************************************************************************** }
+{ Projeto: Componentes ACBr                                                      }
+{ Biblioteca multiplataforma de componentes Delphi para interação com equipa-    }
+{ mentos de Automação Comercial utilizados no Brasil                             }
+{                                                                                }
+{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida                 }
+{                                                                                }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                           }
+{                                                                                }
+{ Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr       }
+{ Componentes localizado em      http://www.sourceforge.net/projects/acbr        }
+{                                                                                }
+{ Esta biblioteca é software livre; você pode redistribuí-la e/ou modificá-la    }
+{ sob os termos da Licença Pública Geral Menor do GNU conforme publicada pela    }
+{ Free Software Foundation; tanto a versão 2.1 da Licença, ou (a seu critério)   }
+{ qualquer versão posterior.                                                     }
+{                                                                                }
+{ Esta biblioteca é distribuída na expectativa de que seja útil, porém, SEM      }
+{ NENHUMA GARANTIA; nem mesmo a garantia implícita de COMERCIABILIDADE OU        }
+{ ADEQUAÇÃO A UMA FINALIDADE ESPECÍFICA. Consulte a Licença Pública Geral Menor  }
+{ do GNU para mais detalhes. (Arquivo LICENÇA.TXT ou LICENSE.TXT)                }
+{                                                                                }
+{ Você deve ter recebido uma cópia da Licença Pública Geral Menor do GNU junto   }
+{ com esta biblioteca; se não, escreva para a Free Software Foundation, Inc.,    }
+{ no endereço 59 Temple Street, Suite 330, Boston, MA 02111-1307 USA.            }
+{ Você também pode obter uma copia da licença em:                                }
+{ http://www.opensource.org/licenses/lgpl-license.php                            }
+{                                                                                }
+{ Daniel Simões de Almeida - daniel@projetoacbr.com.br - www.projetoacbr.com.br  }
+{ Rua Coronel Aureliano de Camargo, 963 - Tatuí - SP - 18270-170                 }
+{ ****************************************************************************** }
 
 {$I ACBr.inc}
 
@@ -37,18 +37,18 @@ unit ACBrNFSeXDANFSeRLRetrato;
 interface
 
 uses
-  SysUtils, 
-  Variants, 
-  Classes, 
-  Graphics, 
-  Controls, 
-  Forms, 
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
   ExtCtrls,
-  RLFilters, 
-  RLPDFFilter, 
+  RLFilters,
+  RLPDFFilter,
   RLReport,
   ACBrDelphiZXingQRCode,
-  ACBrNFSeXConversao, 
+  ACBrNFSeXConversao,
   ACBrNFSeXDANFSeRL;
 
 type
@@ -78,29 +78,18 @@ type
     rllNumNFSeSubstituida: TRLLabel;
     rlmPrefeitura: TRLMemo;
     rlbPrestador: TRLBand;
-    RLLabel29: TRLLabel;
     RLLabel30: TRLLabel;
-    RLLabel31: TRLLabel;
     RLLabel32: TRLLabel;
-    rllPrestMunicipio: TRLLabel;
     rllPrestInscMunicipal: TRLLabel;
-    rllPrestEndereco: TRLLabel;
+    rllPrestEndereco: TRLMemo;
     rllPrestCNPJ: TRLLabel;
     rliPrestLogo: TRLImage;
     RLLabel2: TRLLabel;
     RLLabel1: TRLLabel;
     rllPrestNome: TRLLabel;
-    RLLabel9: TRLLabel;
-    rllPrestUF: TRLLabel;
-    RLLabel22: TRLLabel;
-    rllPrestComplemento: TRLLabel;
-    RLLabel23: TRLLabel;
-    rllPrestTelefone: TRLLabel;
-    RLLabel24: TRLLabel;
-    rllPrestEmail: TRLLabel;
     rlbTomador: TRLBand;
     RLLabel4: TRLLabel;
-    RLLabel5: TRLLabel;
+    lbIdentificacao: TRLLabel;
     rllTomaCNPJ: TRLLabel;
     RLLabel11: TRLLabel;
     rllTomaInscMunicipal: TRLLabel;
@@ -238,6 +227,10 @@ type
     RLBand1: TRLBand;
     rllDataHoraImpressao: TRLLabel;
     rllSistema: TRLLabel;
+    RLLabel5: TRLLabel;
+    RLLabel9: TRLLabel;
+    txtBaseCalculo: TRLLabel;
+    txtISS: TRLLabel;
 
     procedure rlbCabecalhoBeforePrint(Sender: TObject; var PrintIt: Boolean);
     procedure rlbItensServicoBeforePrint(Sender: TObject; var PrintIt: Boolean);
@@ -249,11 +242,10 @@ type
       var PrintIt: Boolean);
     procedure RLNFSeBeforePrint(Sender: TObject; var PrintIt: Boolean);
     procedure subItensDataRecord(Sender: TObject; RecNo: Integer;
-       CopyNo: Integer; var Eof: Boolean; var RecordAction: TRLRecordAction);
+      CopyNo: Integer; var Eof: Boolean; var RecordAction: TRLRecordAction);
   private
     { Private declarations }
     FNumItem: Integer;
-    function ManterAliquota(dAliquota: Double): String;
   public
     { Public declarations }
     class procedure QuebradeLinha(const sQuebradeLinha: String); override;
@@ -271,16 +263,17 @@ uses
   ACBrNFSeX, ACBrNFSeXClass, ACBrNFSeXInterface,
   ACBrValidador, ACBrDFeReportFortes;
 
-{$IFnDEF FPC}
-  {$R *.dfm}
+{$IFNDEF FPC}
+{$R *.dfm}
 {$ELSE}
-  {$R *.lfm}
+{$R *.lfm}
 {$ENDIF}
+
 
 var
   FQuebradeLinha: String;
 
-{ TfrlXDANFSeRLRetrato }
+  { TfrlXDANFSeRLRetrato }
 
 class procedure TfrlXDANFSeRLRetrato.QuebradeLinha(const sQuebradeLinha: String);
 begin
@@ -292,99 +285,104 @@ procedure TfrlXDANFSeRLRetrato.rbOutrasInformacoesBeforePrint(Sender: TObject;
 var
   QrCode: TDelphiZXingQRCode;
   QrCodeBitmap: TBitmap;
-  QRCodeData: String;
+  QRCodeData: string;
   rlImgQrCode: TRLImage;
   Row, Column: Integer;
+  Link: string;
 begin
   inherited;
 
   rlmDadosAdicionais.Lines.BeginUpdate;
   rlmDadosAdicionais.Lines.Clear;
+  Link := '';
 
-  if fpNFSe.OutrasInformacoes <> '' then
-    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.OutrasInformacoes, FQuebradeLinha, #13#10, [rfReplaceAll,rfIgnoreCase]))
+  if fpDANFSe.OutrasInformacaoesImp <> '' then
+    rlmDadosAdicionais.Lines.Add(StringReplace(fpDANFSe.OutrasInformacaoesImp, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]))
   else
-    if fpDANFSe.OutrasInformacaoesImp <> '' then
-      rlmDadosAdicionais.Lines.Add(StringReplace(fpDANFSe.OutrasInformacaoesImp, FQuebradeLinha, #13#10, [rfReplaceAll,rfIgnoreCase]));
+    if fpNFSe.OutrasInformacoes <> '' then
+    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.OutrasInformacoes, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
 
   if fpNFSe.InformacoesComplementares <> '' then
-    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.InformacoesComplementares, FQuebradeLinha, #13#10, [rfReplaceAll,rfIgnoreCase]));
+    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.InformacoesComplementares, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
 
-  if ((pos('http://', LowerCase(fpNFSe.OutrasInformacoes)) > 0) or (pos('http://', LowerCase(fpNFSe.Link)) > 0) or (pos('https://', LowerCase(fpNFSe.Link)) > 0)) then
+  if (pos('http://', LowerCase(fpNFSe.OutrasInformacoes)) > 0) or
+     (pos('https://', LowerCase(fpNFSe.OutrasInformacoes)) > 0) then
+    Link := fpNFSe.OutrasInformacoes;
+
+  if (Link = '') and ((pos('http://', LowerCase(fpNFSe.Link)) > 0) or
+     (pos('https://', LowerCase(fpNFSe.Link)) > 0)) then
+    Link := fpNFSe.Link;
+
+  if Link <> '' then
   begin
     rlmDadosAdicionais.Width := 643;
     rbOutrasInformacoes.AutoSize := True;
 
-    rlImgQrCode          := TRLImage.Create(rbOutrasInformacoes);
-    rlImgQrCode.Parent   := rbOutrasInformacoes;
-    rlImgQrCode.Stretch  := True;
+    rlImgQrCode := TRLImage.Create(rbOutrasInformacoes);
+    rlImgQrCode.Parent := rbOutrasInformacoes;
+    rlImgQrCode.Stretch := True;
     rlImgQrCode.AutoSize := False;
-    rlImgQrCode.Center   := true;
+    rlImgQrCode.Center := True;
     rlImgQrCode.SetBounds(648, 3, 90, 90);
     rlImgQrCode.BringToFront;
 
-    if pos('http://', LowerCase(fpNFSe.Link)) > 0 then
-      QRCodeData := Trim(MidStr(fpNFSe.Link, pos('http://', LowerCase(fpNFSe.Link)), Length(fpNFSe.Link)))
-    else if pos('https://', LowerCase(fpNFSe.Link)) > 0 then
-      QRCodeData := Trim(MidStr(fpNFSe.Link, pos('https://', LowerCase(fpNFSe.Link)), Length(fpNFSe.Link)))
+    if pos('http://', LowerCase(Link)) > 0 then
+      QRCodeData := Trim(MidStr(Link, pos('http://', LowerCase(Link)), Length(Link)))
     else
-      QRCodeData := Trim(MidStr(fpNFSe.OutrasInformacoes, pos('http://', LowerCase(fpNFSe.OutrasInformacoes)), Length(fpNFSe.OutrasInformacoes)));
+      QRCodeData := Trim(MidStr(Link, pos('https://', LowerCase(Link)), Length(Link)));
 
-    QRCode       := TDelphiZXingQRCode.Create;
-    QRCodeBitmap := TBitmap.Create;
+    QrCode := TDelphiZXingQRCode.Create;
+    QrCodeBitmap := TBitmap.Create;
     try
-      QRCode.Encoding  := qrUTF8NoBOM;
-      QRCode.QuietZone := 1;
-      QRCode.Data      := WideString(QRCodeData);
+      QrCode.Encoding := qrUTF8NoBOM;
+      QrCode.QuietZone := 1;
+      QrCode.Data := WideString(QRCodeData);
 
-      QRCodeBitmap.Width  := QRCode.Columns;
-      QRCodeBitmap.Height := QRCode.Rows;
+      QrCodeBitmap.Width := QrCode.Columns;
+      QrCodeBitmap.Height := QrCode.Rows;
 
-      for Row := 0 to QRCode.Rows - 1 do
+      for Row := 0 to QrCode.Rows - 1 do
       begin
-        for Column := 0 to QRCode.Columns - 1 do
+        for Column := 0 to QrCode.Columns - 1 do
         begin
-          if (QRCode.IsBlack[Row, Column]) then
-            QRCodeBitmap.Canvas.Pixels[Column, Row] := clBlack
+          if (QrCode.IsBlack[Row, Column]) then
+            QrCodeBitmap.Canvas.Pixels[Column, Row] := clBlack
           else
-            QRCodeBitmap.Canvas.Pixels[Column, Row] := clWhite;
+            QrCodeBitmap.Canvas.Pixels[Column, Row] := clWhite;
         end;
       end;
 
-      rlImgQrCode.Picture.Bitmap.Assign(QRCodeBitmap);
+      rlImgQrCode.Picture.Bitmap.Assign(QrCodeBitmap);
     finally
-      QRCode.Free;
-      QRCodeBitmap.Free;
+      QrCode.Free;
+      QrCodeBitmap.Free;
     end;
   end;
 
   rlmDadosAdicionais.Lines.EndUpdate;
-  rllDataHoraImpressao.Caption := Format(ACBrStr('DATA E HORA DA IMPRESSÃO: %s') , [FormatDateTime('dd/mm/yyyy hh:nn',Now)]);
+  rllDataHoraImpressao.Caption := Format(ACBrStr('DATA E HORA DA IMPRESSÃO: %s'), [FormatDateTime('dd/mm/yyyy hh:nn', Now)]);
 
   if fpDANFSe.Usuario <> '' then
     rllDataHoraImpressao.Caption := Format(ACBrStr('%s   USUÁRIO: %s'), [rllDataHoraImpressao.Caption, fpDANFSe.Usuario]);
 
   // imprime sistema
   if fpDANFSe.Sistema <> '' then
-    rllSistema.Caption := Format('Desenvolvido por %s' , [fpDANFSe.Sistema])
+    rllSistema.Caption := Format('Desenvolvido por %s', [fpDANFSe.Sistema])
   else
     rllSistema.Caption := '';
 
-  //Exibe canhoto
+  // Exibe canhoto
   rlbCanhoto.Visible := fpDANFSe.ImprimeCanhoto;
 end;
 
 procedure TfrlXDANFSeRLRetrato.rlbCabecalhoBeforePrint(Sender: TObject; var PrintIt: Boolean);
-var
-  CodigoIBGE: Integer;
-  xMunicipio, xUF: string;
 begin
   inherited;
 
   TDFeReportFortes.CarregarLogo(rliLogo, fpDANFSe.Logo);
 
   rlmPrefeitura.Lines.Clear;
-  rlmPrefeitura.Lines.Add(StringReplace(fpDANFSe.Prefeitura, FQuebradeLinha, #13#10, [rfReplaceAll,rfIgnoreCase]));
+  rlmPrefeitura.Lines.Add(StringReplace(fpDANFSe.Prefeitura, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
 
   With fpNFSe do
   begin
@@ -394,30 +392,14 @@ begin
 
     rllCompetencia.Caption := IfThen(Competencia > 0, FormatDateTime('mm/yyyy', Competencia), '');
 
-    rllNumeroRPS.Caption := IdentificacaoRps.Numero;
+    rllNumeroRps.Caption := IdentificacaoRps.Numero;
 
     if IdentificacaoRps.Serie <> '' then
-      rllNumeroRPS.Caption := rllNumeroRPS.Caption + '/' + IdentificacaoRps.Serie;
+      rllNumeroRps.Caption := rllNumeroRps.Caption + '/' + IdentificacaoRps.Serie;
 
     rllNumNFSeSubstituida.Caption := NfseSubstituida;
 
-    // Será necessário uma analise melhor para saber em que condições devemos usar o código do municipio
-    // do tomador em vez do que foi informado em Serviço.
-    CodigoIBGE := StrToIntDef(Servico.CodigoMunicipio, 0);
-    xMunicipio := '';
-    xUF := '';
-
-    try
-      xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
-    except
-      on E:Exception do
-      begin
-        xMunicipio := '';
-        xUF := '';
-      end;
-    end;
-
-    rllMunicipioPrestacaoServico.Caption := xMunicipio;
+    rllMunicipioPrestacaoServico.Caption := Servico.MunicipioPrestacaoServico;
   end;
 end;
 
@@ -425,15 +407,21 @@ procedure TfrlXDANFSeRLRetrato.rlbItensServicoBeforePrint(Sender: TObject; var P
 begin
   with fpNFSe.Servico.ItemServico.Items[FNumItem] do
   begin
-    txtServicoQtde.Caption := FormatFloatBr(Quantidade);
     rlmServicoDescricao.Lines.Clear;
     rlmServicoDescricao.Lines.Add(StringReplace(Descricao, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
     txtServicoUnitario.Caption := FormatFloatBr(ValorUnitario);
+    txtServicoQtde.Caption := FormatFloatBr(Quantidade);
 
     if ValorTotal = 0.0 then
       ValorTotal := Quantidade * ValorUnitario;
 
     txtServicoTotal.Caption := FormatFloatBr(ValorTotal);
+    txtBaseCalculo.Caption := FormatFloatBr(BaseCalculo);
+
+    if ValorISS = 0.0 then
+      ValorISS := BaseCalculo * Aliquota/100;
+
+    txtISS.Caption := FormatFloatBr(ValorISS);
   end;
 end;
 
@@ -445,7 +433,7 @@ begin
   inherited;
 
   RLLabel16.Visible := False;
-  rllCodTributacaoMunicipio.Visible     := False;
+  rllCodTributacaoMunicipio.Visible := False;
   rlmDescCodTributacaoMunicipio.Visible := False;
 
   FProvider := ACBrNFSe.Provider;
@@ -453,25 +441,25 @@ begin
   With fpNFSe do
   begin
     rllNatOperacao.Lines.Text := ACBrStr(FProvider.NaturezaOperacaoDescricao(NaturezaOperacao));
-    MostrarNaturezaOperacao   := rllNatOperacao.Caption<>'';
-    RLLabel137.Visible        := MostrarNaturezaOperacao;
+    MostrarNaturezaOperacao := rllNatOperacao.Caption <> '';
+    RLLabel137.Visible := MostrarNaturezaOperacao;
     rllRegimeEspecial.Caption := ACBrStr(FProvider.RegimeEspecialTributacaoDescricao(RegimeEspecialTributacao));
-    rllOpcaoSimples.Caption   := ACBrStr(FProvider.SimNaoDescricao(OptanteSimplesNacional));
-    rllIncentivador.Caption   := ACBrStr(FProvider.SimNaoDescricao(IncentivadorCultural));
-    rllCodObra.Caption        := ConstrucaoCivil.CodigoObra;
-    rllCodART.Caption         := ConstrucaoCivil.Art;
+    rllOpcaoSimples.Caption := ACBrStr(FProvider.SimNaoDescricao(OptanteSimplesNacional));
+    rllIncentivador.Caption := ACBrStr(FProvider.SimNaoDescricao(IncentivadorCultural));
+    rllCodObra.Caption := ConstrucaoCivil.CodigoObra;
+    rllCodART.Caption := ConstrucaoCivil.Art;
 
-    MostrarObra                 := (rllCodObra.Caption <> '') or (rllCodART.Caption <> '');
-    rlsLinhaH1.Visible          := MostrarObra;
+    MostrarObra := (rllCodObra.Caption <> '') or (rllCodART.Caption <> '');
+    rlsLinhaH1.Visible := MostrarObra;
     rllTituloConstCivil.Visible := MostrarObra;
-    rllCodigoObra.Visible       := MostrarObra;
-    rllCodObra.Visible          := MostrarObra;
-    rllCodigoArt.Visible        := MostrarObra;
-    rllCodART.Visible           := MostrarObra;
+    rllCodigoObra.Visible := MostrarObra;
+    rllCodObra.Visible := MostrarObra;
+    rllCodigoArt.Visible := MostrarObra;
+    rllCodART.Visible := MostrarObra;
 
-    with Servico.Valores  do
+    with Servico.Valores do
     begin
-      rllValorTotal.Caption := 'VALOR TOTAL DA NOTA = R$ '+ FormatFloat(',0.00' , ValorServicos);
+      rllValorTotal.Caption := 'VALOR TOTAL DA NOTA = R$ ' + FormatFloat(',0.00', ValorServicos);
       rlmCodServico.Lines.Clear;
 
       if Servico.xItemListaServico <> '' then
@@ -481,11 +469,11 @@ begin
         if fpDANFSe.Atividade <> '' then
           rlmCodServico.Lines.Append('Atividade: ' + fpDANFSe.Atividade);
 
-        rlmCodServico.Lines.Append(Servico.ItemListaServico + ' - '+ Servico.xItemListaServico);
+        rlmCodServico.Lines.Append(Servico.ItemListaServico + ' - ' + Servico.xItemListaServico);
 
         if (Servico.xCodigoTributacaoMunicipio <> '') then
         begin
-          rllCodTributacaoMunicipio.Visible     := True;
+          rllCodTributacaoMunicipio.Visible := True;
           rlmDescCodTributacaoMunicipio.Visible := True;
           rlmDescCodTributacaoMunicipio.Lines.Append(Servico.xCodigoTributacaoMunicipio);
         end
@@ -502,29 +490,29 @@ begin
         end
       end;
 
-      rllValorPIS.Caption             := FormatFloat(',0.00', ValorPis);
-      rllValorCOFINS.Caption          := FormatFloat(',0.00', ValorCofins);
-      rllValorIR.Caption              := FormatFloat(',0.00', ValorIr);
-      rllValorINSS.Caption            := FormatFloat(',0.00', ValorInss);
-      rllValorCSLL.Caption            := FormatFloat(',0.00', ValorCsll);
-      rllValorServicos1.Caption       := FormatFloat(',0.00', ValorServicos);
-      rllDescIncondicionado1.Caption  := FormatFloat(',0.00', DescontoIncondicionado);
-      rllDescCondicionado.Caption     := FormatFloat(',0.00', DescontoCondicionado);
-      rllRetencoesFederais.Caption    := FormatFloat(',0.00', ValorPis +
-                                                              ValorCofins +
-                                                              ValorInss +
-                                                              ValorIr +
-                                                              ValorCsll);
-      rllOutrasRetencoes.Caption      := FormatFloat(',0.00', OutrasRetencoes);
-      rllValorIssRetido.Caption       := FormatFloat(',0.00', ValorIssRetido);
-      rllValorLiquido.Caption         := FormatFloat(',0.00', ValorLiquidoNfse);
-      rllValorServicos2.Caption       := FormatFloat(',0.00', ValorServicos);
-      rllValorDeducoes.Caption        := FormatFloat(',0.00', ValorDeducoes);
-      rllDescIncondicionado2.Caption  := FormatFloat(',0.00', DescontoIncondicionado);
-      rllBaseCalc.Caption             := FormatFloat(',0.00', BaseCalculo);
-      rllAliquota.Caption             := ManterAliquota (Aliquota);
-      rllISSReter.Caption             := FProvider.SituacaoTributariaDescricao(IssRetido);
-      rllValorISS.Caption             := FormatFloat(',0.00',ValorIss);
+      rllValorPIS.Caption := FormatFloat(',0.00', ValorPis);
+      rllValorCOFINS.Caption := FormatFloat(',0.00', ValorCofins);
+      rllValorIR.Caption := FormatFloat(',0.00', ValorIr);
+      rllValorINSS.Caption := FormatFloat(',0.00', ValorInss);
+      rllValorCSLL.Caption := FormatFloat(',0.00', ValorCsll);
+      rllValorServicos1.Caption := FormatFloat(',0.00', ValorServicos);
+      rllDescIncondicionado1.Caption := FormatFloat(',0.00', DescontoIncondicionado);
+      rllDescCondicionado.Caption := FormatFloat(',0.00', DescontoCondicionado);
+      rllRetencoesFederais.Caption := FormatFloat(',0.00', ValorPis +
+        ValorCofins +
+        ValorInss +
+        ValorIr +
+        ValorCsll);
+      rllOutrasRetencoes.Caption := FormatFloat(',0.00', OutrasRetencoes);
+      rllValorIssRetido.Caption := FormatFloat(',0.00', ValorIssRetido);
+      rllValorLiquido.Caption := FormatFloat(',0.00', ValorLiquidoNfse);
+      rllValorServicos2.Caption := FormatFloat(',0.00', ValorServicos);
+      rllValorDeducoes.Caption := FormatFloat(',0.00', ValorDeducoes);
+      rllDescIncondicionado2.Caption := FormatFloat(',0.00', DescontoIncondicionado);
+      rllBaseCalc.Caption := FormatFloat(',0.00', BaseCalculo);
+      rllAliquota.Caption := FormatFloat(',0.00', Aliquota);
+      rllISSReter.Caption := FProvider.SituacaoTributariaDescricao(IssRetido);
+      rllValorISS.Caption := FormatFloat(',0.00', ValorIss);
     end;
   end;
 end;
@@ -535,13 +523,10 @@ begin
 
   rlmDescricao.Lines.Clear;
   rlmDescricao.Lines.Add(StringReplace(fpNFSe.Servico.Discriminacao,
-                          FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
+    FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
 end;
 
 procedure TfrlXDANFSeRLRetrato.rlbPrestadorBeforePrint(Sender: TObject; var PrintIt: Boolean);
-var
-  CodigoIBGE: Integer;
-  xUF: string;
 begin
   inherited;
 
@@ -556,59 +541,22 @@ begin
 
     with IdentificacaoPrestador do
     begin
-      rllPrestCNPJ.Caption := FormatarCNPJouCPF(ifThen(CpfCnpj <> '', CpfCnpj, fpDANFSe.Prestador.CNPJ));
+      rllPrestCNPJ.Caption := FormatarCNPJouCPF(IfThen(CpfCnpj <> '', CpfCnpj, fpDANFSe.Prestador.CNPJ));
       rllPrestInscMunicipal.Caption := IfThen(InscricaoMunicipal <> '', InscricaoMunicipal, fpDANFSe.Prestador.InscricaoMunicipal);
       rllPrestInscEstadual.Caption := IfThen(InscricaoEstadual <> '', InscricaoEstadual, fpDANFSe.Prestador.InscricaoEstadual);
     end;
 
     with Endereco do
     begin
-      rllPrestEndereco.Caption := IfThen(Endereco <> '' , Trim(Endereco) + ', '+
-                                                          Trim(Numero) + ' - '+
-                                                          Trim(Bairro) +
-                                                          ' - CEP: ' +
-                                                          FormatarCEP(CEP),
-                                             Trim(fpDANFSe.Prestador.Endereco));
+      rllPrestEndereco.Lines.Text := IfThen(Endereco <> '', Trim(Endereco) + ', ' +
+        Trim(Trim(Numero) + ' ' + Trim(IfThen(Complemento <> '', Complemento, fpDANFSe.Prestador.Complemento))) + #13 +
+        Trim(Bairro) + ' - ' + Trim(IfThen(xMunicipio <> '', xMunicipio, fpDANFSe.Prestador.Municipio)) + ' - ' +
+        IfThen(UF <> '', UF, fpDANFSe.Prestador.UF) + ' CEP: ' + FormatarCEP(CEP) + #13 +
+        Trim(IfThen(Contato.Telefone <> '', FormatarFone(Contato.Telefone), FormatarFone(fpDANFSe.Prestador.Fone)) + '  ' +
+        IfThen(Contato.Email <> '', Contato.Email, fpDANFSe.Prestador.Email)),
 
-      rllPrestComplemento.Caption := IfThen(Complemento <> '', Complemento , fpDANFSe.Prestador.Complemento);
+        Trim(fpDANFSe.Prestador.Endereco));
 
-      if (xMunicipio <> '') or (CodigoMunicipio <> '') then
-      begin
-        if (xMunicipio <> '') and (CodigoMunicipio <> '') then
-          rllPrestMunicipio.Caption := CodigoMunicipio + ' - ' + xMunicipio
-        else
-        begin
-          xUF := '';
-          CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
-
-          try
-            xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
-          except
-            on E:Exception do
-            begin
-              xMunicipio := '';
-              xUF := '';
-            end;
-          end;
-
-          if UF = '' then
-            UF := xUF;
-
-          rllPrestMunicipio.Caption := CodigoMunicipio + ' - ' + xMunicipio;
-        end;
-      end
-      else
-      begin
-        rllPrestMunicipio.Caption := fpDANFSe.Prestador.Municipio;
-      end;
-
-      rllPrestUF.Caption := IfThen(UF <> '', UF, fpDANFSe.Prestador.UF);
-    end;
-
-    with Contato do
-    begin
-      rllPrestTelefone.Caption := IfThen(Telefone <> '' , FormatarFone(Telefone) , FormatarFone(fpDANFSe.Prestador.Fone));
-      rllPrestEmail.Caption    := IfThen(Email <> '' , Email , fpDANFSe.Prestador.EMail);
     end;
 
     rllPrestNomeEnt.Caption := IfThen(RazaoSocial <> '', RazaoSocial, fpDANFSe.Prestador.RazaoSocial);
@@ -616,17 +564,14 @@ begin
 
   rllNumNF0Ent.Caption := FormatFloat('00000000000', StrToFloatDef(fpNFSe.Numero, 0));
   rllTomadorNomeEnt.Caption := ACBrStr('Emissão:') +
-                               FormatDateTime('dd/mm/yy', fpNFSe.DataEmissao) +
-                               '-Tomador:' + fpNFSe.Tomador.RazaoSocial +
-                               '-Total:' +
-                  FormatFloat(',0.00', fpNFSe.Servico.Valores.ValorLiquidoNfse);
+    FormatDateTime('dd/mm/yy', fpNFSe.DataEmissao) +
+    '-Tomador:' + fpNFSe.Tomador.RazaoSocial +
+    '-Total:' +
+    FormatFloat(',0.00', fpNFSe.Servico.Valores.ValorLiquidoNfse);
 end;
 
 procedure TfrlXDANFSeRLRetrato.rlbTomadorBeforePrint(Sender: TObject;
   var PrintIt: Boolean);
-var
-  CodigoIBGE: Integer;
-  xUF: string;
 begin
   inherited;
 
@@ -636,12 +581,16 @@ begin
 
     with IdentificacaoTomador do
     begin
-      if Length(CpfCnpj)<=11 then
-        rllTomaCNPJ.Caption := FormatarCPF(CpfCnpj)
+      lbIdentificacao.Caption := 'CPF/CNPJ:';
+      if (Length(Nif) > 0) then
+      begin
+        lbIdentificacao.Caption := 'NIF:';
+        rllTomaCNPJ.Caption := Nif;
+      end
       else
-        rllTomaCNPJ.Caption := FormatarCNPJ(CpfCnpj);
+        rllTomaCNPJ.Caption := FormatarCNPJouCPF(CpfCnpj);
 
-      rllTomaInscMunicipal.Caption := IfThen(InscricaoMunicipal <> '' , InscricaoMunicipal , fpDANFSe.Tomador.InscricaoMunicipal);
+      rllTomaInscMunicipal.Caption := IfThen(InscricaoMunicipal <> '', InscricaoMunicipal, fpDANFSe.Tomador.InscricaoMunicipal);
 
       rllTomaInscEstadual.Caption := IfThen(InscricaoEstadual <> '', InscricaoEstadual, fpDANFSe.Tomador.InscricaoEstadual);
     end;
@@ -650,50 +599,31 @@ begin
     begin
       if Endereco <> '' then
       begin
-        rllTomaEndereco.Caption :=  Trim(Endereco) + ', '  +
-                                    Trim(Numero)  + ' - ' +
-                                    Trim(Bairro)  + ' - CEP: ' +
-                                    FormatarCEP(CEP);
+        if UF = 'EX' then
+        begin
+          rllTomaEndereco.Caption := Trim(Endereco) + ', Pais: ' + Trim(xPais);
+        end
+        else
+          rllTomaEndereco.Caption := Trim(Endereco) + ', ' +
+            Trim(Numero) + ' - ' +
+            Trim(Bairro) + ' - CEP: ' +
+            FormatarCEP(CEP);
       end
       else
-       rllTomaEndereco.Caption := Trim(fpDANFSe.Tomador.Endereco) + ' - CEP: ' +
-                                  FormatarCEP(CEP);
+        rllTomaEndereco.Caption := Trim(fpDANFSe.Tomador.Endereco) + ' - CEP: ' +
+          FormatarCEP(CEP);
 
-      rllTomaComplemento.Caption := IfThen(Complemento <> '' , Complemento , fpDANFSe.Tomador.Complemento);
+      rllTomaComplemento.Caption := IfThen(Complemento <> '', Complemento, fpDANFSe.Tomador.Complemento);
 
-      if (xMunicipio <> '') or (CodigoMunicipio <> '') then
-      begin
-        if (xMunicipio <> '') and (CodigoMunicipio <> '') then
-          rllTomaMunicipio.Caption := CodigoMunicipio + ' - ' + xMunicipio
-        else
-        begin
-          xUF := '';
-          CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
-
-          try
-            xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
-          except
-            on E:Exception do
-            begin
-              xMunicipio := '';
-              xUF := '';
-            end;
-          end;
-
-          if UF = '' then
-            UF := xUF;
-
-          rllTomaMunicipio.Caption := CodigoMunicipio + ' - ' + xMunicipio;
-        end;
-      end;
+      rllTomaMunicipio.Caption := xMunicipio;
 
       rllTomaUF.Caption := UF;
     end;
 
     with Contato do
     begin
-      rllTomaTelefone.Caption := IfThen(Telefone <> '' , FormatarFone(Telefone) , FormatarFone(fpDANFSe.Tomador.Fone));
-      rllTomaEmail.Caption    := IfThen(Email    <> '' , Email , fpDANFSe.Tomador.Email);
+      rllTomaTelefone.Caption := IfThen(Telefone <> '', FormatarFone(Telefone), FormatarFone(fpDANFSe.Tomador.Fone));
+      rllTomaEmail.Caption := IfThen(Email <> '', Email, fpDANFSe.Tomador.Email);
     end;
   end;
 
@@ -725,31 +655,17 @@ begin
   rlbItens.Visible := not Detalhar;
   rlbHeaderItensDetalhado.Visible := Detalhar;
   subItens.Visible := Detalhar;
-
-//  rlbItens.Visible := not (fpDANFSe.DetalharServico);
-//  rlbHeaderItensDetalhado.Visible := fpDANFSe.DetalharServico;
-//  subItens.Visible := fpDANFSe.DetalharServico;
-
-  // Estudar a melhor forma de não especificar o provedor.
-  RLLabel65.Visible := not (ACBrNFSe.Configuracoes.Geral.Provedor in [proSimple]);
-  txtServicoQtde.Visible := not (ACBrNFSe.Configuracoes.Geral.Provedor in [proSimple]);
 end;
 
 procedure TfrlXDANFSeRLRetrato.subItensDataRecord(Sender: TObject;
-   RecNo: Integer; CopyNo: Integer; var Eof: Boolean;
-   var RecordAction: TRLRecordAction);
+  RecNo: Integer; CopyNo: Integer; var Eof: Boolean;
+  var RecordAction: TRLRecordAction);
 begin
   inherited;
 
   FNumItem := RecNo - 1;
   Eof := (RecNo > fpNFSe.Servico.ItemServico.Count);
   RecordAction := raUseIt;
-end;
-
-function TfrlXDANFSeRLRetrato.ManterAliquota(dAliquota: Double): String;
-begin
-  // Agora a multiplicação por 100 é feita pela rotina que lê o XML.
-  Result := FormatFloat(',0.00', dAliquota);
 end;
 
 end.

@@ -67,22 +67,20 @@ type
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
   {$ENDIF RTL230_UP}
-  TACBrPSPSantander = class(TACBrPSP)
+  TACBrPSPSantander = class(TACBrPSPCertificate)
   private
-    fK: String;
     fRefreshURL: String;
-    fArquivoPFX: String;
-    fSenhaPFX: String;
     function GetConsumerKey: String;
     function GetConsumerSecret: String;
-    function GetSenhaPFX: String;
     procedure SetConsumerKey(AValue: String);
     procedure SetConsumerSecret(AValue: String);
-    procedure SetArquivoPFX(const AValue: String);
-    procedure SetSenhaPFX(const AValue: String);
+    procedure QuandoReceberRespostaEndPoint(const aEndPoint, aURL, aMethod: String;
+      var aResultCode: Integer; var aRespostaHttp: AnsiString);
+    procedure QuandoAcessarEndPoint(const aEndPoint: String; var aURL: String; var aMethod: String);
   protected
     function ObterURLAmbiente(const aAmbiente: TACBrPixCDAmbiente): String; override;
-    procedure ConfigurarHeaders(const Method, AURL: String); override;
+    procedure ConfigurarQueryParameters(const Method, EndPoint: String); override;
+    function VerificarSeIncluiPFX(const Method, AURL: String): Boolean; override;
   public
     constructor Create(AOwner: TComponent); override;
     procedure Autenticar; override;
@@ -91,36 +89,25 @@ type
     property APIVersion;
     property ConsumerKey: String read GetConsumerKey write SetConsumerKey;
     property ConsumerSecret: String read GetConsumerSecret write SetConsumerSecret;
-    property ArquivoPFX: String read fArquivoPFX write SetArquivoPFX;
-    property SenhaPFX: String read GetSenhaPFX write SetSenhaPFX;
   end;
 
 implementation
 
 uses
   synautil, DateUtils,
-  ACBrJSON,
+  ACBrJSON, ACBrPIXUtil,
   ACBrUtil.FilesIO,
-  ACBrUtil.Strings;
+  ACBrUtil.Strings,
+  ACBrUtil.DateTime;
 
 { TACBrPSPSantander }
-
-procedure TACBrPSPSantander.ConfigurarHeaders(const Method, AURL: String);
-begin
- inherited ConfigurarHeaders(Method, AURL);
-
- if (ACBrPixCD.Ambiente = ambProducao) then
- begin
-   http.Sock.SSL.PFXfile     := ArquivoPFX;
-   http.Sock.SSL.KeyPassword := SenhaPFX;
- end;
-end;
 
 constructor TACBrPSPSantander.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  fpQuandoReceberRespostaEndPoint := QuandoReceberRespostaEndPoint;
+  fpQuandoAcessarEndPoint := QuandoAcessarEndPoint;
   fRefreshURL := EmptyStr;
-  fK := EmptyStr;
 end;
 
 procedure TACBrPSPSantander.Autenticar;
@@ -196,19 +183,6 @@ begin
   Result := ClientSecret;
 end;
 
-function TACBrPSPSantander.GetSenhaPFX: String;
-begin
-  Result := StrCrypt(fSenhaPFX, fK)  // Descritografa a Senha
-end;
-
-procedure TACBrPSPSantander.SetArquivoPFX(const AValue: String);
-begin
-  if (fArquivoPFX = AValue) then
-    Exit;
-
-  fArquivoPFX := Trim(AValue);
-end;
-
 procedure TACBrPSPSantander.SetConsumerKey(AValue: String);
 begin
   ClientID := AValue;
@@ -219,13 +193,36 @@ begin
   ClientSecret := AValue;
 end;
 
-procedure TACBrPSPSantander.SetSenhaPFX(const AValue: String);
+procedure TACBrPSPSantander.QuandoReceberRespostaEndPoint(const aEndPoint,
+  aURL, aMethod: String; var aResultCode: Integer; var aRespostaHttp: AnsiString);
 begin
-  if (fK <> '') and (fSenhaPFX = StrCrypt(AValue, fK)) then
-    Exit;
+  // Santander responde OK a esse EndPoint, de forma diferente da especificada
+  if (UpperCase(AMethod) = ChttpMethodPOST) and (AEndPoint = cEndPointCob) and (AResultCode = HTTP_OK) then
+    AResultCode := HTTP_CREATED;
+end;
 
-  fK := FormatDateTime('hhnnsszzz', Now);
-  fSenhaPFX := StrCrypt(AValue, fK);  // Salva Senha de forma Criptografada, para evitar "Inspect"
+procedure TACBrPSPSantander.QuandoAcessarEndPoint(const aEndPoint: String;
+  var aURL: String; var aMethod: String);
+begin
+  // Santander não possui POST para endpoint /cob
+   if (LowerCase(aEndPoint) = cEndPointCob) and (UpperCase(aMethod) = ChttpMethodPOST) then
+  begin
+    aMethod := ChttpMethodPUT;
+    aURL := URLComDelimitador(aURL) + CriarTxId;
+  end;
+end;
+
+procedure TACBrPSPSantander.ConfigurarQueryParameters(const Method,
+  EndPoint: String);
+const
+  cDtFormat: string = 'yyyy''-''mm''-''dd''T''hh'':''nn'':''ss''Z''';
+begin
+  // Santander só aceita parâmetros de data SEM milissegundos
+  if (EndPoint = cEndPointPix) and (Method = ChttpMethodGET) and (URLQueryParams.Count > 0) then
+  begin
+    URLQueryParams.Values['inicio'] := FormatDateTime(cDtFormat, Iso8601ToDateTime(URLQueryParams.Values['inicio']));
+    URLQueryParams.Values['fim'] := FormatDateTime(cDtFormat, Iso8601ToDateTime(URLQueryParams.Values['fim']));
+  end;
 end;
 
 function TACBrPSPSantander.ObterURLAmbiente(const aAmbiente: TACBrPixCDAmbiente): String;
@@ -236,6 +233,11 @@ begin
   else
     Result := cSantanderURLSandbox;
   end;
+end;
+
+function TACBrPSPSantander.VerificarSeIncluiPFX(const Method, AURL: String): Boolean;
+begin
+  Result := (inherited VerificarSeIncluiPFX(Method, AURL)) and (ACBrPixCD.Ambiente = ambProducao);
 end;
 
 end.

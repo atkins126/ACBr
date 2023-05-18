@@ -41,7 +41,6 @@
 | Contributor(s):                                                              |
 |   Tomas Hajny (OS2 support)                                                  |
 |   Pepak (multiversion support)                                               |
-|   Silvio Clecio, Waldir Paim e DSA  (Delphi POSIX support)                   |
 |==============================================================================|
 | History: see HISTORY.HTM from distribution package                           |
 |          (Found at URL: http://www.ararat.cz/synapse/)                       |
@@ -97,7 +96,9 @@ uses
   SysUtils, Classes,
   synafpc
 {$IfDef ANDROID}
-  ,System.IOUtils
+  {$IFNDEF FPC}
+    ,System.IOUtils
+  {$ENDIF}
 {$EndIf}
 {$IFDEF POSIX}
   ,System.Generics.Collections, System.Generics.Defaults
@@ -1795,7 +1796,7 @@ end;
 function d2iX509bio(b: PBIO; x: PX509): PX509; {pf}
 begin
   if InitSSLInterface and Assigned(_d2iX509bio) then
-    Result := _d2iX509bio(x,b)
+    Result := _d2iX509bio(b, x)
   else
     Result := nil;
 end;
@@ -1993,8 +1994,7 @@ begin
 {$ELSE}
       {$IfDef ANDROID}
       if (SSLLibPath = '') then     // Try to load from "./assets/internal/" first
-        SSLLibPath := TPath.GetDocumentsPath;
-
+        SSLLibPath := {$IFNDEF FPC}TPath.GetDocumentsPath{$ELSE}'./assets/internal/'{$ENDIF} ;
       Ok := LoadLibraries;
       if (not Ok) then         // Try System Default Lib
       begin

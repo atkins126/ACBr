@@ -135,7 +135,7 @@ begin
   qp := TACBrQueryParams.Create;
   try
     qp.Values['grant_type'] := 'client_credentials';
-    qp.Values['scope'] := 'cob.read cob.write pix.read pix.write';
+    qp.Values['scope'] := ScopesToString(Scopes);
     Body := qp.AsURL;
     WriteStrToStream(Http.Document, Body);
     Http.MimeType := CContentTypeApplicationWwwFormUrlEncoded;
@@ -226,7 +226,7 @@ procedure TACBrPSPBancoDoBrasil.QuandoReceberRespostaEndPoint(const AEndPoint,
 begin
   // Banco do Brasil não possui consulta de cobranças por período
   if (UpperCase(AMethod) = ChttpMethodGET) and (AEndPoint = cEndPointCob) and (AResultCode <> HTTP_OK) and
-     (Pos('txid', LowerCase(AURL)) <= 0) then
+     (Pos('inicio', LowerCase(AURL)) > 0) then
     raise EACBrPixException.Create(ACBrStr(sErroEndpointNaoImplementado));
 
   // Banco do Brasil, responde OK a esse EndPoint, de forma diferente da especificada

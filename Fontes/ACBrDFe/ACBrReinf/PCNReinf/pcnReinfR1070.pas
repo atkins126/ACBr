@@ -320,7 +320,7 @@ begin
 
   if (Self.ModoLancamento <> toExclusao) then
   begin
-    Gerador.wCampo(tcStr, '', 'indAutoria', 1, 21, 1, indAutoriaToStr(pEmp.indAutoria));
+    Gerador.wCampo(tcStr, '', 'indAutoria', 1, 1, 0, indAutoriaToStr(pEmp.indAutoria));
 
     GerarinfoSusp;
 
@@ -376,7 +376,7 @@ begin
   try
     Self.VersaoDF := TACBrReinf(FACBrReinf).Configuracoes.Geral.VersaoDF;
 
-    Self.Id := GerarChaveReinf(now, self.ideContri.NrInsc, self.Sequencial);
+    Self.Id := GerarChaveReinf(now, self.ideContri.NrInsc, self.Sequencial, self.ideContri.TpInsc);
 
     GerarCabecalho('evtTabProcesso');
     Gerador.wGrupo('evtTabProcesso id="' + Self.Id + '"');
@@ -444,7 +444,7 @@ begin
       infoProcesso.ideProcesso.nrProc     := INIRec.ReadString(sSecao, 'nrProc', EmptyStr);
       infoProcesso.ideProcesso.IniValid   := INIRec.ReadString(sSecao, 'iniValid', EmptyStr);
       infoProcesso.ideProcesso.FimValid   := INIRec.ReadString(sSecao, 'fimValid', EmptyStr);
-      infoProcesso.ideProcesso.indAutoria := StrToindAutoria(Ok, INIRec.ReadString(sSecao, 'indAutoria', '1'));
+      infoProcesso.ideProcesso.indAutoria := StrToindAutoria(Ok, INIRec.ReadString(sSecao, 'indAutoria', ''));
 
       if (ModoLancamento <> toExclusao) then
       begin

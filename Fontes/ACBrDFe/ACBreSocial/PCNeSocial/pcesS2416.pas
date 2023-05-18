@@ -346,7 +346,7 @@ begin
     
   Gerador.wGrupo('infoPenMorte');
 
-  Gerador.wCampo(tcStr, '', 'tpPenMorte',  1,  1, 1, eStpTpPenMorteToStr(pInfoPenMorte.tpPenMorte));
+  Gerador.wCampo(tcStr, '', 'tpPenMorte',  1,  1, 1, eStpTpPenMorteToStrEX(pInfoPenMorte.tpPenMorte));
 
   Gerador.wGrupo('/infoPenMorte');
 end;
@@ -367,6 +367,7 @@ end;
 function TEvtCdBenAlt.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);

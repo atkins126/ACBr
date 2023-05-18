@@ -51,7 +51,7 @@ const
   cSicrediURLSandbox = 'https://api-pix-h.sicredi.com.br';
   cSicrediURLProducao = 'https://api-pix.sicredi.com.br';
   cSicrediPathAuthToken = '/oauth/token';
-  cSicrediPathAPIPix = '/api';
+  cSicrediPathAPIPix = '/api/v2';
   cSicrediURLAuthTeste = cSicrediURLSandbox+cSicrediPathAuthToken;
   cSicrediURLAuthProducao = cSicrediURLProducao+cSicrediPathAuthToken;
 
@@ -135,7 +135,7 @@ begin
   qp := TACBrQueryParams.Create;
   try
     qp.Values['grant_type'] := 'client_credentials';
-    qp.Values['scope'] := 'cob.read cob.write pix.read pix.write';
+    qp.Values['scope'] := ScopesToString(Scopes);
     Body := qp.AsURL;
     WriteStrToStream(Http.Document, Body);
     Http.MimeType := CContentTypeApplicationWwwFormUrlEncoded;
@@ -173,8 +173,8 @@ procedure TACBrPSPSicredi.QuandoReceberRespostaEndPoint(const aEndPoint, aURL,
   aMethod: String; var aResultCode: Integer; var aRespostaHttp: AnsiString);
 begin
   // Sicredi responde HTTP_OK ao método PUT do Endpoint PIX, de forma diferente da especificada
-  if (UpperCase(AMethod) = ChttpMethodPUT) and (AEndPoint = cEndPointPix) and (AResultCode = HTTP_CREATED) then
-    AResultCode := HTTP_OK;
+  if (UpperCase(AMethod) = ChttpMethodPUT) and (AEndPoint = cEndPointPix) and (AResultCode = HTTP_OK) then
+    AResultCode := HTTP_CREATED;
 end;
 
 function TACBrPSPSicredi.ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String;

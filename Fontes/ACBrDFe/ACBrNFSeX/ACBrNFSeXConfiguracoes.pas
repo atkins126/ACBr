@@ -127,6 +127,8 @@ type
     FConsultaAposCancelar: Boolean;
     FEmitente: TEmitenteConfNFSe;
     FMontarPathSchema: Boolean;
+    FLayout: TLayout;
+    FLayoutNFSe: TLayoutNFSe;
 
     procedure SetCodigoMunicipio(const Value: Integer);
   public
@@ -152,6 +154,8 @@ type
     property Emitente: TEmitenteConfNFSe read FEmitente write FEmitente;
     property MontarPathSchema: Boolean read FMontarPathSchema
       write FMontarPathSchema default True;
+    property Layout: TLayout read FLayout;
+    property LayoutNFSe: TLayoutNFSe read FLayoutNFSe write FLayoutNFSe default lnfsProvedor;
   end;
 
   { TArquivosConfNFSe }
@@ -225,8 +229,8 @@ type
 implementation
 
 uses
-  ACBrUtil.FilesIO,
-  ACBrNFSeX;
+  ACBrUtil.FilesIO, ACBrUtil.Strings,
+  ACBrNFSeX, ACBrDFeException;
 
 { TEmitenteConfNFSe }
 
@@ -278,6 +282,7 @@ constructor TConfiguracoesNFSe.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
+  FPSessaoIni := 'NFSe';
   WebServices.ResourceName := 'ACBrNFSeXServicos';
 end;
 
@@ -324,6 +329,7 @@ begin
   FConsultaLoteAposEnvio := True;
   FConsultaAposCancelar := True;
   FMontarPathSchema := True;
+  FLayoutNFSe := lnfsProvedor;
 end;
 
 destructor TGeralConfNFSe.Destroy;
@@ -343,6 +349,7 @@ begin
   AIni.WriteBool(fpConfiguracoes.SessaoIni, 'ConsultaLoteAposEnvio', ConsultaLoteAposEnvio);
   AIni.WriteBool(fpConfiguracoes.SessaoIni, 'ConsultaAposCancelar', ConsultaAposCancelar);
   AIni.WriteBool(fpConfiguracoes.SessaoIni, 'MontarPathSchema', MontarPathSchema);
+  AIni.WriteInteger(fpConfiguracoes.SessaoIni, 'LayoutNFSe', Integer(LayoutNFSe));
 
   // Emitente
   with Emitente do
@@ -383,6 +390,7 @@ begin
   ConsultaLoteAposEnvio := AIni.ReadBool(fpConfiguracoes.SessaoIni, 'ConsultaLoteAposEnvio', ConsultaLoteAposEnvio);
   ConsultaAposCancelar := AIni.ReadBool(fpConfiguracoes.SessaoIni, 'ConsultaAposCancelar', ConsultaAposCancelar);
   MontarPathSchema := AIni.ReadBool(fpConfiguracoes.SessaoIni, 'MontarPathSchema', MontarPathSchema);
+  LayoutNFSe := TLayoutNFSe(AIni.ReadInteger(fpConfiguracoes.SessaoIni, 'LayoutNFSe', Integer(LayoutNFSe)));
 
   // Emitente
   with Emitente do
@@ -418,36 +426,75 @@ procedure TGeralConfNFSe.LerParamsMunicipio;
 var
   Ok: Boolean;
   CodIBGE: string;
+  ACBrNFSeXLocal: TACBrNFSeX;
 begin
+  if not Assigned(fpConfiguracoes.Owner) then
+  begin
+    Exit;
+  end;
+
+  // Carrega automaticamente o arquivo ACBrNFSeXServicos se necessário.
+  ACBrNFSeXLocal := TACBrNFSeX(fpConfiguracoes.Owner);
+  if not (csDesigning in fpConfiguracoes.Owner.ComponentState) then
+    ACBrNFSeXLocal.LerCidades;
+
   // ===========================================================================
   // Verifica se o código IBGE consta no arquivo: ACBrNFSeXServicos
   // se encontrar carrega os parâmetros definidos.
   // ===========================================================================
-  CodIBGE := IntToStr(FCodigoMunicipio);
-
   FPIniParams.SetStrings(fpConfiguracoes.WebServices.Params);
 
-  FxProvedor := FPIniParams.ReadString(CodIBGE, 'Provedor', '');
-  FVersao := StrToVersaoNFSe(Ok, FPIniParams.ReadString(CodIBGE, 'Versao', ''));
-
-  FProvedor := StrToProvedor(FxProvedor);
-
-  if Assigned(fpConfiguracoes.Owner) then
-    TACBrNFSeX(fpConfiguracoes.Owner).SetProvider;
-
-  if FProvedor = proNenhum then
-    raise Exception.Create('Código do Municipio [' + CodIBGE + '] não Encontrado.');
+  CodIBGE := IntToStr(FCodigoMunicipio);
 
   FxMunicipio := FPIniParams.ReadString(CodIBGE, 'Nome', '');
   FxUF := FPIniParams.ReadString(CodIBGE, 'UF'  , '');
+  FxProvedor := FPIniParams.ReadString(CodIBGE, 'Provedor', '');
+  FVersao := StrToVersaoNFSe(Ok, FPIniParams.ReadString(CodIBGE, 'Versao', '1.00'));
+
+  if (FxMunicipio <> '') and (FxProvedor = '') and (FLayoutNFSe = lnfsProvedor) then
+    raise EACBrDFeException.Create('CodIBGE/Município: [' + CodIBGE +'/'+FxMunicipio +
+            '] não está associado a nenhum Provedor.');
+
+  FProvedor := StrToProvedor(FxProvedor);
+
+  if FLayoutNFSe = lnfsPadraoNacionalv1 then
+  begin
+    FxProvedor := 'PadraoNacional';
+    FVersao := ve100;
+    FProvedor := proPadraoNacional;
+  end;
+
+  if FProvedor = proNenhum then
+    raise EACBrDFeException.Create('Código do Município [' + CodIBGE +
+            '] não Encontrado.');
+
+  ACBrNFSeXLocal.SetProvider;
+
+  if Assigned(ACBrNFSeXLocal.Provider) then
+  begin
+    if Assigned(ACBrNFSeXLocal.Provider.ConfigGeral) then
+      FLayout := ACBrNFSeXLocal.Provider.ConfigGeral.Layout;
+  end;
 end;
 
 procedure TGeralConfNFSe.Assign(DeGeralConfNFSe: TGeralConfNFSe);
 begin
   inherited Assign(DeGeralConfNFSe);
 
-  FProvedor := DeGeralConfNFSe.Provedor;
+  //FPIniParams.SetStrings(DeGeralConfNFSe.FPIniParams);
+  CodigoMunicipio        := DeGeralConfNFSe.CodigoMunicipio;
+  FVersao                := DeGeralConfNFSe.Versao;
+  FxProvedor             := DeGeralConfNFSe.xProvedor;
+  FxMunicipio            := DeGeralConfNFSe.xMunicipio;
+  FxUF                   := DeGeralConfNFSe.xUF;
+  FCNPJPrefeitura        := DeGeralConfNFSe.CNPJPrefeitura;
+  FConsultaLoteAposEnvio := DeGeralConfNFSe.ConsultaLoteAposEnvio;
+  FConsultaAposCancelar  := DeGeralConfNFSe.ConsultaAposCancelar;
+  FMontarPathSchema      := DeGeralConfNFSe.MontarPathSchema;
+  FLayout                := DeGeralConfNFSe.Layout;
+  FLayoutNFSe            := DeGeralConfNFSe.LayoutNFSe;
 
+  FProvedor := DeGeralConfNFSe.Provedor;
   FEmitente.Assign(DeGeralConfNFSe.Emitente);
 end;
 
@@ -543,6 +590,8 @@ procedure TArquivosConfNFSe.SetTabServicosExt(const Value: Boolean);
 begin
   FTabServicosExt := Value;
 
+  if not Assigned(Owner) then Exit;
+  if not Assigned(TConfiguracoesNFSe(Owner).Owner) then Exit;
   if not Assigned(TACBrNFSeX(TConfiguracoesNFSe(Owner).Owner).Provider) then Exit;
 
   with TACBrNFSeX(TConfiguracoesNFSe(Owner).Owner).Provider.ConfigGeral do
@@ -615,7 +664,7 @@ end;
 
 procedure TDadosEmitente.Assign(Source: TPersistent);
 begin
-  if Source is TDownloadConf then
+  if Source is TDadosEmitente then
   begin
     FNomeFantasia := TDadosEmitente(Source).NomeFantasia;
     FInscricaoEstadual := TDadosEmitente(Source).InscricaoEstadual;

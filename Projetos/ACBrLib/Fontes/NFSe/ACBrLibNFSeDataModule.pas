@@ -4,7 +4,7 @@
 { mentos de Automação Comercial utilizados no Brasil                           }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Rafael Teno Dias                                }
+{ Colaboradores nesse arquivo: Antonio Carlos Junior                           }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -55,12 +55,13 @@ type
     procedure ConfigurarImpressao(NomeImpressora: String = ''; GerarPDF: Boolean = False;
                                   MostrarPreview: String = ''; Cancelada: String = '');
 
+    procedure FinalizarImpressao;
   end;
 
 implementation
 
 uses
-  pcnConversao, ACBrUtil, ACBrLibConfig, ACBrNFSeLibConfig;
+  pcnConversao, ACBrLibConfig, ACBrNFSeLibConfig, ACBrUtil.Base, ACBrUtil.FilesIO;
 
 {$R *.lfm}
 
@@ -132,6 +133,15 @@ begin
     ACBrNFSeXDANFSeRL1.Cancelada := StrToBoolDef(Cancelada, False);
 
   GravarLog('ConfigurarImpressao - Feito', logNormal);
+end;
+
+procedure TLibNFSeDM.FinalizarImpressao();
+begin
+   GravarLog('FinalizarImpressao - Iniciado', logNormal);
+
+   ACBrNFSeX1.DANFSE := nil;
+
+   GravarLog('FinalizarImpressao - Feito', logNormal);
 end;
 
 end.

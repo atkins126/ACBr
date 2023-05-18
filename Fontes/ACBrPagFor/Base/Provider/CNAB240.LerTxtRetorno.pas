@@ -48,7 +48,6 @@ type
     FArquivoTXT: TStringList;
 
   protected
-    ajusteBloqueto: Integer;
     Linha: string;
 
     procedure LerRegistro0; virtual;
@@ -121,8 +120,12 @@ implementation
 procedure TArquivoR_CNAB240.GerarAvisos(const aCodOcorrencia, aDescOcorrencia,
   aSegmento, aSegmentoFilho, aSeuNumero: string);
 begin
-  if (Length(aCodOcorrencia) > 0) and
-     (POS(aCodOcorrencia, PAGAMENTO_LIBERADO_AVISO) = 0) then
+  {
+    17/05/2023
+    removido a condição: and (POS(aCodOcorrencia, PAGAMENTO_LIBERADO_AVISO) = 0)
+    para que na lista de avisos consta também os pagamentos efetuados
+  }
+  if Length(aCodOcorrencia) > 0 then
   begin
     PagFor.Registro0.Aviso.New;
 
@@ -375,7 +378,6 @@ procedure TArquivoR_CNAB240.LerRegistro1(I: Integer);
 var
   mOk: Boolean;
 begin
-  ajusteBloqueto := 0;
   Linha := ArquivoTXT.Strings[I];
 
   PagFor.Lote.New;
@@ -384,44 +386,27 @@ begin
   begin
     Operacao := StrToTpOperacao(mOk, LerCampo(Linha, 9, 1, tcStr));
     TipoServico := StrToTpServico(mOk, LerCampo(Linha, 10, 2, tcStr));
-
-    //Quando é bloqueto Eletrônico o campo do CNPJ da empresa possui 15 caracteres
-    //e para os demais serviços possui 14
-    if TipoServico = tsBloquetoEletronico then
-      ajusteBloqueto := 1;
-
     FormaLancamento := StrToFmLancamento(mOk, LerCampo(Linha, 12, 2, tcStr));
   end;
 
   with PagFor.Lote.Last.Registro1.Empresa do
   begin
     Inscricao.Tipo := StrToTpInscricao(mOk, LerCampo(Linha, 18, 1, tcStr));
-    Inscricao.Numero := LerCampo(Linha, 19, 14 + ajusteBloqueto, tcStr);
-    Convenio := LerCampo(Linha, 33 + ajusteBloqueto, 20, tcStr);
+    Inscricao.Numero := LerCampo(Linha, 19, 14, tcStr);
+    Convenio := LerCampo(Linha, 33, 20, tcStr);
 
-    ContaCorrente.Agencia.Codigo := LerCampo(Linha, 53 + ajusteBloqueto, 5, tcInt);
-    ContaCorrente.Agencia.DV := LerCampo(Linha, 58 + ajusteBloqueto, 1, tcStr);
-    ContaCorrente.Conta.Numero := LerCampo(Linha, 59 + ajusteBloqueto, 12, tcInt64);
-    ContaCorrente.Conta.DV := LerCampo(Linha, 71 + ajusteBloqueto, 1, tcStr);
-    ContaCorrente.DV := LerCampo(Linha, 72 + ajusteBloqueto, 1, tcStr);
+    ContaCorrente.Agencia.Codigo := LerCampo(Linha, 53, 5, tcInt);
+    ContaCorrente.Agencia.DV := LerCampo(Linha, 58, 1, tcStr);
+    ContaCorrente.Conta.Numero := LerCampo(Linha, 59, 12, tcInt64);
+    ContaCorrente.Conta.DV := LerCampo(Linha, 71, 1, tcStr);
+    ContaCorrente.DV := LerCampo(Linha, 72, 1, tcStr);
 
-    Nome := LerCampo(Linha, 73 + ajusteBloqueto, 30, tcStr);
+    Nome := LerCampo(Linha, 73, 30, tcStr);
   end;
 
-  PagFor.Lote.Last.Registro1.Informacao1 := LerCampo(Linha, 103 + ajusteBloqueto, 40, tcStr);
+  PagFor.Lote.Last.Registro1.Informacao1 := LerCampo(Linha, 103, 40, tcStr);
 
   case PagFor.Lote.Last.Registro1.Servico.TipoServico of
-    tsBloquetoEletronico:
-      begin
-        with PagFor.Lote.Last.Registro1 do
-        begin
-          Informacao2 := LerCampo(Linha, 144, 40, tcStr);
-          ControleCobranca.NumRemRet := LerCampo(Linha, 184, 8, tcInt);
-          ControleCobranca.DataGravacao := LerCampo(Linha, 192, 8, tcDat);
-          DataCredito := LerCampo(Linha, 200, 8, tcDat);
-        end;
-      end;
-
     tsConciliacaoBancaria:
       begin
         with PagFor.Lote.Last.Registro1 do
@@ -438,7 +423,7 @@ begin
     begin
       with PagFor.Lote.Last.Registro1.Endereco do
       begin
-        Logradouro := LerCampo(Linha, 143 + ajusteBloqueto, 30, tcStr);
+        Logradouro := LerCampo(Linha, 143, 30, tcStr);
         Numero := LerCampo(Linha, 173, 5, tcInt);
         Complemento := LerCampo(Linha, 178, 15, tcStr);
         Cidade := LerCampo(Linha, 193, 20, tcStr);
@@ -687,6 +672,7 @@ procedure TArquivoR_CNAB240.LerSegmentoE(mSegmentoEList: TSegmentoEList;
   I: Integer);
 var
   RegSeg: string;
+  Ok: Boolean;
 begin
   Linha := ArquivoTXT.Strings[I];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
@@ -698,13 +684,30 @@ begin
 
   with mSegmentoEList.Last do
   begin
-//    Movimento := StrToTpMovimentoPagto(mOk, LerCampo(Linha, 18, 1, tcStr));
-//    InformacaoComplementar := LerCampo(Linha, 19, 200, tcStr);
+    Convenio := LerCampo(Linha, 33, 20, tcStr);
 
-//    CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
+    ContaCorrente.Agencia.Codigo := LerCampo(Linha, 53, 5, tcInt);
+    ContaCorrente.Agencia.DV := LerCampo(Linha, 58, 1, tcStr);
+    ContaCorrente.Conta.Numero := LerCampo(Linha, 59, 12, tcInt64);
+    ContaCorrente.Conta.DV := LerCampo(Linha, 71, 1, tcStr);
+    ContaCorrente.DV := LerCampo(Linha, 72, 1, tcStr);
+
+    Nome := LerCampo(Linha, 73, 30, tcStr);
+
+    NaturezaLanc := StrToNaturezaLanc(Ok, LerCampo(Linha, 109, 3, tcStr));
+    TipoComplemento := LerCampo(Linha, 112, 2, tcInt);
+    Complemento := LerCampo(Linha, 114, 20, tcStr);
+    CPMF := LerCampo(Linha, 134, 1, tcStr);
+    DataContabil := LerCampo(Linha, 135, 8, tcDat);
+
+    DataLancamento := LerCampo(Linha, 143, 8, tcDat);
+    Valor := LerCampo(Linha, 151, 18, tcDe2);
+    TipoLancamento := LerCampo(Linha, 169, 1, tcStr);
+    Categoria := LerCampo(Linha, 170, 3, tcInt);
+    CodigoHistorico := LerCampo(Linha, 173, 4, tcStr);
+    Historico := LerCampo(Linha, 177, 25, tcStr);
+    NumeroDocumento := LerCampo(Linha, 202, 39, tcStr);
   end;
-
-  // Falta Implementar
 end;
 
 procedure TArquivoR_CNAB240.LerSegmentoF(mSegmentoFList: TSegmentoFList;
@@ -1000,14 +1003,6 @@ begin
   begin
     LerSegmentoN(SegmentoN);
 
-    {
-    SegmentoN.CodMovimento := StrToInMovimento(mOk, LerCampo(Linha, 16, 2, tcStr));
-    SegmentoN.SeuNumero := LerCampo(Linha, 18, 20, tcStr);
-    SegmentoN.NossoNumero := LerCampo(Linha, 38, 20, tcStr);
-    SegmentoN.NomeContribuinte := LerCampo(Linha, 58, 30, tcStr);
-    SegmentoN.DataPagamento := LerCampo(Linha, 88, 8, tcDat);
-    SegmentoN.ValorPagamento := LerCampo(Linha, 96, 15, tcDe2);
-    }
     Receita := LerCampo(Linha, 111, 6, tcInt);
     TipoContribuinte := StrToTpInscricao(mOk, LerCampo(Linha, 117, 2, tcStr));
     idContribuinte := LerCampo(Linha, 119, 14, tcStr);
@@ -1015,21 +1010,6 @@ begin
     ValorTributo := LerCampo(Linha, 141, 15, tcDe2);
     ValorOutrasEntidades := LerCampo(Linha, 156, 15, tcDe2);
     AtualizacaoMonetaria := LerCampo(Linha, 171, 15, tcDe2);
-    {
-    SegmentoN.CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-    SegmentoN.DescOcorrencia := DescricaoRetorno(SegmentoN.CodOcorrencia);
-
-    if POS(SegmentoN.CodOcorrencia, PAGAMENTO_LIBERADO_AVISO) = 0 then
-    begin
-      PagFor.Registro0.Aviso.New;
-
-      PagFor.Registro0.Aviso.Last.CodigoRetorno := SegmentoN.CodOcorrencia;
-      PagFor.Registro0.Aviso.Last.MensagemRetorno := SegmentoN.DescOcorrencia;
-      PagFor.Registro0.Aviso.Last.Segmento := 'N';
-      PagFor.Registro0.Aviso.Last.SegmentoFilho := '';
-      PagFor.Registro0.Aviso.Last.SeuNumero := SegmentoN.SeuNumero;
-    end;
-    }
   end;
 
   {Adicionais segmento N}
@@ -1071,14 +1051,6 @@ begin
   begin
     LerSegmentoN(SegmentoN);
 
-    {
-    SegmentoN.CodMovimento := StrToInMovimento(mOk, LerCampo(Linha, 16, 2, tcStr));
-    SegmentoN.SeuNumero := LerCampo(Linha, 18, 20, tcStr);
-    SegmentoN.NossoNumero := LerCampo(Linha, 38, 20, tcStr);
-    SegmentoN.NomeContribuinte := LerCampo(Linha, 58, 30, tcStr);
-    SegmentoN.DataPagamento := LerCampo(Linha, 88, 8, tcDat);
-    SegmentoN.ValorPagamento := LerCampo(Linha, 96, 15, tcDe2);
-    }
     Receita := LerCampo(Linha, 111, 6, tcInt);
     TipoContribuinte := StrToTpInscricao(mOk, LerCampo(Linha, 117, 2, tcStr));
     idContribuinte := LerCampo(Linha, 119, 14, tcStr);
@@ -1088,21 +1060,6 @@ begin
     Multa := LerCampo(Linha, 175, 15, tcDe2);
     Juros := LerCampo(Linha, 190, 15, tcDe2);
     DataVencimento := LerCampo(Linha, 205, 8, tcDat);
-    {
-    SegmentoN.CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-    SegmentoN.DescOcorrencia := DescricaoRetorno(SegmentoN.CodOcorrencia);
-
-    if POS(SegmentoN.CodOcorrencia, PAGAMENTO_LIBERADO_AVISO) = 0 then
-    begin
-      PagFor.Registro0.Aviso.New;
-
-      PagFor.Registro0.Aviso.Last.CodigoRetorno := SegmentoN.CodOcorrencia;
-      PagFor.Registro0.Aviso.Last.MensagemRetorno := SegmentoN.DescOcorrencia;
-      PagFor.Registro0.Aviso.Last.Segmento := 'N';
-      PagFor.Registro0.Aviso.Last.SegmentoFilho := '';
-      PagFor.Registro0.Aviso.Last.SeuNumero := SegmentoN.SeuNumero;
-    end;
-    }
   end;
 
   {Adicionais segmento N}
@@ -1144,14 +1101,6 @@ begin
   begin
     LerSegmentoN(SegmentoN);
 
-    {
-    SegmentoN.CodMovimento := StrToInMovimento(mOk, LerCampo(Linha, 16, 2, tcStr));
-    SegmentoN.SeuNumero := LerCampo(Linha, 18, 20, tcStr);
-    SegmentoN.NossoNumero := LerCampo(Linha, 38, 20, tcStr);
-    SegmentoN.NomeContribuinte := LerCampo(Linha, 58, 30, tcStr);
-    SegmentoN.DataPagamento := LerCampo(Linha, 88, 8, tcDat);
-    SegmentoN.ValorPagamento := LerCampo(Linha, 96, 15, tcDe2);
-    }
     Receita := LerCampo(Linha, 111, 6, tcInt);
     TipoContribuinte := StrToTpInscricao(mOk, LerCampo(Linha, 117, 2, tcStr));
     idContribuinte := LerCampo(Linha, 119, 14, tcStr);
@@ -1161,21 +1110,6 @@ begin
     ValorPrincipal := LerCampo(Linha, 165, 15, tcDe2);
     Multa := LerCampo(Linha, 180, 15, tcDe2);
     Juros := LerCampo(Linha, 195, 15, tcDe2);
-    {
-    SegmentoN.CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-    SegmentoN.DescOcorrencia := DescricaoRetorno(SegmentoN.CodOcorrencia);
-
-    if POS(SegmentoN.CodOcorrencia, PAGAMENTO_LIBERADO_AVISO) = 0 then
-    begin
-      PagFor.Registro0.Aviso.New;
-
-      PagFor.Registro0.Aviso.Last.CodigoRetorno := SegmentoN.CodOcorrencia;
-      PagFor.Registro0.Aviso.Last.MensagemRetorno := SegmentoN.DescOcorrencia;
-      PagFor.Registro0.Aviso.Last.Segmento := 'N';
-      PagFor.Registro0.Aviso.Last.SegmentoFilho := '';
-      PagFor.Registro0.Aviso.Last.SeuNumero := SegmentoN.SeuNumero;
-    end;
-    }
   end;
 
   {Adicionais segmento N}
@@ -1435,6 +1369,8 @@ begin
     NossoNumero := LerCampo(Linha, 143, 15, tcStr);
     CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
     DescOcorrencia := DescricaoRetorno(CodOcorrencia);
+
+    GerarAvisos(CodOcorrencia, DescOcorrencia, 'O', '', SeuNumero);
   end;
 
   Linha := ArquivoTXT.Strings[I+1];

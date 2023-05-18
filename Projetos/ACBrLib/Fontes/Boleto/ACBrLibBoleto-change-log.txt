@@ -42,6 +42,26 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+25/04/2023
+--- ACBrLibBoletoConfig, ACBrLibBoletoConsts, ACBrLibBoletoDataModule ---
+[+] Criação do campo LerNossoNumeroCompleto - #TK-3857
+    Por Antonio Carlos Junior
+
+21/03/2023
+--- ACBrLibBoletoConfig, ACBrLibBoletoConsts, ACBrLibBoletoDataModule ---
+[+] Criação dos campos ArquivoCRT e ArquivoKEY para Inter e Sicoob
+    Por: Antonio Carlos Junior
+
+11/01/2023
+--- ACBrLibBoletoBase ---
+[-] Correção para conversão das respostas com Erros, em ANSI, se assim estiver configurado
+	Por: Antonio Carlos Junior
+
+25/11/2022
+---ACBrLibBoletoConfig, ACBrLibBoletoConsts, ACBrLibBoletoDataModule---
+[*] Criação campos para leitura de novas propriedades do PIX (Y03) Santander CNAB240 - TK3201
+	Por: Antonio Carlos Junior
+
 17/08/2022
 --- ACBrLibBoleto, ACBrLibBoletoBase ---
 [*] Atualização das chamadas de envio por API e atualização das classes resposta baseado no refactory do componente boleto

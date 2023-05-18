@@ -117,7 +117,9 @@ function TACBrNFSeXWebserviceBetha.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverPrefixosDesnecessarios(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 function TACBrNFSeXWebserviceBetha.Recepcionar(ACabecalho, AMSG: String): string;
@@ -184,6 +186,8 @@ begin
     ConsultarNFSeRps.DocElemento := 'ConsultarNfsePorRpsEnvio';
     XmlRps.xmlns := '';
   end;
+
+  SetNomeXSD('***');
 
   with ConfigSchemas do
   begin
@@ -576,7 +580,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;

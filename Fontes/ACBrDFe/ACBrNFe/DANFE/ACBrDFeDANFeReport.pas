@@ -69,6 +69,7 @@ type
     FExibeInforAdicProduto: TinfAdcProd;
     FImprimeNomeFantasia: Boolean;
     FTipoDANFE: TpcnTipoImpressao;
+    FImprimeXPedNItemPed : Boolean;
 
     procedure SetACBrNFE(const AValue: TComponent);
     procedure ErroAbstract(const NomeProcedure: String);
@@ -106,6 +107,7 @@ type
     function ManterInfAdFisco(ANFe: TNFe): String; virtual;
     function TrataDocumento(const sCNPJCPF: String): String; virtual;
     function ManterinfAdProd(aNFE: TNFe; const inItem: Integer): String; virtual;
+    function ManterXPedNItemPed(aNFE: TNFe; const inItem: Integer): String; virtual;
     function ManterInfCompl(ANFe: TNFe): String; virtual;
     function ManterInfContr(ANFe: TNFe): String; virtual;
     function ManterObsFisco(ANFe: TNFe): String; virtual;
@@ -135,6 +137,7 @@ type
     property ImprimeCodigoEan: Boolean read FImprimeCodigoEan write FImprimeCodigoEan default False;
     property ImprimeInfContr: Boolean read FImprimeInfContr write FImprimeInfContr default True;
     property ImprimeNomeFantasia: Boolean read FImprimeNomeFantasia write FImprimeNomeFantasia default False;
+    property ImprimeXPedNItemPed : Boolean read FImprimeXPedNItemPed write FImprimeXPedNItemPed default False;
   end;
 
 implementation
@@ -221,7 +224,7 @@ end;
 function TACBrDFeDANFeReport.GetSeparadorPathPDF(const aInitialPath: String): String;
 var
   dhEmissao: TDateTime;
-  DescricaoModelo: String;
+  wLiteral, DescricaoModelo: String;
   ANFe: TNFe;
 begin
   Result := aInitialPath;
@@ -238,17 +241,18 @@ begin
         dhEmissao := Now;
 
       DescricaoModelo := '';
-      if TACBrNFe(ACBrNFe).Configuracoes.Arquivos.AdicionarLiteral then
-      begin
-        case ANFe.Ide.modelo of
-          0: DescricaoModelo := TACBrNFe(FACBrNFe).GetNomeModeloDFe;
-          55: DescricaoModelo := 'NFe';
-          65: DescricaoModelo := 'NFCe';
-        end;
+      case ANFe.Ide.modelo of
+        0: DescricaoModelo := TACBrNFe(FACBrNFe).GetNomeModeloDFe;
+        55: DescricaoModelo := 'NFe';
+        65: DescricaoModelo := 'NFCe';
       end;
+                       
+      wLiteral := '';
+      if TACBrNFe(ACBrNFe).Configuracoes.Arquivos.AdicionarLiteral then
+        wLiteral := DescricaoModelo;
 
       Result := TACBrNFe(FACBrNFe).Configuracoes.Arquivos.GetPath(Result,
-        DescricaoModelo, ANFe.Emit.CNPJCPF, ANFe.Emit.IE, dhEmissao, DescricaoModelo);
+        wLiteral, ANFe.Emit.CNPJCPF, ANFe.Emit.IE, dhEmissao, DescricaoModelo);
     end;
   end;
 end;
@@ -422,7 +426,7 @@ begin
     Result := StringReplace(Result, ';', sQuebraLinha, [rfReplaceAll, rfIgnoreCase]);
     if (Result <> '') then
       Result := sQuebraLinha + Result;
-  end
+  end;
 end;
 
 function TACBrDFeDANFeReport.ManterInfCompl(ANFe: TNFe): String;
@@ -518,18 +522,36 @@ begin
   Result := FormatFloatBr( dValor );
 end;
 
+function TACBrDFeDANFeReport.ManterXPedNItemPed(aNFE: TNFe;
+  const inItem: Integer): String;
+var LxPed, LnItemPed, sQuebraLinha : String;
+begin
+  LxPed := aNFE.Det.Items[inItem].Prod.xPed;
+  LnItemPed := aNFE.Det.Items[inItem].Prod.nItemPed;
+
+  if (ImprimeXPedNItemPed) and (NaoEstaVazio(LxPed) or NaoEstaVazio(LnItemPed)) then
+  begin
+    Result := ';N.Pedido = ' + LxPed + '  '+ 'N.Item = ' + LnItemPed;
+
+    sQuebraLinha := SeparadorDetalhamentos;
+    Result := StringReplace(Result, ';', sQuebraLinha, [rfReplaceAll, rfIgnoreCase]);
+  end;
+end;
+
 function TACBrDFeDANFeReport.ManterXProd(aNFE: TNFe; const inItem: Integer): String;
 begin
   Result := '';
   if (inItem < 0) or (inItem >= aNFE.Det.Count) then
     Exit;
 
-  Result := aNFE.Det.Items[inItem].Prod.XProd + ManterinfAdProd(aNFE, inItem);
+  Result := aNFE.Det.Items[inItem].Prod.XProd
+            + ManterinfAdProd(aNFE, inItem)
+            + ManterXPedNItemPed(aNFE, inItem);
 end;
 
 function TACBrDFeDANFeReport.ManterCst(dCRT: TpcnCRT; dCSOSN: TpcnCSOSNIcms; dCST: TpcnCSTIcms): String;
 begin
-  if dCRT = crtSimplesNacional then
+  if (dCRT = crtSimplesNacional) and not (dCST in [cst02, cst15, cst53, cst61]) then
     Result := CSOSNIcmsToStr(dCSOSN)
   else
     Result := CSTICMSToStr(dCST);

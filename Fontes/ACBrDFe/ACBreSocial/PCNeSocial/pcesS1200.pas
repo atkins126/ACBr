@@ -67,7 +67,6 @@ uses
 	pcesGerador;
 
 type
-
   TRemunPer1200Collection = class;
   TRemunPer1200CollectionItem = class;
   TIdeEstabLotCollectionS1200 = class;
@@ -127,6 +126,8 @@ type
   private
     FIdeDmDev: string;
     FCodCateg: integer;
+    FindRRA: tpSimNaoFacultativo;
+    FinfoRRA: TinfoRRA;
     FInfoPerApur: TInfoPerApur;
     FInfoPerAnt: TInfoPerAnt;
     FinfoTrabInterm: TinfoTrabIntermCollection;
@@ -135,6 +136,7 @@ type
     function getInfoPerApur: TInfoPerApur;
     function getInfoPerAnt: TInfoPerAnt;
     function getInfoComplCont: TInfoComplCont;
+    function getInfoRRA: TInfoRRA;
   public
     constructor Create;
     destructor Destroy; override;
@@ -143,8 +145,12 @@ type
     function infoPerAntInst(): boolean;
     function infoComplContInst(): boolean;
     function infoTrabIntermInst(): boolean;
+    function infoRRAInst(): boolean;
+
     property ideDmDev: string read FIdeDmDev write FIdeDmDev;
     property codCateg: integer read FCodCateg write FCodCateg;
+    property indRRA: tpSimNaoFacultativo read FindRRA write FindRRA;
+    property infoRRA: TinfoRRA read getInfoRRA write FinfoRRA;
     property infoPerApur: TInfoPerApur read getInfoPerApur write FInfoPerApur;
     property infoPerAnt: TInfoPerAnt read getInfoPerAnt write FInfoPerAnt;
     property infoTrabInterm: TinfoTrabIntermCollection read FinfoTrabInterm write FinfoTrabInterm;
@@ -174,6 +180,7 @@ type
     procedure GerarInfoTrabInterm(pInfoTrabInterm: TInfoTrabIntermCollection);
     procedure GerarInfoInterm(obj: TinfoIntermCollection);
     procedure GerarInfoComplCont(pInfoComplCont: TInfoComplCont);
+
   public
     constructor Create(AACBreSocial: TObject); override;
     destructor Destroy; override;
@@ -776,10 +783,12 @@ end;
 constructor TDMDevCollectionItemS1200.Create;
 begin
   inherited Create;
+
   FinfoTrabInterm := TinfoTrabIntermCollection.Create;
   FInfoPerApur    := nil;
   FInfoPerAnt     := nil;
   FinfoComplCont  := nil;
+  FinfoRRA        := nil;
 end;
 
 destructor TDMDevCollectionItemS1200.Destroy;
@@ -788,6 +797,9 @@ begin
   FreeAndNil(FInfoPerAnt);
   FreeAndNil(FinfoComplCont);
   FinfoTrabInterm.Free;
+
+  if infoRRAInst() then
+    FreeAndNil(FinfoRRA);
 
   inherited;
 end;
@@ -831,6 +843,18 @@ end;
 function TDMDevCollectionItemS1200.infoPerAntInst: boolean;
 begin
   Result := Assigned(FInfoPerAnt);
+end;
+
+function TDMDevCollectionItemS1200.getInfoRRA: TInfoRRA;
+begin
+  if not(Assigned(FInfoRRA)) then
+    FInfoRRA := TInfoRRA.Create;
+  Result := FInfoRRA;
+end;
+
+function TDMDevCollectionItemS1200.infoRRAInst: boolean;
+begin
+  Result := Assigned(FInfoRRA);
 end;
 
 { TEvtRemun }
@@ -950,7 +974,7 @@ begin
   Gerador.wGrupo('ideTrabalhador');
 
   Gerador.wCampo(tcStr, '', 'cpfTrab', 11, 11, 1, ideTrabalhador.cpfTrab);
-  
+
   if VersaoDF <= ve02_05_00 then
     Gerador.wCampo(tcStr, '', 'nisTrab',  1, 11, 0, ideTrabalhador.nisTrab);
 
@@ -1039,6 +1063,17 @@ begin
     Gerador.wCampo(tcStr, '', 'ideDmDev', 1, 30, 1, dmDev[i].ideDmDev);
     Gerador.wCampo(tcInt, '', 'codCateg', 1,  3, 1, dmDev[i].codCateg);
 
+    if VersaoDF >= veS01_01_00 then
+    begin
+      if (dmDev[i].indRRA = snfSim) and (dmDev[i].infoRRAInst()) then
+      begin
+        Gerador.wCampo(tcStr, '', 'indRRA', 1,  1, 1, eSSimNaoFacultativoToStr(dmDev[i].indRRA));
+
+        if (dmDev[i].infoRRAInst()) then
+          GerarInfoRRA(dmDev[i].infoRRA);
+      end;
+    end;
+
     if (dmDev[i].infoPerApurInst()) then
       GerarInfoPerApur(dmDev[i].infoPerApur);
 
@@ -1123,8 +1158,9 @@ end;
 function TEvtRemun.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
-     
+
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
 
     GerarCabecalho('evtRemun');
@@ -1177,7 +1213,7 @@ begin
 
     if obj.Count > 31 then
       Gerador.wAlerta('', 'infoInterm', 'Informações relativas ao trabalho intermitente', ERR_MSG_MAIOR_MAXIMO + '31');
-  end;   
+  end;
 end;
 
 procedure TEvtRemun.GerarInfoComplCont(pInfoComplCont: TInfoComplCont);
@@ -1282,6 +1318,7 @@ begin
       ideEvento.NrRecibo    := INIRec.ReadString(sSecao, 'nrRecibo', EmptyStr);
       ideEvento.IndApuracao := eSStrToIndApuracao(Ok, INIRec.ReadString(sSecao, 'indApuracao', '1'));
       ideEvento.perApur     := INIRec.ReadString(sSecao, 'perApur', EmptyStr);
+      ideEvento.indGuia     := INIRec.ReadString(sSecao, 'indGuia', EmptyStr);
       ideEvento.ProcEmi     := eSStrToProcEmi(Ok, INIRec.ReadString(sSecao, 'procEmi', '1'));
       ideEvento.VerProc     := INIRec.ReadString(sSecao, 'verProc', EmptyStr);
 
@@ -1303,7 +1340,7 @@ begin
         while true do
         begin
           // de 01 até 10
-          sSecao := 'remunOutrEmpr' + IntToStrZero(I, 2);
+          sSecao := 'remunOutrEmpr' + IntToStrZero(I, 3);
           sFim   := INIRec.ReadString(sSecao, 'nrInsc', 'FIM');
 
           if (sFim = 'FIM') or (Length(sFim) <= 0) then
@@ -1326,9 +1363,6 @@ begin
       begin
         ideTrabalhador.infoComplem.nmTrab       := INIRec.ReadString(sSecao, 'nmTrab', '');
         ideTrabalhador.infoComplem.dtNascto     := StringToDateTime(INIRec.ReadString(sSecao, 'dtNascto', '0'));
-        ideTrabalhador.infoComplem.codCBO       := INIRec.ReadString(sSecao, 'codCBO', '');
-        ideTrabalhador.infoComplem.natAtividade := eSStrToNatAtividade(Ok, INIRec.ReadString(sSecao, 'natAtividade', '1'));
-        ideTrabalhador.infoComplem.qtdDiasTrab  := INIRec.ReadInteger(sSecao, 'qtdDiasTrab', 0);
       end;
 
       sSecao := 'sucessaoVinc';
@@ -1412,6 +1446,38 @@ begin
         begin
           ideDmDev := sFim;
           codCateg := INIRec.ReadInteger(sSecao, 'codCateg', 0);
+          indRRA   := eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'indRRA', EmptyStr));
+
+          sSecao := 'infoRRA' + IntToStrZero(I, 3);
+          with infoRRA do
+          begin
+            tpProcRRA := eSStrToTpProcRRA(Ok, sFim);
+            nrProcRRA := INIRec.ReadString(sSecao, 'nrProcRRA', EmptyStr);
+            descRRA := INIRec.ReadString(sSecao, 'descRRA', EmptyStr);
+            qtdMesesRRA := INIRec.ReadInteger(sSecao, 'qtdMesesRRA', 0);
+            despProcJud.vlrDespCustas := INIRec.ReadFloat(sSecao, 'vlrDespCustas',0);
+            despProcJud.vlrDespAdvogados := INIRec.ReadFloat(sSecao, 'vlrDespAdvogados',0);
+
+            J := 1;
+            while True do
+            begin
+              // de 01 até 99
+              sSecao := 'ideAdv' + IntToStrZero(I, 3) + IntToStrZero(J, 2);
+              sFim   := INIRec.ReadString(sSecao, 'tpInsc', 'FIM');
+
+              if (sFim = 'FIM') or (Length(sFim) <= 0) then
+                break;
+
+              with ideAdv.New do
+              begin
+                tpInsc := eSStrToTpInscricao(Ok, sFim);
+                nrInsc := INIRec.ReadString(sSecao, 'nrInsc', EmptyStr);
+                vlrAdv := INIRec.ReadFloat(sSecao, 'vlrAdv',0);
+              end;
+
+              Inc(J);
+            end;
+          end;
 
           J := 1;
           while true do
@@ -1637,6 +1703,7 @@ begin
                               fatorRubr  := StringToFloatDef(INIRec.ReadString(sSecao, 'fatorRubr', ''), 0);
                               vrUnit     := StringToFloatDef(INIRec.ReadString(sSecao, 'vrUnit', ''), 0);
                               vrRubr     := StringToFloatDef(INIRec.ReadString(sSecao, 'vrRubr', ''), 0);
+                              indApurIR  := eSStrToTpindApurIR(ok, INIRec.ReadString(sSecao, 'indApurIR', '0'));  //09/02/2023
                             end;
 
                             Inc(N);

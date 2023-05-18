@@ -99,7 +99,8 @@ implementation
 
 uses
   synautil,
-  ACBrGNRE2, ACBrUtil.XMLHTML, ACBrDFeUtil;
+  ACBrGNRE2, ACBrUtil.XMLHTML, ACBrUtil.Base,
+  ACBrDFeUtil;
 
 { GuiaRetorno }
 
@@ -219,6 +220,7 @@ begin
       GNRERetorno.RazaoSocialEmitente := Trim(Copy(ArqRetorno.Strings[i], 32, 60));
       GNRERetorno.EnderecoEmitente := Trim(Copy(ArqRetorno.Strings[i], 92, 60));
       GNRERetorno.MunicipioEmitente := Trim(Copy(ArqRetorno.Strings[i], 152, 50));
+      GNRERetorno.MunicipioEmitenteNome := GNRERetorno.MunicipioEmitente;
       GNRERetorno.UFEmitente := Trim(Copy(ArqRetorno.Strings[i], 202, 2));
       GNRERetorno.CEPEmitente := Trim(Copy(ArqRetorno.Strings[i], 204, 8));
       GNRERetorno.TelefoneEmitente := Trim(Copy(ArqRetorno.Strings[i], 212, 11));
@@ -231,6 +233,7 @@ begin
       end;
 
       GNRERetorno.MunicipioDestinatario := Trim(Copy(ArqRetorno.Strings[i], 240, 50));
+      GNRERetorno.MunicipioDestinatarioNome := GNRERetorno.MunicipioDestinatario;
       GNRERetorno.Produto := Trim(Copy(ArqRetorno.Strings[i], 290, 255));
       GNRERetorno.NumDocOrigem := Copy(ArqRetorno.Strings[i], 545, 18);
       GNRERetorno.Convenio := Trim(Copy(ArqRetorno.Strings[i], 563, 30));
@@ -260,10 +263,9 @@ end;
 function TGuiasRetorno.LerXML(AXML: String): Boolean;
 var
   GNRERetorno: TGNRERetorno;
-  i, j, k, Nivel, cProd: Integer;
-  xInfo: string;
+  i, j, k, Nivel, cProd, codIBGE: Integer;
+  xInfo, xUF, xCodUF: string;
   Leitor: TLeitor;
-  ValorTotal: Double;
 begin
   Result := False;
   Leitor := TLeitor.Create;
@@ -280,7 +282,7 @@ begin
       GNRERetorno.SituacaoGuia          := Leitor.rCampo(tcStr, 'situacaoGuia');
       GNRERetorno.UFFavorecida          := Leitor.rCampo(tcStr, 'ufFavorecida');
       GNRERetorno.tipoGnre              := Leitor.rCampo(tcStr, 'tipoGnre');
-      ValorTotal                        := Leitor.rCampo(tcDe2, 'valorGNRE');
+      GNRERetorno.valorGNRE             := Leitor.rCampo(tcDe2, 'valorGNRE');
       GNRERetorno.DataLimitePagamento   := DateToStr(Leitor.rCampo(tcDat, 'dataLimitePagamento'));
       GNRERetorno.IdentificadorGuia     := Leitor.rCampo(tcInt, 'identificadorGuia');
       GNRERetorno.NumeroControle        := Leitor.rCampo(tcStr, 'nossoNumero');
@@ -300,6 +302,16 @@ begin
         GNRERetorno.EnderecoEmitente    := Leitor.rCampo(tcStr, 'endereco');
         GNRERetorno.MunicipioEmitente   := Leitor.rCampo(tcStr, 'municipio');
         GNRERetorno.UFEmitente          := Leitor.rCampo(tcStr, 'uf');
+
+        xCodUF := IntToStr(ObterCodigoUF(GNRERetorno.UFEmitente));
+        codIBGE := StrToIntDef(xCodUF + GNRERetorno.MunicipioEmitente, 0);
+
+        if (codIBGE > 0) then
+          GNRERetorno.MunicipioEmitenteNome := ObterNomeMunicipio(codIBGE, xUF, '', False);
+
+        if EstaVazio(GNReRetorno.MunicipioEmitenteNome) then
+          GNRERetorno.MunicipioEmitenteNome := GNRERetorno.MunicipioEmitente;
+
         GNRERetorno.CEPEmitente         := Leitor.rCampo(tcStr, 'cep');
         GNRERetorno.TelefoneEmitente    := Leitor.rCampo(tcStr, 'telefone');
 
@@ -380,16 +392,8 @@ begin
             if Leitor.rAtributo('tipo=', 'valor') = '11' then
               GNRERetorno.ValorPrincICMS := Leitor.rCampo(tcDe2, 'valor');
 
-            if GNRERetorno.ValorPrincICMS <> 0 then
-              GNRERetorno.ValorPrincipal := GNRERetorno.ValorPrincICMS
-            else
-              GNRERetorno.ValorPrincipal := ValorTotal;
-
             if Leitor.rAtributo('tipo=', 'valor') = '12' then
-            begin
               GNRERetorno.ValorFECP := Leitor.rCampo(tcDe2, 'valor');
-              GNRERetorno.ValorPrincipal := GNRERetorno.ValorPrincipal - GNRERetorno.ValorFECP;
-            end;
 
             if Leitor.rAtributo('tipo=', 'valor') = '21' then
               GNRERetorno.ValorICMS := Leitor.rCampo(tcDe2, 'valor');
@@ -418,10 +422,22 @@ begin
             Inc(k);
           end;
 
+          GNRERetorno.ValorPrincipal := GNRERetorno.ValorPrincICMS +
+                                        GNRERetorno.ValorFECP;
+
           if Leitor.rExtrai(Nivel, 'contribuinteDestinatario') <> '' then
           begin
             GNRERetorno.DocDestinatario       := Leitor.rCampo(tcStr, 'CNPJ');
             GNRERetorno.MunicipioDestinatario := Leitor.rCampo(tcStr, 'municipio');
+
+            xCodUF := IntToStr(ObterCodigoUF(GNRERetorno.UFFavorecida));
+            codIBGE := StrToIntDef(xCodUF + GNRERetorno.MunicipioDestinatario, 0);
+
+            if (codIBGE > 0) then
+              GNRERetorno.MunicipioDestinatarioNome := ObterNomeMunicipio(codIBGE, xUF, '', False);
+
+            if EstaVazio(GNReRetorno.MunicipioDestinatarioNome) then
+              GNRERetorno.MunicipioDestinatarioNome := GNRERetorno.MunicipioDestinatario;
 
             if GNRERetorno.DocDestinatario = '' then
               GNRERetorno.DocDestinatario       := Leitor.rCampo(tcStr, 'CPF');

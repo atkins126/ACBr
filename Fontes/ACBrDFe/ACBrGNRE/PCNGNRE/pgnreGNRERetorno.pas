@@ -54,12 +54,14 @@ type
     FRazaoSocialEmitente: string;
     FEnderecoEmitente: string;
     FMunicipioEmitente: string;
+    FMunicipioEmitenteNome: string;
     FUFEmitente: string;
     FCEPEmitente: string;
     FTelefoneEmitente: string;
     FTipoDocDestinatario: Integer;
     FDocDestinatario: string;
     FMunicipioDestinatario: string;
+    FMunicipioDestinatarioNome: string;
     FProduto: string;
     FNumDocOrigem: string;
     FConvenio: string;
@@ -96,6 +98,7 @@ type
     FMultaICMS: Currency;
     FValorFECP: Currency;
     FValorPrincICMS: Currency;
+    FvalorGNRE: Currency;
   public
     constructor Create;
     destructor Destroy; override;
@@ -110,12 +113,14 @@ type
     property RazaoSocialEmitente: string read FRazaoSocialEmitente write FRazaoSocialEmitente;
     property EnderecoEmitente: string read FEnderecoEmitente write FEnderecoEmitente;
     property MunicipioEmitente: string read FMunicipioEmitente write FMunicipioEmitente;
+    property MunicipioEmitenteNome: string read FMunicipioEmitenteNome write FMunicipioEmitenteNome;
     property UFEmitente: string read FUFEmitente write FUFEmitente;
     property CEPEmitente: string read FCEPEmitente write FCEPEmitente;
     property TelefoneEmitente: string read FTelefoneEmitente write FTelefoneEmitente;
     property TipoDocDestinatario: Integer read FTipoDocDestinatario write FTipoDocDestinatario;
     property DocDestinatario: string read FDocDestinatario write FDocDestinatario;
     property MunicipioDestinatario: string read FMunicipioDestinatario write FMunicipioDestinatario;
+    property MunicipioDestinatarioNome: string read FMunicipioDestinatarioNome write FMunicipioDestinatarioNome;
     property Produto: string read FProduto write FProduto;
     property NumDocOrigem: string read FNumDocOrigem write FNumDocOrigem;
     property Convenio: string read FConvenio write FConvenio;
@@ -153,6 +158,7 @@ type
     property AtualMonetICMS: Currency read FAtualMonetICMS write FAtualMonetICMS;
     property AtualMonetFECP: Currency read FAtualMonetFECP write FAtualMonetFECP;
     property ValorPrincICMS: Currency read FValorPrincICMS write FValorPrincICMS;
+    property valorGNRE: Currency read FvalorGNRE write FvalorGNRE;
   end;
 
 implementation
@@ -203,6 +209,7 @@ begin
   FIdentificadorGuia := '';
   FGuiaGeradaContingencia := 0;
   FReservado := '';
+  FvalorGNRE := 0;
   FInfoCabec := TInfoCabec.Create;
 end;
 

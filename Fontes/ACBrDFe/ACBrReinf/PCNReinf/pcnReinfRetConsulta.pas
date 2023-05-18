@@ -48,7 +48,7 @@ uses
   pcnCommonReinf, pcnConversaoReinf;
 
 type
-  TRetConsulta = class;
+  TRetConsulta_R5011 = class;
   TEvtTotalContrib = class;
   TInfoRecEv = class;
   TInfoTotalContrib = class;
@@ -60,6 +60,8 @@ type
   TRRecRepADCollectionItem = class;
   TRComlCollection = class;
   TRComlCollectionItem = class;
+  TRAquisCollection = class;
+  TRAquisCollectionItem = class;
   TRCPRBCollection = class;
   TRCPRBCollectionItem = class;
   TinfoCRTomCollection = class;
@@ -90,6 +92,7 @@ type
     FRPrest: TRPrestCollection;
     FRRecRepAD: TRRecRepADCollection;
     FRComl: TRComlCollection;
+    FRAquis: TRAquisCollection;
     FRCPRB: TRCPRBCollection;
 
     procedure SetRComl(const Value: TRComlCollection);
@@ -103,6 +106,7 @@ type
     property RPrest: TRPrestCollection read FRPrest;
     property RRecRepAD: TRRecRepADCollection read FRRecRepAD;
     property RComl: TRComlCollection read FRComl write SetRComl;
+    property RAquis: TRAquisCollection read FRAquis;
     property RCPRB: TRCPRBCollection read FRCPRB;
   end;
 
@@ -142,6 +146,7 @@ type
   TRTomCollectionItem = class(TObject)
   private
     FcnpjPrestador: String;
+    Fcno: String;
     FvlrTotalBaseRet: Double;
     FvlrTotalRetPrinc: Double;
     FvlrTotalRetAdic: Double;
@@ -155,6 +160,7 @@ type
     destructor Destroy; override;
 
     property cnpjPrestador: String read FcnpjPrestador;
+    property cno: String read Fcno; 
     property vlrTotalBaseRet: Double read FvlrTotalBaseRet;
     property vlrTotalRetPrinc: Double read FvlrTotalRetPrinc;
     property vlrTotalRetAdic: Double read FvlrTotalRetAdic;
@@ -256,6 +262,28 @@ type
     property vlrCRComl: Double read FvlrCRComl;
     property vlrCRComlSusp: Double read FvlrCRComlSusp;
   end;
+  
+  TRAquisCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TRAquisCollectionItem;
+    procedure SetItem(Index: Integer; Value: TRAquisCollectionItem);
+  public
+    function Add: TRAquisCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TRAquisCollectionItem;
+
+    property Items[Index: Integer]: TRAquisCollectionItem read GetItem write SetItem;
+  end;
+
+  TRAquisCollectionItem = class(TObject)
+  private
+    FCRAquis: String;
+    FvlrCRAquis: Double;
+    FvlrCRAquisSusp: Double;
+  public
+    property CRAquis: String read FCRAquis;
+    property vlrCRAquis: Double read FvlrCRAquis;
+    property vlrCRAquisSusp: Double read FvlrCRAquisSusp;
+  end;  
 
   TRCPRBCollection = class(TACBrObjectList)
   private
@@ -340,7 +368,7 @@ type
     property RetornoEventos: TRetornoEventosCollection read FRetornoEventos write FRetornoEventos;
   end;
 
-  TRetConsulta = class(TObject)
+  TRetConsulta_R5011 = class(TObject)
   private
     FLeitor: TLeitor;
     FevtTotalContrib: TEvtTotalContrib;
@@ -356,6 +384,8 @@ type
     property evtTotalContrib: TEvtTotalContrib read FevtTotalContrib write FevtTotalContrib;
     property XML: String read FXML;
   end;
+
+  TRetConsulta = class(TRetConsulta_R5011); // Remover após entrar em vigor a versão 2_01_01
 
 implementation
 
@@ -501,6 +531,29 @@ begin
   inherited Items[Index] := Value;
 end;
 
+{ TRAquisCollection }
+
+function TRAquisCollection.Add: TRAquisCollectionItem;
+begin
+  Result := Self.New;
+end;
+
+function TRAquisCollection.GetItem(Index: Integer): TRAquisCollectionItem;
+begin
+  Result := TRAquisCollectionItem(inherited Items[Index]);
+end;
+
+function TRAquisCollection.New: TRAquisCollectionItem;
+begin
+  Result := TRAquisCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+procedure TRAquisCollection.SetItem(Index: Integer; Value: TRAquisCollectionItem);
+begin
+  inherited Items[Index] := Value;
+end;
+
 { TinfoCRTomCollection }
 
 function TinfoCRTomCollection.Add: TinfoCRTomCollectionItem;
@@ -531,6 +584,7 @@ end;
 constructor TInfoTotalContrib.Create;
 begin
   FRTom      := TRTomCollection.Create;
+  FRAquis    := TRAquisCollection.Create;
   FRPrest    := TRPrestCollection.Create;
   FRRecRepAD := TRRecRepADCollection.Create;
   FRComl     := TRComlCollection.Create;
@@ -540,6 +594,7 @@ end;
 destructor TInfoTotalContrib.Destroy;
 begin
   FRTom.Free;
+  FRAquis.Free;
   FRPrest.Free;
   FRRecRepAD.Free;
   FRComl.Free;
@@ -577,15 +632,15 @@ begin
   inherited;
 end;
 
-{ TRetConsulta }
+{ TRetConsulta_R5011 }
 
-constructor TRetConsulta.Create;
+constructor TRetConsulta_R5011.Create;
 begin
   FLeitor := TLeitor.Create;
   FevtTotalContrib := TEvtTotalContrib.Create;
 end;
 
-destructor TRetConsulta.Destroy;
+destructor TRetConsulta_R5011.Destroy;
 begin
   FLeitor.Free;
   FevtTotalContrib.Free;
@@ -616,7 +671,7 @@ begin
   inherited Items[Index] := Value;
 end;
 
-function TRetConsulta.LerXml: boolean;
+function TRetConsulta_R5011.LerXml: boolean;
 var
   i, j: Integer;
   Ok: Boolean;
@@ -685,6 +740,7 @@ begin
               RTom.New;
 
               RTom.Items[i].FcnpjPrestador     := leitor.rCampo(tcStr, 'cnpjPrestador');
+              RTom.Items[i].Fcno               := leitor.rCampo(tcStr, 'cno');
               RTom.Items[i].FvlrTotalBaseRet   := leitor.rCampo(tcDe2, 'vlrTotalBaseRet');
               RTom.Items[i].FvlrTotalRetPrinc  := leitor.rCampo(tcDe2, 'vlrTotalRetPrinc');
               RTom.Items[i].FvlrTotalRetAdic   := leitor.rCampo(tcDe2, 'vlrTotalRetAdic');
@@ -761,6 +817,18 @@ begin
             end;
 
             i := 0;
+            while Leitor.rExtrai(3, 'RAquis', '', i + 1) <> '' do
+            begin
+              RAquis.New;
+
+              RAquis.Items[i].FCRAquis         := leitor.rCampo(tcStr, 'CRAquis');
+              RAquis.Items[i].FvlrCRAquis      := leitor.rCampo(tcDe2, 'vlrCRAquis');
+              RAquis.Items[i].FvlrCRAquisSusp  := leitor.rCampo(tcDe2, 'vlrCRAquisSusp');
+
+              inc(i);
+            end;
+
+            i := 0;
             while Leitor.rExtrai(3, 'RCPRB', '', i + 1) <> '' do
             begin
               RCPRB.New;
@@ -830,7 +898,7 @@ begin
   end;
 end;
 
-function TRetConsulta.SalvarINI: boolean;
+function TRetConsulta_R5011.SalvarINI: boolean;
 var
   AIni: TMemIniFile;
   sSecao: String;
@@ -886,6 +954,7 @@ begin
             sSecao := 'RTom' + IntToStrZero(I, 3);
 
             AIni.WriteString(sSecao, 'cnpjPrestador',    RTom.Items[i].cnpjPrestador);
+            AIni.WriteString(sSecao, 'cno',              RTom.Items[i].cno);
             AIni.WriteFloat(sSecao, 'vlrTotalBaseRet',   RTom.Items[i].vlrTotalBaseRet);
             AIni.WriteFloat(sSecao, 'vlrTotalRetPrinc',  RTom.Items[i].vlrTotalRetPrinc);
             AIni.WriteFloat(sSecao, 'vlrTotalRetAdic',   RTom.Items[i].vlrTotalRetAdic);
@@ -941,6 +1010,15 @@ begin
             AIni.WriteString(sSecao, 'CRComl',       RComl.Items[i].CRComl);
             AIni.WriteFloat(sSecao, 'vlrCRComl',     RComl.Items[i].vlrCRComl);
             AIni.WriteFloat(sSecao, 'vlrCRComlSusp', RComl.Items[i].vlrCRComlSusp);
+          end;
+
+          for i := 0 to RAquis.Count -1 do
+          begin
+            sSecao := 'RAquis' + IntToStrZero(I, 1);
+
+            AIni.WriteString(sSecao,  'CRAquis',        RAquis.Items[i].CRAquis);
+            AIni.WriteFloat(sSecao,   'vlrCRAquis',     RAquis.Items[i].vlrCRAquis);
+            AIni.WriteFloat(sSecao,   'vlrCRAquisSusp', RAquis.Items[i].vlrCRAquisSusp);
           end;
 
           for i := 0 to RCPRB.Count -1 do

@@ -55,6 +55,8 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function AbrirSessao(ACabecalho, AMSG: String): string; override;
     function FecharSessao(ACabecalho, AMSG: String): string; override;
+
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderEL = class (TACBrNFSeProviderProprio)
@@ -154,6 +156,8 @@ uses
 procedure TACBrNFSeProviderEL204.Configuracao;
 begin
   inherited Configuracao;
+
+  ConfigGeral.ConsultaPorFaixaPreencherNumNfseFinal := True;
 
   with ConfigWebServices do
   begin
@@ -396,7 +400,7 @@ function TACBrNFSeXWebserviceEL204.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
 end;
 
@@ -415,7 +419,7 @@ begin
   AAbreSessao := TNFSeAbreSessaoResponse.Create;
 
   try
-    AAbreSessao.Lote := aLote;
+    AAbreSessao.NumeroLote := aLote;
 
     PrepararAbrirSessao(AAbreSessao);
 
@@ -432,7 +436,7 @@ begin
         TACBrNFSeX(FAOwner).SetStatus(stNFSeEnvioWebService);
 
         AService := CriarServiceClient(tmAbrirSessao);
-        AService.Prefixo := AAbreSessao.Lote;
+        AService.Prefixo := AAbreSessao.NumeroLote;
         AAbreSessao.ArquivoRetorno := AService.AbrirSessao(ConfigMsgDados.DadosCabecalho, AAbreSessao.ArquivoEnvio);
 
         AAbreSessao.Sucesso := True;
@@ -443,7 +447,7 @@ begin
         begin
           AErro := EmiteResponse.Erros.New;
           AErro.Codigo := Cod999;
-          AErro.Descricao := Desc999 + E.Message;
+          AErro.Descricao := ACBrStr(Desc999 + E.Message);
         end;
       end;
     finally
@@ -478,7 +482,7 @@ begin
   AFechaSessao := TNFSeFechaSessaoResponse.Create;
 
   try
-    AFechaSessao.Lote := aLote;
+    AFechaSessao.NumeroLote := aLote;
     AFechaSessao.HashIdent := FPHash;
 
     PrepararFecharSessao(AFechaSessao);
@@ -496,7 +500,7 @@ begin
         TACBrNFSeX(FAOwner).SetStatus(stNFSeEnvioWebService);
 
         AService := CriarServiceClient(tmFecharSessao);
-        AService.Prefixo := AFechaSessao.Lote;
+        AService.Prefixo := AFechaSessao.NumeroLote;
         AFechaSessao.ArquivoRetorno := AService.FecharSessao(ConfigMsgDados.DadosCabecalho, AFechaSessao.ArquivoEnvio);
 
         AFechaSessao.Sucesso := True;
@@ -507,7 +511,7 @@ begin
         begin
           AErro := EmiteResponse.Erros.New;
           AErro.Codigo := Cod999;
-          AErro.Descricao := Desc999 + E.Message;
+          AErro.Descricao := ACBrStr(Desc999 + E.Message);
         end;
       end;
     finally
@@ -532,11 +536,11 @@ end;
 
 procedure TACBrNFSeProviderEL.Emite;
 begin
-  AbreSessao(EmiteResponse.Lote);
+  AbreSessao(EmiteResponse.NumeroLote);
 
   inherited Emite;
 
-  FechaSessao(EmiteResponse.Lote);
+  FechaSessao(EmiteResponse.NumeroLote);
 end;
 
 function TACBrNFSeProviderEL.PrepararRpsParaLote(const aXml: string): string;
@@ -566,10 +570,10 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := '';
-    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('mensagens'), tcStr);
+    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('mensagens'), tcStr));
 
     if AErro.Descricao = '' then
-      AErro.Descricao := ANodeArray[I].AsString;
+      AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
 
     AErro.Correcao := '';
   end;
@@ -629,11 +633,11 @@ var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
 begin
-  if EstaVazio(Response.Lote) then
+  if EstaVazio(Response.NumeroLote) then
   begin
     AErro := EmiteResponse.Erros.New;
     AErro.Codigo := Cod111;
-    AErro.Descricao := Desc111;
+    AErro.Descricao := ACBrStr(Desc111);
     Exit;
   end;
 
@@ -663,7 +667,7 @@ begin
       begin
         AErro := EmiteResponse.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -679,7 +683,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -711,7 +715,7 @@ begin
       begin
         AErro := EmiteResponse.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -725,7 +729,7 @@ begin
       begin
         AErro := EmiteResponse.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -749,10 +753,10 @@ begin
     else
       xTipoDoc := '1';
 
-    if Length(Response.Lote) < 13 then
-      lote := PadLeft(Response.Lote, 13, '0')
+    if Length(Response.NumeroLote) < 13 then
+      lote := PadLeft(Response.NumeroLote, 13, '0')
     else
-      lote := Response.Lote;
+      lote := Response.NumeroLote;
 
 
     Arquivo := '<LoteRps xmlns="http://www.el.com.br/nfse/xsd/el-nfse.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.el.com.br/nfse/xsd/el-nfse.xsd el-nfse.xsd ">' +
@@ -760,7 +764,7 @@ begin
                       lote+
                  '</Id>' +
                  '<NumeroLote>' +
-                    Response.Lote +
+                    Response.NumeroLote +
                  '</NumeroLote>' +
                  '<QuantidadeRps>' +
                     IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count) +
@@ -810,7 +814,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -829,7 +833,7 @@ begin
         with Response do
         begin
           Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dataRecebimento'), tcDatHor);
-          Lote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numeroLote'), tcStr);
+          NumeroLote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numeroLote'), tcStr);
           Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numeroProtocolo'), tcStr);
         end;
       end;
@@ -838,7 +842,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -856,7 +860,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod101;
-    AErro.Descricao := Desc101;
+    AErro.Descricao := ACBrStr(Desc101);
     Exit;
   end;
 
@@ -888,7 +892,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -906,7 +910,7 @@ begin
       begin
         with Response do
         begin
-          Lote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numeroLote'), tcStr);
+          NumeroLote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numeroLote'), tcStr);
           Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('situacaoLoteRps'), tcStr);
         end;
       end;
@@ -915,7 +919,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -933,7 +937,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod101;
-    AErro.Descricao := Desc101;
+    AErro.Descricao := ACBrStr(Desc101);
     Exit;
   end;
 
@@ -965,7 +969,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -997,7 +1001,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -1011,11 +1015,11 @@ var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
 begin
-  if EstaVazio(Response.NumRPS) then
+  if EstaVazio(Response.NumeroRps) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod102;
-    AErro.Descricao := Desc102;
+    AErro.Descricao := ACBrStr(Desc102);
     Exit;
   end;
 
@@ -1023,7 +1027,7 @@ begin
 
   Response.ArquivoEnvio := '<el:ConsultarNfseRpsEnvio>' +
                              '<identificacaoRps>' +
-                                Response.NumRPS +
+                                Response.NumeroRps +
                              '</identificacaoRps>' +
                              '<identificacaoPrestador>' +
                                 OnlyNumber(Emitente.CNPJ) +
@@ -1047,7 +1051,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -1080,7 +1084,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -1098,7 +1102,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod108;
-    AErro.Descricao := Desc108;
+    AErro.Descricao := ACBrStr(Desc108);
     Exit;
   end;
 
@@ -1132,7 +1136,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -1162,7 +1166,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -1180,7 +1184,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod108;
-    AErro.Descricao := Desc108;
+    AErro.Descricao := ACBrStr(Desc108);
     Exit;
   end;
 
@@ -1212,7 +1216,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -1245,7 +1249,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -1306,6 +1310,14 @@ begin
 end;
 
 { TACBrNFSeXWebserviceEL }
+
+function TACBrNFSeXWebserviceEL.TratarXmlRetornado(const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := RemoverDeclaracaoXML(Result);
+end;
 
 function TACBrNFSeXWebserviceEL.Recepcionar(ACabecalho, AMSG: String): string;
 begin

@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                              Wemerson Souto                                  }
 {                              Wiliam Zacarias da Silva Rosa                   }
 {                                                                              }
@@ -124,6 +124,8 @@ type
     function EnviarEvento(idLote: Int64): Boolean;
     function Inutilizar(const ACNPJ, AJustificativa: String;
       AAno, ASerie, ANumInicial, ANumFinal: Integer): Boolean;
+    function DistribuicaoDFe(AcUFAutor: integer; const ACNPJCPF, AultNSU,
+      ANSU: String; const AchNFe: String = ''): Boolean;
     function DistribuicaoDFePorUltNSU(AcUFAutor: integer;
       const ACNPJCPF, AultNSU: String): Boolean;
     function DistribuicaoDFePorNSU(AcUFAutor: integer;
@@ -132,7 +134,7 @@ type
       const ACNPJCPF, AchCTe: String): Boolean;
     procedure EnviarEmail(const sPara, sAssunto: String;
       sMensagem: TStrings = nil; sCC: TStrings = nil; Anexos: TStrings = nil;
-      StreamCTe: TStream = nil; const NomeArq: String = ''; sReplyTo: TStrings = nil); override;
+      StreamCTe: TStream = nil; const NomeArq: String = ''; sReplyTo: TStrings = nil; sBCC: TStrings = nil); override;
 
     procedure EnviarEmailEvento(const sPara, sAssunto: String;
       sMensagem: TStrings = nil; sCC: TStrings = nil; Anexos: TStrings = nil;
@@ -452,6 +454,7 @@ begin
           teEPEC,
           teMultiModal,
           tePrestDesacordo,
+          teCancPrestDesacordo,
           teGTV,
           teComprEntrega,
           teCancComprEntrega: Result := schEventoCTe;
@@ -680,17 +683,10 @@ begin
 
   // Checar esse trecho
 
-{$IFDEF PL_103}
-  if (NaoEstaZerado(FCTe.Imp.ICMS.CST00.vICMS)) then
-    wicms_p := '1';
-  if (NaoEstaZerado(FCTe.Imp.ICMS.CST80.vICMS)) then
-    wicms_s := '1';
-{$ELSE}
   if (NaoEstaZerado(FCTe.Imp.ICMS.ICMS00.vICMS)) then
     wicms_p := '1';
   if (NaoEstaZerado(FCTe.Imp.ICMS.ICMSOutraUF.vICMSOutraUF)) then
     wicms_s := '1';
-{$ENDIF}
 
   wchave := wchave + wicms_p + wicms_s;
 
@@ -732,6 +728,9 @@ begin
 
   if Conhecimentos.Count <= 0 then
     GerarException(ACBrStr('ERRO: Nenhum CT-e adicionado ao Lote'));
+
+  if Configuracoes.Geral.VersaoDF >= ve400 then
+    ASincrono := True;
 
   if ASincrono then
   begin
@@ -903,6 +902,9 @@ end;
 function TACBrCTe.Inutilizar(const ACNPJ, AJustificativa: String; AAno, ASerie,
   ANumInicial, ANumFinal: Integer): Boolean;
 begin
+  if Configuracoes.Geral.VersaoDF >= ve400 then
+    GerarException('A partir da versão 4.00 o serviço de Inutilizadação foi descontinuado.');
+
   Result := True;
   WebServices.Inutiliza(ACNPJ, AJustificativa, AAno,
                         Configuracoes.Geral.ModeloDFCodigo,
@@ -922,6 +924,19 @@ begin
 
   if not Result then
     GerarException( WebServices.DistribuicaoDFe.Msg );
+end;
+
+function TACBrCTe.DistribuicaoDFe(AcUFAutor: integer; const ACNPJCPF, AultNSU,
+  ANSU: String; const AchNFe: String): Boolean;
+begin
+  // Aguardando a SEFAZ implementar esse recurso já existente para a NF-e.
+  if AchNFe <> '' then
+  begin
+    Result := False;
+    GerarException('Aguardando a SEFAZ implementar consulta pela chave, já existente para a NF-e.');
+  end
+  else
+    Result := Distribuicao(AcUFAutor, ACNPJCPF, AultNSU, ANSU, AchNFe);
 end;
 
 function TACBrCTe.DistribuicaoDFePorUltNSU(AcUFAutor: integer; const ACNPJCPF,
@@ -948,13 +963,13 @@ end;
 
 procedure TACBrCTe.EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings;
   sCC: TStrings; Anexos: TStrings; StreamCTe: TStream; const NomeArq: String;
-  sReplyTo: TStrings);
+  sReplyTo: TStrings; sBCC: TStrings);
 begin
   SetStatus( stCTeEmail );
 
   try
     inherited EnviarEmail(sPara, sAssunto, sMensagem, sCC, Anexos, StreamCTe, NomeArq,
-     sReplyTo);
+     sReplyTo, sBCC);
   finally
     SetStatus( stCTeIdle );
   end;

@@ -1137,50 +1137,60 @@ var
   NomePacote: string;
   sDirPackage: string;
 begin
-  with FUmaPlataformaDestino do
+  FUmaPlataformaDestino.ConfiguraDCCPelaPlataformaAtual;
+
+  for iDpk := 0 to listaPacotes.Count - 1 do
   begin
-    FUmaPlataformaDestino.ConfiguraDCCPelaPlataformaAtual;
-
-    for iDpk := 0 to listaPacotes.Count - 1 do
+    if (not listaPacotes[iDpk].MarcadoParaInstalar) then
     begin
-      if (not listaPacotes[iDpk].Checked) then
-      begin
-        InformaProgresso;
-        Continue;
-      end;
-
-      NomePacote := listaPacotes[iDpk].Caption;
-      if (IsDelphiPackage(NomePacote)) then
-      begin
-        FazLog('');
-        // Busca diretório do pacote
-        sDirPackage := FindDirPackage(IncludeTrailingPathDelimiter(PastaACBr) + 'Pacotes\Delphi', NomePacote);
-        FPacoteAtual := sDirPackage + NomePacote;
-        CompilaPacotePorNomeArquivo(NomePacote);
-        if FCountErros> 0 then
-        begin
-          // Parar no primeiro erro para evitar de compilar outros pacotes que
-          // dependem desse que ocasionou erro.
-          Break;
-        end;
-
-        //Compilar também o pacote Design Time se a plataforma form Win32
-        if (tPlatformAtual = bpWin32) and FileExists(sDirPackage + 'DCL'+ NomePacote) then
-        begin
-          FazLog('');
-          FPacoteAtual := sDirPackage + 'DCL'+ NomePacote;
-          CompilaPacotePorNomeArquivo('DCL'+ NomePacote);
-          if FCountErros> 0 then
-          begin
-            // Parar no primeiro erro para evitar de compilar outros pacotes que
-            // dependem desse que ocasionou erro.
-            Break;
-          end;
-        end;
-      end;
       InformaProgresso;
+      Continue;
     end;
-  end;//---endwith
+
+    NomePacote := listaPacotes[iDpk].GetNome;
+    if not (IsDelphiPackage(NomePacote)) then
+    begin
+      FazLog(Format('"%s" não é um pacote Delphi. Pulando pacote.', [NomePacote]));
+      InformaProgresso;
+      Continue;
+    end;
+
+    if not (listaPacotes[iDpk].SuportaVersao(FUmaPlataformaDestino.InstalacaoAtual.IDEPackageVersionNumber)) then
+    begin
+      FazLog(Format('Versão "%s" não suportada para o pacote "%s". Pulando pacote.',
+                    [IntToStr(FUmaPlataformaDestino.InstalacaoAtual.VersionNumber), NomePacote]) );
+      InformaProgresso;
+      Continue;
+    end;
+    FazLog('');
+
+    // Busca diretório completo do pacote
+    sDirPackage := FindDirPackage(IncludeTrailingPathDelimiter(PastaACBr) + 'Pacotes\Delphi', NomePacote);
+    FPacoteAtual := sDirPackage + NomePacote;
+
+    CompilaPacotePorNomeArquivo(NomePacote);
+    if FCountErros> 0 then
+    begin
+      // Parar no primeiro erro para evitar de compilar outros pacotes que
+      // dependem desse que ocasionou erro.
+      Break;
+    end;
+
+    //Compilar também o pacote Design Time se a plataforma form Win32
+    if (FUmaPlataformaDestino.tPlatformAtual = bpWin32) and FileExists(sDirPackage + 'DCL'+ NomePacote) then
+    begin
+      FazLog('');
+      FPacoteAtual := sDirPackage + 'DCL'+ NomePacote;
+      CompilaPacotePorNomeArquivo('DCL'+ NomePacote);
+      if FCountErros> 0 then
+      begin
+        // Parar no primeiro erro para evitar de compilar outros pacotes que
+        // dependem desse que ocasionou erro.
+        Break;
+      end;
+    end;
+    InformaProgresso;
+  end;
 end;
 
 procedure TACBrInstallComponentes.InstalarPacotes(const PastaACBr: string; listaPacotes: TPacotes);
@@ -1190,53 +1200,64 @@ var
   bRunOnly: Boolean;
   sDirPackage: string;
 begin
-  with FUmaPlataformaDestino do
+  for iDpk := 0 to listaPacotes.Count - 1 do
   begin
-    for iDpk := 0 to listaPacotes.Count - 1 do
+    NomePacote := listaPacotes[iDpk].GetNome;
+    if not IsDelphiPackage(NomePacote) then
     begin
-      NomePacote := listaPacotes[iDpk].Caption;
-      if IsDelphiPackage(NomePacote) then
-      begin
-        // Busca diretório do pacote
-        sDirPackage := FindDirPackage(IncludeTrailingPathDelimiter(PastaACBr) + 'Pacotes\Delphi', NomePacote);
-        FPacoteAtual := sDirPackage + NomePacote;
-        GetDPKFileInfo(FPacoteAtual, bRunOnly);
-
-        if bRunOnly then
-        begin
-          //Encontrar o pacote DesignTime correspondente caso exista
-          if FileExists(sDirPackage + 'DCL'+ NomePacote) then
-          begin
-            FPacoteAtual := sDirPackage + 'DCL'+ NomePacote;
-            GetDPKFileInfo(FPacoteAtual, bRunOnly);
-          end;
-        end;
-
-        // instalar somente os pacotes de designtime
-        if not bRunOnly then
-        begin
-          // se o pacote estiver marcado instalar, senão desinstalar
-          if listaPacotes[iDpk].Checked then
-          begin
-            if InstalacaoAtual.InstallPackage(FPacoteAtual, sDirLibrary, sDirLibrary) then
-              InformaSituacao(Format('Pacote "%s" instalado com sucesso.', [NomePacote]))
-            else
-            begin
-              Inc(FCountErros);
-              InformaSituacao(Format('Ocorreu um erro ao instalar o pacote "%s".', [NomePacote]));
-              Break;
-            end;
-          end
-          else
-          begin
-            if InstalacaoAtual.UninstallPackage(FPacoteAtual, sDirLibrary, sDirLibrary) then
-              InformaSituacao(Format('Pacote "%s" removido com sucesso...', [NomePacote]));
-          end;
-        end;
-      end;
       InformaProgresso;
+      Continue;
     end;
-  end;//---endwith
+
+    if not (listaPacotes[iDpk].SuportaVersao(FUmaPlataformaDestino.InstalacaoAtual.IDEPackageVersionNumber)) then
+    begin
+      FazLog(Format('Versão "%s" não suportada para o pacote "%s". Pulando pacote.',
+                    [IntToStr(FUmaPlataformaDestino.InstalacaoAtual.VersionNumber), NomePacote]) );
+      InformaProgresso;
+      Continue;
+    end;
+
+    // Busca diretório do pacote
+    sDirPackage := FindDirPackage(IncludeTrailingPathDelimiter(PastaACBr) + 'Pacotes\Delphi', NomePacote);
+    FPacoteAtual := sDirPackage + NomePacote;
+    GetDPKFileInfo(FPacoteAtual, bRunOnly);
+
+    if bRunOnly then
+    begin
+      //Encontrar o pacote DesignTime correspondente caso exista
+      if FileExists(sDirPackage + 'DCL'+ NomePacote) then
+      begin
+        FPacoteAtual := sDirPackage + 'DCL'+ NomePacote;
+        GetDPKFileInfo(FPacoteAtual, bRunOnly);
+      end;
+    end;
+
+    // Se continuou Runonly, instalar somente os pacotes de designtime
+    if bRunOnly then
+    begin
+      InformaProgresso;
+      Continue;
+    end;
+
+    // se o pacote estiver marcado instalar, senão desinstalar
+    if listaPacotes[iDpk].MarcadoParaInstalar then
+    begin
+      if FUmaPlataformaDestino.InstalacaoAtual.InstallPackage(FPacoteAtual, FUmaPlataformaDestino.sDirLibrary, FUmaPlataformaDestino.sDirLibrary) then
+        InformaSituacao(Format('Pacote "%s" instalado com sucesso.', [NomePacote]))
+      else
+      begin
+        Inc(FCountErros);
+        InformaSituacao(Format('Ocorreu um erro ao instalar o pacote "%s".', [NomePacote]));
+        Break;
+      end;
+    end
+    else
+    begin
+      if FUmaPlataformaDestino.InstalacaoAtual.UninstallPackage(FPacoteAtual, FUmaPlataformaDestino.sDirLibrary, FUmaPlataformaDestino.sDirLibrary) then
+        InformaSituacao(Format('Pacote "%s" removido com sucesso...', [NomePacote]));
+    end;
+    InformaProgresso;
+  end;
 end;
 
 

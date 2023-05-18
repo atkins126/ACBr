@@ -43,7 +43,7 @@ uses
   {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
    System.Contnrs,
   {$IFEND}
-  ACBrBase,
+  ACBrBase, ACBrUtil.DateTime,
   pcnConversao, pcnGerador,
   ACBrUtil.Base, ACBrUtil.FilesIO,
   pcnConsts,
@@ -97,9 +97,11 @@ type
   private
      FideEFR: TtpSimNao;
      FcnpjEFR: String;
+     FPossuiNaturezaJuridicaNaRegra: Boolean;
   public
     property ideEFR: TtpSimNao read FideEFR write FideEFR;
     property cnpjEFR: String read FcnpjEFR write FcnpjEFR;
+    property PossuiNaturezaJuridicaNaRegra: Boolean read FPossuiNaturezaJuridicaNaRegra write FPossuiNaturezaJuridicaNaRegra;
   end;
 
   TInfoCadastro = class(TObject)
@@ -109,6 +111,9 @@ type
     FindDesoneracao: TindDesoneracao;
     FindAcordoIsenMulta: TindAcordoIsenMulta;
     FindSitPJ: TindSitPJ;
+    FindUniao: string;
+    FdtTransfFinsLucr: TDateTime;
+    FdtObito: TDateTime;
     FContato: TContato;
     FSoftwareHouse: TSoftwareHouseCollection;
     FinfoEFR: TinfoEFR;
@@ -121,6 +126,9 @@ type
     property indDesoneracao: TindDesoneracao read FindDesoneracao write FindDesoneracao default idNaoAplic;
     property indAcordoIsenMulta: TindAcordoIsenMulta read FindAcordoIsenMulta write FindAcordoIsenMulta default aiSemAcordo;
     property indSitPJ: TindSitPJ read FindSitPJ write FindSitPJ default spNormal;
+    property indUniao: string read FindUniao write FindUniao;
+    property dtTransfFinsLucr: TDateTime read FdtTransfFinsLucr write FdtTransfFinsLucr;
+    property dtObito: TDateTime read FdtObito write FdtObito;
     property Contato: TContato read FContato write FContato;
     property SoftwareHouse: TSoftwareHouseCollection read FSoftwareHouse write FSoftwareHouse;
     property infoEFR: TinfoEFR read FinfoEFR write FinfoEFR;
@@ -359,6 +367,13 @@ begin
   if ( Self.FideContri.TpInsc = tiCNPJ ) then
     Gerador.wCampo(tcStr, '', 'indSitPJ',         1,   1, 0, indSitPJToStr(Self.infoContribuinte.infoCadastro.indSitPJ));
 
+  if Self.VersaoDF >= v2_01_01 then
+  begin
+    Gerador.wCampo(tcStr, '', 'indUniao',           1,   1, 0, Self.infoContribuinte.infoCadastro.indUniao);
+    Gerador.wCampo(tcDat, '', 'dtTransfFinsLucr',  10,  10, 0, Self.infoContribuinte.infoCadastro.dtTransfFinsLucr);
+    Gerador.wCampo(tcDat, '', 'dtObito',           10,  10, 0, Self.infoContribuinte.infoCadastro.dtObito);
+  end;
+  
   GerarContato;
   GerarSoftwareHouse;
   GerarInfoEFR;
@@ -401,8 +416,10 @@ begin
 end;
 
 procedure TevtInfoContri.GerarInfoEFR;
-begin
-  if TACBrReinf(FACBrReinf).Configuracoes.Geral.TipoContribuinte in [tcOrgaoPublico] then
+begin                                                                                      //a Tag é gerada de acordo como CÓDIGO E DESCRIÇÃO DA NATUREZA JURÍDICA
+                                                                                           //informado no manual este campo PossuiNaturezaJuridicaNaRegra e possível
+                                                                                           //ter o controle pelo sistema se vai gerar a tag ou não
+  if (TACBrReinf(FACBrReinf).Configuracoes.Geral.TipoContribuinte in [tcOrgaoPublico]) and (infoContribuinte.infoCadastro.infoEFR.PossuiNaturezaJuridicaNaRegra) then
   begin
     Gerador.wGrupo('infoEFR');
 
@@ -418,7 +435,7 @@ begin
   try
     Self.VersaoDF := TACBrReinf(FACBrReinf).Configuracoes.Geral.VersaoDF;
 
-    Self.Id := GerarChaveReinf(now, self.ideContri.NrInsc, self.Sequencial);
+    Self.Id := GerarChaveReinf(now, self.ideContri.NrInsc, self.Sequencial, self.ideContri.TpInsc);
 
     GerarCabecalho('evtInfoContribuinte');
     Gerador.wGrupo('evtInfoContri id="' + Self.Id + '"');
@@ -498,6 +515,9 @@ begin
         infoContribuinte.infoCadastro.indDesoneracao     := StrToindDesoneracao(Ok, INIRec.ReadString(sSecao, 'indDesoneracao', '0'));
         infoContribuinte.infoCadastro.indAcordoIsenMulta := StrToindAcordoIsenMulta(Ok, INIRec.ReadString(sSecao, 'indAcordoIsenMulta', '0'));
         infoContribuinte.infoCadastro.indSitPJ           := StrToindSitPJ(Ok, INIRec.ReadString(sSecao, 'indSitPJ', '0'));
+        infoContribuinte.infoCadastro.indUniao           := INIRec.ReadString(sSecao, 'indUniao', '');
+        infoContribuinte.infoCadastro.dtTransfFinsLucr   := StringToDateTime(INIRec.ReadString(sSecao, 'dtTransfFinsLucr', '0'));
+        infoContribuinte.infoCadastro.dtObito            := StringToDateTime(INIRec.ReadString(sSecao, 'dtObito', '0'));
 
         sSecao := 'contato';
         infoContribuinte.infoCadastro.Contato.NmCtt    := INIRec.ReadString(sSecao, 'nmCtt', EmptyStr);

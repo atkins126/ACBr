@@ -96,6 +96,7 @@ begin
     ImprimirMensagemPadrao := LibConfig.BoletoDiretorioConfig.ImprimirMensagemPadrao;
     LayoutRemessa := LibConfig.BoletoDiretorioConfig.LayoutRemessa;
     LeCedenteRetorno := LibConfig.BoletoDiretorioConfig.LeCedenteRetorno;
+    LerNossoNumeroCompleto:= LibConfig.BoletoDiretorioConfig.LerNossoNumeroCompleto;
     NomeArqRemessa := LibConfig.BoletoDiretorioConfig.NomeArqRemessa;
     NomeArqRetorno := LibConfig.BoletoDiretorioConfig.NomeArqRetorno;
     NumeroArquivo := LibConfig.BoletoDiretorioConfig.NumeroArquivo;
@@ -161,6 +162,8 @@ begin
     DigitoVerificadorAgenciaConta := LibConfig.BoletoCedenteConfig.DigitoVerificadorAgenciaConta;
     IdentDistribuicao := LibConfig.BoletoCedenteConfig.IdentDistribuicao;
     Operacao := LibConfig.BoletoCedenteConfig.Operacao;
+    PIX.Chave := LibConfig.BoletoCedenteConfig.PIXChave;
+    PIX.TipoChavePIX := LibConfig.BoletoCedenteConfig.PIXTipoChave;
   end;
 
   with ACBrBoleto1.Cedente.CedenteWS do
@@ -179,7 +182,8 @@ begin
     WebService.Ambiente := LibConfig.BoletoDFeConfigWS.WebServices.Ambiente;
     WebService.Operacao := LibConfig.BoletoConfigWS.Operacao;
     WebService.VersaoDF := LibConfig.BoletoConfigWS.VersaoDF;
-
+    WebService.ArquivoCRT:= LibConfig.BoletoConfigWS.ArquivoCRT;
+    WebService.ArquivoKEY:= LibConfig.BoletoConfigWS.ArquivoKEY;
     WebService.UseCertificateHTTP := LibConfig.BoletoConfigWS.UseCertificateHTTP;
     WebService.ProxyHost := LibConfig.BoletoDFeConfigWS.WebServices.ProxyHost;
     WebService.ProxyPass := LibConfig.BoletoDFeConfigWS.WebServices.ProxyPass;

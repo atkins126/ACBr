@@ -57,9 +57,12 @@ type
   TACBrOpenDeliveryOrderConfirm = class;
   TACBrOpenDeliveryOrderReadyForPickup = class;
   TACBrOpenDeliveryOrderDispatch = class;
+  TACBrOpenDeliveryOrderDelivered = class;
   TACBrOpenDeliveryOrderRequestCancellation = class;
   TACBrOpenDeliveryOrderAcceptCancellation = class;
   TACBrOpenDeliveryOrderDenyCancellation = class;
+
+  { TACBrOpenDeliveryWebServices }
 
   TACBrOpenDeliveryWebServices = class
   private
@@ -72,6 +75,7 @@ type
     FOrderConfirm: TACBrOpenDeliveryOrderConfirm;
     FOrderReadyForPickup: TACBrOpenDeliveryOrderReadyForPickup;
     FOrderDispatch: TACBrOpenDeliveryOrderDispatch;
+    FOrderDelivered: TACBrOpenDeliveryOrderDelivered;
     FOrderRequestCancellation: TACBrOpenDeliveryOrderRequestCancellation;
     FOrderAcceptCancellation: TACBrOpenDeliveryOrderAcceptCancellation;
     FOrderDenyCancellation: TACBrOpenDeliveryOrderDenyCancellation;
@@ -81,6 +85,7 @@ type
     function GetOrderDetails: TACBrOpenDeliveryOrderDetails;
     function GetOrderConfirm: TACBrOpenDeliveryOrderConfirm;
     function GetOrderDispatch: TACBrOpenDeliveryOrderDispatch;
+    function GetOrderDelivered: tacbropendeliveryorderDelivered;
     function GetOrderReadyForPickup: TACBrOpenDeliveryOrderReadyForPickup;
     function GetOrderAcceptCancellation: TACBrOpenDeliveryOrderAcceptCancellation;
     function GetOrderDenyCancellation: TACBrOpenDeliveryOrderDenyCancellation;
@@ -97,6 +102,7 @@ type
     property OrderConfirm: TACBrOpenDeliveryOrderConfirm read GetOrderConfirm;
     property OrderReadyForPickup: TACBrOpenDeliveryOrderReadyForPickup read GetOrderReadyForPickup;
     property OrderDispatch: TACBrOpenDeliveryOrderDispatch read GetOrderDispatch;
+    property OrderDelivered: TACBrOpenDeliveryOrderDelivered read GetOrderDelivered;
     property OrderRequestCancellation: TACBrOpenDeliveryOrderRequestCancellation read GetOrderRequestCancellation;
     property OrderAcceptCancellation: TACBrOpenDeliveryOrderAcceptCancellation read GetOrderAcceptCancellation write FOrderAcceptCancellation;
     property OrderDenyCancellation: TACBrOpenDeliveryOrderDenyCancellation read GetOrderDenyCancellation write FOrderDenyCancellation;
@@ -108,9 +114,14 @@ type
     FOwner: TACBrComponent;
     FRequest: TACBrOpenDeliveryHTTPRequest;
     FResponse: TACBrOpenDeliveryHTTPResponse;
+    FLogEnvio: TACBrOpenDeliveryHTTPLogEnvio;
+    FLogResposta: TACBrOpenDeliveryHTTPLogResposta;
     FUseAuth: Boolean;
     FStatusCode: Integer;
     FStatusText: string;
+
+    procedure SetLogEnvio(ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio);
+    procedure SetLogResposta(ALogResposta: TACBrOpenDeliveryHTTPLogResposta);
 
     procedure InicializarServico;
     procedure FinalizarServico;
@@ -275,6 +286,20 @@ type
     property OrderId: string read FOrderId write FOrderId;
   end;
 
+  { TACBrOpenDeliveryOrderDelivered }
+
+  TACBrOpenDeliveryOrderDelivered = class(TACBrOpenDeliveryWebService)
+  private
+    FOrderId: string;
+  protected
+    procedure DefinirRecurso; override;
+    function TratarResposta: Boolean; override;
+  public
+    procedure Clear; override;
+
+    property OrderId: string read FOrderId write FOrderId;
+  end;
+
   { TACBrOpenDeliveryOrderReadyForPickup }
 
   TACBrOpenDeliveryOrderReadyForPickup = class(TACBrOpenDeliveryWebService)
@@ -363,6 +388,30 @@ end;
 function GetToken(AACBrComponent: TACBrComponent): string;
 begin
   Result := GetACBrOpenDelivery(AACBrComponent).GetToken;
+end;
+
+{ TACBrOpenDeliveryOrderDelivered }
+
+procedure TACBrOpenDeliveryOrderDelivered.DefinirRecurso;
+var
+  LResource: string;
+  LComponent: TACBrOpenDelivery;
+begin
+  LComponent := GetACBrOpenDelivery(FOwner);
+  LResource := LComponent.MarketPlace.Resources
+    .GetOrderDelivered(FOrderId, '');
+  FRequest.POST.Resource(LResource);
+end;
+
+function TACBrOpenDeliveryOrderDelivered.TratarResposta: Boolean;
+begin
+  Result := True;
+end;
+
+procedure TACBrOpenDeliveryOrderDelivered.Clear;
+begin
+  inherited;
+  FOrderId := '';
 end;
 
 { TACBrOpenDeliveryOrderDetails }
@@ -473,14 +522,18 @@ var
   LJSONObject: TACBrJSONObject;
   LStatus: Integer;
   LTitle: string;
+  LContent: string;
 begin
   FreeAndNil(FResponse);
+  FLogEnvio := nil;
+  FLogResposta := nil;
   FResponse := FRequest.Send;
   FStatusText := FResponse.StatusText;
   FStatusCode := FResponse.StatusCode;
 
   LStatus := FStatusCode;
   LTitle := FStatusText;
+  LContent := FResponse.GetContent;
   if FStatusCode >= 400 then
   begin
     LJSONObject := FResponse.GetJSONObject;
@@ -496,7 +549,7 @@ begin
       end;
     end;
 
-    raise EACBrOpenDeliveryHTTPException.Create(LStatus, LTitle);
+    raise EACBrOpenDeliveryHTTPException.Create(LStatus, LTitle, LContent);
   end;
 end;
 
@@ -513,8 +566,18 @@ begin
 end;
 
 procedure TACBrOpenDeliveryWebService.GerarException(const AMsg: string; AErro: Exception);
+var
+  LTratado: Boolean;
 begin
-  GetACBrOpenDelivery(FOwner).GerarException(AMsg, AErro);
+  LTratado := False;
+  if Assigned(GetACBrOpenDelivery(FOwner).OnHTTPError) then
+  begin
+    if AErro is EACBrOpenDeliveryHTTPException then
+      GetACBrOpenDelivery(FOwner).OnHTTPError(FLogEnvio, FLogResposta,
+        EACBrOpenDeliveryHTTPException(AErro), LTratado);
+  end;
+  if not LTratado then
+    GetACBrOpenDelivery(FOwner).GerarException(AMsg, AErro);
 end;
 
 function TACBrOpenDeliveryWebService.GerarMsgErro(AErro: Exception): string;
@@ -535,8 +598,8 @@ begin
   if not Assigned(FRequest) then
     FRequest := TACBrOpenDeliveryHTTPRequest.New;
   FRequest
-    .OnHTTPEnvio(LComponent.OnHTTPEnviar)
-    .OnHTTPResposta(LComponent.OnHTTPRetornar)
+    .OnHTTPEnvio(SetLogEnvio)
+    .OnHTTPResposta(SetLogResposta)
     .BaseURL(LComponent.MarketPlace.BaseUrl)
     .TimeOut(LComponent.TimeOut)
     .ProxyHost(LComponent.Proxy.Host)
@@ -556,6 +619,20 @@ end;
 procedure TACBrOpenDeliveryWebService.SalvarResposta;
 begin
 
+end;
+
+procedure TACBrOpenDeliveryWebService.SetLogEnvio(ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio);
+begin
+  FLogEnvio := ALogEnvio;
+  if Assigned(GetACBrOpenDelivery(FOwner).OnHTTPEnviar) then
+    GetACBrOpenDelivery(FOwner).OnHTTPEnviar(ALogEnvio);
+end;
+
+procedure TACBrOpenDeliveryWebService.SetLogResposta(ALogResposta: TACBrOpenDeliveryHTTPLogResposta);
+begin
+  FLogResposta := ALogResposta;
+  if Assigned(GetACBrOpenDelivery(FOwner).OnHTTPRetornar) then
+    GetACBrOpenDelivery(FOwner).OnHTTPRetornar(ALogResposta);
 end;
 
 function TACBrOpenDeliveryWebService.TratarResposta: Boolean;
@@ -634,6 +711,7 @@ begin
   FOrderDetails.Free;
   FOrderConfirm.Free;
   FOrderDispatch.Free;
+  FOrderDelivered.Free;
   FOrderReadyForPickup.Free;
   FOrderRequestCancellation.Free;
   FOrderAcceptCancellation.Free;
@@ -695,6 +773,13 @@ begin
   if not Assigned(FOrderDispatch) then
     FOrderDispatch := TACBrOpenDeliveryOrderDispatch.Create(FOwner);
   Result := FOrderDispatch;
+end;
+
+function TACBrOpenDeliveryWebServices.GetOrderDelivered: tacbropendeliveryorderDelivered;
+begin
+  if not Assigned(FOrderDelivered) then
+    FOrderDelivered := TACBrOpenDeliveryOrderDelivered.Create(FOwner);
+  Result := FOrderDelivered;
 end;
 
 function TACBrOpenDeliveryWebServices.GetOrderReadyForPickup: TACBrOpenDeliveryOrderReadyForPickup;
@@ -841,6 +926,7 @@ begin
       etDispatched: LEventStatus := LComponent.OnEventDispatched;
       etReadyForPickup: LEventStatus := LComponent.OnEventReadyForPickup;
       etPickupAreaAssigned: LEventStatus := LComponent.OnEventPickupAreaAssigned;
+      etDelivered: LEventStatus := LComponent.OnEventDelivered;
       etConcluded: LEventStatus := LComponent.OnEventConcluded;
       etCancellationRequested: LEventStatus := LComponent.OnEventCancellationRequested;
       etCancellationRequestDenied: LEventStatus := LComponent.OnEventCancellationRequestDenied;

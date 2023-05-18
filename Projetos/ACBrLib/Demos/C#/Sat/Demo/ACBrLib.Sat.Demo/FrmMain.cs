@@ -33,6 +33,9 @@ namespace ACBrLib.Sat.Demo
 
         private void FrmMain_Shown(object sender, EventArgs e)
         {
+            cmbXmlSign.EnumDataSource(SSLXmlSignLib.xsLibXml2);
+            cmbCrypt.EnumDataSource(SSLCryptLib.cryOpenSSL);
+
             cbbPortas.Items.Add("LPT1");
             cbbPortas.Items.Add("LPT2");
             cbbPortas.Items.Add(@"\\localhost\Epson");
@@ -80,6 +83,11 @@ namespace ACBrLib.Sat.Demo
             txtDllPath.Text = Helpers.OpenFile("Biblioteca SAT (*.dll)|*.dll|Todo os Arquivos (*.*)|*.*");
         }
 
+        private void btnSelectSchema_Click(object sender, EventArgs e)
+        {
+            txtSchemaPath.Text = Helpers.OpenFile("Arquivo XSD (*.xsd)|*.xsd|Todo os Arquivos (*.*)|*.*");
+        }
+
         private void btnIniDesini_Click(object sender, EventArgs e)
         {
             if (btnIniDesini.Text == "Inicializar")
@@ -112,6 +120,12 @@ namespace ACBrLib.Sat.Demo
         private void btnConsultarStatus_Click(object sender, EventArgs e)
         {
             var ret = acbrSat.ConsultarStatusOperacional();
+            rtbRespostas.AppendLine(ret.Resposta);
+        }
+
+        private void btnConsultarUltimaSessaoFiscal_Click(object sender, EventArgs e)
+        {
+            var ret = acbrSat.ConsultarUltimaSessaoFiscal();
             rtbRespostas.AppendLine(ret.Resposta);
         }
 
@@ -178,6 +192,15 @@ namespace ACBrLib.Sat.Demo
             rtbRespostas.AppendLine("Impressão efetuada com sucesso.");
         }
 
+        private void btnGerarPDF_Click(object sender, EventArgs e)
+        {
+            var xmlPath = Helpers.OpenFile("Arquivo Xml CFe (*.xml)|*.xml|Todo os Arquivos (*.*)|*.*");
+            if (string.IsNullOrEmpty(xmlPath)) return;
+
+            acbrSat.GerarPDFExtratoVenda(xmlPath, "PDF CFe-SAT");
+            rtbRespostas.AppendLine("PDF salvo com sucesso.");
+        }
+
         private void btnImprimirCFeCanc_Click(object sender, EventArgs e)
         {
             var xmlPath = Helpers.OpenFile("Arquivo Xml CFe Venda (*.xml)|*.xml|Todo os Arquivos (*.*)|*.*");
@@ -218,6 +241,14 @@ namespace ACBrLib.Sat.Demo
             acbrSat.EnviarEmail(xmlPath, destinatario, eAssunto, eNomeArquivo, eMenssagem, "", "");
         }
 
+        private void btnValidarCFe_Click(object sender, EventArgs e)
+        {
+            var xmlPath = Helpers.OpenFile("Arquivo Xml CFe (*.xml)|*.xml|Todo os Arquivos (*.*)|*.*");
+            if (string.IsNullOrEmpty(xmlPath)) return;
+
+            acbrSat.validarCFe(xmlPath);
+        }
+
         private void btnClasseAltoNivel_Click(object sender, EventArgs e)
         {
             var CFeSAT = AlimentarDados();
@@ -241,6 +272,9 @@ namespace ACBrLib.Sat.Demo
             txtAtivacao.Text = acbrSat.Config.CodigoDeAtivacao;
             nunVersaoCFe.Value = acbrSat.Config.SatConfig.infCFe_versaoDadosEnt;
             nunPaginaCodigo.Value = acbrSat.Config.SatConfig.PaginaDeCodigo;
+            txtSchemaPath.Text = acbrSat.Config.SatConfig.ArqSchema;
+            cmbXmlSign.SetSelectedValue(acbrSat.Config.SatConfig.SSLXmlSignLib);
+            cmbCrypt.SetSelectedValue(acbrSat.Config.DFe.SSLCryptLib);
             txtSignAc.Text = acbrSat.Config.SignAC;
             chkSaveCFe.Checked = acbrSat.Config.Arquivos.SalvarCFe;
             chkSaveEnvio.Checked = acbrSat.Config.Arquivos.SalvarEnvio;
@@ -292,6 +326,8 @@ namespace ACBrLib.Sat.Demo
             acbrSat.Config.CodigoDeAtivacao = txtAtivacao.Text;
             acbrSat.Config.SatConfig.infCFe_versaoDadosEnt = nunVersaoCFe.Value;
             acbrSat.Config.SatConfig.PaginaDeCodigo = (ushort)nunPaginaCodigo.Value;
+            acbrSat.Config.SatConfig.ArqSchema = txtSchemaPath.Text;
+            acbrSat.Config.SatConfig.SSLXmlSignLib = cmbXmlSign.GetSelectedValue<SSLXmlSignLib>();
             acbrSat.Config.SignAC = txtSignAc.Text;
             acbrSat.Config.Arquivos.SalvarCFe = chkSaveCFe.Checked;
             acbrSat.Config.Arquivos.SalvarEnvio = chkSaveEnvio.Checked;

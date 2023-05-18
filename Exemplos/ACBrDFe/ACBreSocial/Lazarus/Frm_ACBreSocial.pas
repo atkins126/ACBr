@@ -191,7 +191,6 @@ type
     cbS1260: TCheckBox;
     cbS1270: TCheckBox;
     cbS1280: TCheckBox;
-    cbS1295: TCheckBox;
     cbS1298: TCheckBox;
     cbS1299: TCheckBox;
     cbS1300: TCheckBox;
@@ -304,7 +303,6 @@ type
     procedure GerareSocial1260;
     procedure GerareSocial1270;
     procedure GerareSocial1280;
-    procedure GerareSocial1295;
     procedure GerareSocial1298;
     procedure GerareSocial1299;
     procedure GerareSocial1300;
@@ -485,18 +483,7 @@ begin
               email := 'teste@teste.com';
             end;
 
-            with infoComplementares do
-            begin
-              with situacaoPJ do
-              begin
-                indSitPJ := tpIndSitPJ(0);
-              end;
 
-              with situacaoPF do
-              begin
-                indSitPF := tpIndSitPF(0);
-              end;
-            end;
           end;
         end;
 
@@ -581,13 +568,11 @@ begin
 
           with infoTrab do
           begin
-            if VersaoDFx <= ve02_05_00 then
-              regPt := tpRegPt(3);
+
 
             with infoApr do
             begin
-              if VersaoDFx <= ve02_05_00 then
-                contApr := tpContApr(2);
+
 {
               nrProcJud := '20150612';
 }
@@ -661,10 +646,8 @@ begin
           codIncIRRF := tpCodIncIRRF(1);
           codIncFGTS := tpCodIncFGTS(1);
 
-          if VersaoDFx <= ve02_05_00 then
-            codIncSIND := tpCodIncSIND(1)
-          else
-            codIncCPRP := cicpNaoeBasedeCalculodeContribuicoesDevidasaoRPPSRegimeMilitar;
+
+          codIncCPRP := cicpNaoeBasedeCalculodeContribuicoesDevidasaoRPPSRegimeMilitar;
 
           observacao := 'Rubrica Teste';
  {
@@ -836,7 +819,7 @@ begin
 
             leiCargo.nrLei := '11111';
             leiCargo.dtLei := Now;
-            leiCargo.sitCargo := tpSitCargo(0);
+
           end;
         end;
 
@@ -874,7 +857,7 @@ begin
         dadosCarreira.dscCarreira := 'Juiz';
         dadosCarreira.leiCarr := 'lei89489/77';
         dadosCarreira.dtLeiCarr := Now;
-        dadosCarreira.sitCarr := tpSitCarr(0);
+
 
         NovaValidade.IniValid := '2015-05';
         NovaValidade.FimValid := '2099-12';
@@ -952,7 +935,6 @@ begin
 
           with horarioIntervalo.New do
           begin
-            tpInterv := tptpIntervalo(0);
             durInterv := 90;
             iniInterv := '1200';
             termInterv := '1330';
@@ -960,7 +942,6 @@ begin
 
           with horarioIntervalo.New do
           begin
-            tpInterv := tptpIntervalo(1);
             durInterv := 15;
             iniInterv := '1645';
             termInterv := '1700';
@@ -1183,6 +1164,20 @@ begin
       begin
         ideDmDev := '1';
         CodCateg := 111;
+
+        if VersaoDFx > veS01_00_00 then
+        begin
+          indRRA:= snfSim;
+          with infoRRA do
+          begin
+            tpProcRRA := tppAdministrativo;
+            nrProcRRA := '123';
+            descRRA := 'Rendimentos Receb Acum.';
+            qtdMesesRRA := 5;
+            despProcJud.vlrDespCustas:= 0;
+            despProcJud.vlrDespAdvogados := 0;
+          end;
+        end;
 
         with infoPerApur.ideEstabLot.New do
         begin
@@ -2261,7 +2256,7 @@ begin
       IdeEmpregador.TpInsc := tiCNPJ;
       IdeEmpregador.NrInsc := edtIdEmpregador.Text;
 
-      InfoSubstPatr.indSubstPatr := tpIndSubstPatrOpPort(0);
+      InfoSubstPatr.indSubstPatr := tpIndSubstPatr(0);
       InfoSubstPatr.percRedContrib := 500.20;
 
       InfoSubstPatrOpPort.Clear;
@@ -2278,38 +2273,6 @@ begin
 
       InfoAtivConcom.fatorMes := 9.00;
       InfoAtivConcom.fator13 := 1.00;
-    end;
-  end;
-end;
-
-procedure TfrmACBreSocial.GerareSocial1295;
-begin
-  with ACBreSocial1.Eventos.Periodicos.S1295.New do
-  begin
-    with evtTotConting do
-    begin
-      Sequencial := 0;
-
-      with IdeEvento do
-      begin
-//        indRetif := tpIndRetificacao(0);
-//        NrRecibo := '65.5454.987798798798';
-        IndApuracao := iapuMensal;
-        perApur := '2015-06';
-        ProcEmi := TpProcEmi(0);
-        VerProc := '1.0';
-      end;
-
-      IdeEmpregador.TpInsc := tiCNPJ;
-      IdeEmpregador.NrInsc := edtIdEmpregador.Text;
-
-      with IdeRespInf do
-      begin
-        nmResp := 'Responsavel teste';
-        cpfResp := '12345678950';
-        Telefone := '46 - 22222222';
-        email := 'Responsavelteste@email.com';
-      end;
     end;
   end;
 end;
@@ -2405,7 +2368,6 @@ begin
       with ContribSind.New do
       begin
         cnpjSindic := '01234567891111';
-        tpContribSind := tpTpContribSind(0);
         vlrContribSind := 1500.50;
       end;
     end;
@@ -2548,7 +2510,7 @@ begin
           DefMental := tpNao;
           DefIntelectual := tpNao;
           ReabReadap := tpSim;
-          infoCota := tpNao;
+          infoCota := snfNao;
           observacao := 'sem deficiencia';
         end;
 
@@ -2613,7 +2575,7 @@ begin
             begin
               hipLeg := 1;
               justContr := 'teste';
-              tpinclContr := icLocaisSemFiliais;
+
 
               with IdeTomadorServ do
               begin
@@ -2854,7 +2816,7 @@ begin
           DefMental := tpNao;
           DefIntelectual := tpNao;
           ReabReadap := tpSim;
-          infoCota := tpNao;
+          infoCota := snfNao;
           observacao := 'sem deficiencia';
         end;
 
@@ -3563,13 +3525,11 @@ begin
         begin
           DetAvPrevio.dtAvPrv := Now;
           DetAvPrevio.dtPrevDeslig := Now + 30;
-          DetAvPrevio.tpAvPrevio := tpTpAvPrevio(0);
           DetAvPrevio.observacao := 'Observacao aviso previo';
         end
         else // cancelamento aviso
         begin
           CancAvPrevio.dtCancAvPrv := Now;
-          CancAvPrevio.mtvCancAvPrevio := tpMtvCancAvPrevio(0);
           CancAvPrevio.observacao := 'Observacao cancelamento aviso previo';
         end;
       end;
@@ -5837,8 +5797,6 @@ begin
     GerareSocial1270;
   if (cbS1280.Checked) then
     GerareSocial1280;
-  if (cbS1295.Checked) then
-    GerareSocial1295;
   if (cbS1298.Checked) then
     GerareSocial1298;
   if (cbS1299.Checked) then

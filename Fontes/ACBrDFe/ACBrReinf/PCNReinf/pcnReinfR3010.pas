@@ -560,7 +560,7 @@ begin
 
     Gerador.wGrupo('boletim');
 
-    Gerador.wCampo(tcStr, '', 'nrBoletim',        1,   4, 1, item.nrBoletim);
+    Gerador.wCampo(tcStr, '', 'nrBoletim',        1,   7, 1, item.nrBoletim);
     Gerador.wCampo(tcStr, '', 'tpCompeticao',     1,   1, 1, tpCompeticaoToStr( item.tpCompeticao ));
     Gerador.wCampo(tcStr, '', 'categEvento',      1,   1, 1, categEventoToStr( item.categEvento ));
     Gerador.wCampo(tcStr, '', 'modDesportiva',    1, 100, 1, item.modDesportiva);
@@ -677,7 +677,7 @@ begin
   try
     Self.VersaoDF := TACBrReinf(FACBrReinf).Configuracoes.Geral.VersaoDF;
 
-    Self.Id := GerarChaveReinf(now, self.ideContri.NrInsc, self.Sequencial);
+    Self.Id := GerarChaveReinf(now, self.ideContri.NrInsc, self.Sequencial, self.ideContri.TpInsc);
 
     GerarCabecalho('evtEspDesportivo');
     Gerador.wGrupo('evtEspDesportivo id="' + Self.Id + '"');

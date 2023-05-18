@@ -156,6 +156,10 @@ begin
   for i := 0 to FEventos.ReinfEventos.R1000.Count - 1 do
     LoadFromString(FEventos.ReinfEventos.R1000[i].evtInfoContri.XML);
 
+  {R1050}
+  for i := 0 to FEventos.ReinfEventos.R1050.Count - 1 do
+    LoadFromString(FEventos.ReinfEventos.R1050[i].evtTabLig.XML);
+
   {R1070}
   for i := 0 to FEventos.ReinfEventos.R1070.Count - 1 do
     LoadFromString(FEventos.ReinfEventos.R1070[i].evtTabProcesso.XML);
@@ -204,6 +208,26 @@ begin
   for i := 0 to FEventos.ReinfEventos.R3010.Count - 1 do
     LoadFromString(FEventos.ReinfEventos.R3010[i].evtEspDesportivo.XML);
 
+  {R4010}
+  for i := 0 to FEventos.ReinfEventos.R4010.Count - 1 do
+    LoadFromString(FEventos.ReinfEventos.R4010[i].evtRetPF.XML);
+
+  {R4020}
+  for i := 0 to FEventos.ReinfEventos.R4020.Count - 1 do
+    LoadFromString(FEventos.ReinfEventos.R4020[i].evtRetPJ.XML);
+
+  {R4040}
+  for i := 0 to FEventos.ReinfEventos.R4040.Count - 1 do
+    LoadFromString(FEventos.ReinfEventos.R4040[i].evtBenefNId.XML);
+
+  {R4080}
+  for i := 0 to FEventos.ReinfEventos.R4080.Count - 1 do
+    LoadFromString(FEventos.ReinfEventos.R4080[i].evtRetRec.XML);
+
+  {R4099}
+  for i := 0 to FEventos.ReinfEventos.R4099.Count - 1 do
+    LoadFromString(FEventos.ReinfEventos.R4099[i].evtFech.XML);
+
   {R9000}
   for i := 0 to FEventos.ReinfEventos.R9000.Count - 1 do
     LoadFromString(FEventos.ReinfEventos.R9000[i].evtExclusao.XML);
@@ -213,26 +237,58 @@ procedure TLoteEventos.GerarXML;
 var
   i: Integer;
   EventosXml: AnsiString;
+  tpInsc, nrInsc: string;
 begin
   CarregarXmlEventos;
 
   EventosXml := EmptyStr;
 
-  FXML :=
-  '<Reinf xmlns="http://www.reinf.esocial.gov.br/schemas/envioLoteEventos/v'+
-       VersaoReinfToStr(TACBrReinf(FACBrReinf).Configuracoes.Geral.VersaoDF) + '">'+
-    '<loteEventos>';
+  if TACBrReinf(FACBrReinf).Configuracoes.Geral.VersaoDF < v2_01_01 then
+  begin
+    FXML :=
+    '<Reinf xmlns="http://www.reinf.esocial.gov.br/schemas/envioLoteEventos/v'+
+         VersaoReinfToStr(TACBrReinf(FACBrReinf).Configuracoes.Geral.VersaoDF) + '">'+
+      '<loteEventos>';
 
-   for i := 0 to Self.Count - 1 do
-     EventosXml := EventosXml +
-                   '<evento id="' + Self.Items[i].IDEvento +'"> ' +
-                     RemoverDeclaracaoXML(Self.Items[i].XML) +
-                   '</evento>';
+     for i := 0 to Self.Count - 1 do
+       EventosXml := EventosXml +
+                     '<evento id="' + Self.Items[i].IDEvento + '"> ' +
+                       RemoverDeclaracaoXML(Self.Items[i].XML) +
+                     '</evento>';
 
-  FXML := FXML + EventosXml;
-  FXML := FXML +
-            '</loteEventos>'+
-          '</Reinf>';
+    FXML := FXML + EventosXml +
+              '</loteEventos>' +
+            '</Reinf>';
+  end
+  else
+  begin
+    nrInsc := TACBrReinf(FACBrReinf).Configuracoes.Geral.IdContribuinte;
+
+    if Length(nrInsc) = 14 then
+      tpInsc := '1'
+    else
+      tpInsc := '2';
+
+    FXML :=
+      '<Reinf xmlns="http://www.reinf.esocial.gov.br/schemas/envioLoteEventosAssincrono/v1_00_00">' +
+        '<envioLoteEventos>' +
+          '<ideContribuinte>' +
+            '<tpInsc>' + tpInsc + '</tpInsc>' +
+            '<nrInsc>' + Copy(nrInsc, 1, 8) + '</nrInsc>' +
+          '</ideContribuinte>' +
+          '<eventos>';
+
+    for i := 0 to Self.Count - 1 do
+      EventosXml := EventosXml +
+                    '<evento Id="' + Self.Items[i].IDEvento +'"> ' +
+                      RemoverDeclaracaoXML(Self.Items[i].XML) +
+                    '</evento>';
+
+    FXML := FXML + EventosXml +
+                   '</eventos>' +
+                 '</envioLoteEventos>'+
+               '</Reinf>';
+  end;
 
   FXML := AnsiToUtf8(FXML);
 //  Validar;

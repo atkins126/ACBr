@@ -47,5 +47,9 @@
         Sedex,
         eSocial,
         GTIN,
+        ConsultaCNPJ,
+        NCM,
+        NFSe,
+        DANFSe,
     }
 }

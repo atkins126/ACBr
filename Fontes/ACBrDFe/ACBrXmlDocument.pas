@@ -79,8 +79,6 @@ type
     FAttributeEnumerator: TACBrXMLAttributeListEnumerator;
     FFloatIsIntString: Boolean;
 
-    constructor Create(xmlDoc: TACBrXmlDocument; xmlNode: xmlNodePtr);
-
     function GetName: string;
     function GetLocalName: string;
     function GetContent: string;
@@ -89,6 +87,7 @@ type
     procedure SetContent(AContent: string);
 
   public
+    constructor Create(xmlDoc: TACBrXmlDocument; xmlNode: xmlNodePtr);
     destructor Destroy; override;
 
     property Document: TACBrXmlDocument read FXmlDoc;
@@ -132,9 +131,8 @@ type
     procedure SetPrefixo(AName: string);
     procedure SetContent(AContent: string);
 
-    constructor Create(ParentNode: TACBrXmlNode; xmlNs: xmlNsPtr);
-
   public
+    constructor Create(ParentNode: TACBrXmlNode; xmlNs: xmlNsPtr);
     destructor Destroy; override;
 
     property Node: TACBrXmlNode read FParentNode;
@@ -154,9 +152,8 @@ type
     procedure SetName(AName: string);
     procedure SetContent(AContent: string);
 
-    constructor Create(ParentNode: TACBrXmlNode; xmlAtt: xmlAttrPtr);
-
   public
+    constructor Create(ParentNode: TACBrXmlNode; xmlAtt: xmlAttrPtr);
     destructor Destroy; override;
 
     property Node: TACBrXmlNode read FParentNode;
@@ -174,9 +171,8 @@ type
     function GetItem(Index: integer): TACBrXmlNamespace;
     procedure Insert(Item: TACBrXmlNamespace);
 
-    constructor Create(AParent: TACBrXmlNode);
-
   public
+    constructor Create(AParent: TACBrXmlNode);
     destructor Destroy; override;
 
     property Parent: TACBrXmlNode read FParent;
@@ -378,7 +374,7 @@ function TACBrXmlNode.GetLocalName: string;
 Var
   AName: string;
 begin
-  AName := string(FXmlNode^.Name);;
+  AName := string(FXmlNode^.Name);
   Result := copy(AName, Pos(':', AName) + 1, Length(AName));
 end;
 
@@ -930,13 +926,20 @@ function TACBrXMLNodeList.FindAnyNs(const Name: string):TACBrXmlNode;
 Var
   i, ACount: integer;
   Node: TACBrXmlNode;
+  LocalName: string;
 begin
   Result := nil;
   ACount := Count - 1;
   for i := 0 to ACount do
   begin
     Node := Items[i];
-    if Node.LocalName <> Name then continue;
+    {$IfDef FPC}
+      LocalName := Node.LocalName;
+    {$Else}
+      LocalName := DecodeToString(Node.LocalName, True);
+    {$EndIf}
+
+    if LocalName <> Name then continue;
 
     Result := Node;
     Exit;

@@ -179,29 +179,6 @@ type
     b9: TCornerButton;
     b0: TCornerButton;
     b1: TCornerButton;
-    lConfOper: TLayout;
-    gplConfOperacao: TGridPanelLayout;
-    gplbtnModalidade: TGridPanelLayout;
-    lModelidade: TLabel;
-    cbxModalidadePagto: TComboBox;
-    gplTipoFinanciamento: TGridPanelLayout;
-    lFinanciamento: TLabel;
-    cbxTipoFinanciamento: TComboBox;
-    gplTipoCartao: TGridPanelLayout;
-    lTipoCartao: TLabel;
-    cbxTipoCartao: TComboBox;
-    gplProvedor: TGridPanelLayout;
-    lProvedor: TLabel;
-    cbxProvedor: TComboBox;
-    gplMoeda: TGridPanelLayout;
-    lMoeda: TLabel;
-    cbxMoeda: TComboBox;
-    gplPreDatado: TGridPanelLayout;
-    Label6: TLabel;
-    gplParcelas: TGridPanelLayout;
-    Label8: TLabel;
-    sbxFinancParcelas: TSpinBox;
-    deFinancPreDatado: TDateEdit;
     ImageList1: TImageList;
     ToolBar1: TToolBar;
     Label15: TLabel;
@@ -286,6 +263,7 @@ type
     swSuportaAbaterVouchere: TSwitch;
     tiStartUp: TTimer;
     lbiAutoconfirmarPendente: TListBoxItem;
+    lbiModelo: TListBoxItem;
     tabsUltimaTransacao: TTabControl;
     tabDadosUltimaTransacao: TTabItem;
     memoDadosUltimaTransacao: TMemo;
@@ -315,6 +293,45 @@ type
     rbClasseExterna: TRadioButton;
     cbxTransacaoPendente: TComboBox;
     lbiGapKeyboard: TListBoxItem;
+    ListBoxItem3: TListBoxItem;
+    swExibirLogAposTransacao: TSwitch;
+    ComboBoxModelo: TComboBox;
+    lConfOper: TLayout;
+    gplConfOperacao: TGridPanelLayout;
+    gplbtnModalidade: TGridPanelLayout;
+    lModelidade: TLabel;
+    cbxModalidadePagto: TComboBox;
+    gplTipoFinanciamento: TGridPanelLayout;
+    lFinanciamento: TLabel;
+    cbxTipoFinanciamento: TComboBox;
+    gplTipoCartao: TGridPanelLayout;
+    lTipoCartao: TLabel;
+    cbxTipoCartao: TComboBox;
+    gplProvedor: TGridPanelLayout;
+    lProvedor: TLabel;
+    cbxProvedor: TComboBox;
+    gplMoeda: TGridPanelLayout;
+    lMoeda: TLabel;
+    cbxMoeda: TComboBox;
+    gplPreDatado: TGridPanelLayout;
+    Label6: TLabel;
+    deFinancPreDatado: TDateEdit;
+    gplParcelas: TGridPanelLayout;
+    Label8: TLabel;
+    sbxFinancParcelas: TSpinBox;
+    ListBoxDadosTerminal: TListBox;
+    ListBoxGroupHeader9: TListBoxGroupHeader;
+    ListBoxItem5: TListBoxItem;
+    EditEnderecoServidor: TEdit;
+    ListBoxItemCodEmpresa: TListBoxItem;
+    EditCodEmpresa: TEdit;
+    ListBoxItemCodFilial: TListBoxItem;
+    EditCodFilial: TEdit;
+    ListBoxItem10: TListBoxItem;
+    ListBoxItemOperador: TListBoxItem;
+    EditCodTerminal: TEdit;
+    EditOperador: TEdit;
+    imgErrorModelo: TImage;
     procedure FormCreate(Sender: TObject);
     procedure btVendaPagarClick(Sender: TObject);
     procedure ClickBotaoNumero(Sender: TObject);
@@ -366,6 +383,7 @@ type
     procedure ACBrTEFAndroid1QuandoFinalizarOperacao(RespostaTEF: TACBrTEFResp);
     procedure ACBrTEFAndroid1QuandoDetectarTransacaoPendente(
       RespostaTEF: TACBrTEFResp; const MsgErro: string);
+    procedure ComboBoxModeloChange(Sender: TObject);
   private
     { Private declarations }
     fE1Printer: TACBrPosPrinterElginE1Service;
@@ -412,6 +430,7 @@ type
     procedure InicializarPosPrinter;
 
     procedure LimparInterfacePrincipal;
+    procedure ConfiguraTelaModoTEF;
     procedure AjustarScroll(AControl: TControl; AScrollBox: TCustomScrollBox = Nil);
 
     procedure VoltarParaTestes;
@@ -446,13 +465,16 @@ var
 implementation
 
 uses
-  Math, StrUtils, IniFiles,
+  Math, StrUtils, IniFiles, DateUtils,
   System.TypInfo,
   System.IOUtils,
   Androidapi.JNI.Widget,
   Androidapi.Helpers,
   FMX.Helpers.Android,
-  ACBrTEFAndroidPayGo, ACBrTEFPayGoComum,
+  ACBrTEFAndroidPayGo,
+  ACBrTEFAndroidMSitef,
+  ACBrTEFAndroidElginIDH,
+  ACBrTEFPayGoComum,
   ACBrUtil, ACBrValidador;
 
 {$R *.fmx}
@@ -502,6 +524,7 @@ procedure TFrTEFDemoAndroid.FormCreate(Sender: TObject);
 var
   n: TACBrPosPrinterModelo;
   o: TACBrPosPaginaCodigo;
+  m: TACBrTEFAndroidModelo;
 
 begin
   TPlatformServices.Current.SupportsPlatformService(IFMXVirtualKeyboardService, IInterface(fVKService));
@@ -538,15 +561,22 @@ begin
   AddItemsToComboBox(CITENS_MOEDAS, cbxMoeda);
 
   imgErrorNomeSwHouse.Bitmap := ImageList1.Bitmap(TSizeF.Create(imgErrorNomeSwHouse.Width,imgErrorCNPJSwHouse.Height), 8);
+  imgErrorModelo.Bitmap := imgErrorNomeSwHouse.Bitmap;
   imgErrorCNPJSwHouse.Bitmap := imgErrorNomeSwHouse.Bitmap;
   imgErrorNomeAplicacao.Bitmap := imgErrorNomeSwHouse.Bitmap;
   imgErrorVersaoAplicacao.Bitmap := imgErrorNomeSwHouse.Bitmap;
   imgErrorNomeFantasia.Bitmap := imgErrorNomeSwHouse.Bitmap;
   imgErrorCNPJEstabelecimento.Bitmap := imgErrorNomeSwHouse.Bitmap;
 
+  ComboBoxModelo.Items.Clear ;
+  For m := Low(TACBrTEFAndroidModelo) to High(TACBrTEFAndroidModelo) do
+    ComboBoxModelo.Items.Add( GetEnumName(TypeInfo(TACBrTEFAndroidModelo), integer(m) ) ) ;
+
   cbxPagCodigo.Items.Clear ;
   For o := Low(TACBrPosPaginaCodigo) to High(TACBrPosPaginaCodigo) do
     cbxPagCodigo.Items.Add( GetEnumName(TypeInfo(TACBrPosPaginaCodigo), integer(o) ) ) ;
+
+  ComboBoxModelo.ItemIndex := 0 ;
 
   lbAdmin.Items.Clear;
   LimparValorVenda;
@@ -725,7 +755,8 @@ end;
 procedure TFrTEFDemoAndroid.AplicarConfiguracaoTEF;
 begin
   ACBrTEFAndroid1.DesInicializar;
-  ACBrTEFAndroid1.Modelo := tefPayGo;
+
+  ACBrTEFAndroid1.Modelo := TACBrTEFAndroidModelo(ComboBoxModelo.ItemIndex);
   ACBrTEFAndroid1.DiretorioTrabalho := TPath.Combine(TPath.GetPublicPath, 'tef');
   ACBrTEFAndroid1.ArqLOG := TPath.Combine(ACBrTEFAndroid1.DiretorioTrabalho, 'acbrtefandroid.log');
   if not DirectoryExists(ACBrTEFAndroid1.DiretorioTrabalho) then
@@ -740,6 +771,12 @@ begin
   ACBrTEFAndroid1.DadosAutomacao.SuportaViasDiferenciadas := swViasDiferenciadas.IsChecked;
   ACBrTEFAndroid1.DadosAutomacao.ImprimeViaClienteReduzida := swViaConsumidorReduzida.IsChecked;
   ACBrTEFAndroid1.DadosAutomacao.UtilizaSaldoTotalVoucher := swSuportaAbaterVouchere.IsChecked;
+
+  ACBrTEFAndroid1.DadosTerminal.EnderecoServidor := EditEnderecoServidor.Text;
+  ACBrTEFAndroid1.DadosTerminal.CodEmpresa       := EditCodEmpresa.Text;
+  ACBrTEFAndroid1.DadosTerminal.CodFilial        := EditCodFilial.Text;
+  ACBrTEFAndroid1.DadosTerminal.CodTerminal      := EditCodTerminal.Text; //SX00001
+  ACBrTEFAndroid1.DadosTerminal.Operador         := EditOperador.Text;
 
   ACBrTEFAndroid1.DadosEstabelecimento.RazaoSocial := edtNomeFantasiaEstabelecimento.Text;
   ACBrTEFAndroid1.DadosEstabelecimento.CNPJ := edtCNPJEstabelecimento.Text;
@@ -776,9 +813,29 @@ begin
     end;
   end;
 
-//    cbxModalidadePagto.ItemIndex := Ini.ReadInteger('Transacao', 'ModalidadePagto', 0);
-//    cbxTipoFinanciamento.ItemIndex := Ini.ReadInteger('Transacao', 'TipoFinanciamento', 0);
-//    cbxTipoCartao.ItemIndex := Ini.ReadInteger('Transacao', 'TipoCartao', 0);
+  if ACBrTEFAndroid1.TEF is TACBrTEFAndroidMSitefClass then
+  begin
+    with TACBrTEFAndroidMSitefClass( ACBrTEFAndroid1.TEF ) do
+    begin
+      ComExterna     := '0';//opcional: 0 – Sem (apenas para SiTef dedicado); 1 – TLS Software Express; 2 – TLS WNB Comnect; 3 – TLS Gsurf
+      Restricoes     := ''; //opcional:
+      TransacoesHabilitadas := ''; //opcional : controle de transação
+      ValidacaoDupla := '0'; //opcional : 0 – Para validação simples; 1 – Para validação dupla ***Obrigatório para empresa que usam /TLS ComExterna= 1, 2, 3
+      CodigoOTP      := ''; //opcional : Código obrigatório quando é utilizada comunicação(ComExterna) com TLS GSurf.
+      AcessibilidadeVisual := 0;//opcional: Campo para definir se a acessibilidade visual deve ser habilitada: 0 – Para desabilitar (valor padrão) 1 – Para habilitar
+      //TipoPinpad     := TTipoPinpad.pUsb;//opcional : ANDROID_USB – Tenta obter conexão apenas com pinpad´s USB; ANDROID_BT – Tenta obter conexão apenas com pinpad´s Bluetooth.
+    end;
+  end;
+
+  if ACBrTEFAndroid1.TEF is TACBrTEFAndroidElginIDHClass then
+  begin
+    with TACBrTEFAndroidElginIDHClass( ACBrTEFAndroid1.TEF ) do
+    begin
+      Restricoes            := ''; //opcional
+      TransacoesHabilitadas := '26'; //opcional
+      ModalidadeNaoGenerica := 3;//opcional: 0-Todos; 2-Débito; 3-Crédito
+    end;
+  end;
 end;
 
 procedure TFrTEFDemoAndroid.AplicarConfiguracaoPersonalizacao;
@@ -788,7 +845,7 @@ begin
     With ACBrTEFAndroid1.Personalizacao do
     begin
       corFundoTela := TAlphaColorRec.Darkblue;
-      corFundoToolbar := TAlphaColorRec.Gold;
+      corFundoToolbar := TAlphaColorRec.Seagreen;
       corFonte := TAlphaColorRec.White;
       corSeparadorMenu := TAlphaColorRec.White;
       corFundoCaixaEdicao := TAlphaColorRec.Azure;
@@ -797,7 +854,7 @@ begin
       corTeclaLiberadaTeclado := TAlphaColorRec.Green;
       corTeclaPressionadaTeclado := TAlphaColorRec.Greenyellow;
       corFonteTeclado := TAlphaColorRec.Black;
-      ArquivoIcone := TPath.Combine(TPath.GetHomePath, 'ACBrFavIcon.png');
+      ArquivoIcone := TPath.Combine(TPath.GetHomePath, 'ACBr_96_96.png');
       ArquivoFonte := TPath.Combine(TPath.GetHomePath, 'RobotoSlab-Regular.ttf');
     end;
   end
@@ -910,7 +967,8 @@ end;
 
 procedure TFrTEFDemoAndroid.btEstornoClick(Sender: TObject);
 begin
-  if (btEstorno.Text = CBOTAO_ESTORNAR) then
+  //Sitef solicita o código nsu dentro do Software dele(MSitef), não há como alimentar os valores antes da chamada
+  if (btEstorno.Text = CBOTAO_ESTORNAR) or (ACBrTEFAndroid1.TEF is TACBrTEFAndroidMSitefClass) then
     ExecutarEstornoTEF
   else
     MostrarTelaEstorno;
@@ -1012,11 +1070,19 @@ begin
   gplParcelas.Visible := (cbxTipoFinanciamento.ItemIndex = 2) or
                          (cbxTipoFinanciamento.ItemIndex = 3);
   gplPreDatado.Visible := (cbxTipoFinanciamento.ItemIndex = 4);
+
+  if gplPreDatado.Visible then
+    deFinancPreDatado.Date := DateOf(EndOfTheMonth(Now));
 end;
 
 procedure TFrTEFDemoAndroid.ClickBotaoNumero(Sender: TObject);
 begin
   AdicionarNumeroNaVenda(TButton(Sender).Text);
+end;
+
+procedure TFrTEFDemoAndroid.ComboBoxModeloChange(Sender: TObject);
+begin
+  ConfiguraTelaModoTEF;
 end;
 
 procedure TFrTEFDemoAndroid.CornerButton1Click(Sender: TObject);
@@ -1137,10 +1203,14 @@ var
 begin
   AValor := StrToIntDef(OnlyNumber(edtEstornoValorTransacao.Text), 0)/100;
   AValor := min( max(0, AValor), 999999);
-  if (AValor = 0) then
+
+  if not(ACBrTEFAndroid1.TEF is TACBrTEFAndroidMSitefClass) then
   begin
-    Toast('DEFINA VALOR DO ESTORNO');
-    Exit;
+    if (AValor = 0) then
+    begin
+      Toast('DEFINA VALOR DO ESTORNO');
+      Exit;
+    end;
   end;
 
   ATime := EncodeTime( StrToIntDef(copy(edtEstornoHoraTransacao.Text, 1, 2), 0),
@@ -1376,7 +1446,8 @@ var
   TheKey, TheValue: string;
   MsgFinal: String;
 begin
-  MostrarTelaUltimaTransacao;
+  if swExibirLogAposTransacao.IsChecked then
+    MostrarTelaUltimaTransacao;
 
   with memoDadosUltimaTransacao.Lines do
   begin
@@ -1416,7 +1487,7 @@ begin
       if (ACBrTEFAndroid1.TratamentoTransacaoPendente = tefpenConfirmar) then
         MsgFinal := MsgFinal + sLineBreak + 'Transação será CONFIRMADA'
       else if (ACBrTEFAndroid1.TratamentoTransacaoPendente = tefpenEstornar) then
-          MsgFinal := MsgFinal + sLineBreak + 'Transação será ESTORNADA'
+        MsgFinal := MsgFinal + sLineBreak + 'Transação será ESTORNADA'
       else
         MsgFinal := '';  // Ignora esse erro, pois será tratado em QuandoDetectarTransacaoPendente
     end;
@@ -1425,7 +1496,7 @@ begin
   begin
     // Para Confirmar a transação Automáticamento... use:
     //      "ConfirmarTransacoesAutomaticamente := True"
-    // Para Confirmar Manualmente a trasação, use o exemplo abaixo...
+    // Para Confirmar Manualmente a transação, use o exemplo abaixo...
     if swConfirmacaoManual.IsChecked and RespostaTEF.Confirmar then
     begin
       MsgFinal := '';
@@ -1457,11 +1528,13 @@ begin
 
   if (MsgFinal <> '') then
   begin
-    TDialogService.MessageDialog( MsgFinal,
-                                  TMsgDlgType.mtError,
-                                  [TMsgDlgBtn.mbOK],
-                                  TMsgDlgBtn.mbOK, 0, nil);
-
+    if not RespostaTEF.Sucesso then
+      TDialogService.MessageDialog( MsgFinal,
+                                    TMsgDlgType.mtError,
+                                    [TMsgDlgBtn.mbOK],
+                                    TMsgDlgBtn.mbOK, 0, nil)
+    else
+      Toast(MsgFinal, False);
   end;
 
   // Exemplo de como usar as Propriedades da API, fazendo TypeCast
@@ -1480,6 +1553,39 @@ begin
       end;
     end;
   end;
+
+  if (ACBrTEFAndroid1.TEF is TACBrTEFAndroidMSitefClass) then
+  begin
+    memoDadosUltimaTransacao.Lines.Add('');
+    memoDadosUltimaTransacao.Lines.Add( '-- Retornos do MSitef API --');
+    with TACBrTEFAndroidMSitefClass(ACBrTEFAndroid1.TEF) do
+    begin
+      for i := 0 to TEFMSitefAPI.DadosDaTransacao.Count-1 do
+      begin
+        ParseKeyValue(TEFMSitefAPI.DadosDaTransacao[i], TheKey, TheValue);
+        nINFO := StrToIntDef(TheKey,-1);
+        if (nINFO >= 0) then
+          memoDadosUltimaTransacao.Lines.Add(PWINFOToString(nINFO) + ' = ' + TheValue );
+      end;
+    end;
+  end;
+
+  if (ACBrTEFAndroid1.TEF is TACBrTEFAndroidElginIDHClass) then
+  begin
+    memoDadosUltimaTransacao.Lines.Add('');
+    memoDadosUltimaTransacao.Lines.Add( '-- Retornos do Elgin API --');
+    with TACBrTEFAndroidElginIDHClass(ACBrTEFAndroid1.TEF) do
+    begin
+      for i := 0 to TEFElginIDHAPI.DadosDaTransacao.Count-1 do
+      begin
+        ParseKeyValue(TEFElginIDHAPI.DadosDaTransacao[i], TheKey, TheValue);
+        nINFO := StrToIntDef(TheKey,-1);
+        if (nINFO >= 0) then
+          memoDadosUltimaTransacao.Lines.Add(PWINFOToString(nINFO) + ' = ' + TheValue );
+      end;
+    end;
+  end;
+
 end;
 
 procedure TFrTEFDemoAndroid.ACBrTEFAndroid1QuandoGravarLog(const ALogLine: string;
@@ -1512,8 +1618,11 @@ begin
 
   if (ATEFResp.ImagemComprovante1aVia.Count > 0) then
   begin
-    if (cbxImpressaoViaCliente.ItemIndex = 0) then   // Imprimir
+    if (cbxImpressaoViaCliente.ItemIndex = 0) or         // Configurado para sempre Imprimir
+       (ATEFResp.ImagemComprovante2aVia.Count = 0) then  // Só recebeu a via do Cliente
+    begin
       ImprimirRelatorio( ATEFResp.ImagemComprovante1aVia.Text )
+    end
 
     else if (cbxImpressaoViaCliente.ItemIndex = 1) then   // Perguntar
     begin
@@ -1584,9 +1693,17 @@ begin
     edtNomeFantasiaEstabelecimento.Text := Ini.ReadString('Estabelecimento', 'NomeFantasia', '');
     edtCNPJEstabelecimento.Text := Ini.ReadString('Estabelecimento', 'CNPJ', '');
 
+    EditEnderecoServidor.Text := Ini.ReadString('Terminal', 'EnderecoServidor', '');
+    EditCodEmpresa.Text := Ini.ReadString('Terminal', 'CodEmpresa', '');
+    EditCodFilial.Text := Ini.ReadString('Terminal', 'CodFilial', '');
+    EditCodTerminal.Text := Ini.ReadString('Terminal', 'CodTerminal', '');
+    EditOperador.Text := Ini.ReadString('Terminal', 'Operador', '');
+
+    ComboBoxModelo.ItemIndex := Ini.ReadInteger('Geral','ModeloTEF', 0);
     swConfirmacaoManual.IsChecked := Ini.ReadBool('Geral', 'ConfirmacaoManual', False);
     swInterfaceAlternativa.IsChecked := Ini.ReadBool('Geral', 'InterfaceAlternativa', True);
     swMenuAdministrativo.IsChecked := Ini.ReadBool('Geral', 'MenuAdministrativo', False);
+    swExibirLogAposTransacao.IsChecked := Ini.ReadBool('Geral', 'ExibirLogAposTransacao', False);
     cbxTransacaoPendente.ItemIndex := INI.ReadInteger('Geral', 'TransacaoPendente', 0);
     cbxImpressaoViaCliente.ItemIndex := Ini.ReadInteger('Geral', 'ImpressaoViaCliente', 1);
 
@@ -1646,9 +1763,17 @@ begin
     Ini.WriteString('Estabelecimento', 'NomeFantasia', edtNomeFantasiaEstabelecimento.Text);
     Ini.WriteString('Estabelecimento', 'CNPJ', edtCNPJEstabelecimento.Text);
 
+    Ini.WriteString('Terminal', 'EnderecoServidor', EditEnderecoServidor.Text);
+    Ini.WriteString('Terminal', 'CodEmpresa', EditCodEmpresa.Text);
+    Ini.WriteString('Terminal', 'CodFilial', EditCodFilial.Text);
+    Ini.WriteString('Terminal', 'CodTerminal', EditCodTerminal.Text);
+    Ini.WriteString('Terminal', 'Operador', EditOperador.Text);
+
+    Ini.WriteInteger('Geral', 'ModeloTEF', ComboBoxModelo.ItemIndex);
     Ini.WriteBool('Geral', 'ConfirmacaoManual', swConfirmacaoManual.IsChecked);
     Ini.WriteBool('Geral', 'InterfaceAlternativa', swInterfaceAlternativa.IsChecked);
     Ini.WriteBool('Geral', 'MenuAdministrativo', swMenuAdministrativo.IsChecked);
+    Ini.WriteBool('Geral', 'ExibirLogAposTransacao', swExibirLogAposTransacao.IsChecked);
     INI.WriteInteger('Geral', 'TransacaoPendente', cbxTransacaoPendente.ItemIndex);
     Ini.WriteInteger('Geral', 'ImpressaoViaCliente', cbxImpressaoViaCliente.ItemIndex);
 
@@ -1697,6 +1822,20 @@ begin
   layoutEstorno.Parent := tabEstorno;
   btEstorno.IsPressed := False;
   btEstorno.Text := CBOTAO_ESTORNO;
+
+  ConfiguraTelaModoTEF;
+end;
+
+procedure TFrTEFDemoAndroid.ConfiguraTelaModoTEF;
+var
+  modeloTEF: TACBrTEFAndroidModelo;
+begin
+  modeloTEF := TACBrTEFAndroidModelo(ComboBoxModelo.ItemIndex);
+  imgErrorModelo.Visible := (modeloTEF = tefNenhum);
+  lConfOper.Visible := modeloTEF in [tefNenhum, tefPayGo];
+  swConfirmacaoManual.Visible := modeloTEF in [tefNenhum, tefPayGo];
+  cbxTransacaoPendente.Visible := modeloTEF in [tefNenhum, tefPayGo];
+  swInterfaceAlternativa.Visible := modeloTEF in [tefNenhum, tefPayGo];
 end;
 
 procedure TFrTEFDemoAndroid.LimparValorVenda;
@@ -1823,7 +1962,8 @@ begin
   if ACBrTEFAndroid1.Inicializado then
     Exit;
 
-  if imgErrorNomeAplicacao.Visible or imgErrorVersaoAplicacao.Visible or
+  if imgErrorModelo.Visible or
+     imgErrorNomeAplicacao.Visible or imgErrorVersaoAplicacao.Visible or
      imgErrorCNPJSwHouse.Visible or imgErrorNomeSwHouse.Visible or
      imgErrorNomeFantasia.Visible or imgErrorCNPJEstabelecimento.Visible then
   begin

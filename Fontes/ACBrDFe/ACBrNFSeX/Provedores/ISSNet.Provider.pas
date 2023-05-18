@@ -94,6 +94,8 @@ type
   end;
 
   TACBrNFSeProviderISSNet204 = class (TACBrNFSeProviderABRASFv2)
+  public
+    function NaturezaOperacaoDescricao(const t: TnfseNaturezaOperacao): string; override;
   protected
     procedure Configuracao; override;
 
@@ -171,6 +173,8 @@ begin
     LoteRps := True;
     CancelarNFSe := True;
   end;
+
+  SetNomeXSD('***');
 
   with ConfigSchemas do
   begin
@@ -382,7 +386,7 @@ function TACBrNFSeXWebserviceISSNet.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
@@ -443,6 +447,21 @@ begin
 //                     ['outputXML', 'GerarNfseResposta'],
                      ['GerarNfseResposta'],
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeProviderISSNet204.NaturezaOperacaoDescricao(
+  const t: TnfseNaturezaOperacao): string;
+begin
+  case t of
+    no1 : Result := '1 - Exigível';
+    no2 : Result := '2 - Não Incidência';
+    no4 : Result := '4 - Exportação';
+    no5 : Result := '5 - Imunidade';
+    no6 : Result := '6 - Exigibilidade Suspensa por Decisão Judicial';
+    no7 : Result := '7 - Exigibilidade Suspensa por Processo Administrativo';
+  else
+    Result := inherited NaturezaOperacaoDescricao(t);
+  end;
 end;
 
 function TACBrNFSeXWebserviceISSNet204.ConsultarLote(ACabecalho,
@@ -574,12 +593,12 @@ end;
 function TACBrNFSeXWebserviceISSNet204.TratarXmlRetornado(
   const aXML: string): string;
 begin
-  Result := inherited TratarXmlRetornado(UTF8Decode(aXML));
+  Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
-  Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);  
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
   Result := RemoverIdentacao(Result);
-  Result := TiraAcentos(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 { TACBrNFSeProviderISSNet204 }
@@ -675,7 +694,7 @@ begin
 
     if ConfigMsgDados.UsarNumLoteConsLote then
       NumeroLote := '<NumeroLote>' +
-                      Response.Lote +
+                      Response.NumeroLote +
                     '</NumeroLote>';
 
     Response.ArquivoEnvio := '<' + TagEnvio + NameSpace + '>' +
@@ -706,13 +725,13 @@ begin
                                '<Pedido>' +
                                  '<IdentificacaoRps>' +
                                    '<Numero>' +
-                                     Response.NumRPS +
+                                     Response.NumeroRps +
                                    '</Numero>' +
                                    '<Serie>' +
-                                     Response.Serie +
+                                     Response.SerieRps +
                                    '</Serie>' +
                                    '<Tipo>' +
-                                     Response.Tipo +
+                                     Response.TipoRps +
                                    '</Tipo>' +
                                  '</IdentificacaoRps>' +
                                  Prestador +
@@ -818,10 +837,7 @@ begin
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
   InfoCanc := Response.InfCancelamento;
 
-  if ConfigGeral.Ambiente = taProducao then
-    xCodMun := IntToStr(TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio)
-  else
-    xCodMun := '5002704';
+  xCodMun := IntToStr(TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio);
 
   with Params do
   begin
@@ -840,7 +856,7 @@ begin
                                      '<CodigoMunicipio>' +
                                        xCodMun +
                                      '</CodigoMunicipio>' +
-                                     CodVerif +
+                                     CodigoVerificacao +
                                    '</IdentificacaoNfse>' +
                                    '<CodigoCancelamento>' +
                                       InfoCanc.CodCancelamento +

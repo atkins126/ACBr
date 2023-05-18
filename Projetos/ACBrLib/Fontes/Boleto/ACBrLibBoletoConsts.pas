@@ -50,6 +50,7 @@ const
   CChaveImprimirMensagemPadrao = 'ImprimirMensagemPadrao';
   CChaveLayoutRemessa = 'LayoutRemessa';
   CChaveLeCedenteRetorno = 'LeCedenteRetorno';
+  CChaveLerNossoNumeroCompleto = 'LerNossoNumeroCompleto';
   CChaveNomeArqRemessa = 'NomeArqRemessa';
   CChaveNomeArqRetorno = 'NomeArqRetorno';
   CChaveNumeroArquivo = 'NumeroArquivo';
@@ -95,6 +96,8 @@ const
   CChaveDigitoVerificadorAgenciaConta= 'DigitoVerificadorAgenciaConta';
   CChaveIdentDistribuicao= 'IdentDistribuicao';
   CChaveOperacao= 'Operacao';
+  CChavePIX = 'ChavePIX';
+  CTipoChavePix = 'TipoChavePIX';
 
   CSessaoBoletoFCFortesConfig = 'BoletoBancoFCFortesConfig';
   CChaveDirLogo= 'DirLogo';
@@ -121,6 +124,8 @@ const
   CChaveLogRegistro = 'LogRegistro';
   CChavePathGravarRegistro = 'PathGravarRegistro';
   CChaveAmbiente = 'Ambiente';
+  CChaveArquivoCRT = 'ArquivoCRT';
+  CChaveArquivoKEY = 'ArquivoKEY';
   CChaveVersaoDF = 'VersaoDF';
   CChaveUseCertificateHTTP = 'UseCertificateHTTP';
   CChaveSSLType = 'SSLType';

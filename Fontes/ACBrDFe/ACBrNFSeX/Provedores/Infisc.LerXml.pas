@@ -183,6 +183,7 @@ begin
     begin
       Telefone := ObterConteudo(AuxNode.Childrens.FindAnyNs('fone'), tcStr);
       Email    := ObterConteudo(AuxNode.Childrens.FindAnyNs('xEmail'), tcStr);
+      xSite    := ObterConteudo(AuxNode.Childrens.FindAnyNs('xSite'), tcStr);
     end;
   end;
 end;
@@ -190,6 +191,7 @@ end;
 procedure TNFSeR_Infisc.LerEnderecoEmitente(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
+  xUF: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('end');
 
@@ -202,8 +204,17 @@ begin
       Complemento     := ObterConteudo(AuxNode.Childrens.FindAnyNs('xCpl'), tcStr);
       Bairro          := ObterConteudo(AuxNode.Childrens.FindAnyNs('xBairro'), tcStr);
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('cMun'), tcStr);
+      xMunicipio      := ObterConteudo(AuxNode.Childrens.FindAnyNs('xMun'), tcStr);
       UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('UF'), tcStr);
       CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('CEP'), tcStr);
+
+      if xMunicipio = '' then
+      begin
+        xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+
+        if UF = '' then
+          UF := xUF;
+      end;
 
       // versão 1.1
       CodigoPais := ObterConteudo(AuxNode.Childrens.FindAnyNs('cPais'), tcInt);
@@ -221,6 +232,7 @@ end;
 procedure TNFSeR_Infisc.LerEnderecoTomador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
+  xUF: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('ender');
 
@@ -233,8 +245,17 @@ begin
       Complemento     := ObterConteudo(AuxNode.Childrens.FindAnyNs('xCpl'), tcStr);
       Bairro          := ObterConteudo(AuxNode.Childrens.FindAnyNs('xBairro'), tcStr);
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('cMun'), tcStr);
+      xMunicipio      := ObterConteudo(AuxNode.Childrens.FindAnyNs('xMun'), tcStr);
       UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('UF'), tcStr);
       CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('CEP'), tcStr);
+
+      if xMunicipio = '' then
+      begin
+        xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+
+        if UF = '' then
+          UF := xUF;
+      end;
 
       // versão 1.1
       CodigoPais := ObterConteudo(AuxNode.Childrens.FindAnyNs('cPais'), tcInt);
@@ -311,8 +332,8 @@ begin
       InfID.ID := OnlyNumber(CodigoVerificacao);
 
       hEmi   := ObterConteudo(AuxNode.Childrens.FindAnyNs('hEmi'), tcStr);
-      Hora   := strToInt(Copy(hEmi, 1 , 2));
-      Minuto := strToInt(copy(hEmi, 4 , 2));
+      Hora   := strToIntDef(Copy(hEmi, 1 , 2), 0);
+      Minuto := strToIntDef(copy(hEmi, 4 , 2), 0);
 
       Ano := YearOf(Competencia);
       Mes := MonthOf(Competencia);
@@ -331,7 +352,10 @@ begin
       ModeloNFSe := ObterConteudo(AuxNode.Childrens.FindAnyNs('mod'), tcStr);
 
       aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('cancelada'), tcStr);
-      SituacaoNfse := StrToStatusNFSe(Ok, aValor);
+
+      SituacaoNfse := snNormal;
+      if aValor = 'S' then
+        SituacaoNfse := snCancelado;
 
       MotivoCancelamento := ObterConteudo(AuxNode.Childrens.FindAnyNs('motCanc'), tcStr);
 
@@ -469,35 +493,52 @@ begin
         Aliquota    := ObterConteudo(AuxNode.Childrens.FindAnyNs('pISS'), tcDe2);
         ValorISS    := ObterConteudo(AuxNode.Childrens.FindAnyNs('vISS'), tcDe2);
         BaseCalculo := ObterConteudo(AuxNode.Childrens.FindAnyNs('vBCISS'), tcDe2);
+        ValorReducao := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRed'), tcDe2);
 
-        ValorIRRF := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetIRF'), tcDe2);
+        ValorIRRF := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetIR'), tcDe2);
+
+        AliqRetIRRF := ObterConteudo(AuxNode.Childrens.FindAnyNs('pRetIR'), tcDe2);
+        ValorBCRetIRRF := ObterConteudo(AuxNode.Childrens.FindAnyNs('vBCRetIR'), tcDe2);
+
         ValorPIS := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetLei10833-PIS-PASEP'), tcDe2);
 
         if ValorPIS = 0 then
           ValorPIS := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetPISPASEP'), tcDe2);
+
+        AliqRetPIS := ObterConteudo(AuxNode.Childrens.FindAnyNs('pRetPISPASEP'), tcDe2);
+        ValorBCPIS := ObterConteudo(AuxNode.Childrens.FindAnyNs('vBCPISPASEP'), tcDe2);
 
         ValorCOFINS := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetLei10833-COFINS'), tcDe2);
 
         if ValorCOFINS = 0 then
           ValorCOFINS := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetCOFINS'), tcDe2);
 
+        AliqRetCOFINS := ObterConteudo(AuxNode.Childrens.FindAnyNs('pRetCOFINS'), tcDe2);
+        ValorBCCOFINS := ObterConteudo(AuxNode.Childrens.FindAnyNs('vBCCOFINS'), tcDe2);
+
         ValorCSLL := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetLei10833-CSLL'), tcDe2);
 
         if ValorCSLL = 0 then
           ValorCSLL := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetCSLL'), tcDe2);
 
+        AliqRetCSLL := ObterConteudo(AuxNode.Childrens.FindAnyNs('pRetCSLL'), tcDe2);
+        ValorBCCSLL := ObterConteudo(AuxNode.Childrens.FindAnyNs('vBCCSLL'), tcDe2);
+
         ValorINSS := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetINSS'), tcDe2);
+        AliqRetINSS := ObterConteudo(AuxNode.Childrens.FindAnyNs('pRetINSS'), tcDe2);
+        ValorBCINSS := ObterConteudo(AuxNode.Childrens.FindAnyNs('vBCINSS'), tcDe2);
 
         // versão 1.1
         CodLCServ := ObterConteudo(AuxNode.Childrens.FindAnyNs('cLCServ'), tcStr);
         ValorTotal := ObterConteudo(AuxNode.Childrens.FindAnyNs('vServ'), tcDe3);
 
-        AuxNodeItem := AuxNode.Childrens.FindAnyNs('ISSST');
+        AuxNodeItem := ANodes[i].Childrens.FindAnyNs('ISSST');
 
         if AuxNodeItem <> nil then
         begin
-          AliqISSST := ObterConteudo(AuxNode.Childrens.FindAnyNs('pISSST'), tcDe2);
-          ValorISSST := ObterConteudo(AuxNode.Childrens.FindAnyNs('vISSST'), tcDe2);
+          AliqISSST := ObterConteudo(AuxNodeItem.Childrens.FindAnyNs('pISSST'), tcDe2);
+          ValorISSST := ObterConteudo(AuxNodeItem.Childrens.FindAnyNs('vISSST'), tcDe2);
+          BaseCalculo := ObterConteudo(AuxNodeItem.Childrens.FindAnyNs('vBCST'), tcDe2);
         end;
       end;
 

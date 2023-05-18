@@ -62,6 +62,7 @@ type
     btnOrderGetDetails: TButton;
     btnOrderConfirm: TButton;
     btnOrderDispatch: TButton;
+    btnOrderDelivered: TButton;
     btnOrderReadyForPickup: TButton;
     Label8: TLabel;
     edtOrderReason: TEdit;
@@ -158,6 +159,7 @@ type
     procedure btnOrderConfirmClick(Sender: TObject);
     procedure btnOrderDenyCancellationClick(Sender: TObject);
     procedure btnOrderDispatchClick(Sender: TObject);
+    procedure btnOrderDeliveredClick(Sender: TObject);
     procedure btnOrderGetDetailsClick(Sender: TObject);
     procedure btnOrderReadyForPickupClick(Sender: TObject);
     procedure btnOrderRequestCancellationClick(Sender: TObject);
@@ -172,6 +174,10 @@ type
       ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio);
     procedure ACBrOpenDelivery1HTTPRetornar(
       ALogResposta: TACBrOpenDeliveryHTTPLogResposta);
+    procedure ACBrOpenDelivery1HTTPError(
+      ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio;
+      ALogResposta: TACBrOpenDeliveryHTTPLogResposta;
+      AErro: EACBrOpenDeliveryHTTPException; var ATratado: Boolean);
     private
       { Private declarations }
     public
@@ -231,6 +237,13 @@ begin
   ACBrOpenDelivery1.WebServices.OrderConfirm.Executar;
 end;
 
+procedure TFMain.btnOrderDeliveredClick(Sender: TObject);
+begin
+  ConfigurarComponente;
+  ACBrOpenDelivery1.WebServices.OrderDelivered.OrderId := edtOrderOrderId.Text;
+  ACBrOpenDelivery1.WebServices.OrderDelivered.Executar;
+end;
+
 procedure TFMain.btnOrderDenyCancellationClick(Sender: TObject);
 begin
   ConfigurarComponente;
@@ -273,7 +286,7 @@ begin
   DM.cdsOrdertype.AsString := ServiceTypeToStr(ACBrOpenDelivery1.Order._type);
   DM.cdsOrderdisplayID.AsString := ACBrOpenDelivery1.Order.displayId;
   DM.cdsOrdercreatedAt.AsDateTime := ACBrOpenDelivery1.Order.createdAt;
-  DM.cdsOrderorderTiming.AsString := ACBrOpenDelivery1.Order.orderTiming;
+  DM.cdsOrderorderTiming.AsString := OrderTimingToStr(ACBrOpenDelivery1.Order.orderTiming);
 
   //Customer
   DM.cdsCustomer.Append;
@@ -315,7 +328,7 @@ begin
     DM.cdsItemsIndex.AsInteger := ACBrOpenDelivery1.Order.items[I].index;
     DM.cdsItemsName.AsString := ACBrOpenDelivery1.Order.items[I].name;
     DM.cdsItemsexternalCode.AsString := ACBrOpenDelivery1.Order.items[I].externalCode;
-    DM.cdsItemsUnit.AsString := ACBrOpenDelivery1.Order.items[I]._unit;
+    DM.cdsItemsUnit.AsString := UnitToStr(ACBrOpenDelivery1.Order.items[I]._unit);
     DM.cdsItemsQuantity.AsFloat := ACBrOpenDelivery1.Order.items[I].quantity;
     DM.cdsItemsspecialInstructions.AsString := ACBrOpenDelivery1.Order.items[I].specialInstructions;
     DM.cdsItemsunitPriceValue.AsCurrency := ACBrOpenDelivery1.Order.items[I].unitPrice.value;
@@ -488,6 +501,17 @@ begin
   mmoLogRequest.Lines.Add('Headers: ' + ALogEnvio.Headers.Text);
   mmoLogRequest.Lines.Add('Body: ' + ALogEnvio.Body);
   mmoLogRequest.Lines.Add('------ FIM REQUEST -------');
+end;
+
+procedure TFMain.ACBrOpenDelivery1HTTPError(
+  ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio;
+  ALogResposta: TACBrOpenDeliveryHTTPLogResposta;
+  AErro: EACBrOpenDeliveryHTTPException; var ATratado: Boolean);
+begin
+  ShowMessage(AErro.Content);
+  // Setar essa variável para True caso queira que o componente não lance
+  // a exceção e siga o fluxo normal
+  ATratado := True;
 end;
 
 procedure TFMain.ACBrOpenDelivery1HTTPRetornar(ALogResposta: TACBrOpenDeliveryHTTPLogResposta);

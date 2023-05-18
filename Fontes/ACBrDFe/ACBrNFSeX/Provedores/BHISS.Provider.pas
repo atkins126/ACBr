@@ -88,8 +88,8 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:RecepcionarLoteRpsRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '<nfseCabecMsg>' + IncluirCDATA(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + IncluirCDATA(AMSG) + '</nfseDadosMsg>';
   Request := Request + '</ws:RecepcionarLoteRpsRequest>';
 
   Result := Executar('http://ws.bhiss.pbh.gov.br/RecepcionarLoteRps', Request,
@@ -104,8 +104,8 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:GerarNfseRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '<nfseCabecMsg>' + IncluirCDATA(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + IncluirCDATA(AMSG) + '</nfseDadosMsg>';
   Request := Request + '</ws:GerarNfseRequest>';
 
   Result := Executar('http://ws.bhiss.pbh.gov.br/GerarNfse', Request,
@@ -120,8 +120,8 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:ConsultarLoteRpsRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '<nfseCabecMsg>' + IncluirCDATA(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + IncluirCDATA(AMSG) + '</nfseDadosMsg>';
   Request := Request + '</ws:ConsultarLoteRpsRequest>';
 
   Result := Executar('http://ws.bhiss.pbh.gov.br/ConsultarLoteRps', Request,
@@ -136,8 +136,8 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:ConsultarSituacaoLoteRpsRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '<nfseCabecMsg>' + IncluirCDATA(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + IncluirCDATA(AMSG) + '</nfseDadosMsg>';
   Request := Request + '</ws:ConsultarSituacaoLoteRpsRequest>';
 
   Result := Executar('http://ws.bhiss.pbh.gov.br/ConsultarSituacaoLoteRps', Request,
@@ -152,8 +152,8 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:ConsultarNfsePorRpsRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '<nfseCabecMsg>' + IncluirCDATA(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + IncluirCDATA(AMSG) + '</nfseDadosMsg>';
   Request := Request + '</ws:ConsultarNfsePorRpsRequest>';
 
   Result := Executar('http://ws.bhiss.pbh.gov.br/ConsultarNfsePorRps', Request,
@@ -168,8 +168,8 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:ConsultarNfsePorFaixaRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '<nfseCabecMsg>' + IncluirCDATA(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + IncluirCDATA(AMSG) + '</nfseDadosMsg>';
   Request := Request + '</ws:ConsultarNfsePorFaixaRequest>';
 
   Result := Executar('http://ws.bhiss.pbh.gov.br/ConsultarNfse', Request,
@@ -184,8 +184,8 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:CancelarNfseRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '<nfseCabecMsg>' + IncluirCDATA(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + IncluirCDATA(AMSG) + '</nfseDadosMsg>';
   Request := Request + '</ws:CancelarNfseRequest>';
 
   Result := Executar('http://ws.bhiss.pbh.gov.br/CancelarNfse', Request,
@@ -198,7 +198,8 @@ function TACBrNFSeXWebserviceBHISS.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverCaracteresDesnecessarios(Result);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
 end;
 
@@ -280,7 +281,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod001;
-    AErro.Descricao := Desc101;
+    AErro.Descricao := ACBrStr(Desc101);
     Exit;
   end;
 
@@ -343,17 +344,17 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod002;
-    AErro.Descricao := Desc002;
+    AErro.Descricao := ACBrStr(Desc002);
   end;
 
   if TACBrNFSeX(FAOwner).NotasFiscais.Count > Response.MaxRps then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod003;
-    AErro.Descricao := 'Conjunto de RPS transmitidos (máximo de ' +
+    AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (máximo de ' +
                        IntToStr(Response.MaxRps) + ' RPS)' +
                        ' excedido. Quantidade atual: ' +
-                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count);
+                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
   end;
 
   if Response.Erros.Count > 0 then Exit;
@@ -407,7 +408,7 @@ begin
     Versao := '';
 
   if ConfigAssinar.IncluirURI then
-    IdAttr := ' ' + ConfigGeral.Identificador + '="Lote_' + Response.Lote + '"'
+    IdAttr := ' ' + ConfigGeral.Identificador + '="Lote_' + Response.NumeroLote + '"'
   else
     IdAttr := '';
 
@@ -415,7 +416,7 @@ begin
 
   Response.ArquivoEnvio := '<' + Prefixo + 'GerarNfseEnvio' + NameSpace + '>' +
                              '<LoteRps' + NameSpaceLote + IdAttr  + Versao + '>' +
-                               '<NumeroLote>' + Response.Lote + '</NumeroLote>' +
+                               '<NumeroLote>' + Response.NumeroLote + '</NumeroLote>' +
                                '<Cnpj>' + OnlyNumber(Emitente.CNPJ) + '</Cnpj>' +
                                '<InscricaoMunicipal>' +
                                   OnlyNumber(Emitente.InscMun) +
@@ -456,14 +457,14 @@ begin
 
       Response.Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataRecebimento'), tcDatHor);
       Response.Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Protocolo'), tcStr);
-      Response.CodVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+      Response.CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
 
       ANode := Document.Root.Childrens.FindAnyNs('ListaNfse');
       if not Assigned(ANode) then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod202;
-        AErro.Descricao := Desc202;
+        AErro.Descricao := ACBrStr(Desc202);
         Exit;
       end;
 
@@ -472,7 +473,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod203;
-        AErro.Descricao := Desc203;
+        AErro.Descricao := ACBrStr(Desc203);
         Exit;
       end;
 
@@ -497,7 +498,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally

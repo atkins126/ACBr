@@ -120,6 +120,10 @@ function SAT_TrocarCodigoDeAtivacao(const libHandle: TLibHandle; codigoDeAtivaca
 function SAT_ConsultarSAT(const libHandle: TLibHandle; const sResposta: PChar; var esTamanho: longint): longint;
         {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrSATLIBName;
 
+function SAT_ConsultarUltimaSessaoFiscal(const libHandle: TLibHandle; const sResposta: PChar; var esTamanho: longint): longint;
+         {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrSATLIBName;
+
+
 function SAT_ConsultarStatusOperacional(const libHandle: TLibHandle; const sResposta: PChar;
   var esTamanho: longint): longint;
   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrSATLIBName;
@@ -152,6 +156,9 @@ function SAT_CriarCFe(const libHandle: TLibHandle; eArquivoIni: PChar; const sRe
 
 function SAT_CriarEnviarCFe(const libHandle: TLibHandle; eArquivoIni: PChar; const sResposta: PChar;
   var esTamanho: longint): longint;{$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrSATLIBName;
+
+function SAT_ValidarCFe(const libHandle: TLibHandle; eArquivoXml: PChar): longint;
+  {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrSATLIBName;
 
 function SAT_EnviarCFe(const libHandle: TLibHandle; eArquivoXml: PChar; const sResposta: PChar;
   var esTamanho: longint): longint;{$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrSATLIBName;

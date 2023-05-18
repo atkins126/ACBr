@@ -82,7 +82,8 @@ type
     function  Assinar(const XMLEvento: String; NomeEvento: String): AnsiString;
     function  GerarChaveReinf(const emissao: TDateTime;
                                 const CNPJF: string;
-                                sequencial: Integer): String;
+                                sequencial: Integer;
+                                TpInsc: TtpInsc): String;
     procedure Validar(Schema: TReinfSchema);
 
     property Alertas: String read FAlertas;
@@ -297,8 +298,9 @@ begin
 end;
 
 function TReinfEvento.GerarChaveReinf(const emissao: TDateTime;
-                                          const CNPJF: string;
-                                          sequencial: Integer): String;
+                                const CNPJF: string;
+                                sequencial: Integer;
+                                TpInsc: TtpInsc): String;
 var
   nAno, nMes, nDia, nHora, nMin, nSeg, nMSeg: Word;
 begin
@@ -316,10 +318,7 @@ begin
   DecodeTime(emissao, nHora, nMin, nSeg, nMSeg);
   Result := 'ID';
 
-  if (Length(CNPJF) = 14) then
-    Result := Result + IntToStr(1)
-  else
-    Result := Result + IntToStr(2);
+  Result := Result + TpInscricaoToStr(TpInsc);
 
   if TACBrReinf(FACBrReinf).Configuracoes.Geral.TipoContribuinte in [tcOrgaoPublico, tcPessoaFisica] then
     Result := Result + copy(OnlyNumber(CNPJF) + '00000000000000', 1, 14)
@@ -435,6 +434,13 @@ begin
       Gerador.wCampo(tcStr, '', 'nrInsc', 11, 11, 1, pEmp.NrInsc)
     else
       Gerador.wCampo(tcStr, '', 'nrInsc', 8, 8, 1, Copy(pEmp.NrInsc, 1, 8));
+  end;
+
+  if pEmp.infoComplContri.NatJur <> '' then
+  begin
+    Gerador.wGrupo('infoComplContri');
+    Gerador.wCampo(tcStr, '', 'natJur', 1, 4, 0, pEmp.infoComplContri.NatJur);
+    Gerador.wGrupo('/infoComplContri');
   end;
 
   if GeraGrupo then

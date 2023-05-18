@@ -50,6 +50,7 @@ type
   protected
     function DefineNumeroDocumentoModulo(const ACBrTitulo: TACBrTitulo): String; override;
     function DefineCampoLivreCodigoBarras(const ACBrTitulo: TACBrTitulo): String; override;
+    function DefinePosicaoNossoNumeroRetorno: Integer; override;
     function DefineCaracTitulo(const ACBrTitulo: TACBrTitulo): String; override;
     function DefineEspecieDoc(const ACBrTitulo: TACBrTitulo): String; override;
     function DefineTipoDiasProtesto(const ACBrTitulo: TACBrTitulo): String; override;
@@ -80,6 +81,7 @@ type
     function CodOcorrenciaToTipoRemessa(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
     function TipoOcorrenciaToCodRemessa(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
     function CodEspecieDocToTipo(const EspecieDoc: String): String;
+    function DefineNossoNumeroRetorno(const Retorno: String): String; override;
   end;
 
 implementation
@@ -87,7 +89,7 @@ implementation
 uses
   {$IFDEF COMPILER6_UP} dateutils {$ELSE} ACBrD5 {$ENDIF},
   StrUtils, math, ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings, ACBrUtil.DateTime,
-  ACBrUtil.Math;
+  ACBrUtil.Math, ACBrPIXBase;
 
 { TACBrBancoSantander }
 
@@ -108,13 +110,29 @@ begin
    fpModuloMultiplicadorAtual:= 0;
 end;
 
+function TACBrBancoSantander.DefineNossoNumeroRetorno(const Retorno: String): String;
+begin
+  if ACBrBanco.ACBrBoleto.LerNossoNumeroCompleto then
+    Result := Copy(Retorno,DefinePosicaoNossoNumeroRetorno,13)
+  else
+    Result := Copy(Retorno,DefinePosicaoNossoNumeroRetorno,12);
+end;
+
 function TACBrBancoSantander.DefineNumeroDocumentoModulo(
   const ACBrTitulo: TACBrTitulo): String;
 begin
-   with ACBrTitulo do
-  begin
-    Result:= NossoNumero;
-  end;
+  case ACBrTitulo.ACBrBoleto.LayoutRemessa of
+    c240 : Result:= ACBrTitulo.NossoNumero;
+    c400 : Result:= PadLeft(RightStr(ACBrTitulo.NossoNumero,7),7,'0');
+  end
+end;
+
+function TACBrBancoSantander.DefinePosicaoNossoNumeroRetorno: Integer;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result := 41
+  else
+    Result := 63;
 end;
 
 function TACBrBancoSantander.DefineCampoLivreCodigoBarras(
@@ -527,6 +545,7 @@ var
   ATipoInscricao: String;
   ListTransacao: TStringList;
 
+  LTipoChaveDICT : string;
 
 
 begin
@@ -699,13 +718,12 @@ begin
                   'R'                                                        + // 014 - 014 / Cód. Segmento do registro detalhe
                   Space(1)                                                   + // 015 - 015 / Reservado (uso Banco)
                   sCodMovimento                                              + // 016 - 017 / Código de movimento remessa
-                  '0'                                                        + // 018 - 018 / Código do desconto 2
-                  PadLeft('', 8, '0')                                        + // 019 - 026 / Data do desconto 2
-                  IntToStrZero(0, 15)                                        + // 027 - 041 / Valor/Percentual a ser concedido 2
-                  '0'                                                        + // 042 - 042 / Código do desconto 3
-                  PadLeft('', 8, '0')                                        + // 043 - 050 / Data do desconto 3
-                  IntToStrZero(0, 15)                                        + // 051 - 065 / Valor/Percentual a ser concedido 3
-
+                  TipoDescontoToString(TipoDesconto2)                        + // 018 - 018 / Código do desconto 2
+                  PadLeft(IfThen(TipoDesconto2<>tdNaoConcederDesconto,IfThen(DataDesconto2 > 0, FormatDateTime( 'ddmmyyyy', DataDesconto2),''),''),8,'0')      + // 019 - 026 / Data do desconto 2
+                  PadLeft(IfThen(TipoDesconto2<>tdNaoConcederDesconto,IfThen(ValorDesconto2 > 0, IntToStrZero(round(ValorDesconto2 * 100), 15),''),''),15,'0') + // 027 - 041 / Valor/Percentual a ser concedido 2
+                  TipoDescontoToString(TipoDesconto3)                        + // 042 - 042 / Código do desconto 3
+                  PadLeft(IfThen(TipoDesconto3<>tdNaoConcederDesconto,IfThen(DataDesconto3 > 0, FormatDateTime( 'ddmmyyyy', DataDesconto3),''),''),8,'0')      + // 043 - 050 / Data do desconto 3
+                  PadLeft(IfThen(TipoDesconto3<>tdNaoConcederDesconto,IfThen(ValorDesconto3 > 0, IntToStrZero(round(ValorDesconto3 * 100), 15),''),''),15,'0') + // 051 - 065 / Valor/Percentual a ser concedido 3
                   IfThen((PercentualMulta > 0),
                          IfThen(MultaValorFixo,'1','2'), '2')                                           + // 66 - 66 1-Cobrar Multa Valor Fixo / 2-Percentual / 0-Não cobrar multa
                   IfThen((PercentualMulta > 0),
@@ -719,6 +737,33 @@ begin
         {SEGMENTO R - FIM}
       end;
 
+      if (ACBrTitulo.ACBrBoleto.Cedente.PIX.TipoChavePIX <> tchNenhuma) then
+      begin
+        Inc(ISequencia);
+        {SEGMENTO Y03}
+        case ACBrTitulo.ACBrBoleto.Cedente.PIX.TipoChavePIX of
+          tchCPF       : LTipoChaveDICT := '1';
+          tchCNPJ      : LTipoChaveDICT := '2';
+          tchCelular   : LTipoChaveDICT := '3';
+          tchEmail     : LTipoChaveDICT := '4';
+          tchAleatoria : LTipoChaveDICT := '5';
+        end;
+
+          ListTransacao.Add( IntToStrZero(ACBrBanco.Numero, 3)               +  // 001 - 003 Código do Banco na compensação
+                  '0001'                                                     +  // 004 - 007 Numero do lote remessa
+                  '3'                                                        +  // 008 - 008 Tipo de Registro
+                  IntToStrZero(ISequencia ,5)                                +  // 009 - 013 N Sequencial do Registro no lote
+                  'Y'                                                        +  // 014 - 014 Cód. Segmento do registro detalhe
+                  Space(1)                                                   +  // 015 - 015 Reservado (uso Banco)
+                  sCodMovimento                                              +  // 016 - 017 Código de movimento Remessa
+                  '03'                                                       +  // 018 - 019 Identificação Registro
+                  Space(61)                                                  +  // 020 - 080 Reservado (uso Banco)
+                  LTipoChaveDICT                                             +  // 081 - 081 Tipo de Chave Pix
+                  PadRight(ACBrTitulo.ACBrBoleto.Cedente.PIX.Chave,77,' ')   +  // 082 - 158 Chave Pix
+                  PadRight(QrCode.txId,35,' ')                               +  // 159 - 193 Código identificação do QR Code
+                  Space(47)                                                 );  // 194 - 240 Reservado (uso Banco)
+        {SEGMENTO Y03 - FIM}
+      end;
       Inc(ISequencia);
       {SEGMENTO S}
       // Existe um Formmulário 1 - Especial, que não será implementado, erá implementado do Formulário 2
@@ -1021,8 +1066,6 @@ begin
 
   ACBrBanco.ACBrBoleto.NumeroArquivo := StrToIntDef(Copy(ARetorno[0],158,6),0);
 
-  ACBrBanco.TamanhoMaximoNossoNum := 13;
-
   for iLinha := 1 to ARetorno.Count - 2 do
   begin
     Linha := ARetorno[iLinha];
@@ -1034,7 +1077,7 @@ begin
     begin
       if copy(Linha, 14, 1) = 'T' then
       begin
-        NossoNumero          := Copy(Linha, 41, ACBrBanco.TamanhoMaximoNossoNum);
+        NossoNumero          := DefineNossoNumeroRetorno(Linha);
         NumeroDocumento      := Copy(Linha, 55, 15);
         SeuNumero            := Copy(Linha, 101, 25);
         Carteira             := Copy(Linha, 54, 1);
@@ -1078,7 +1121,6 @@ begin
       end;
     end;
   end;
-  ACBrBanco.TamanhoMaximoNossoNum := 12;
 end;
 
 procedure TACBrBancoSantander.LerRetorno400(ARetorno: TStringList);
@@ -1312,11 +1354,13 @@ begin
       35: Result := toRetornoTituloDDAReconhecidoPagador;
       36: Result := toRetornoTituloDDANaoReconhecidoPagador;
       37: Result := toRetornoTituloDDARecusadoCIP;
+      91: Result := toRetornoConfirmacaoAlteracaoValorMinimoOuPercentual;
+      92: Result := toRetornoConfirmacaoAlteracaoValorMaximoOuPercentual;
     end;
   end
   else
   begin
-    case CodOcorrencia of
+    case CodOcorrencia of // CNAB 400
       17: Result := toRetornoLiquidadoEmCartorio;
       24: Result := toRetornoCustasCartorio;
       25: Result := toRetornoRecebimentoInstrucaoProtestar;
@@ -1324,6 +1368,8 @@ begin
       51: Result := toRetornoTituloDDAReconhecidoPagador;
       52: Result := toRetornoTituloDDANaoReconhecidoPagador;
       53: Result := toRetornoTituloDDARecusadoCIP;
+      62: Result := toRetornoConfirmacaoAlteracaoValorMinimoOuPercentual;
+      63: Result := toRetornoConfirmacaoAlteracaoValorMaximoOuPercentual;
     end;
   end;
 
@@ -1358,6 +1404,8 @@ begin
     30: Result := toRetornoAlteracaoDadosRejeitados;
     32: Result := toRetornoIOFInvalido;
     38: Result := toRetornoRecebimentoInstrucaoNaoProtestar;
+    61: Result := toRetornoConfirmacaoAlteracaoValorNominal;
+
   else
     Result := toRetornoOutrasOcorrencias;
   end;
@@ -1377,7 +1425,10 @@ begin
     11 : Result:= toRemessaCancelarDesconto;                {Cancelamento de desconto}
     18 : Result:= toRemessaCancelarInstrucaoProtesto;       {Sustar protesto e manter na carteira}
     31 : Result:= toRemessaAlterarOutrosDados;              {Alteração de outros dados}
-    98 : Result:= toRemessaNaoProtestar;                    {Sustar protesto antes do início do ciclo de protesto}
+    47 : Result:= toRemessaAlteracaoValorNominal;           {Alteração do valor nominal do boleto}
+    48 : Result:= toRemessaAlterarValorMinimo;              {Alteração do valor mínimo/percentual}
+    49 : Result:= toRemessaAlterarValorMaximo;              {Alteração do valor máximo/percentual}
+    98 : Result:= toRemessaNaoProtestar;                    {Sustar protesto antes do início do ciclo de protesto *}
   else
      Result:= toRemessaRegistrar;                           {Remessa}
   end;
@@ -1400,6 +1451,9 @@ begin
          toRemessaConcederDesconto              : Result := '10'; {Concessão de Desconto}
          toRemessaCancelarDesconto              : Result := '11'; {Cancelamento de Desconto}
          toRemessaAlterarOutrosDados            : Result := '31'; {Alteração de outros dados}
+         toRemessaAlteracaoValorNominal         : Result := '47'; {Alteração do valor nominal do boleto}
+         toRemessaAlterarValorMinimo	        : Result := '48'; {Alteração do valor mínimo/percentual}
+         toRemessaAlterarValorMaximo	        : Result := '49'; {Alteração do valor máximo/percentual}
          toRemessaNaoProtestar                  : Result := '98'; {Não Protestar (Antes de iniciar o ciclo de protesto )}
       else
          Result := '01';                                          {Remessa}
@@ -1408,7 +1462,7 @@ begin
   end
   else
   begin
-    case TipoOcorrencia of
+    case TipoOcorrencia of  // 400
          toRemessaBaixar                        : Result := '02'; {Pedido de Baixa}
          toRemessaConcederAbatimento            : Result := '04'; {Concessão de Abatimento}
          toRemessaCancelarAbatimento            : Result := '05'; {Cancelamento de Abatimento concedido}
@@ -1417,6 +1471,9 @@ begin
          toRemessaAlterarNumeroControle         : Result := '08'; {Alteração de seu número}
          toRemessaProtestar                     : Result := '09'; {Pedido de protesto}
          toRemessaCancelarInstrucaoProtesto     : Result := '18'; {Sustar protesto e manter na carteira}
+         toRemessaAlteracaoValorNominal         : Result := '47'; {Alteração do valor nominal do boleto}
+         toRemessaAlterarValorMinimo	        : Result := '48'; {Alteração do valor mínimo/percentual}
+         toRemessaAlterarValorMaximo	        : Result := '49'; { Alteração do valor máximo/percentual}
          toRemessaNaoProtestar                  : Result := '98'; {Sustar protesto antes do início do ciclo de protesto}
       else
          Result := '01';                                          {Remessa}
@@ -1456,6 +1513,9 @@ begin
       toRetornoTituloDDAReconhecidoPagador                   : Result := '35';
       toRetornoTituloDDANaoReconhecidoPagador                : Result := '36';
       toRetornoTituloDDARecusadoCIP                          : Result := '37';
+      toRetornoConfirmacaoAlteracaoValorNominal              : Result := '61';
+      toRetornoConfirmacaoAlteracaoValorMinimoOuPercentual	 : Result := '91';
+      toRetornoConfirmacaoAlteracaoValorMaximoOuPercentual   : Result := '92';
     end;
   end
   else
@@ -1468,6 +1528,9 @@ begin
       toRetornoTituloDDAReconhecidoPagador                   : Result := '51';
       toRetornoTituloDDANaoReconhecidoPagador                : Result := '52';
       toRetornoTituloDDARecusadoCIP                          : Result := '53';
+      toRetornoConfirmacaoAlteracaoValorNominal              : Result := '61';
+      toRetornoConfirmacaoAlteracaoValorMinimoOuPercentual	 : Result := '62';
+      toRetornoConfirmacaoAlteracaoValorMaximoOuPercentual   : Result := '63';
     end;
   end;
 

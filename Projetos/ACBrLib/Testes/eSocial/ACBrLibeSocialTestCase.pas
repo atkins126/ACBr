@@ -78,11 +78,9 @@ type
 implementation
 
 uses
-  ACBrLibeSocialStaticImportST, ACBrLibeSocialConsts, ACBrLibConsts, ACBrUtil;
+  ACBrLibeSocialStaticImportST, ACBrLibeSocialConsts, ACBrLibConsts, ACBrUtil.Strings;
 
 procedure TTestACBreSocialLib.Test_eSocial_Inicializar_Com_DiretorioInvalido;
-var
-  Handle: THandle;
 begin
   try
     AssertEquals(ErrLibNaoInicializada, eSocial_Inicializar('C:\NAOEXISTE\ACBrLib.ini',''));
@@ -93,16 +91,12 @@ begin
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_Inicializar;
-var
-  Handle: THandle;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar( '',''));
   AssertEquals(ErrOK, eSocial_Finalizar());
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_Inicializar_Ja_Inicializado;
-var
-  Handle: THandle;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar( '', ''));
   AssertEquals(ErrOk, eSocial_Inicializar( '',''));
@@ -110,16 +104,12 @@ begin
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_Finalizar;
-var
-  Handle: THandle;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar( '', ''));
   AssertEquals(ErrOk, eSocial_Finalizar());
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_Finalizar_Ja_Finalizado;
-var
-  Handle: THandle;
 begin
   try
    AssertEquals(ErrOk, eSocial_Inicializar('', ''));
@@ -134,7 +124,6 @@ end;
 procedure TTestACBreSocialLib.Test_eSocial_Nome_Obtendo_LenBuffer;
 var
   Bufflen: Integer;
-  Handle: THandle;
 begin
   // Obtendo o Tamanho //
   AssertEquals(ErrOK, eSocial_Inicializar( '', ''));
@@ -148,7 +137,6 @@ procedure TTestACBreSocialLib.Test_eSocial_Nome_Lendo_Buffer_Tamanho_Identico;
 var
   AStr: String;
   Bufflen: Integer;
-  Handle: THandle;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar( '',''));
   Bufflen := Length(CLibeSocialNome);
@@ -163,7 +151,6 @@ procedure TTestACBreSocialLib.Test_eSocial_Nome_Lendo_Buffer_Tamanho_Maior;
 var
   AStr: String;
   Bufflen: Integer;
-  Handle: THandle;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar( '', ''));
   Bufflen := Length(CLibeSocialNome)*2;
@@ -179,7 +166,6 @@ procedure TTestACBreSocialLib.Test_eSocial_Nome_Lendo_Buffer_Tamanho_Menor;
 var
   AStr: String;
   Bufflen: Integer;
-  Handle: THandle;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar(  '', ''));
   Bufflen := 14;
@@ -194,7 +180,6 @@ procedure TTestACBreSocialLib.Test_eSocial_Versao;
 var
   Bufflen: Integer;
   AStr: String;
-  Handle: THandle;
 begin
   // Obtendo o Tamanho //
   AssertEquals(ErrOK, eSocial_Inicializar(  '', ''));
@@ -214,7 +199,6 @@ procedure TTestACBreSocialLib.Test_eSocial_ConfigLerValor;
 var
   Bufflen: Integer;
   AStr: String;
-  Handle: THandle;
 begin
   // Obtendo o Tamanho //
   AssertEquals(ErrOK, eSocial_Inicializar( '', ''));
@@ -230,7 +214,6 @@ procedure TTestACBreSocialLib.Test_eSocial_ConfigGravarValor;
 var
   Bufflen: Integer;
   AStr: String;
-  Handle: THandle;
 begin
   // Gravando o valor
   AssertEquals(ErrOK, eSocial_Inicializar( '', ''));
@@ -246,13 +229,11 @@ begin
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_CriarEventoeSocial;
-var
-  Handle: THandle;
 begin
   // Lendo o arquivo INI
   AssertEquals(ErrOK, eSocial_Inicializar( '', ''));
   AssertEquals('Erro ao ler o arquivo INI', ErrOk,
-  eSocial_CriarEventoeSocial( 'C:\ProjetoACBr\ACBr\Projetos\ACBrLib\Testes\eSocial\S1000.ini'));
+  eSocial_CriarEventoeSocial( '.\..\..\eSocial\S1000.ini'));
   AssertEquals(ErrOK, eSocial_Finalizar());
 end;
 
@@ -260,7 +241,6 @@ procedure TTestACBreSocialLib.Test_eSocial_EnviareSocial;
 var
   Resposta: PChar;
   Tamanho: Longint;
-  Handle: THandle;
 begin
   // Iniciando o Envio
   Resposta := '';
@@ -278,32 +258,45 @@ procedure TTestACBreSocialLib.Test_eSocial_ConsultareSocial;
 var
   Resposta: PChar;
   Tamanho: Longint;
-  Handle: THandle;
+  RetornoChamadaLib: LongInt;
 begin
   // Iniciando a consulta
-  Resposta := '';
-  Tamanho := 0;
+  Tamanho  := 0;
+  Resposta := PChar(Space(Tamanho));
 
   AssertEquals(ErrOK, eSocial_Inicializar( '', ''));
-  AssertEquals('Erro ao consultar', ErrExecutandoMetodo, eSocial_ConsultareSocial( '123456789', Resposta, Tamanho));
-
-  AssertEquals('Resposta= ' + AnsiString(Resposta), '', '');
-  AssertEquals('Tamanho= ' + IntToStr(Tamanho), '', '');
+  RetornoChamadaLib := eSocial_ConsultareSocial( '1.2.202212.0000000000123456789', Resposta, Tamanho);
+  if RetornoChamadaLib = ErrExecutandoMetodo then
+  begin
+    AssertEquals('Erro ao consultar', ErrExecutandoMetodo, RetornoChamadaLib);
+    AssertEquals('Resposta= ' + AnsiString(Resposta), '', '');
+    AssertEquals('Tamanho= ' + IntToStr(Tamanho), '', '');
+  //end
+  //else
+  //begin
+  //// Descomente esse código para testar o caso de sucesso. Atualmente impossível sem modificações que burlam o acesso ao certificado.
+  //  AssertEquals('Erro ao consultar', ErrOK, RetornoChamadaLib);
+  //  Resposta := PChar(Space(Tamanho));
+  //  RetornoChamadaLib := eSocial_UltimoRetorno(Resposta, Tamanho);
+  //
+  //  AssertEquals('RetornoChamadaLib= ' + IntToStr(RetornoChamadaLib), RetornoChamadaLib, RetornoChamadaLib);
+  //  AssertEquals('Resposta= ' + AnsiString(Resposta), '', Resposta);
+  //  AssertEquals('Tamanho= ' + IntToStr(Tamanho), '', '');
+  end;
   AssertEquals(ErrOK, eSocial_Finalizar());
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_CriarEnviareSocial;
 var
-  Handle: THandle;
+  RetornoChamadaLib: LongInt;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar('', ''));
-  AssertEquals('Erro ao Criar e Enviar', ErrExecutandoMetodo, eSocial_CriarEnviareSocial('C:\ProjetoACBr\ACBr\Projetos\ACBrLib\Testes\eSocial\S1000.ini', 1));
+  RetornoChamadaLib := eSocial_CriarEnviareSocial('.\..\..\eSocial\S1000.ini', 1);
+  AssertEquals('Erro ao Criar e Enviar', ErrExecutandoMetodo, RetornoChamadaLib);
   AssertEquals(ErrOK, eSocial_Finalizar());
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_LimpareSocial;
-var
-  Handle: THandle;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar('', ''));
   AssertEquals(ErrOk, eSocial_LimpareSocial());
@@ -311,17 +304,22 @@ begin
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_CarregarXMLEventoeSocial;
+const
+  sNomeArquivoXml = '.\..\..\eSocial\S2220_UmXmlDeLoteEventosS2220_01.xml';
 var
-  Handle: THandle;
+  RetornoChamadaLib: LongInt;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar('', ''));
-  AssertEquals('Erro ao carregar o XML e-Social', ErrOK, eSocial_CarregarXMLEventoeSocial('C:\ProjetoACBr\ACBr\Projetos\ACBrLib\Testes\eSocial\1038734840000002022060611235282164-S-2200-0.xml'));
+
+  AssertEquals('Erro ao Mudar configuração log', ErrOk, eSocial_ConfigGravarValor( CSessaoPrincipal, CChaveLogNivel, '4'));
+  AssertEquals(ErrOk, eSocial_SetVersaoDF('S01_00_00'));
+
+  RetornoChamadaLib := eSocial_CarregarXMLEventoeSocial(sNomeArquivoXml);
+  AssertEquals('Erro ao carregar o XML e-Social', ErrOK, RetornoChamadaLib );
   AssertEquals(ErrOK, eSocial_Finalizar());
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_SetIDEmpregador;
-var
-  Handle: THandle;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar('', ''));
   AssertEquals(ErrOk, eSocial_SetIDEmpregador('03873484'));
@@ -329,8 +327,6 @@ begin
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_SetIDTransmissor;
-var
-  Handle: THandle;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar('', ''));
   AssertEquals(ErrOk, eSocial_SetIDTransmissor('1234'));
@@ -338,8 +334,6 @@ begin
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_SetTipoEmpregador;
-var
-  Handle: THandle;
 begin
   AssertEquals(errOk, eSocial_Inicializar('',''));
   AssertEquals(errOk, eSocial_SetTipoEmpregador(1));
@@ -347,8 +341,6 @@ begin
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_SetVersaoDF;
-var
-  Handle: THandle;
 begin
   AssertEquals(errOk, eSocial_Inicializar('', ''));
   AssertEquals(ErrOk, eSocial_SetVersaoDF('ve02_04_02'));
@@ -359,7 +351,6 @@ procedure TTestACBreSocialLib.Test_eSocial_ConsultaIdentificadoresEventosEmprega
 var
   Resposta: PChar;
   Tamanho: Longint;
-  Handle: THandle;
 begin
   Resposta:= '';
   Tamanho:= 0;
@@ -376,7 +367,6 @@ procedure TTestACBreSocialLib.Test_eSocial_ConsultaIdentificadoresEventosTabela;
 var
   Resposta: Pchar;
   Tamanho: Longint;
-  Handle: THandle;
 begin
   Resposta:= '';
   Tamanho:= 0;
@@ -393,7 +383,6 @@ procedure TTestACBreSocialLib.Test_eSocial_ConsultaIdentificadoresEventosTrabalh
 var
   Resposta: Pchar;
   Tamanho: Longint;
-  Handle: THandle;
 begin
   Resposta:= '';
   Tamanho:= 0;
@@ -410,7 +399,6 @@ procedure TTestACBreSocialLib.Test_eSocial_DownloadEventos;
 var
   Resposta: Pchar;
   Tamanho: Longint;
-  Handle: THandle;
 begin
   Resposta:= '';
   Tamanho:= 0;

@@ -73,6 +73,9 @@ namespace ACBrLib.Sat
         public delegate int SAT_ConsultarNumeroSessao(IntPtr handle, int cNumeroDeSessao, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int SAT_ConsultarUltimaSessaoFiscal(IntPtr handle, StringBuilder buffer, ref int bufferSize);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int SAT_AtualizarSoftwareSAT(IntPtr handle, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -95,6 +98,9 @@ namespace ACBrLib.Sat
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int SAT_EnviarCFe(IntPtr handle, string eArquivoXml, StringBuilder buffer, ref int bufferSize);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int SAT_ValidarCFe(IntPtr handle, string eArquivoXml);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int SAT_CancelarCFe(IntPtr handle, string eArquivoXml, StringBuilder buffer, ref int bufferSize);
@@ -141,12 +147,14 @@ namespace ACBrLib.Sat
             AddMethod<SAT_ConsultarSAT>("SAT_ConsultarSAT");
             AddMethod<SAT_ConsultarStatusOperacional>("SAT_ConsultarStatusOperacional");
             AddMethod<SAT_ConsultarNumeroSessao>("SAT_ConsultarNumeroSessao");
+            AddMethod<SAT_ConsultarUltimaSessaoFiscal>("SAT_ConsultarUltimaSessaoFiscal");
             AddMethod<SAT_AtualizarSoftwareSAT>("SAT_AtualizarSoftwareSAT");
             AddMethod<SAT_ComunicarCertificadoICPBRASIL>("SAT_ComunicarCertificadoICPBRASIL");
             AddMethod<SAT_ExtrairLogs>("SAT_ExtrairLogs");
             AddMethod<SAT_TesteFimAFim>("SAT_TesteFimAFim");
             AddMethod<SAT_GerarAssinaturaSAT>("SAT_GerarAssinaturaSAT");
             AddMethod<SAT_CriarCFe>("SAT_CriarCFe");
+            AddMethod<SAT_ValidarCFe>("SAT_ValidarCFe");
             AddMethod<SAT_CriarEnviarCFe>("SAT_CriarEnviarCFe");
             AddMethod<SAT_EnviarCFe>("SAT_EnviarCFe");
             AddMethod<SAT_CancelarCFe>("SAT_CancelarCFe");

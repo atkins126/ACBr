@@ -39,7 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXConversao, ACBrNFSeXLerXml;
+  ACBrNFSeXConversao, ACBrNFSeXLerXml, ACBrNFSeXLerXml_ABRASFv2;
 
 type
   { Provedor com layout próprio }
@@ -54,6 +54,7 @@ type
     procedure LerPrestador(const ANode: TACBrXmlNode);
     procedure LerTomador(const ANode: TACBrXmlNode);
     procedure LerItens(const ANode: TACBrXmlNode);
+    procedure LerFormaPagamento(const ANode: TACBrXmlNode);
   public
     function LerXml: Boolean; override;
     function LerXmlRps(const ANode: TACBrXmlNode): Boolean;
@@ -66,10 +67,20 @@ type
 
   end;
 
+  { TNFSeR_IPM204 }
+
+  TNFSeR_IPM204 = class(TNFSeR_ABRASFv2)
+  protected
+
+  public
+    function LerXmlNfse(const ANode: TACBrXmlNode): Boolean; override;
+
+  end;
+
 implementation
 
 uses
-  ACBrUtil.Base, ACBrUtil.Strings;
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime, ACBrDFeUtil;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -77,6 +88,27 @@ uses
 //==============================================================================
 
 { TNFSeR_IPM }
+
+procedure TNFSeR_IPM.LerFormaPagamento(const ANode: TACBrXmlNode);
+var
+  AuxNode: TACBrXmlNode;
+  aValor: string;
+  Ok: Boolean;
+begin
+  AuxNode := ANode.Childrens.FindAnyNs('forma_pagamento');
+
+  if AuxNode <> nil then
+  begin
+    with NFSe.CondicaoPagamento do
+    begin
+      aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('tipo_pagamento'), tcStr);
+
+      Condicao := StrToEnumerado(Ok, aValor,
+            ['1', '2', '3', '4', '5'],
+            [cpAVista, cpAPrazo, cpNaApresentacao, cpCartaoDebito, cpCartaoCredito]);
+    end;
+  end;
+end;
 
 procedure TNFSeR_IPM.LerItens(const ANode: TACBrXmlNode);
 var
@@ -160,6 +192,7 @@ begin
         CodigoVerificacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('cod_verificador_autenticidade'), tcStr);
 
       Link := ObterConteudo(AuxNode.Childrens.FindAnyNs('link_nfse'), tcStr);
+      Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
 
       // campos presentes ao baixar do site da prefeitura
       if Numero = '' then
@@ -171,7 +204,7 @@ begin
         aValor := aValor + ' ' +
                   ObterConteudo(AuxNode.Childrens.FindAnyNs('hora_nfse'), tcStr);
 
-        DataEmissao := StrToDateTimeDef(aValor, 0);
+        DataEmissao := EncodeDataHora(aValor, 'DD/MM/YYYY');
       end;
 
       SituacaoNfse := StrToStatusNFSe(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('situacao_codigo_nfse'), tcStr));
@@ -202,6 +235,7 @@ end;
 procedure TNFSeR_IPM.LerPrestador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
+  xUF: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('prestador');
 
@@ -218,6 +252,10 @@ begin
       with Prestador.Endereco do
       begin
         CodigoMunicipio := CodTOMToCodIBGE(ObterConteudo(AuxNode.Childrens.FindAnyNs('cidade'), tcStr));
+        xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+
+        if UF = '' then
+          UF := xUF;
       end;
     end;
   end;
@@ -236,8 +274,8 @@ begin
     aValor := aValor + ' ' +
               ObterConteudo(AuxNode.Childrens.FindAnyNs('hora_emissao_recibo_provisorio'), tcStr);
 
-    NFSe.DataEmissao := StrToDateTimeDef(aValor, 0);
-    NFSe.DataEmissaoRps := StrToDateTimeDef(aValor, 0);
+    NFSe.DataEmissao := EncodeDataHora(aValor, 'DD/MM/YYYY');
+    NFSe.DataEmissaoRps := EncodeDataHora(aValor, 'DD/MM/YYYY');
 
     with NFSe.IdentificacaoRps do
     begin
@@ -250,7 +288,7 @@ end;
 procedure TNFSeR_IPM.LerTomador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
-  aValor: string;
+  xUF, aValor: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('tomador');
 
@@ -269,6 +307,10 @@ begin
         Bairro          := ObterConteudo(AuxNode.Childrens.FindAnyNs('bairro'), tcStr);
         CodigoMunicipio := CodTOMToCodIBGE(ObterConteudo(AuxNode.Childrens.FindAnyNs('cidade'), tcStr));
         CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('cep'), tcStr);
+        xMunicipio      := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+
+        if UF = '' then
+          UF := xUF;
       end;
 
       with IdentificacaoTomador do
@@ -358,11 +400,38 @@ begin
   LerPrestador(AuxNode);
   LerTomador(AuxNode);
   LerItens(AuxNode);
+  LerFormaPagamento(AuxNode);
 end;
 
 function TNFSeR_IPM.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
 begin
   Result := LerXmlNfse(ANode);
+end;
+
+{ TNFSeR_IPM204 }
+
+function TNFSeR_IPM204.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
+var
+  AuxNode: TACBrXmlNode;
+begin
+  Result := True;
+
+  if not Assigned(ANode) or (ANode = nil) then Exit;
+
+  AuxNode := ANode.Childrens.FindAnyNs('item');
+
+  if AuxNode = nil then
+    AuxNode := ANode.Childrens.FindAnyNs('Nfse')
+  else
+    AuxNode := AuxNode.Childrens.FindAnyNs('Nfse');
+
+  if AuxNode = nil then
+    AuxNode := ANode;
+
+  LerInfNfse(AuxNode);
+
+  LerNfseCancelamento(ANode);
+  LerNfseSubstituicao(ANode);
 end;
 
 end.

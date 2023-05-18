@@ -44,6 +44,116 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+12/05/2023
+[-]TK-3928 Tratamento de exception quando ler meio de pagamento no danfce
+  por: Victor H Gonzales - Pandaaa
+
+19/04/2023
+-- Diversos --
+[*] Alterações visando atender a versão 1.20 da NT 2023/001 onde foi incluído novos campos.
+    Observação: Essas alterações só vão ser validadas no ambiente de homologação 
+                a partir de 20/04/2023 e no de produção: 01/05/2023.
+    por: Italo Giurizzato Junior
+
+29/03/2023
+-- ACBrNFeXmlReader, ACBrNFeXmlWriter --
+[-] Alterações visando atender a NT 2020/006 versão 1.20.
+  Por: BigWings
+
+28/03/2023
+-- ACBrNFeDANFeReport, ACBrNFeDANFEFRDM, ACBrNFeDANFeRL, ACBrNFeDANFeLazReport --
+[*] Ajustes para impressão do CST no DANFE, no regime Simples Nacional.
+  Por: BigWings
+
+23/03/2023
+-- ACBrNFeXmlWriter, pcnNFeW --
+[*] Ajustes para atender a versão 1.10 da NT 2023/001, permitindo informar CST's monofásicos no regime Simples Nacional e ajustando as casas decimais das tags "pBio" e "pOrig", de acordo com o valor da tag, para atender ao Schema.
+  Por: BigWings
+
+15/03/2023
+-- Diversos --
+[*] Alterações visando atender a versão 1.10 da NT 2023/001 onde foi incluído novos campos.
+    Observação: Essas alterações só vão ser validadas no ambiente de homologação 
+                a partir de 03/03/2023 e no de produção: 30/03/2023.
+    por: Italo Giurizzato Junior
+
+07/03/2023
+-- Diversos --
+[*] Correção na implementação dos novos campos, foram implementados dentro do 
+    grupo <encerrante> sendo que o correto é no mesmo nível do grupo <encerrante>.
+    por: Italo Giurizzato Junior
+
+03/03/2023
+-- ACBrNFeServicos --
+[*] Atualização das URL de Consulta via QR-Code de MG Produção e Homologação.
+   Por: Italo Giurizzato Junior
+
+01/03/2023
+-- Diversos --
+[*] Alterações visando atender a NT 2023/001 onde foi incluído novos campos.
+    Observação: Essas alterações só vão ser validadas no ambiente de homologação 
+                a partir de 03/03/2023 e no de produção: 30/03/2023.
+    por: Italo Giurizzato Junior
+
+27/01/2023
+-- Diversos --
+[*] Alterações visando atender a NT 2022/003 onde foi alterado a quantidade de
+    ocorrências de 500 para 999 do grupo NFref e a inclusão da tag refNFeSig que 
+    poderá conter a chave da nota referenciada, mas com o código numérico zerado.
+    Observação: Essas alterações só vão ser validadas no ambiente de homologação 
+                a partir de 07/02/2023 e no de produção: 03/04/2023.
+    por: Italo Giurizzato Junior
+
+25/01/2023
+-- ACBrDFeDANFeReport --
+[-] Correção para o parâmetro "Separar arqs pelo Modelo(NFe/NFCe)" não depender do 
+    parâmetro "Adicionar Literal no nome das pastas".
+    por: Elias César
+
+24/01/2023
+--Diversos--
+[*] TK-3485 ACBrNFe - Verificar a possibilidade de tirar dos impressos(Fast/Fortes) a mensagem fixa AREÁ DA MENSAGEM FISCAL
+ por : Victor H Gonzales - Pandaaa
+
+23/01/2023
+-- Diversos --
+[+] Incluido a propriedade de configuração: ForcarGerarTagRejeicao906 para definir se
+    vai gerar as tags do ICMS Efetivo ou não.
+    Valores aceitos pela nova propriedade: fgtNunca, fgtSomenteProducao, 
+    fgtSomenteHomologacao e fgtSempre. Valor padrão: fgtNunca
+  por : prevedello_sistemas
+
+21/12/2022
+--ACBrDFeDANFeReport--
+[*] TK-3373-1 Opção para impressão do xPED e nTemPed no Danfe (RL e FR) quadro de produtos
+    Removido do grupo informação adicional, criado a função separada para o parametro de
+    dados adicionais não inferir nessa opção. (ExibeInforAdicProduto)
+  por : Victor H Gonzales - Pandaaa
+
+20/12/2022
+--ACBrDFeDANFeReport--
+[+] TK-3373-1 Opção para impressão do xPED e nTemPed no Danfe (RL e FR) quadro de produtos
+  por : Victor H Gonzales - Pandaaa
+
+15/12/2022
+-- ACBrNFeServicos --
+[*] Revertido a URL de Consulta via QR-Code de MG Produção.
+   Por: Italo Giurizzato Junior
+[*] Revertido as URLs de Consulta via QR-Code de MG Produção e Homologação.
+    Pois no Portal contem uma informação que mudou as URLs, mas o Webservice
+    não aceita essas novas URLs.
+   Por: Victor H Gonzales - Pandaaa
+
+29/11/2022
+-- ACBrNFeXmlWriter --
+[*] Ao gerar a chave estava passando o valor zero em vez de pegar o valor do
+    campo cNF.
+   Por: Italo Giurizzato Junior
+
+10/11/2022
+[*] Adição de informações relacionadas ao grupo comb no método Assign da classe respectiva.
+  por: Eduardo Eng. Costa
+
 04/10/2022
 [-] TK-3125 ACBrNFE verificação para correção no LOAD falta de Declação UTF-8 no XML
   por : Victor H Gonzales - Pandaaa

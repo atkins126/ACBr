@@ -84,7 +84,8 @@ var
   Competencia: string;
 begin
   Competencia := ObterConteudo(ANode.Childrens.FindAnyNs('anoCompetencia'), tcStr) +
-                 FormatFloat('00', StrToInt(ObterConteudo(ANode.Childrens.FindAnyNs('mesCompetencia'), tcStr)));
+                 FormatFloat('00',
+                 StrToIntDef(ObterConteudo(ANode.Childrens.FindAnyNs('mesCompetencia'), tcStr), 0));
 
   if length(Competencia) > 0 then
     Result := EncodeDataHora(Competencia, 'YYYY/MM/DD')
@@ -200,6 +201,7 @@ procedure TNFSeR_ISSCambe.LerDadosTomador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
   ok: Boolean;
+  xUF: string;
 begin
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
@@ -227,6 +229,10 @@ begin
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomadorMunicipio'), tcStr);
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomadorUF'), tcStr);
       CodigoPais := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomadorPais'), tcInt);
+      xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+
+      if UF = '' then
+        UF := xUF;
     end;
 
     NFSe.Servico.CodigoMunicipio := NFSe.Tomador.Endereco.CodigoMunicipio;
@@ -237,6 +243,7 @@ end;
 procedure TNFSeR_ISSCambe.LerDadosPrestador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
+  xUF: string;
 begin
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
@@ -261,6 +268,10 @@ begin
       CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('prestadorCEP'), tcStr);
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('prestadorMunicipio'), tcStr);
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('prestadorUF'), tcStr);
+      xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+
+      if UF = '' then
+        UF := xUF;
     end;
 
     with NFSe.Prestador.Contato do

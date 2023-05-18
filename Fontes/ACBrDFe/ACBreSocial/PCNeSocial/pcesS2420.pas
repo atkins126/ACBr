@@ -211,7 +211,7 @@ begin
   Gerador.wGrupo('infoBenTermino');
 
   Gerador.wCampo(tcDat, '', 'dtTermBeneficio', 10, 10, 1, pInfoBenTermino.dtTermBeneficio);
-  Gerador.wCampo(tcStr, '', 'mtvTermino',       2,  2, 1, eStpTpMotCessBenefToStr(pInfoBenTermino.mtvTermino));
+  Gerador.wCampo(tcStr, '', 'mtvTermino',       2,  2, 1, eStpTpMotCessBenefToStrEX(pInfoBenTermino.mtvTermino));
   Gerador.wCampo(tcStr, '', 'cnpjOrgaoSuc',    14, 14, 0, pInfoBenTermino.cnpjOrgaoSuc);
   Gerador.wCampo(tcStr, '', 'novoCPF',         11, 11, 0, pInfoBenTermino.novoCpf);
 
@@ -221,6 +221,7 @@ end;
 function TEvtCdBenTerm.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);

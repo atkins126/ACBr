@@ -46,7 +46,8 @@ uses
   ACBrTXTClass, ACBrUtil.Strings,
   ACBrPonto_AFD, ACBrPonto_AFD_Class,
   ACBrPonto_AFDT, ACBrPonto_AFDT_Class,
-  ACBrPonto_ACJEF, ACBrPonto_ACJEF_Class;
+  ACBrPonto_ACJEF, ACBrPonto_ACJEF_Class,
+  ACBrPonto.AEJ;
 
 type
 
@@ -69,6 +70,7 @@ type
     FPonto_AFD: TPonto_AFD;
     FPonto_AFDT: TPonto_AFDT;
     FPonto_ACJEF: TPonto_ACJEF;
+    FAEJ: TAEJ;
 
     function GetDelimitador: String;
     function GetReplaceDelimitador: Boolean;
@@ -91,6 +93,7 @@ type
     function SaveFileTXT_AFD(const Arquivo: String): boolean; // Método que escreve o arquivo texto no caminho passado como parâmetro
     function SaveFileTXT_AFDT(const Arquivo: String): boolean; // Método que escreve o arquivo texto no caminho passado como parâmetro
     function SaveFileTXT_ACJEF(const Arquivo: String): boolean; // Método que escreve o arquivo texto no caminho passado como parâmetro
+    function SaveFileTXT_AEJ(const Arquivo: String): boolean;
 
     function ProcessarArquivo_AFD(const Arquivo: String): TPonto_AFD;
     function ProcessarArquivo_AFDT(const Arquivo: String): TPonto_AFDT;
@@ -98,6 +101,7 @@ type
     property Ponto_AFD: TPonto_AFD read FPonto_AFD write FPonto_AFD;
     property Ponto_AFDT: TPonto_AFDT read FPonto_AFDT write FPonto_AFDT;
     property Ponto_ACJEF: TPonto_ACJEF read FPonto_ACJEF write FPonto_ACJEF;
+    property AEJ: TAEJ read FAEJ write FAEJ;
 
   published
     property Path: String read FPath write FPath;
@@ -125,6 +129,7 @@ begin
   FPonto_AFD := TPonto_AFD.Create;
   FPonto_AFDT := TPonto_AFDT.Create;
   FPonto_ACJEF := TPonto_ACJEF.Create;
+  FAEJ := TAEJ.Create;
 
 
   FPath := ExtractFilePath(ParamStr(0));
@@ -140,6 +145,7 @@ begin
   FPonto_AFD.Free;
   FPonto_AFDT.Free;
   FPonto_ACJEF.Free;
+  FAEJ.Free;
 
   inherited;
 end;
@@ -156,6 +162,7 @@ begin
   FPonto_AFD.Delimitador := Value;
   FPonto_AFDT.Delimitador := Value;
   FPonto_ACJEF.Delimitador := Value;
+  FAEJ.Delimitador := Value;
 end;
 
 function TACBrPonto.GetCurMascara: String;
@@ -170,6 +177,7 @@ begin
   FPonto_AFD.CurMascara := Value;
   FPonto_AFDT.CurMascara := Value;
   FPonto_ACJEF.CurMascara := Value;
+  FAEJ.CurMascara := Value;
 end;
 
 function TACBrPonto.GetTrimString: boolean;
@@ -184,6 +192,7 @@ begin
   FPonto_AFD.TrimString := Value;
   FPonto_AFDT.TrimString := Value;
   FPonto_ACJEF.TrimString := Value;
+  FAEJ.TrimString := Value;
 end;
 
 function TACBrPonto.GetOnError: TErrorEvent;
@@ -203,6 +212,7 @@ begin
   FPonto_AFD.OnError := Value;
   FPonto_AFDT.OnError := Value;
   FPonto_ACJEF.OnError := Value;
+  FAEJ.OnError := Value;
 end;
 
 procedure TACBrPonto.SetReplaceDelimitador(const Value: Boolean);
@@ -212,6 +222,7 @@ begin
   FPonto_AFD.ReplaceDelimitador   := Value;
   FPonto_AFDT.ReplaceDelimitador  := Value;
   FPonto_ACJEF.ReplaceDelimitador := Value;
+  FAEJ.ReplaceDelimitador := Value;
 end;
 
 function TACBrPonto.SaveFileTXT_AFD(const Arquivo: String): boolean;
@@ -330,6 +341,61 @@ begin
   end;
 end;
 
+function TACBrPonto.SaveFileTXT_AEJ(const Arquivo: String): boolean;
+var
+  txtFile: TextFile;
+begin
+  Result := True;
+
+  if (Trim(Arquivo) = '') or (Trim(FPath) = '') then
+    raise Exception.Create('Caminho ou nome do arquivo não informado!');
+
+  try
+    AssignFile(txtFile, FPath + Arquivo);
+    try
+      Rewrite(txtFile);
+
+      if FAEJ.Cabecalho.Count > 0 then
+        Write(txtFile, FAEJ.Cabecalho.GetStr);
+
+      if FAEJ.Registro02.Count > 0 then
+        Write(txtFile, FAEJ.Registro02.GetStr);
+
+      if FAEJ.Registro03.Count > 0 then
+        Write(txtFile, FAEJ.Registro03.GetStr);
+
+      if FAEJ.Registro04.Count > 0 then
+        Write(txtFile, FAEJ.Registro04.GetStr);
+
+      if FAEJ.Registro05.Count > 0 then
+        Write(txtFile, FAEJ.Registro05.GetStr);
+
+      if FAEJ.Registro06.Count > 0 then
+        Write(txtFile, FAEJ.Registro06.GetStr);
+
+      if FAEJ.Registro07.Count > 0 then
+        Write(txtFile, FAEJ.Registro07.GetStr);
+
+      if FAEJ.Registro08.Count > 0 then
+        Write(txtFile, FAEJ.Registro08.GetStr);
+
+      Write(txtFile, FAEJ.Trailer.GetStr);
+
+      Write(txtFile, FAEJ.AssinaturaDigital.GetStr);
+
+    finally
+      CloseFile(txtFile);
+    end;
+
+    AEJ.LimpaRegistros;
+  except
+    on E: Exception do
+    begin
+      raise Exception.Create(E.Message);
+    end;
+  end;
+end;
+
 function TACBrPonto.ProcessarArquivo_AFD(const Arquivo: String): TPonto_AFD;
 var
   LerArquivo: TStringList;
@@ -338,102 +404,106 @@ begin
   Result := TPonto_AFD.Create;
 
   LerArquivo := TStringList.Create;
-  LerArquivo.LoadFromFile(Arquivo);
-  for i := 0 to LerArquivo.Count - 1 do
-  begin
-    //cabecalho
-    if Copy(LerArquivo[i], 10, 1) = '1' then
-    begin
-      with Result.Cabecalho.Create do
-      begin
-        Campo01 := Copy(LerArquivo[i], 1, 9);
-        Campo02 := Copy(LerArquivo[i], 10, 1);
-        Campo03 := Copy(LerArquivo[i], 11, 1);
-        Campo04 := Copy(LerArquivo[i], 12, 14);
-        Campo05 := Copy(LerArquivo[i], 26, 12);
-        Campo06 := Copy(LerArquivo[i], 38, 150);
-        Campo07 := Copy(LerArquivo[i], 188, 17);
-        Campo08 := Copy(LerArquivo[i], 205, 8);
-        Campo09 := Copy(LerArquivo[i], 213, 8);
-        Campo10 := Copy(LerArquivo[i], 221, 8);
-        Campo11 := Copy(LerArquivo[i], 229, 4);
-      end;
-    end
+	try
+		LerArquivo.LoadFromFile(Arquivo);
+		for i := 0 to LerArquivo.Count - 1 do
+		begin
+			//cabecalho
+			if Copy(LerArquivo[i], 10, 1) = '1' then
+			begin
+				with Result.Cabecalho.Create do
+				begin
+					Campo01 := Copy(LerArquivo[i], 1, 9);
+					Campo02 := Copy(LerArquivo[i], 10, 1);
+					Campo03 := Copy(LerArquivo[i], 11, 1);
+					Campo04 := Copy(LerArquivo[i], 12, 14);
+					Campo05 := Copy(LerArquivo[i], 26, 12);
+					Campo06 := Copy(LerArquivo[i], 38, 150);
+					Campo07 := Copy(LerArquivo[i], 188, 17);
+					Campo08 := Copy(LerArquivo[i], 205, 8);
+					Campo09 := Copy(LerArquivo[i], 213, 8);
+					Campo10 := Copy(LerArquivo[i], 221, 8);
+					Campo11 := Copy(LerArquivo[i], 229, 4);
+				end;
+			end
 
-    //registro tipo 2
-    else if Copy(LerArquivo[i], 10, 1) = '2' then
-    begin
-      with Result.Registro2.Create do
-      begin
-        Campo01 := Copy(LerArquivo[i], 1, 9);
-        Campo02 := Copy(LerArquivo[i], 10, 1);
-        Campo03 := Copy(LerArquivo[i], 11, 8);
-        Campo04 := Copy(LerArquivo[i], 19, 4);
-        Campo05 := Copy(LerArquivo[i], 23, 1);
-        Campo06 := Copy(LerArquivo[i], 24, 14);
-        Campo07 := Copy(LerArquivo[i], 38, 12);
-        Campo08 := Copy(LerArquivo[i], 50, 150);
-        Campo09 := Copy(LerArquivo[i], 200, 100);
-      end;
-    end
+			//registro tipo 2
+			else if Copy(LerArquivo[i], 10, 1) = '2' then
+			begin
+				with Result.Registro2.Create do
+				begin
+					Campo01 := Copy(LerArquivo[i], 1, 9);
+					Campo02 := Copy(LerArquivo[i], 10, 1);
+					Campo03 := Copy(LerArquivo[i], 11, 8);
+					Campo04 := Copy(LerArquivo[i], 19, 4);
+					Campo05 := Copy(LerArquivo[i], 23, 1);
+					Campo06 := Copy(LerArquivo[i], 24, 14);
+					Campo07 := Copy(LerArquivo[i], 38, 12);
+					Campo08 := Copy(LerArquivo[i], 50, 150);
+					Campo09 := Copy(LerArquivo[i], 200, 100);
+				end;
+			end
 
-    //registros tipo 3
-    else if Copy(LerArquivo[i], 10, 1) = '3' then
-    begin
-      with Result.Registro3.New do
-      begin
-        Campo01 := Copy(LerArquivo[i], 1, 9);
-        Campo02 := Copy(LerArquivo[i], 10, 1);
-        Campo03 := Copy(LerArquivo[i], 11, 8);
-        Campo04 := Copy(LerArquivo[i], 19, 4);
-        Campo05 := Copy(LerArquivo[i], 23, 12);
-      end;
-    end
+			//registros tipo 3
+			else if Copy(LerArquivo[i], 10, 1) = '3' then
+			begin
+				with Result.Registro3.New do
+				begin
+					Campo01 := Copy(LerArquivo[i], 1, 9);
+					Campo02 := Copy(LerArquivo[i], 10, 1);
+					Campo03 := Copy(LerArquivo[i], 11, 8);
+					Campo04 := Copy(LerArquivo[i], 19, 4);
+					Campo05 := Copy(LerArquivo[i], 23, 12);
+				end;
+			end
 
-    //registros tipo 4
-    else if Copy(LerArquivo[i], 10, 1) = '4' then
-    begin
-      with Result.Registro4.New do
-      begin
-        Campo01 := Copy(LerArquivo[i], 1, 9);
-        Campo02 := Copy(LerArquivo[i], 10, 1);
-        Campo03 := Copy(LerArquivo[i], 11, 8);
-        Campo04 := Copy(LerArquivo[i], 19, 4);
-        Campo05 := Copy(LerArquivo[i], 23, 8);
-        Campo06 := Copy(LerArquivo[i], 31, 4);
-      end;
-    end
+			//registros tipo 4
+			else if Copy(LerArquivo[i], 10, 1) = '4' then
+			begin
+				with Result.Registro4.New do
+				begin
+					Campo01 := Copy(LerArquivo[i], 1, 9);
+					Campo02 := Copy(LerArquivo[i], 10, 1);
+					Campo03 := Copy(LerArquivo[i], 11, 8);
+					Campo04 := Copy(LerArquivo[i], 19, 4);
+					Campo05 := Copy(LerArquivo[i], 23, 8);
+					Campo06 := Copy(LerArquivo[i], 31, 4);
+				end;
+			end
 
-    //registros tipo 5
-    else if Copy(LerArquivo[i], 10, 1) = '5' then
-    begin
-      with Result.Registro5.New do
-      begin
-        Campo01 := Copy(LerArquivo[i], 1, 9);
-        Campo02 := Copy(LerArquivo[i], 10, 1);
-        Campo03 := Copy(LerArquivo[i], 11, 8);
-        Campo04 := Copy(LerArquivo[i], 19, 4);
-        Campo05 := Copy(LerArquivo[i], 23, 1);
-        Campo06 := Copy(LerArquivo[i], 24, 12);
-        Campo07 := Copy(LerArquivo[i], 36, 52);
-      end;
-    end
+			//registros tipo 5
+			else if Copy(LerArquivo[i], 10, 1) = '5' then
+			begin
+				with Result.Registro5.New do
+				begin
+					Campo01 := Copy(LerArquivo[i], 1, 9);
+					Campo02 := Copy(LerArquivo[i], 10, 1);
+					Campo03 := Copy(LerArquivo[i], 11, 8);
+					Campo04 := Copy(LerArquivo[i], 19, 4);
+					Campo05 := Copy(LerArquivo[i], 23, 1);
+					Campo06 := Copy(LerArquivo[i], 24, 12);
+					Campo07 := Copy(LerArquivo[i], 36, 52);
+				end;
+			end
 
-    //trailer
-    else if Copy(LerArquivo[i], 1, 9) = '999999999' then
-    begin
-      with Result.Trailer.Create do
-      begin
-        Campo01 := Copy(LerArquivo[i], 1, 9);
-        Campo02 := StrToInt(Copy(LerArquivo[i], 10, 9));
-        Campo03 := StrToInt(Copy(LerArquivo[i], 19, 9));
-        Campo04 := StrToInt(Copy(LerArquivo[i], 28, 9));
-        Campo05 := StrToInt(Copy(LerArquivo[i], 37, 9));
-        Campo06 := Copy(LerArquivo[i], 46, 1);
-      end;
-    end;
+			//trailer
+			else if Copy(LerArquivo[i], 1, 9) = '999999999' then
+			begin
+				with Result.Trailer.Create do
+				begin
+					Campo01 := Copy(LerArquivo[i], 1, 9);
+					Campo02 := StrToInt(Copy(LerArquivo[i], 10, 9));
+					Campo03 := StrToInt(Copy(LerArquivo[i], 19, 9));
+					Campo04 := StrToInt(Copy(LerArquivo[i], 28, 9));
+					Campo05 := StrToInt(Copy(LerArquivo[i], 37, 9));
+					Campo06 := Copy(LerArquivo[i], 46, 1);
+				end;
+			end;
 
-  end;
+		end;
+	finally
+		LerArquivo.Free;
+	end;
 end;
 
 function TACBrPonto.ProcessarArquivo_AFDT(const Arquivo: String): TPonto_AFDT;
@@ -444,59 +514,63 @@ begin
   Result := TPonto_AFDT.Create;
 
   LerArquivo := TStringList.Create;
-  LerArquivo.LoadFromFile(Arquivo);
-  for i := 0 to LerArquivo.Count - 1 do
-  begin
-    // cabecalho
-    if Copy(LerArquivo[i], 10, 1) = '1' then
-    begin
-      with Result.Cabecalho.Create do
-      begin
-        Campo01 := Copy(LerArquivo[i], 1, 9); // Sequencial
-        Campo02 := Copy(LerArquivo[i], 10, 1); // Tipo do registro
-        Campo03 := Copy(LerArquivo[i], 11, 1); // Identificador do empregador
-        Campo04 := Copy(LerArquivo[i], 12, 14); // CNPJ/CPF
-        Campo05 := Copy(LerArquivo[i], 26, 12); // CEI
-        Campo06 := Copy(LerArquivo[i], 38, 150); // Razão
-        Campo07 := Copy(LerArquivo[i], 188, 8); // Data inicial
-        Campo08 := Copy(LerArquivo[i], 196, 8); // Data final
-        Campo09 := Copy(LerArquivo[i], 204, 8); // Data da geração
-        Campo10 := Copy(LerArquivo[i], 212, 4); // Hora da geração
-      end;
-    end
+	try
+		LerArquivo.LoadFromFile(Arquivo);
+		for i := 0 to LerArquivo.Count - 1 do
+		begin
+			// cabecalho
+			if Copy(LerArquivo[i], 10, 1) = '1' then
+			begin
+				with Result.Cabecalho.Create do
+				begin
+					Campo01 := Copy(LerArquivo[i], 1, 9); // Sequencial
+					Campo02 := Copy(LerArquivo[i], 10, 1); // Tipo do registro
+					Campo03 := Copy(LerArquivo[i], 11, 1); // Identificador do empregador
+					Campo04 := Copy(LerArquivo[i], 12, 14); // CNPJ/CPF
+					Campo05 := Copy(LerArquivo[i], 26, 12); // CEI
+					Campo06 := Copy(LerArquivo[i], 38, 150); // Razão
+					Campo07 := Copy(LerArquivo[i], 188, 8); // Data inicial
+					Campo08 := Copy(LerArquivo[i], 196, 8); // Data final
+					Campo09 := Copy(LerArquivo[i], 204, 8); // Data da geração
+					Campo10 := Copy(LerArquivo[i], 212, 4); // Hora da geração
+				end;
+			end
 
-    // registro tipo 2
-    else if Copy(LerArquivo[i], 10, 1) = '2' then
-    begin
-      with Result.Registro2.New do
-      begin
-        Campo01 := Copy(LerArquivo[i], 1, 9); // Seqüencial do registro no arquivo.
-        Campo02 := Copy(LerArquivo[i], 10, 1); // Tipo do registro, “2”.
-        Campo03 := Copy(LerArquivo[i], 11, 8); // Data da marcação do ponto, no formato “ddmmaaaa”.
-        Campo04 := Copy(LerArquivo[i], 19, 4); // Horário da marcação do ponto, no formato “hhmm”.
-        Campo05 := Copy(LerArquivo[i], 23, 12); // Número do PIS do empregado.
-        Campo06 := Copy(LerArquivo[i], 35, 17); // Número de fabricação do REP onde foi feito o registro.
-        Campo07 := Copy(LerArquivo[i], 52, 1);
-        // Tipo de marcação, “E” para ENTRADA, “S” para SAÍDA ou “D” para registro a ser DESCONSIDERADO.
-        Campo08 := Copy(LerArquivo[i], 53, 2);
-        // Número seqüencial por empregado e jornada para o conjunto Entrada/Saída. Vide observação.
-        Campo09 := Copy(LerArquivo[i], 55, 1);
-        // Tipo de registro: “O” para registro eletrônico ORIGINAL, “I” para registro INCLUÍDO por digitação, “P” para intervalo PRÉ-ASSINALADO.
-        Campo10 := Copy(LerArquivo[i], 56, 100); // Motivo: Campo a ser preenchido se o campo 7 for “D” ou se o campo 9 for “I”.
-      end;
-    end
+			// registro tipo 2
+			else if Copy(LerArquivo[i], 10, 1) = '2' then
+			begin
+				with Result.Registro2.New do
+				begin
+					Campo01 := Copy(LerArquivo[i], 1, 9); // Seqüencial do registro no arquivo.
+					Campo02 := Copy(LerArquivo[i], 10, 1); // Tipo do registro, “2”.
+					Campo03 := Copy(LerArquivo[i], 11, 8); // Data da marcação do ponto, no formato “ddmmaaaa”.
+					Campo04 := Copy(LerArquivo[i], 19, 4); // Horário da marcação do ponto, no formato “hhmm”.
+					Campo05 := Copy(LerArquivo[i], 23, 12); // Número do PIS do empregado.
+					Campo06 := Copy(LerArquivo[i], 35, 17); // Número de fabricação do REP onde foi feito o registro.
+					Campo07 := Copy(LerArquivo[i], 52, 1);
+					// Tipo de marcação, “E” para ENTRADA, “S” para SAÍDA ou “D” para registro a ser DESCONSIDERADO.
+					Campo08 := Copy(LerArquivo[i], 53, 2);
+					// Número seqüencial por empregado e jornada para o conjunto Entrada/Saída. Vide observação.
+					Campo09 := Copy(LerArquivo[i], 55, 1);
+					// Tipo de registro: “O” para registro eletrônico ORIGINAL, “I” para registro INCLUÍDO por digitação, “P” para intervalo PRÉ-ASSINALADO.
+					Campo10 := Copy(LerArquivo[i], 56, 100); // Motivo: Campo a ser preenchido se o campo 7 for “D” ou se o campo 9 for “I”.
+				end;
+			end
 
-    // trailer
-    else if Copy(LerArquivo[i], 1, 9) = '999999999' then
-    begin
-      with Result.Trailer.Create do
-      begin
-        Campo01 := Copy(LerArquivo[i], 1, 9);
-        Campo02 := Copy(LerArquivo[i], 10, 1);
-      end;
-    end;
+			// trailer
+			else if Copy(LerArquivo[i], 1, 9) = '999999999' then
+			begin
+				with Result.Trailer.Create do
+				begin
+					Campo01 := Copy(LerArquivo[i], 1, 9);
+					Campo02 := Copy(LerArquivo[i], 10, 1);
+				end;
+			end;
 
-  end;
+		end;
+	finally
+		LerArquivo.free;
+	end;
 end;
 
 procedure TACBrPonto.Notification(AComponent: TComponent; Operation: TOperation);

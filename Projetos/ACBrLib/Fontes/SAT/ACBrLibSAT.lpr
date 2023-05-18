@@ -70,6 +70,7 @@ exports
   SAT_DesbloquearSAT,
   SAT_TrocarCodigoDeAtivacao,
   SAT_ConsultarSAT,
+  SAT_ConsultarUltimaSessaoFiscal,
   SAT_ConsultarStatusOperacional,
   SAT_ConsultarNumeroSessao,
   SAT_SetNumeroSessao,
@@ -81,6 +82,7 @@ exports
 
   SAT_CriarCFe,
   SAT_CriarEnviarCFe,
+  SAT_ValidarCFe,
   SAT_EnviarCFe,
   SAT_CancelarCFe,
 

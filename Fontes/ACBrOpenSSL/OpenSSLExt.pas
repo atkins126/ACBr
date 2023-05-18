@@ -1600,7 +1600,9 @@ implementation
 uses
   strutils
   {$IfDef ANDROID}
-  ,System.IOUtils
+    {$IfNDef FPC}
+      ,System.IOUtils
+    {$EndIf}
   {$EndIf} ;
 
 {
@@ -6035,7 +6037,7 @@ begin
 
     {$IfDef ANDROID}
     if (SSLLibPath = '') then     // Try to load from "./assets/internal/" first
-      SSLLibPath := TPath.GetDocumentsPath;
+      SSLLibPath := {$IfNDef FPC}TPath.GetDocumentsPath{$Else}'./assets/internal/'{$EndIf};
 
     Result := LoadLibraries;
     if (not Result) then         // Try System Default Lib

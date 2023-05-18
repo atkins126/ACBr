@@ -137,6 +137,7 @@ begin
     FieldDefs.Add('MesAnoReferencia', ftString, 6);
     FieldDefs.Add('Parcela', ftString, 2);
     FieldDefs.Add('ValorPrincipal', ftFloat);
+    FieldDefs.Add('ValorGNRE', ftFloat);
     FieldDefs.Add('AtualizacaoMonetaria', ftFloat);
     FieldDefs.Add('Juros', ftFloat);
     FieldDefs.Add('Multa', ftFloat);
@@ -176,7 +177,7 @@ begin
 
       FieldByName('RazaoSocialEmitente').AsString  := RazaoSocialEmitente;
       FieldByName('EnderecoEmitente').AsString     := EnderecoEmitente;
-      FieldByName('MunicipioEmitente').AsString    := MunicipioEmitente;
+      FieldByName('MunicipioEmitente').AsString    := MunicipioEmitenteNome;
       FieldByName('UFEmitente').AsString           := UFEmitente;
       FieldByName('CEPEmitente').AsString          := CEPEmitente;
       FieldByName('TelefoneEmitente').AsString     := RemoverZeros(TelefoneEmitente);
@@ -188,7 +189,8 @@ begin
         3: FieldByName('DocDestinatario').AsString := RemoverZeros(DocDestinatario);
       end;
 
-      FieldByName('MunicipioDestinatario').AsString := MunicipioDestinatario;
+      FieldByName('MunicipioDestinatario').AsString := MunicipioDestinatarioNome;
+
       FieldByName('Produto').AsString               := Produto;
       FieldByName('NumDocOrigem').AsString          := RemoverZeros(NumDocOrigem);
       FieldByName('Convenio').AsString              := Convenio;
@@ -204,6 +206,7 @@ begin
       FieldByName('MesAnoReferencia').AsString       := MesAnoReferencia;
       FieldByName('Parcela').AsString                := IntToStr(Parcela);
       FieldByName('ValorPrincipal').AsCurrency       := ValorPrincipal;
+      FieldByName('ValorGNRE').AsCurrency            := ValorGNRE;
       FieldByName('AtualizacaoMonetaria').AsCurrency := AtualizacaoMonetaria;
       FieldByName('Juros').AsCurrency                := Juros;
       FieldByName('Multa').AsCurrency                := Multa;

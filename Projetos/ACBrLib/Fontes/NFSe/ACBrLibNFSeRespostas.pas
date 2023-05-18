@@ -5,7 +5,7 @@
 {                                                                               }
 { Direitos Autorais Reservados (c) 2018 Daniel Simoes de Almeida                }
 {                                                                               }
-{ Colaboradores nesse arquivo: Rafael Teno Dias                                 }
+{ Colaboradores nesse arquivo: Antonio Carlos Junior                            }
 {                                                                               }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr     }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr       }
@@ -39,9 +39,22 @@ interface
 
 uses
   SysUtils, Classes, contnrs,
-  ACBrLibResposta, ACBrNFSeXNotasFiscais, ACBrNFSeX, ACBrNFSeXWebservicesResponse;
+  ACBrLibResposta, ACBrNFSeXNotasFiscais, ACBrNFSeX, ACBrNFSeXWebservicesResponse, ACBrNFSeXWebserviceBase, ACBrNFSeXConversao;
 
 type
+
+  { TLibNFSeResposta }
+  TLibNFSeResposta = class (TACBrLibRespostaBase)
+    private
+      FMsg: String;
+
+    public
+      constructor Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo;
+      const AFormato: TACBrLibCodificacao); reintroduce;
+
+    published
+      property Msg: String read FMsg write FMsg;
+  end;
 
   { TNFSeEventoItem }
   TNFSeEventoItem = class(TACBrLibRespostaBase)
@@ -70,7 +83,7 @@ type
 
   public
     constructor Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
-    destructor Destroy;
+    destructor Destroy; override;
 
     procedure Processar(const Response: TNFSeWebserviceResponse); virtual;
 
@@ -91,7 +104,7 @@ type
 
   public
     constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
-    destructor Destroy;
+    destructor Destroy; override;
 
     procedure Processar(const Response: TNFSeEmiteResponse); reintroduce;
 
@@ -106,14 +119,14 @@ type
 
   { TConsultaSituacaoResposta }
   TConsultaSituacaoResposta = class(TLibNFSeServiceResposta)
-  Private
+  private
     FLote: string;
     FSituacao: string;
     FProtocolo: string;
 
   public
     constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
-    destructor Destroy;
+    destructor Destroy; override;
 
     procedure Processar(const Response: TNFSeConsultaSituacaoResponse); reintroduce;
 
@@ -124,12 +137,170 @@ type
 
   end;
 
+  { TConsultaLoteRpsResposta }
+  TConsultaLoteRpsResposta = class(TLibNFSeServiceResposta)
+  private
+      FLote: string;
+      FProtocolo: string;
+      FSituacao: string;
+      FCodVerificacao: string;
+
+  public
+    constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
+    destructor Destroy; override;
+
+    procedure Processar(const Response: TNFSeConsultaLoteRpsResponse); reintroduce;
+
+  published
+    property Lote: string read FLote write FLote;
+    property Protocolo: string read FProtocolo write FProtocolo;
+    property Situacao: string read FSituacao write FSituacao;
+    property CodVerificacao: string read FCodVerificacao write FCodVerificacao;
+  end;
+
+  { TConsultaNFSePorRpsResposta }
+  TConsultaNFSePorRpsResposta = class (TLibNFSeServiceResposta)
+  private
+    FNumRPS: string;
+    FSerie: string;
+    FTipo: string;
+    FCodVerificacao: string;
+    FCancelamento: TNFSeCancelamento;
+    FNumNotaSubstituidora: string;
+
+  public
+    constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
+    destructor Destroy; override;
+
+    procedure Processar(const Response: TNFSeConsultaNFSeporRpsResponse); reintroduce;
+
+  published
+    property NumRPS: string read FNumRPS write FNumRPS;
+    property Serie: string read FSerie write FSerie;
+    property Tipo: string read FTipo write FTipo;
+    property CodVerificacao: string read FCodVerificacao write FCodVerificacao;
+    property Cancelamento: TNFSeCancelamento read FCancelamento write FCancelamento;
+    property NumNotaSubstituidora: string read FNumNotaSubstituidora write FNumNotaSubstituidora;
+  end;
+
+  { TSubstituirNFSeResposta }
+  TSubstituirNFSeResposta = class(TLibNFSeServiceResposta)
+  private
+    FNumRPS: string;
+    FSerie: string;
+    FTipo: string;
+    FCodVerificacao: string;
+    FPedCanc: string;
+    FNumNotaSubstituida: string;
+    FNumNotaSubstituidora: string;
+  
+  public
+    constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
+    destructor Destroy; override;
+
+    procedure Processar(const Response: TNFSeSubstituiNFSeResponse); reintroduce;
+
+  published
+    property NumRPS: string read FNumRPS write FNumRPS;
+    property Serie: string read FSerie write FSerie;
+    property Tipo: string read FTipo write FTipo;
+    property CodVerificacao: string read FCodVerificacao write FCodVerificacao;
+    property PedCanc: string read FPedCanc write FPedCanc;
+    property NumNotaSubstituida: string read FNumNotaSubstituida write FNumNotaSubstituida;
+    property NumNotaSubstituidora: string read FNumNotaSubstituidora write FNumNotaSubstituidora;    
+  end;
+
+  { TGerarTokenResposta }
+  TGerarTokenResposta = class(TLibNFSeServiceResposta)
+  private
+    FToken: string;
+    FDataExpiracao: TDateTime;
+
+  public
+    constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
+    destructor Destroy; override;
+
+    procedure Processar(const Response: TNFSeGerarTokenResponse); reintroduce;
+
+  published
+    property Token: string read FToken write FToken;
+    property DataExpiracao: TDateTime read FDataExpiracao write FDataExpiracao;
+  end;
+
+  { TConsultaNFSeResposta }
+  TConsultaNFSeResposta = class(TLibNFSeServiceResposta)
+  private
+    FMetodo: TMetodo;
+    FInfConsultaNFSe: TInfConsultaNFSe;
+
+  public 
+    constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
+    destructor Destroy; override;
+
+    procedure Processar(const Response: TNFSeConsultaNFSeResponse); reintroduce;
+
+  published
+    property Metodo: TMetodo read FMetodo write FMetodo;
+    property InfConsultaNFSe: TInfConsultaNFSe read FInfConsultaNFSe write FInfConsultaNFSe;
+  end;
+
+  { TCancelarNFSeResposta }
+  TCancelarNFSeResposta = class(TLibNFSeServiceResposta)
+  private
+    FCodVerificacao: string;
+    FInfCancelamento: TInfCancelamento;
+    FRetCancelamento: TRetCancelamento;
+
+  public
+    constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
+    destructor Destroy; override;
+
+    procedure Processar(const Response: TNFSeCancelaNFSeResponse); reintroduce;
+
+  published
+    property CodVerificacao: string read FCodVerificacao write FCodVerificacao;
+    property InfCancelamento: TInfCancelamento read FInfCancelamento write FInfCancelamento;
+    property RetCancelamento: TRetCancelamento read FRetCancelamento write FRetCancelamento;
+  end;
+
+  { TLinkNFSeResposta }
+  TLinkNFSeResposta = class(TLibNFSeServiceResposta)
+  private
+    FLinkNFSe: string;
+
+  public
+    constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
+    destructor Destroy; override;
+
+    procedure Processar(const LinkNFSe: string); reintroduce;
+
+  published
+    property LinkNFSe: string read FLinkNFSe write FLinkNFSe;
+  end;
+
+  { TGerarLoteResposta }
+  TGerarLoteResposta = class(TLibNFSeServiceResposta)
+  private
+    FLote: string;
+    FQtdMaxRps: integer;
+    FModoEnvio: TmodoEnvio;
+
+  public
+    constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
+    destructor Destroy; override;
+
+    procedure Processar(const GerarLote: string); reintroduce;
+
+  published
+    property Lote: string read FLote write FLote;
+    property MaxRps: integer read FQtdMaxRps write FQtdMaxRps;
+    property ModoEnvio: TmodoEnvio read FModoEnvio write FModoEnvio;
+  end;
+
 implementation
 
 uses
-  pcnAuxiliar, pcnConversao,
-  ACBrNFSeXConversao,
-  ACBrUtil, ACBrLibNFSeConsts;
+  pcnAuxiliar, pcnConversao, {ACBrUtil,} ACBrLibNFSeConsts;
 
 { TNFSeEventoItem }
 procedure TNFSeEventoItem.Processar(const Evento: TNFSeEventoCollectionItem);
@@ -137,6 +308,13 @@ begin
   Codigo := Evento.Codigo;
   Descricao := Evento.Descricao;
   Correcao := Evento.Correcao;
+end;
+
+{ TLibNFSeResposta }
+constructor TLibNFSeResposta.Create(const ASessao: String;
+  const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+begin
+  inherited Create(ASessao, ATipo, AFormato);
 end;
 
 { TLibNFSeServiceResposta }
@@ -201,7 +379,7 @@ procedure TEmiteResposta.Processar(const Response: TNFSeEmiteResponse);
 begin
   inherited Processar(Response);
 
-  Lote := Response.Lote;
+  Lote := Response.NumeroLote;
   Data := Response.Data;
   Protocolo := Response.Protocolo;
   MaxRps := Response.MaxRps;
@@ -223,9 +401,169 @@ procedure TConsultaSituacaoResposta.Processar(const Response: TNFSeConsultaSitua
 begin
   inherited Processar(Response);
 
-  Lote := Response.Lote;
+  Lote := Response.NumeroLote;
   Protocolo := Response.Protocolo;
   Situacao := Response.Situacao;
+end;
+
+{ TConsultaLoteRpsResposta }
+constructor TConsultaLoteRpsResposta.Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+begin
+  inherited Create(CSessaoRespConsultaLoteRps, ATipo, AFormato);
+end;
+
+destructor TConsultaLoteRpsResposta.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TConsultaLoteRpsResposta.Processar(const Response: TNFSeConsultaLoteRpsResponse);
+begin
+  inherited Processar(Response);
+
+  Lote:= Response.NumeroLote;
+  Protocolo:= Response.Protocolo;
+  Situacao:= Response.Situacao;
+  CodVerificacao:= Response.CodigoVerificacao;
+end;
+
+ { TConsultaNFSePorRpsResposta }
+constructor TConsultaNFSePorRpsResposta.Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+begin
+  inherited Create(CSessaoRespConsultaNFSePorRps, ATipo, AFormato);
+end;
+
+destructor TConsultaNFSePorRpsResposta.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TConsultaNFSePorRpsResposta.Processar(const Response: TNFSeConsultaNFSeporRpsResponse);
+begin
+  inherited Processar(Response);
+
+  NumRPS:= Response.NumeroRps;
+  Serie:= Response.SerieRps;
+  Tipo:= Response.TipoRps;
+  CodVerificacao:= Response.CodigoVerificacao;
+  Cancelamento:= Response.Cancelamento;
+  NumNotaSubstituidora:= Response.NumNotaSubstituidora;
+end;
+
+ { TSubstituirNFSeResposta }
+constructor TSubstituirNFSeResposta.Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+begin
+  inherited Create(CSessaoRespSubstituirNFSe, ATipo, AFormato);
+end;
+
+destructor TSubstituirNFSeResposta.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TSubstituirNFSeResposta.Processar(const Response: TNFSeSubstituiNFSeResponse);
+begin
+  inherited Processar(Response);
+
+  NumRPS:= Response.NumeroRps;
+  Serie:= Response.SerieRps;
+  Tipo:= Response.TipoRps;
+  CodVerificacao:= Response.CodigoVerificacao;
+  PedCanc:= Response.PedCanc;
+  NumNotaSubstituida:= Response.NumNotaSubstituida;
+  NumNotaSubstituidora:= Response.NumNotaSubstituidora;
+end;
+
+{ TGerarTokenResposta }
+constructor TGerarTokenResposta.Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+begin
+  inherited Create(CSessaoRespGerarToken, ATipo, AFormato);
+end;
+
+destructor TGerarTokenResposta.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TGerarTokenResposta.Processar(const Response: TNFSeGerarTokenResponse);
+begin
+  inherited Processar(Response);
+
+  Token:= Response.Token;
+  DataExpiracao:= Response.DataExpiracao;
+end;
+
+{ TConsultaNFSeResposta }
+constructor TConsultaNFSeResposta.Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+begin
+  inherited Create(CSessaoRespConsultaNFSe, ATipo, AFormato);
+end;
+
+destructor TConsultaNFSeResposta.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TConsultaNFSeResposta.Processar(const Response: TNFSeConsultaNFSeResponse);
+begin
+  inherited Processar(Response);
+
+  Metodo:= Response.Metodo;
+  InfConsultaNFSe:= Response.InfConsultaNFSe;
+end;
+
+{ TCancelarNFSeResposta }
+constructor TCancelarNFSeResposta.Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+begin
+  inherited Create(CSessaoRespCancelarNFSe, ATipo, AFormato);
+end;
+
+destructor TCancelarNFSeResposta.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TCancelarNFSeResposta.Processar(const Response: TNFSeCancelaNFSeResponse);
+begin
+  inherited Processar(Response);
+
+  CodVerificacao:= Response.CodigoVerificacao;
+  InfCancelamento:= Response.InfCancelamento;
+  RetCancelamento:= Response.RetCancelamento;
+end;
+
+{ TLinkNFSeResposta }
+constructor TLinkNFSeResposta.Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+begin
+  inherited Create(CSessaoRespLinkNFSe, ATipo, AFormato);
+end;
+
+destructor TLinkNFSeResposta.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TLinkNFSeResposta.Processar(const LinkNFSe: string);
+begin
+  FLinkNFSe:= LinkNFSe;
+end;
+
+{ TGerarLoteResposta }
+constructor TGerarLoteResposta.Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+begin
+  inherited Create(CSessaoRespGerarLote, ATipo, AFormato);
+end;
+
+destructor TGerarLoteResposta.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TGerarLoteResposta.Processar(const GerarLote: string);
+begin
+  FLote:= Lote;
+  FQtdMaxRps:= MaxRps;
+  FModoEnvio:= ModoEnvio;
 end;
 
 end.

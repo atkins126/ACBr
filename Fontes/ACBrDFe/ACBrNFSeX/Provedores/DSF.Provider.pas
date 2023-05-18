@@ -216,8 +216,8 @@ function TACBrNFSeXWebserviceDSF.TratarXmlRetornado(const aXML: string): string;
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
-  Result := string(NativeStringToUTF8(RemoverDeclaracaoXML(Result)));
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := RemoverDeclaracaoXML(Result);
 end;
 
 { TACBrNFSeProviderDSF }
@@ -436,8 +436,9 @@ function TACBrNFSeXWebserviceDSF200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
+  Result := string(NativeStringToUTF8(Result));
 end;
 
 { TACBrNFSeProviderDSF200 }

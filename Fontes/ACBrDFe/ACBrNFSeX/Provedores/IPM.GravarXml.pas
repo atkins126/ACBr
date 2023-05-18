@@ -40,7 +40,8 @@ uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
   pcnConsts,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao, ACBrNFSeXConsts;
+  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXGravarXml_ABRASFv2,
+  ACBrNFSeXConversao, ACBrNFSeXConsts;
 
 type
   { TNFSeW_IPM }
@@ -74,6 +75,14 @@ type
   { TNFSeW_IPM101 }
 
   TNFSeW_IPM101 = class(TNFSeW_IPM)
+  protected
+    procedure Configuracao; override;
+
+  end;
+
+  { TNFSeW_IPM204 }
+
+  TNFSeW_IPM204 = class(TNFSeW_ABRASFv2)
   protected
     procedure Configuracao; override;
 
@@ -115,11 +124,11 @@ begin
 
   FDocument.Root := NFSeNode;
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'identificador', 1, 80, 0,
-    'nfse_' + NFSe.IdentificacaoRps.Numero + '.' + NFSe.IdentificacaoRps.Serie, ''));
-
   if (VersaoNFSe = ve100) and (Ambiente = taHomologacao) then
     NFSeNode.AppendChild(AddNode(tcStr, '#3', 'nfse_teste', 1, 1, 1, '1', ''));
+
+  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'identificador', 1, 80, 0,
+    'nfse_' + NFSe.IdentificacaoRps.Numero + '.' + NFSe.IdentificacaoRps.Serie, ''));
 
   xmlNode := GerarIdentificacaoRPS;
   NFSeNode.AppendChild(xmlNode);
@@ -332,7 +341,7 @@ begin
     Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_deducao', 1, 15, 0,
                                 NFSe.Servico.ItemServico[I].ValorDeducoes, ''));
 
-    Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_issrf', 1, 15, 1,
+    Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_issrf', 1, 15, 0,
                          NFSe.Servico.ItemServico[I].ValorISSRetido, DSC_VISS));
   end;
 
@@ -351,7 +360,7 @@ begin
   begin
     Result[i] := CreateElement('parcela');
 
-    Result[i].AppendChild(AddNode(tcInt, '#', 'numero', 1, 2, 1,
+    Result[i].AppendChild(AddNode(tcStr, '#', 'numero', 1, 2, 1,
                          NFSe.CondicaoPagamento.Parcelas.Items[i].Parcela, ''));
 
     Result[i].AppendChild(AddNode(tcDe2, '#', 'valor', 1, 15, 1,
@@ -532,6 +541,23 @@ begin
 
   if FpAOwner.ConfigGeral.Params.ParamTemValor('GerarTag', 'codigo_atividade') then
     FpNrOcorrCodigoAtividade := 1;
+end;
+
+{ TNFSeW_IPM204 }
+
+procedure TNFSeW_IPM204.Configuracao;
+begin
+  inherited Configuracao;
+
+  FormatoAliq := tcDe2;
+
+  GerarEnderecoExterior := True;
+
+  NrOcorrNIFTomador := 0;
+  NrOcorrInformacoesComplemetares := 0;
+  NrOcorrCodigoPaisTomador := -1;
+
+  TagTomador := 'TomadorServico';
 end;
 
 end.

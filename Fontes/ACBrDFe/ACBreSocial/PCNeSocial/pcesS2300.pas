@@ -446,11 +446,12 @@ begin
     GerarFGTS(obj.FGTS);
     GerarinfoDirSind(obj.infoDirSind);
     GerarinfoTrabCedido(obj.infoTrabCedido);
-    GerarinfoEstagiario(obj.infoEstagiario);
     
     if VersaoDF > ve02_05_00 then
       GerarInfoMandElet(obj.infoMandElet);
       
+    GerarinfoEstagiario(obj.infoEstagiario);
+
     Gerador.wGrupo('/infoComplementares');
   end;
 end;
@@ -650,6 +651,7 @@ end;
 function TEvtTSVInicio.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);

@@ -106,6 +106,9 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'tpTributacao', 1, 1, 1,
                              NaturezaOperacaoToStr(NFSe.NaturezaOperacao), ''));
 
+  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'nrCidadeIbgeServico', 0, 7, 0,
+                                             NFSe.Servico.CodigoMunicipio, ''));
+
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'isIssRetido', 1, 1, 1,
     FpAOwner.SituacaoTributariaToStr(NFSe.Servico.Valores.IssRetido), ''));
 
@@ -161,7 +164,7 @@ var
 
   procedure tratarSerItem(AItemServico: string);
   begin
-    iAux := StrToInt(OnlyNumber(AItemServico)); //Ex.: 1402, 901
+    iAux := StrToIntDef(OnlyNumber(AItemServico), 0); //Ex.: 1402, 901
 
     if (iAux > 999) then //Ex.: 1402
     begin
@@ -331,6 +334,9 @@ begin
 
     Result.AppendChild(AddNode(tcStr, '#1', 'nrInscricaoEstadual', 1, 20, 0,
                       NFSe.Tomador.IdentificacaoTomador.InscricaoEstadual, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'nrInscricaoMunicipal', 1, 20, 0,
+                      NFSe.Tomador.IdentificacaoTomador.InscricaoMunicipal, ''));
 
     Result.AppendChild(AddNode(tcStr, '#1', 'dsEndereco', 1, 40, 1,
                                            NFSe.Tomador.Endereco.Endereco, ''));

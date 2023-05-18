@@ -44,6 +44,83 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+17/05/2023
+-- ACBrCTeWebServices --
+[*] A SEFAZ-RS trocou novamente a nomenclatura da tag de retorno da consulta ao status
+    de servico, antes era Cte agora é CTe.
+  Por: Italo Giurizzato Junior
+-- ACBrCTeWebServices --
+[*] Alteração na procedure SalvarEventos, antes de salvar remove todos os prefixos
+    "ds:" que por ventura estejam presentes no XML.
+  Por: Italo Giurizzato Junior
+-- ACBrCTeWebServices --
+[*] Correção, não estava separando o grupo do evento de insucesso e cancelamento de 
+    insucesso de entrega para poder validar o mesmo.
+  Por: Italo Giurizzato Junior
+
+11/05/2023
+-- ACBrCTeWebServices --
+[*] SEFAZ-RS alterou a grafia da tag de retorno de consulta ao status de serviço.
+    Realizado um ajuste para atender essa alteração e as demais UF.
+  Por: Italo Giurizzato Junior
+
+10/05/2023
+-- ACBrCTeWebServices --
+[*] SEFAZ-SP alterou as URLs de NameSpace e SoapAction para deixar 
+    igual a de SEFAZ-RS.
+  Por: Italo Giurizzato Junior
+
+04/05/2023
+-- ACBrCTeWebServices --
+[*] Ajustes para o envio correto para os modelos CT-e OS e GTV-e.
+  Por: Italo Giurizzato Junior
+
+27/04/2023
+-- ACBrCTeWebServices --
+[*] Ajuste na leitura do retorno do método Consultar Status de Serviço.
+  Por: Italo Giurizzato Junior
+
+26/04/2023
+-- ACBrCTeWebServices --
+[*] Criado as funções: GetVersaoV4 e GetPrefixoServico, para contornar as diferenças
+    nos NameSpaces e SoapActions dos serviços da versão 4.00 entre algumas UFs.
+  Por: Italo Giurizzato Junior
+
+25/04/2023
+-- ACBrCTeServicos --
+[+] Incluída as URLs de Homologação (versão 4.00) das UF: MG, MS e SP/SVSP
+[+] Incluída as URLs de Homologação e Produção (versão 4.00) da UF: RS/SVRS
+    Observação: SVSP atende as UF: AP, PE, RR e SP
+                SVRS atende as UF: AC, AL, AM, BA, CE, DF, ES, GO, MA, PA, PB, PI, RJ, RN, RO, RS, SC, SE e TO
+  Por: Italo Giurizzato Junior
+
+24/04/2023
+-- Diversos --
+[+] Implementação dos eventos: Insucesso na Entrega e Cancelamento de Insucesso
+    na Entrega.
+    Atenção: Disponível nos WebServices a partir de:
+               15/05/2023 - Homologação
+               17/07/2023 - Produção
+   por: Italo Giurizzato Junior
+-- ACBrCTeWebServices --
+[*] Mas ajustes visando atender a versão 4.00
+   por: Italo Giurizzato Junior
+
+10/04/2023
+-- ACBrCTeWebServices --
+[*] Ajuste para não gerar o grupo <Header> quando a versão for 4.00
+   por: Italo Giurizzato Junior
+
+30/03/2023
+-- Diversos--
+[*] Alteração visando a versão 4.00 do CT-e.
+   por: Italo Giurizzato Junior
+
+30/01/2023
+-- pcteCTe/pcteCTeR --
+[*] Alteração visando a leitura da tag CST para ICMSSN.
+   por: Giquieu
+
 21/10/2022
 -- pcteProcCTe--
 [*] Alteração visando a montagem correta do XML do GTVe Assinado e Protocolado.

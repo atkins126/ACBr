@@ -60,11 +60,13 @@ implementation
 
 procedure TNFSeW_Sintese204.Configuracao;
 begin
-  // Executa a Configuração Padrão
   inherited Configuracao;
+
+  GerarEnderecoExterior := True;
 
   TagTomador := 'TomadorServico';
 
+  NrOcorrNIFTomador := 0;
   NrOcorrCodigoPaisTomador := -1;
 end;
 

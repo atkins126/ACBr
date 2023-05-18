@@ -49,6 +49,361 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+17/05/2023
+[-]TK-3932 ACBrBancoBradesco - Correção nossonumero qdo existir e o responsável pela emissão for bancoEmite CNAB400
+   por: Daniel Morais
+[-]TK-3904 ACBrBoletoW_Bancoob - correção tipoJurosMora 
+   por: MLGonçalves, Daniel Morais
+[-]TK-3912 ACBrBoletoW_Sicredi_APIV2, ACBrBoletoRet_Sicredi_APIV2
+   Correção data retorno, no envio correção  tipo pessoa e CEP.
+   por: Desenvolvimento Farol Soft, Daniel Morais
+[-]TK-3916 ACBrBoletoW_BancoBrasil_API
+   Correção das instruções abatimento
+   por: Desenvolvimento Farol Soft, Daniel Morais
+--ACBrBoletoFCFortesFr--
+[-]TK-3927 Corrigido posições do endereço dp pagador no carnê
+ Por: Daniel Morais
+[*]TK3897-2 Sicoob WS - Novos ajustes semelhantes a lógica do Seu Numero
+ Por :mlGoncalves 
+[-]TK-3895 Erro boleto sicoob via webservice ao informar instruções de pagamento
+  Por : Allan_HS / Victor H Gonzales - Pandaaa
+12/05/2023
+[*]TK-38996 Usuário reportou que mesmo desabilitada ou sem o path do arquivo a api continua gerando o ArqBoletoWS.log
+  por Victor H Gonzales - Pandaaa
+
+09/05/2023
+[-]TK-3805 Boleto Sicoob via WebService - LerRetorno
+   por: Victor H Gonzales - Pandaaa / mlgoncalves
+
+08/05/2023
+[-]TK-3897 Boleto Sicoob via WebService - SeuNumero
+  por: Victor H Gonzales - Pandaaa / mlgoncalves
+
+05/05/2023
+[-] TK-3540-1 Ajuste SicoobWS Dominio Juros
+  Por : Victor H Gonzales - Pandaaa / Willian Mattos
+
+03/05/2023
+-- ACBrBoleto, ACBrBoletoWS.Rest.OAuth, ACBrBoletoWS.Rest,ACBrBoletoWS --
+[*] TK-3798 Criado os eventos OnAntesAutenticar e OnDepoisAutenticar para que o usuario possa ler ou passar como parametro o token e vencimento em OAuth
+   Por: Victor H Gonzales - Pandaaa, Daniel Morais
+
+-- ACBrBancoSantander --
+[*] TK-3842 Inclusão das ocorrencias Alteração Valor Nominal do titulo, Valor Min e Max / Percentual
+   Por: Daniel Morais
+
+24/04/2023
+-- ACBrBoletoRet_Inter_API --
+[*] TK-3800 Retorno da consulta o ValorPago nao está correto qdo existe descontos ou acrescimos.
+   Por: jefferson01 - Conferido: Daniel Morais
+
+23/04/2023
+--ACBrBancoUnicredES.pas--
+[-]TK-3835 Corrigido leitura dos 04 codigos instrução posição 319/8
+Por: Daniel Morais
+
+18/04/2023
+[+]Tk-3540 Implementação/Integração SICOOB via API
+  Por : Victor H Gonzales - Pandaaa / Victor Hugo Gonzales - Panda, Marcelo Santos, Delmar de Lima, Delcio 
+14/04/2023
+[-]TK-3815 Validar C400 Santander Nosso Número quando passando mais de 7 digitos para NN e calculando DV errado / Linha Digitavel
+  Por : Victor H Gonzales - Pandaaa
+
+06/04/2023
+-- ACACBrBoletoRet_Inter_API,ACBrBoletoW_Inter_API  --
+[-] TK-3798-1 ATENÇÃO ! ACBRBoleto Inter API, alterado a regra de registro, campo obrigatório seuNumero deve ser informado e controlado pela aplicação!
+   Por: Jean Peixoto - Conferido: Daniel Morais
+
+04/04/2023
+[-]TK-3806 Correção QRCodeDinamico não enviar TXID
+  por Victor H Gonzales - Pandaaa
+
+03/04/2023
+-- ACBrBancoItau --
+[*]TK-3714-1 Criado na geração CNAB 400 a emissão remessa opcional 03 (quando informado Pix.Chave ou QrCode.txID)
+Por: Daniel de Morais
+
+31/03/2023
+[*] TK-3750 CNAB240 Informações faltando na leitura do arquivo retorno banco Cecred - Ailos
+  Por : Forbostec
+
+-- ACBrBancoSantander --
+[*]TK-3727 Contribuição para sair desconto2 e desconto3 que não estavam sendo gerado na remessa.
+  Cliente validou com 0 (zeros) quando não informado.
+  por : Allan Almeida / Verificado: Daniel Morais
+
+27/03/2023
+-- ACBrBoleto,ACBrBancoItau --
+[*]TK-3714 Contribuição add codigo de ocorrrência 71-RemessaBolecode pelo usuario. Alterado ler retorno CNAB400 para capturar o qrcode.emv q não estava sendo tratado. 
+  por : Antônio José Medeiros Schneider Jr / Daniel Morais
+
+23/03/2023
+[*] 174 Pefisa
+  por : Victor H Gonzales - Pandaaa
+
+21/03/2023
+-- ACBrBoleto --
+[*]TK-3738-1 Campos de Certificado ACBrBoleto INI Componente
+  por : Victor H Gonzales - Pandaaa
+
+-- ACBrBoletoW_BancoBrasil_API --
+Tratamento para erro 400, campo com pontuação
+  por : Victor H Gonzales - Pandaaa
+
+17/03/2023
+--ACBrBancoSicredi--
+[*]TK-3705 Colaboração para tratamento retorno pix.
+  Contribuição: EasySoft Sistemas, Conferido: Daniel Morais
+
+--ACBrBancoCecred.pas--
+[-]TK-3660 Recebemos uma contribuição do usuário Dercide Alvarez, mais tivemos que alterar o tratamento das mensagens de retorno e tipo de ocorrencia CNAB240/400;
+  Por: Daniel Morais
+
+--ACBrBancoSantander.pas--
+[-]TK-3722 Alterado para tratar o retorno de acordo com a propriedade  lernossonumerocompleto, para trazer ou nao o digito verificador do nosso numero.
+Por: Victor H Gonzales - Pandaa / Daniel Morais
+
+15/03/2023
+--ACBrBoletoFCFortesFr--
+[-]TK-3701 TK-3716 ACBrBoletoFCFortesFr.lfm feito a conversão para dfm para lfm para manter a compatibilidade entre boletos delphi, lazarus, ACBrMonitor e Acbrlib. Ajustado altura barras carnê para leitura em leitores de mesa.
+  Por: Daniel Morais
+
+08/03/2023
+--ACBrBoletoFCFortesFr--
+[-]TK-3476 ACBrBoletoFCFortesFr/dfm Alterado o boleto impressora térmica
+aumentando espacamento (codigo barras) para o app poder ler codigo barras.
+  Por: Daniel Morais
+
+[*]TK-3666 ACBrBoleto Nosso Numero BS2 Layout 006
+  Por: Victor H Gonzales - Pandaaa
+
+03/03/2023
+[-] ACBrBancoBradesco 
+TK-3671 - Correção totalizador dos registros para gerar GerarRegistroTrailler240 sem e com segmento "R"
+  Por : Daniel Morais
+
+28/02/2023
+[+] Função para criação do EMV a partir do TXID / URL
+  Por : Victor H Gonzales - Pandaaa
+
+24/02/2023
+[-] TK-3635 ACBrBancoCresol.pas - Correção CodigoMora posição 118 
+  Por : Daniel Morais
+
+23/02/2023
+[-] TK-3564 ACBrBancoUnicredES - Correção leitura do campo 19, invertido cpf/cnpj
+  Por : Francisco IBS / Rev. Daniel Morais
+
+22/02/2023
+[-] TK-3629 ACBrBoleto - Inter - Erro no Filtro Vencimento
+  Por : Aggille Sistemas de Gestão
+
+10/02/2023
+[+] TK-3564 ACBrBancoVotorantim - Inclusão do novo banco, contribuição LucasSantos8
+  Por : LucasSantos8 / Rev. Daniel Morais
+
+08/02/2023
+[-] TK-3572 ACBrBancoBanrisul - qdo existir Identificacao do Titulo (SegT - 106,25) alimenta SeuNumero, caso contrário, seunumero = NumeroDocumento.
+  Por : SuporteAtInfo / Conf. Daniel Morais
+
+06/02/2023
+[-] TK-3580 ACBrBoletoWS.Rest Certificados não Carregando
+  Por : Victor H Gonzales - Pandaaa
+
+03/02/2023
+[-] TK-3563 Banco do Brasil WS erro no Envelope Soap
+ Por : Victor H Gonzales - Pandaaa
+
+01/02/2023
+[-] digito verificador da agencia/conta deve ter o default 0
+  Por : Regys Silveira 
+
+31/01/2023
+[-] TK-3549 ACBrBancoBrasil Correção tratamento Instrucao1 e Instrucao2
+    https://www.projetoacbr.com.br/forum/topic/70582-erro-ao-gerar-remessa-banco-do-brasil/#comment-458669
+  Por: New Line System Desenvolvimento / conf. Daniel Morais
+
+27/01/2023
+[*] TK-3523 ACBrBancoBradesco segmento R (envio) qdo não tiver data do contrato passar 00000000
+  Por : Renfer / conf. Daniel Morais
+  
+[*]TK-3515 ACBrBoleto - Ajuste integração via WS Santander
+ por : Renato Rubinho
+
+26/01/2023
+[*] TK-3501 ACBrBancoOriginal ajustado a funcao CodMotivoRejeicaoToDescricao para tratar os erros de retorno conf manual.
+  Por : Daniel de Morais / Renato Pavan 
+
+25/01/2023
+[*] Refatorações Diversas
+  Por : Victor H Gonzales - Pandaaa 
+
+[+] TK-3181 ACBrBoleto - Integração via API Banco Inter
+  Por : Victor H Gonzales - Pandaaa / Aggille Sistemas Gestão / Jean Peixoto
+
+13/01/2023
+[*] TK-3470 ACBrBoletoW_BancoBrasil_API Contribuição para correção do erro: "Para tipo de multa = 0 ( DISPENSADO ) , não informar valor ou percentual"
+Por Aggille Sistemas /  Daniel Morais
+
+09/01/2023
+[*] TK-3429-1 ACBrBancoBrasil feito ajustes no tratamento das instruções codificadas para protesto
+Por Daniel Morais
+
+06/01/2023
+[*] TK-3008-2 ACBrBancoSicredi contribuição para ler qrcode retorno boleto hibrido
+Por marcelo.hgv / validado Daniel Morais
+
+05/01/2023
+[*] TK-3445 ACBrBancoUnicredRS ajuste na hora de criar o arquivo de remessa. como nao existe o enumerado (tipoDiasProtesto) nao protestar, se a data do protesto nao for informada ele gera o arquivo com instrucao 3 de nÃ£o protestar.
+Por Daniel Morais 
+
+04/01/2023
+[*] TK-3401 ACBrBoleto inclusão a espécie de título 'Boleto de Proposta', sigla BDP (CNAB400)
+    Por MLGoncalves, Daniel Morais 
+
+02/01/2023
+[-] TK-3432 UniCredES - ACBrBoleto Correcao ler retorno quando fo CPF criado a funcao DefineCnpjCpf240 para identificar e tratar CPF/CNPJ
+    Por Daniel Morais/ vinizioWOW
+
+30/12/2022
+[-] TK-3444 ACBrBancoSicredi Correção captura do QrCode.TxID Posição 21-35, conforme Manual.
+    Por Daniel Morais.
+
+28/12/2022
+[-] TK-3429 Alteração da case para que o comando 06 funcione com dias corridos e independente de estar na instrucao1 ou instrucao2
+    Obs: A TK-3429 com a sugestao do usuario isolopak ainda esta em analise para possivel refatoração da unidade.
+    Por Daniel Morais. 
+
+26/12/2022
+[-] TK-3371 Alteração Case data Protesto para dias utei 3,4,5 por dias trabalhados (não leva em consideração feriados)
+  por suporteatinfo / Victor H Gonzales - Pandaa
+
+23/12/2022
+[-]TK-3389 ACBrBoletoW_Sicredi_API - Ajuste na função de alteração
+  Por: Daniel Morais
+
+[-]TK-3418 ACBrBoleto erro de persistência DFM PIX
+  Por : Victor H Gonzales - Pandaaa
+
+22/12/2022
+[*]TK-3408 Ajuste na Instrução do método LerArqIni
+Por: Antonio Carlos Junior / Victor H Gonzales - Pandaaa
+
+--ACBrBoletoCresol--
+[-]TK-3413 Banco 133 ACBrBoletoCresol Atualização CNAB240 Dominio de Multa
+  por : Victor H Gonzales - Pandaaa
+
+[+]TK-3008 Banco Sicredi Boleto Hibrido
+  por : Nazarenoneto / Eric100 / Victor H Gonzales - Pandaaa
+
+16/12/2022
+[+] TK-3264 ACBrBoleto - 212-Banco Original
+  por : Renato Pavan
+
+29/11/2022
+--ACBrBoletoWS--
+[*]Correção de AV quando WS com erro e não houver JSON
+ por : Victor H Gonzales - Pandaaa
+
+28/11/2022
+--ACBrBancoCresolSCRS--
+[*]TK-3320 ACBrBoleto - Ajuste na função de leitura do retorno CNAB400
+  por : Desenvolvimento Farol Soft
+--ACBrBancoSicred--
+
+[*]TK-3326 Retorno API capturar a data da liquidação JSON para o campo :TituloRet.DataCredito
+Nas procedures LerListaRetorno e LerRetorno
+  por : Daniel de Morais / Rafael Mozer
+
+25/11/2022
+--ACBrBancoUnicredES--
+[*]TK-3028-2 UnicredES CNAB240 Complemento Retorno posicao 214 até 223
+Criado procedure DefineRejeicaoComplementoRetorno
+  por : Victor H Gonzales - Pandaaa / Daniel de Morais
+
+--ACBrBancoBanrisul--
+[-]TK-3271 ACBrBoleto - Adequação Banrisul para versão 10.3 do CNAB240
+  por : Victor H Gonzales - Pandaaa / Daniel de Morais
+
+--ACBrBoleto--
+[+]TK-3201-1-3 ACBrBoleto Adicionar métodos de leitura para o Monitor (EMV)
+  por : Victor H Gonzales - Pandaaa
+
+--ACBBancoNordeste--
+[*] TK-3262 corrigido codigos retorno que não estavam batendo com manual. 
+  por: LP Sistemas, verificado Daniel de Morai
+
+21/11/2022
+--ACBBancoCresol--
+[*] TK-3198 Incluido a geração do Segmento Opcional R
+  por: Atual Sistemas Dev
+
+18/11/2022
+--ACBrBancoDaycoval--
+[-]TK-3295 Ajuste remessa CNAB400 Daycoval sobre a informação do campo Seu Numero
+  por Daniel de Morais / Keiller Rodrigues / Victor H Gonzales - Pandaaa
+
+16/11/2022
+[+]TK2854 - Inclusão do boleto com integração via WS para o Santander
+  por : Renato Rubinho
+[+]TK3201 Implementação no CNAB240 do Boleto Santander com PIX
+  por : Victor H Gonzales - Pandaaa
+[+]TK3201-1 Criar Leitura pelo ACBrBoleto para as propriedades novas do PIX (Y03)
+  por : Victor H Gonzales - Pandaaa
+
+08/11/2022
+--ACBrBancoUnicredES--
+[*]TK-3247 UnicredES CNAB240 Retorno com 19 caracteres
+  por : Victor H Gonzales - Pandaaa
+
+07/11/2022
+--ACBrBancoUnicredES--
+[-] Correção para compilar no Delphi 7.
+  por : Italo Giurizzato Junior
+
+04/11/2022
+--ACBrBancoCecred--
+[*]TK-3217 ACBrBoleto - Mapeamento de alguns códigos de ocorrência para o Ailos/Cecred
+  por : IBS Sistemas 
+
+--ACBrBancoBrasil--
+[*]TK-3173 ACBrBoleto - Alteração na instrução codificada para CNAB400 BB
+  por : Midas
+
+--ACBrBoleto--
+[+]TK-3225 Alteração no CNAB240 novas procedures para leitura dinamica
+  por : Victor H Gonzales - Pandaaa
+
+--ACBrBancoUnicredES--
+[*]TK-3028-1 Alteração retorno para ajuste leitura CNAB240 Retorno SeuNumero / Nosso Numero, banco retorna fixo 0, foi alterado para retornar o mesmo valor em ambos
+  por Daniel de Morais / Victor H Gonzales - Pandaaa
+
+--ACBrBancoBTGPactual--
+[+]TK-3228 ACBrBoleto - Inclusão do Banco BTG Pactual Regra C058 Segmento U
+  por Victor H Gonzales - Pandaaa  
+
+--ACBrBancoCecredi--
+[*]TK-3224 CNAB400 Alteração Registro 7 campo 32 colunas 159 a 160, alteração de dominio vazio para zeros conforme manual versão 03 abril/2021 
+  por Doglas Stumpf
+
+--ACBrBancoSofisaSantander--
+[+]TK-3164 CNAB 400 com 444 posições Registro de NFe
+  por Windsoft
+5.1. CHAVE DA NF-e (401 a 444)
+- 401 a 444 – Chave da NF-e Duplicata de Venda Mercantil / CTE Número da Chave 
+da NF-e para o título/documento ( 44 posições ). 
+- Duplicata referente a Nota Fiscal de Serviço Em caso de Nota Fiscal de SERVIÇO, a 
+chave possuirá normalmente 9 posições. Neste caso, completar com zeros à esquerda 
+até que o campo tenha as 44 posições preenchidas. pag 10
+
+--ACBrBoletoConversao ACBrBoletoFCFortesFr ACBrBoletoFCFortesFr--
+[+]TK-2146 Boleto CarneA5 RL
+  por : Marcio Rossato / Daniel de Morais
+
+--ACBrBoletoFCFortesFr ACBrBoletoFCFortesFr--
+[*]Correção no relatório de Serviços
+  por : Daniel de Morais
+
 27/10/2022
 --ACBrBoleto--
 [-]TK-3132 - Parâmetro ImprimirMensagemPadrao não está surtindo efeito / Outros

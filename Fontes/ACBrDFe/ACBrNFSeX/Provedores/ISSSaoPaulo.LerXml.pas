@@ -153,6 +153,7 @@ end;
 procedure TNFSeR_ISSSaoPaulo.LerEnderecoPrestador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
+  xUF: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('EnderecoPrestador');
 
@@ -168,6 +169,10 @@ begin
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr);
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('UF'), tcStr);
       CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('CEP'), tcStr);
+      xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+
+      if UF = '' then
+        UF := xUF;
     end;
   end;
 end;
@@ -175,6 +180,7 @@ end;
 procedure TNFSeR_ISSSaoPaulo.LerEnderecoTomador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
+  xUF: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('EnderecoTomador');
 
@@ -190,9 +196,11 @@ begin
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr);
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('UF'), tcStr);
       CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('CEP'), tcStr);
-    end;
+      xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
 
-    NFSe.Servico.CodigoMunicipio := NFSe.Tomador.Endereco.CodigoMunicipio;
+      if UF = '' then
+        UF := xUF;
+    end;
   end;
 end;
 
@@ -251,7 +259,10 @@ begin
   aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('StatusNFe'), tcStr);
 
   if aValor = 'C' then
+  begin
     NFSe.SituacaoNfse := snCancelado;
+    NFSe.NfseCancelamento.DataHora := ObterConteudo(AuxNode.Childrens.FindAnyNs('DataCancelamento'), tcDat);
+  end;
 
   NFSe.TipoTributacaoRPS := StrToTipoTributacaoRPS(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('TributacaoNFe'), tcStr));
 
@@ -275,6 +286,7 @@ begin
     ValorServicos := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorServicos'), tcDe2);
     BaseCalculo := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorServicos'), tcDe2);
     Aliquota := ObterConteudo(AuxNode.Childrens.FindAnyNs('AliquotaServicos'), tcDe2);
+    Aliquota := (Aliquota * 100);
     ValorIss := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorISS'), tcDe2);
     ValorPis := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorPIS'), tcDe2);
     ValorCofins := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorCOFINS'), tcDe2);
@@ -299,7 +311,7 @@ begin
     BaseCalculo := NFSe.Servico.Valores.BaseCalculo;
     Aliquota := NFSe.Servico.Valores.Aliquota;
     ValorIss := NFSe.Servico.Valores.ValorIss;
-    Aliquota := (NFSe.ValoresNfse.Aliquota * 100);
+//    Aliquota := (NFSe.ValoresNfse.Aliquota * 100);
   end;
 
   NFSe.Prestador.RazaoSocial := ObterConteudo(AuxNode.Childrens.FindAnyNs('RazaoSocialPrestador'), tcStr);
@@ -314,6 +326,24 @@ begin
   LerEnderecoPrestador(AuxNode);
   LerCPFCNPJTomador(AuxNode);
   LerEnderecoTomador(AuxNode);
+
+  {
+   TipoTributacaoRPS = ttTribnoMun, ttTribforaMun, ttTribnoMunIsento,
+                       ttTribforaMunIsento, ttTribnoMunImune, ttTribforaMunImune,
+                       ttTribnoMunSuspensa, ttTribforaMunSuspensa, ttExpServicos,
+                       ttSimplesNacional, ttRetidonoMun
+  }
+
+  if NFSe.TipoTributacaoRPS in [ttTribnoMun, ttTribnoMunIsento,
+                                ttTribnoMunImune, ttTribnoMunSuspensa] then
+    NFSe.Servico.MunicipioIncidencia := StrToIntDef(NFSe.Prestador.Endereco.CodigoMunicipio, 0)
+  else
+    NFSe.Servico.MunicipioIncidencia := StrToIntDef(NFSe.Tomador.Endereco.CodigoMunicipio, 0);
+
+  NFSe.Servico.CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('MunicipioPrestacao'), tcStr);
+
+  if NFSe.Servico.CodigoMunicipio = '' then
+    NFSe.Servico.CodigoMunicipio := NFSe.Prestador.Endereco.CodigoMunicipio;
 end;
 
 function TNFSeR_ISSSaoPaulo.LerXmlRps(const ANode: TACBrXmlNode): Boolean;

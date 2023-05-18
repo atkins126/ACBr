@@ -51,6 +51,7 @@ type
   TACBrOpenDeliveryProxy = class;
   TACBrOpenDeliveryHTTPLogEnvio = ACBrOpenDeliveryHTTP.TACBrOpenDeliveryHTTPLogEnvio;
   TACBrOpenDeliveryHTTPLogResposta = ACBrOpenDeliveryHTTP.TACBrOpenDeliveryHTTPLogResposta;
+  EACBrOpenDeliveryHTTPException = ACBrOpenDeliveryException.EACBrOpenDeliveryHTTPException;
 
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
@@ -70,6 +71,7 @@ type
     FOnEventDispatched: TOnEventStatus;
     FOnEventReadyForPickup: TOnEventStatus;
     FOnEventPickupAreaAssigned: TOnEventStatus;
+    FOnEventDelivered: TOnEventStatus;
     FOnEventConcluded: TOnEventStatus;
     FOnEventCancellationRequested: TOnEventStatus;
     FOnEventCancellationRequestDenied: TOnEventStatus;
@@ -77,6 +79,7 @@ type
     FOnEventOrderCancellationRequest: TOnEventStatus;
     FOnEventOrderPlaced: TOnEventOrder;
     FOnPollingEnd: TOnPollingEnd;
+    FOnHTTPError: TACBrOpenDeliveryOnHTTPError;
     function GetWebServices: TACBrOpenDeliveryWebServices;
     function GetOrder: TACBrOpenDeliverySchemaOrder;
     function GetEvents: TACBrOpenDeliverySchemaEventCollection;
@@ -102,6 +105,7 @@ type
     property OnEventDispatched: TOnEventStatus read FOnEventDispatched write FOnEventDispatched;
     property OnEventReadyForPickup: TOnEventStatus read FOnEventReadyForPickup write FOnEventReadyForPickup;
     property OnEventPickupAreaAssigned: TOnEventStatus read FOnEventPickupAreaAssigned write FOnEventPickupAreaAssigned;
+    property OnEventDelivered: TOnEventStatus read FOnEventDelivered write FOnEventDelivered;
     property OnEventConcluded: TOnEventStatus read FOnEventConcluded write FOnEventConcluded;
     property OnEventCancellationRequested: TOnEventStatus read FOnEventCancellationRequested write FOnEventCancellationRequested;
     property OnEventCancellationRequestDenied: TOnEventStatus read FOnEventCancellationRequestDenied write FOnEventCancellationRequestDenied;
@@ -112,6 +116,7 @@ type
     property OnGerarLog: TACBrGravarLog read FOnGerarLog write FOnGerarLog;
     property OnHTTPEnviar: TACBrOpenDeliveryOnHTTPEnviar read FOnHTTPEnviar write FOnHTTPEnviar;
     property OnHTTPRetornar: TACBrOpenDeliveryOnHTTPRetornar read FOnHTTPRetornar write FOnHTTPRetornar;
+    property OnHTTPError: TACBrOpenDeliveryOnHTTPError read FOnHTTPError write FOnHTTPError;
     property OnTokenGet: TOnTokenGet read FOnTokenGet write FOnTokenGet;
     property OnTokenSave: TOnTokenSave read FOnTokenSave write FOnTokenSave;
   end;

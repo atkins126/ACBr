@@ -50,7 +50,9 @@ type
     function CodDescontoToStr(const pCodigoDesconto : TACBrCodigoDesconto): String;
   protected
     function DefineNumeroDocumentoModulo(const ACBrTitulo: TACBrTitulo): String; override;
-    //function DefinePosicaoNossoNumeroRetorno: Integer; override;
+    function DefinePosicaoNossoNumeroRetorno: Integer; override;
+    function DefineSeuNumeroRetorno(const ALinha: String): String; override;
+    function DefineNumeroDocumentoRetorno(const ALinha: String): String; override;
   public
     Constructor create(AOwner: TACBrBanco);
 
@@ -60,6 +62,7 @@ type
     procedure GerarRegistroTransacao400(ACBrTitulo : TACBrTitulo; aRemessa: TStringList); override;
     procedure GerarRegistroHeader400(NumeroRemessa: Integer; ARemessa: TStringList);override;
     Procedure LerRetorno400(ARetorno:TStringList); override;
+    Procedure LerRetorno240(ARetorno:TStringList); override;
     function TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
     function CodOcorrenciaToTipo(const CodOcorrencia: Integer ) : TACBrTipoOcorrencia; override;
     function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String; Override;
@@ -67,7 +70,8 @@ type
     function CodMotivoRejeicaoToDescricao(const TipoOcorrencia : TACBrTipoOcorrencia ; CodMotivo : Integer) : String ; override;
     function CodComplementoMovimento(const ACodMotivo: String): String;
     function TipoOcorrenciaToCodRemessa(const ATipoOcorrencia: TACBrTipoOcorrencia): String; override;
-
+    procedure DefineRejeicaoComplementoRetorno(const ALinha: String; out ATitulo : TACBrTitulo); override;
+    function DefinerCnpjCPFRetorno240(const ALinha: String): String; override;         //Define retorno rCnpjCPF
   end;
 
 implementation
@@ -194,10 +198,21 @@ begin
   end;
 end;
 
+procedure TACBrBancoUnicredES.LerRetorno240(ARetorno: TStringList);
+begin
+  fpTamanhoMaximoNossoNum := 19;
+  try
+    inherited;
+  finally
+    fpTamanhoMaximoNossoNum := 10;
+  end;
+
+end;
+
 procedure TACBrBancoUnicredES.LerRetorno400(ARetorno: TStringList);
 var
   Titulo : TACBrTitulo;
-  ContLinha : Integer;
+  ContLinha, MotivoLinha, i : Integer;
   rAgencia    :String;
   rConta, rDigitoConta      :String;
   Linha, rCedente, rCNPJCPF :String;
@@ -279,13 +294,15 @@ begin
           NumeroDocumento             := copy(Linha,117,10);
           OcorrenciaOriginal.Tipo     := CodOcorrenciaToTipo(StrToIntDef(
                                          copy(Linha,109,2),0));
-
-          codInstrucao := copy(Linha,319,8);
-          MotivoRejeicaoComando.Add(codInstrucao);
-
-          DescricaoMotivoRejeicaoComando.Add(CodComplementoMovimento(codInstrucao));
-
-
+          MotivoLinha := 319;
+          for i := 0 to 4 do
+          begin
+            codInstrucao := IfThen(copy(Linha,MotivoLinha,2) = '  ','00',copy(Linha,MotivoLinha,2));
+            MotivoRejeicaoComando.Add(codInstrucao);
+            if codInstrucao <> '00' then
+               DescricaoMotivoRejeicaoComando.Add(CodComplementoMovimento(codInstrucao));
+            MotivoLinha := MotivoLinha + 2;
+          end;
 
           if (StrToIntDef(Copy(Linha,111,6),0) > 0) then
             DataOcorrencia := StringToDateTimeDef( Copy(Linha,111,2)+'/'+
@@ -546,18 +563,8 @@ begin
   end;
 end;
 
-function TACBrBancoUnicredES.DefineNumeroDocumentoModulo(
-  const ACBrTitulo: TACBrTitulo): String;
-begin
-  Result:= ACBrTitulo.NossoNumero;
-end;
-
-{function TACBrBancoUnicredES.DefinePosicaoNossoNumeroRetorno: Integer;
-begin
-  Result := 51;
-end; }
-
-function TACBrBancoUnicredES.CodJurosToStr(const pCodigoJuros : TACBrCodigoJuros; ValorMoraJuros : Currency): String;
+function TACBrBancoUnicredES.CodJurosToStr(const pCodigoJuros: TACBrCodigoJuros;
+  ValorMoraJuros: Currency): String;
 begin
   if ValorMoraJuros = 0 then
     result := '5'
@@ -571,7 +578,59 @@ begin
     else
       result := '5';
     end;
-  End;
+  end;
+end;
+
+function TACBrBancoUnicredES.DefineNumeroDocumentoModulo(
+  const ACBrTitulo: TACBrTitulo): String;
+begin
+  Result:= ACBrTitulo.NossoNumero;
+end;
+
+function TACBrBancoUnicredES.DefineNumeroDocumentoRetorno(
+  const ALinha: String): String;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result:= copy(ALinha, 59, 15)
+  else
+    Result:= inherited DefineNumeroDocumentoRetorno(ALinha);
+end;
+
+function TACBrBancoUnicredES.DefinePosicaoNossoNumeroRetorno: Integer;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result := 39
+  else
+    Result := 71;
+end;
+
+function TACBrBancoUnicredES.DefinerCnpjCPFRetorno240(
+  const ALinha: String): String;
+begin
+  case StrToIntDef(Copy(ALinha,18,1),0) of
+     1: result := Copy(ALinha,22,11);
+     2: result := Copy(ALinha,19,14);
+  else
+    result := Copy(ALinha,19,14);
+  end;
+
+end;
+
+procedure TACBrBancoUnicredES.DefineRejeicaoComplementoRetorno(const ALinha: String; out ATitulo: TACBrTitulo);
+var LCodInstrucao : String;
+begin
+  LCodInstrucao := trim(copy(ALinha,214,8));
+  ATitulo.MotivoRejeicaoComando.Add(LCodInstrucao);
+  ATitulo.DescricaoMotivoRejeicaoComando.Add(CodComplementoMovimento(LCodInstrucao));
+end;
+
+function TACBrBancoUnicredES.DefineSeuNumeroRetorno(
+  const ALinha: String): String;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result:= copy(ALinha, 59, 15)
+  else
+    Result:= inherited DefineSeuNumeroRetorno(ALinha);
 end;
 
 function TACBrBancoUnicredES.CodMotivoRejeicaoToDescricao(

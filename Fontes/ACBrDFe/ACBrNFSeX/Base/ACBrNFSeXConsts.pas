@@ -132,7 +132,7 @@ const
   Cod120 = 'X120';
   Desc120	= 'Emitente.WSSenha não informada.';
   Cod121 = 'X121';
-  Desc121	= 'Cadastro Econômico.';
+  Desc121	= 'Cadastro Econômico não informado.';
   Cod122 = 'X122';
   Desc122 = 'Data Emissão da NFSe não informada.';
   Cod123 = 'X123';
@@ -145,6 +145,10 @@ const
   Desc126	= 'Chave da DPS não informada.';
   Cod127 = 'X127';
   Desc127	= 'CNPJ do Tomador não informado.';
+  Cod128 = 'X128';
+  Desc128	= 'NSU não informado.';
+  Cod129 = 'X129';
+  Desc129	= 'Emitente.InscMun não informada.';
 
   Cod201 = 'X201';
   Desc201 = 'WebService retornou um XML vazio.';
@@ -155,7 +159,7 @@ const
   Cod204 = 'X204';
   Desc204 = 'Confirmação do Cancelamento não encontrada.';
   Cod205 = 'X205';
-  Desc205 = 'Retorno da Substituição não encontrada.';
+  Desc205 = 'Retorno da Substituição não encontrado.';
   Cod206 = 'X206';
   Desc206 = 'Nfse Substituida não encontrada.';
   Cod207 = 'X207';
@@ -163,11 +167,15 @@ const
   Cod208 = 'X208';
   Desc208	= 'Não foi retornado nenhum Rps.';
   Cod209 = 'X209';
-  Desc209 = 'Retorno do Cancelamento não encontrada.';
+  Desc209 = 'Retorno do Cancelamento não encontrado.';
   Cod210 = 'X210';
   Desc210 = 'Nfse do Cancelamento não encontrada.';
-  Cod211 = 'X21';
+  Cod211 = 'X211';
   Desc211 = 'Não foi retornado nenhum Evento.';
+  Cod212 = 'X212';
+  Desc212 = 'Não foi retornado nenhum JSON.';
+  Cod213 = 'X213';
+  Desc213 = 'Não foi retornado nenhum Token.';
 
   Cod800 = 'X800';
   Desc800 = 'Erro de Validação: ';

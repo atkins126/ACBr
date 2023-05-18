@@ -94,7 +94,9 @@ begin
     DadosCabecalho := '<CabecalhoEnvio versao="2" xmlns="http://www.abrasf.org.br/nfse.xsd">' +
                         '<versaoDados>2</versaoDados>' +
                         // verificar se o valor 1 é produção
-                        '<TpAmb>' + '1' + '</TpAmb>' +
+                        '<TpAmb>' +
+                           IntToStr(TACBrNFSeX(FAOwner).Configuracoes.WebServices.AmbienteCodigo) +
+                        '</TpAmb>' +
                         '<Cnpj>' +
                            TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente.WSUser +
                         '</Cnpj>' +
@@ -239,7 +241,7 @@ function TACBrNFSeXWebserviceSafeWeb200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
 end;
 

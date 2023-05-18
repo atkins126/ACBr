@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -86,6 +86,7 @@ type
   protected
     procedure DefinirServicoEAction; override;
     procedure DefinirDadosMsg; override;
+    procedure DefinirURL; override;
     function TratarResposta: Boolean; override;
 
     function GerarMsgLog: String; override;
@@ -676,19 +677,44 @@ end;
 
 procedure TCTeStatusServico.DefinirServicoEAction;
 begin
-  FPServico    := GetUrlWsd + 'CteStatusServico';
+  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+    FPServico := GetUrlWsd + 'CteStatusServico'
+  else
+    FPServico := GetUrlWsd + 'CTeStatusServicoV4';
+
   FPSoapAction := FPServico + '/cteStatusServicoCT';
+end;
+
+procedure TCTeStatusServico.DefinirURL;
+begin
+  inherited DefinirURL;
+
+  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+    FPHeaderElement := 'cteCabecMsg'
+  else
+    FPHeaderElement := '';
 end;
 
 procedure TCTeStatusServico.DefinirDadosMsg;
 var
   ConsStatServ: TConsStatServ;
+  TagGrupo: string;
+  GerarcUF: Boolean;
 begin
-  ConsStatServ := TConsStatServ.Create(FPVersaoServico, NAME_SPACE_CTE, 'Cte', False);
+  TagGrupo := 'Cte';
+  GerarcUF := False;
+
+  if FPConfiguracoesCTe.Geral.VersaoDF >= ve400 then
+  begin
+    TagGrupo := 'CTe';
+    GerarcUF := True;
+  end;
+
+  ConsStatServ := TConsStatServ.Create(FPVersaoServico, NAME_SPACE_CTE,
+                                                            TagGrupo, GerarcUF);
   try
     ConsStatServ.TpAmb := FPConfiguracoesCTe.WebServices.Ambiente;
     ConsStatServ.CUF := FPConfiguracoesCTe.WebServices.UFCodigo;
-//    ConsStatServ.Versao := FPVersaoServico;
 
     AjustarOpcoes( ConsStatServ.Gerador.Opcoes );
 
@@ -707,7 +733,11 @@ var
 begin
   FPRetWS := SeparaDados(FPRetornoWS, 'cteStatusServicoCTResult');
 
-  CTeRetorno := TRetConsStatServ.Create('Cte');
+  if FPConfiguracoesCTe.Geral.VersaoDF >= ve400 then
+    CTeRetorno := TRetConsStatServ.Create('CTe')
+  else
+    CTeRetorno := TRetConsStatServ.Create('Cte');
+
   try
     CTeRetorno.Leitor.Arquivo := ParseText(FPRetWS);
     CTeRetorno.LerXml;
@@ -855,13 +885,21 @@ begin
              else
              begin
                FPLayout := LayCTeRecepcao;
-               FPHeaderElement := 'cteCabecMsg';
+
+               if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+                 FPHeaderElement := 'cteCabecMsg'
+               else
+                 FPHeaderElement := '';
              end;
            end;
     moCTeOS:
       begin
         FPLayout := LayCTeRecepcaoOS;
-        FPHeaderElement := 'cteCabecMsg';
+
+        if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+          FPHeaderElement := 'cteCabecMsg'
+        else
+          FPHeaderElement := '';
       end
   else
     begin
@@ -915,8 +953,16 @@ begin
       begin
         if Sincrono then
         begin
-          FPServico := GetUrlWsd + 'CteRecepcaoSinc';
-          FPSoapAction := FPServico + '/cteRecepcaoSinc';
+          if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+          begin
+            FPServico := GetUrlWsd + 'CteRecepcaoSinc';
+            FPSoapAction := FPServico + '/cteRecepcaoSinc';
+          end
+          else
+          begin
+            FPServico := GetUrlWsd + 'CTeRecepcaoSincV4';
+            FPSoapAction := FPServico + '/cteRecepcao';
+          end;
         end
         else
         begin
@@ -927,14 +973,26 @@ begin
 
     moCTeOS:
       begin
-        FPServico    := GetUrlWsd + 'CteRecepcaoOS';
-        FPSoapAction := FPServico + '/cteOSRecepcao';
+        if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+        begin
+          FPServico := GetUrlWsd + 'CteRecepcaoOS';
+          FPSoapAction := FPServico + '/cteOSRecepcao';
+        end
+        else
+        begin
+          FPServico := GetUrlWsd + 'CTeRecepcaoOSV4';
+          FPSoapAction := FPServico + '/cteRecepcaoOS';
+        end;
       end;
 
   else
     begin
-      FPServico    := GetUrlWsd + 'CTeRecepcaoGTVe';
-      FPSoapAction := FPServico + '/CTeRecepcaoGTVe';
+      if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+        FPServico := GetUrlWsd + 'CTeRecepcaoGTVe'
+      else
+        FPServico := GetUrlWsd + 'CTeRecepcaoGTVeV4';
+
+      FPSoapAction := FPServico + '/cteRecepcaoGTVe';
     end;
   end;
 end;
@@ -962,7 +1020,6 @@ begin
               '</CTe>';
 
           FMsgUnZip := FPDadosMsg;
-
           FPDadosMsg := EncodeBase64(GZipCompress(FPDadosMsg));
         end
         else
@@ -989,6 +1046,12 @@ begin
         if FConhecimentos.Count > 0 then
           FPDadosMsg := '<CTeOS' + RetornarConteudoEntre(
                   FConhecimentos.Items[0].XMLAssinado, '<CTeOS', '</CTeOS>') + '</CTeOS>';
+
+        if FPConfiguracoesCTe.Geral.VersaoDF >= ve400 then
+        begin
+          FMsgUnZip := FPDadosMsg;
+          FPDadosMsg := EncodeBase64(GZipCompress(FPDadosMsg));
+        end;
       end;
   else
     begin
@@ -1003,7 +1066,6 @@ begin
                 FConhecimentos.Items[0].XMLAssinado, '<GTVe', '</GTVe>') + '</GTVe>';
 
       FMsgUnZip := FPDadosMsg;
-
       FPDadosMsg := EncodeBase64(GZipCompress(FPDadosMsg));
     end;
   end;
@@ -1028,7 +1090,8 @@ begin
                               ,'cteOSRecepcaoResult'
                               ,'cteRecepcaoOSCTResult'
                               ,'cteRecepcaoSincResult'
-                              ,'CTeRecepcaoGTVeResult']
+                              ,'CTeRecepcaoGTVeResult'
+                              ,'cteRecepcaoResult']
                              , FPRetornoWS);
 
   case FPConfiguracoesCTe.Geral.ModeloDF of
@@ -1302,7 +1365,9 @@ begin
                        [FCTeRetornoSincrono.versao,
                         TpAmbToStr(FCTeRetornoSincrono.TpAmb),
                         FCTeRetornoSincrono.verAplic,
-                        IntToStr(FCTeRetornoSincrono.protCTe.cStat),
+                        IntToStr(IfThen(FCTeRetornoSincrono.protCTe.cStat = 0,
+                                        FCTeRetornoSincrono.cStat,
+                                        FCTeRetornoSincrono.protCTe.cStat)),
                         FCTeRetornoSincrono.protCTe.xMotivo,
                         CodigoParaUF(FCTeRetornoSincrono.cUF),
                         FormatDateTimeBr(FCTeRetornoSincrono.protCTe.dhRecbto),
@@ -1486,6 +1551,11 @@ var
   Modelo: TModeloCTe;
   Ok: Boolean;
 begin
+  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+    FPHeaderElement := 'cteCabecMsg'
+  else
+    FPHeaderElement := '';
+
   FPLayout := LayCTeRetRecepcao;
 
   if FConhecimentos.Count > 0 then    // Tem CTe ? Se SIM, use as informações do XML
@@ -1798,6 +1868,11 @@ var
   Modelo: TModeloCTe;
   Ok: Boolean;
 begin
+  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+    FPHeaderElement := 'cteCabecMsg'
+  else
+    FPHeaderElement := '';
+
   FPLayout := LayCTeRetRecepcao;
 
   if FConhecimentos.Count > 0 then    // Tem CTe ? Se SIM, use as informações do XML
@@ -1969,6 +2044,11 @@ var
   Modelo, xUF: String;
   Ok: Boolean;
 begin
+  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+    FPHeaderElement := 'cteCabecMsg'
+  else
+    FPHeaderElement := '';
+
   FPVersaoServico := '';
   FPURL   := '';
   Modelo  := ModeloCTeToPrefixo( StrToModeloCTe(ok, ExtrairModeloChaveAcesso(FCTeChave) ));
@@ -2001,7 +2081,11 @@ end;
 
 procedure TCTeConsulta.DefinirServicoEAction;
 begin
-  FPServico    := GetUrlWsd + 'CteConsulta';
+  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+    FPServico := GetUrlWsd + 'CteConsulta'
+  else
+    FPServico := GetUrlWsd + 'CTeConsultaV4';
+
   FPSoapAction := FPServico + '/cteConsultaCT';
 end;
 
@@ -2059,40 +2143,12 @@ begin
       sCNPJ       := SeparaDados(XML, 'CNPJ');
       sPathEvento := PathWithDelim(FPConfiguracoesCTe.Arquivos.GetPathEvento(TipoEvento, sCNPJ));
 
+      XML := StringReplace(XML, 'ds:', '', [rfReplaceAll]);
+
       if FPConfiguracoesCTe.Arquivos.Salvar then
         FPDFeOwner.Gravar( aIDEvento + '-procEventoCTe.xml', XML, sPathEvento);
     end;
   end;
-(*
-  while Retorno <> '' do
-  begin
-    Inicio := Pos('<procEventoCTe', Retorno);
-    Fim    := Pos('</procEventoCTe>', Retorno) + 15;
-
-    aEvento := Copy(Retorno, Inicio, Fim - Inicio + 1);
-
-    Retorno := Copy(Retorno, Fim + 1, Length(Retorno));
-
-    aProcEvento := '<procEventoCTe versao="' + FVersao + '" xmlns="' + ACBRCTE_NAMESPACE + '">' +
-                      SeparaDados(aEvento, 'procEventoCTe') +
-                   '</procEventoCTe>';
-
-    Inicio := Pos('Id=', aProcEvento) + 6;
-    Fim    := 52;
-
-    if Inicio = 6 then
-      aIDEvento := FormatDateTime('yyyymmddhhnnss', Now)
-    else
-      aIDEvento := Copy(aProcEvento, Inicio, Fim);
-
-    TipoEvento  := StrToTpEventoCTe(Ok, SeparaDados(aEvento, 'tpEvento'));
-    sCNPJ       := SeparaDados(aEvento, 'CNPJ');
-    sPathEvento := PathWithDelim(FPConfiguracoesCTe.Arquivos.GetPathEvento(TipoEvento, sCNPJ));
-
-    if (aProcEvento <> '') then
-      FPDFeOwner.Gravar( aIDEvento + '-procEventoCTe.xml', aProcEvento, sPathEvento);
-  end;
-*)
 end;
 
 var
@@ -2341,7 +2397,6 @@ begin
                                      aEventos +
                                    '</procEventoCTe>' +
                                   '</CTeDFe>';
-
                   end;
                 finally
                   AProcCTe.Free;
@@ -2361,7 +2416,7 @@ begin
 
                   sPathCTe := PathWithDelim(FPConfiguracoesCTe.Arquivos.GetPathCTe(dhEmissao, CTe.Emit.CNPJ, CTe.emit.IE));
 
-                  if (FRetCTeDFe <> '') {and FPConfiguracoesCTe.Geral.Salvar} then
+                  if (FRetCTeDFe <> '') then
                     FPDFeOwner.Gravar( FCTeChave + '-CTeDFe.xml', FRetCTeDFe, sPathCTe);
 
                   // Salva o XML do CT-e assinado e protocolado
@@ -2375,13 +2430,10 @@ begin
                   // Salva na pasta baseado nas configurações do PathCTe
                   if (NomeXMLSalvo <> CalcularNomeArquivoCompleto()) then
                     GravarXML;
-
-                  // Salva o XML de eventos retornados ao consultar um CT-e
-//                  if ExtrairEventos then
-//                    SalvarEventos(aEventos);
                 end;
               end;
 
+              // Salva o XML de eventos retornados ao consultar um CT-e
               if ExtrairEventos then
                 SalvarEventos(CTeRetorno);
 
@@ -2392,17 +2444,10 @@ begin
       end
       else
       begin
+        // Salva o XML de eventos retornados ao consultar um CT-e
         if ExtrairEventos and FPConfiguracoesCTe.Arquivos.Salvar and
            (NaoEstaVazio(SeparaDados(FPRetWS, 'procEventoCTe'))) then
-        begin
-//          Inicio := Pos('<procEventoCTe', FPRetWS);
-//          Fim    := Pos('</retConsSitCTe', FPRetWS) -1;
-
-//          aEventos := Copy(FPRetWS, Inicio, Fim - Inicio + 1);
-
-          // Salva o XML de eventos retornados ao consultar um CT-e
           SalvarEventos(CTeRetorno);
-        end;
       end;
     end;
   finally
@@ -2493,6 +2538,11 @@ var
   VerServ: Double;
   ModeloTemp: String;
 begin
+  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+    FPHeaderElement := 'cteCabecMsg'
+  else
+    FPHeaderElement := '';
+
   FPVersaoServico := '';
   FPURL  := '';
 
@@ -2721,6 +2771,11 @@ procedure TCTeConsultaCadastro.DefinirURL;
 var
   VersaoTemp: Double;
 begin
+  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+    FPHeaderElement := 'cteCabecMsg'
+  else
+    FPHeaderElement := '';
+
   FPVersaoServico := '';
   FPURL := '';
   VersaoTemp := VersaoCTeToDbl(FPConfiguracoesCTe.Geral.VersaoDF);
@@ -2890,6 +2945,11 @@ var
   VerServ: Double;
   Ok: Boolean;
 begin
+  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+    FPHeaderElement := 'cteCabecMsg'
+  else
+    FPHeaderElement := '';
+
   VerServ := VersaoCTeToDbl(FPConfiguracoesCTe.Geral.VersaoDF);
   FCNPJ   := FEvento.Evento.Items[0].InfEvento.CNPJ;
   FIE     := FEvento.Evento.Items[0].InfEvento.detEvento.IE;
@@ -2908,7 +2968,8 @@ begin
     os outros eventos como manifestação do destinatário serão tratados diretamente pela RFB }
 
   if (FEvento.Evento.Items[0].InfEvento.tpEvento in [teCCe, teCancelamento,
-      teMultiModal, tePrestDesacordo, teGTV, teComprEntrega, teCancComprEntrega]) then
+      teMultiModal, tePrestDesacordo, teGTV, teComprEntrega, teCancComprEntrega,
+      teCancPrestDesacordo, teInsucessoEntregaCTe, teCancInsucessoEntregaCTe]) then
     FPLayout := LayCTeEvento
   else
     FPLayout := LayCTeEventoAN;
@@ -2929,7 +2990,11 @@ end;
 
 procedure TCTeEnvEvento.DefinirServicoEAction;
 begin
-  FPServico    := GetUrlWsd + 'CteRecepcaoEvento';
+  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+    FPServico := GetUrlWsd + 'CteRecepcaoEvento'
+  else
+    FPServico := GetUrlWsd + 'CTeRecepcaoEventoV4';
+
   FPSoapAction := FPServico + '/cteRecepcaoEvento';
 end;
 
@@ -3017,6 +3082,12 @@ begin
             infEvento.detEvento.xOBS := FEvento.Evento[i].InfEvento.detEvento.xOBS;
           end;
 
+          teCancPrestDesacordo:
+          begin
+            SchemaEventoCTe := schevCancPrestDesacordo;
+            infEvento.detEvento.nProt := FEvento.Evento[i].InfEvento.detEvento.nProt;
+          end;
+
           teGTV:
           begin
             SchemaEventoCTe := schevGTV;
@@ -3083,6 +3154,33 @@ begin
             SchemaEventoCTe := schevCancCECTe;
             infEvento.detEvento.nProt   := FEvento.Evento[i].InfEvento.detEvento.nProt;
             infEvento.detEvento.nProtCE := FEvento.Evento[i].InfEvento.detEvento.nProtCE;
+          end;
+
+          teInsucessoEntregaCTe:
+          begin
+            SchemaEventoCTe := schevIECTe;
+            infEvento.detEvento.nProt := FEvento.Evento[i].InfEvento.detEvento.nProt;
+            infEvento.detEvento.dhTentativaEntrega := FEvento.Evento[i].InfEvento.detEvento.dhTentativaEntrega;
+            infEvento.detEvento.nTentativa := FEvento.Evento[i].InfEvento.detEvento.nTentativa;
+            infEvento.detEvento.tpMotivo := FEvento.Evento[i].InfEvento.detEvento.tpMotivo;
+            infEvento.detEvento.xJustMotivo := FEvento.Evento[i].InfEvento.detEvento.xJustMotivo;
+            infEvento.detEvento.latitude := FEvento.Evento[i].InfEvento.detEvento.latitude;
+            infEvento.detEvento.longitude := FEvento.Evento[i].InfEvento.detEvento.longitude;
+            infEvento.detEvento.hashTentativaEntrega := FEvento.Evento[i].InfEvento.detEvento.hashTentativaEntrega;
+            infEvento.detEvento.dhHashTentativaEntrega := FEvento.Evento[i].InfEvento.detEvento.dhHashTentativaEntrega;
+
+            for j := 0 to FEvento.Evento[i].InfEvento.detEvento.infEntrega.Count - 1 do
+            begin
+              with EventoCTe.Evento[i].InfEvento.detEvento.infEntrega.New do
+                chNFe := FEvento.Evento[i].InfEvento.detEvento.infEntrega[j].chNFe;
+            end;
+          end;
+
+          teCancInsucessoEntregaCTe:
+          begin
+            SchemaEventoCTe := schevCancIECTe;
+            infEvento.detEvento.nProt := FEvento.Evento[i].InfEvento.detEvento.nProt;
+            infEvento.detEvento.nProtIE := FEvento.Evento[i].InfEvento.detEvento.nProtIE;
           end;
         end;
       end;
@@ -3173,6 +3271,20 @@ begin
           AXMLEvento := '<evCancCECTe xmlns="' + ACBRCTE_NAMESPACE + '">' +
                           Trim(RetornarConteudoEntre(AXMLEvento, '<evCancCECTe>', '</evCancCECTe>')) +
                         '</evCancCECTe>';
+        end;
+
+      schevIECTe:
+        begin
+          AXMLEvento := '<evIECTe xmlns="' + ACBRCTE_NAMESPACE + '">' +
+                          Trim(RetornarConteudoEntre(AXMLEvento, '<evIECTe>', '</evIECTe>')) +
+                        '</evIECTe>';
+        end;
+
+      schevCancIECTe:
+        begin
+          AXMLEvento := '<evCancIECTe xmlns="' + ACBRCTE_NAMESPACE + '">' +
+                          Trim(RetornarConteudoEntre(AXMLEvento, '<evCancIECTe>', '</evCancIECTe>')) +
+                        '</evCancIECTe>';
         end;
     end;
 
@@ -3408,6 +3520,11 @@ var
   UF : String;
   Versao: Double;
 begin
+  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+    FPHeaderElement := 'cteCabecMsg'
+  else
+    FPHeaderElement := '';
+
   { Esse método é tratado diretamente pela RFB }
 
   UF := 'AN';

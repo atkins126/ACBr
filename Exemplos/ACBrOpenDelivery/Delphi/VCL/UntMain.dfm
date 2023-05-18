@@ -126,8 +126,8 @@ object FMain: TFMain
           object Label9: TLabel
             Left = 0
             Top = 0
-            Width = 1056
-            Height = 41
+            Width = 321
+            Height = 15
             Cursor = crHandPoint
             Align = alClient
             Caption = 'https://abrasel-nacional.github.io/docs/#tag/ordersPolling'
@@ -398,8 +398,8 @@ object FMain: TFMain
           object Label10: TLabel
             Left = 0
             Top = 0
-            Width = 1056
-            Height = 41
+            Width = 319
+            Height = 15
             Cursor = crHandPoint
             Align = alClient
             Caption = 'https://abrasel-nacional.github.io/docs/#tag/ordersStatus'
@@ -535,41 +535,49 @@ object FMain: TFMain
                 item
                   Expanded = False
                   FieldName = 'externalCode'
+                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'Unit'
+                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'specialInstructions'
+                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'unitPriceValue'
+                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'optionsPrice'
+                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'totalPriceValue'
+                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'totalPriceCurrency'
+                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'unitPriceCurrency'
+                  Width = 64
                   Visible = True
                 end
                 item
@@ -609,6 +617,7 @@ object FMain: TFMain
                 item
                   Expanded = False
                   FieldName = 'externalCode'
+                  Width = 64
                   Visible = True
                 end
                 item
@@ -625,21 +634,25 @@ object FMain: TFMain
                 item
                   Expanded = False
                   FieldName = 'unitPriceValue'
+                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'unitPriceCurrency'
+                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'totalPriceValue'
+                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'totalPriceCurrency'
+                  Width = 64
                   Visible = True
                 end
                 item
@@ -1198,6 +1211,15 @@ object FMain: TFMain
           DataSource = DM.dtsOrder
           TabOrder = 22
         end
+        object btnOrderDelivered: TButton
+          Left = 872
+          Top = 64
+          Width = 130
+          Height = 25
+          Caption = 'Delivered'
+          TabOrder = 23
+          OnClick = btnOrderDeliveredClick
+        end
       end
       object tbiMerchant: TTabSheet
         Caption = 'Merchant (Estabelecimento)'
@@ -1399,12 +1421,14 @@ object FMain: TFMain
     MarketPlace.Resources.OrderConfirm = 'orders/api/v1/{orderId}/confirm'
     MarketPlace.Resources.OrderReadyForPickup = 'orders/api/v1/{orderId}/readyForPickup'
     MarketPlace.Resources.OrderDispatch = 'orders/api/v1/{orderId}/dispatch'
+    MarketPlace.Resources.OrderDelivered = 'orders/api/v1/{orderId}/delivered'
     MarketPlace.Resources.OrderRequestCancellation = 'orders/api/v1/{orderId}/requestCancellation'
     MarketPlace.Resources.OrderAcceptCancellation = 'orders/api/v1/{orderId}/acceptCancellation'
     MarketPlace.Resources.OrderDenyCancellation = 'orders/api/v1/{orderId}/denyCancellation'
     TimeOut = 90000
     OnHTTPEnviar = ACBrOpenDelivery1HTTPEnviar
     OnHTTPRetornar = ACBrOpenDelivery1HTTPRetornar
+    OnHTTPError = ACBrOpenDelivery1HTTPError
     Left = 728
     Top = 16
   end

@@ -193,17 +193,24 @@ type
     ACBr_NFSeXDanfseRL_dpk: TCheckBox;
     Label29: TLabel;
     ACBr_NFSeXDanfseFR_dpk: TCheckBox;
-    ACBr_PIXCD_dpk: TCheckBox;
     ACBr_OFX_dpk: TCheckBox;
     ACBr_GTIN_dpk: TCheckBox;
     ACBr_OpenDelivery_dpk: TCheckBox;
     ACBr_PAFNFCe_dpk: TCheckBox;
+    ACBr_PIXCD_dpk: TCheckBox;
+    ACBr_Android_dpk: TCheckBox;
+    lblacb: TLabel;
+    lblSubTituloFPDF: TLabel;
+    lblFPDF_BoletoDPK: TLabel;
+    ACBr_BoletoFPDF_dpk: TCheckBox;
     procedure btnPacotesMarcarTodosClick(Sender: TObject);
     procedure btnPacotesDesmarcarTodosClick(Sender: TObject);
     procedure VerificarCheckboxes(Sender: TObject);
   private
     FPacotes: TPacotes;
     FUtilizarBotoesMarcar: Boolean;
+    procedure AtualizarTelaConformeListaDePacotes(ListaPacotes: TPacotes);
+    procedure AtualizarListaDePacotesConformeTela(ListaPacotes: TPacotes);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -230,10 +237,13 @@ begin
   try
     //Não usar ArqIni.ReadSection porque pode ser que houveram mudanças nos pacotes...
     for I := 0 to Pacotes.Count - 1 do
-      Pacotes[I].Checked := ArqIni.ReadBool('PACOTES', Pacotes[I].Caption, False);
+      Pacotes[I].MarcadoParaInstalar := ArqIni.ReadBool('PACOTES', Pacotes[I].GetNome, False);
   finally
     ArqIni.Free;
   end;
+
+  AtualizarTelaConformeListaDePacotes(Pacotes);
+
 end;
 
 procedure TframePacotes.SalvarEmArquivoIni(const ArquivoIni: string);
@@ -241,15 +251,60 @@ var
   ArqIni: TIniFile;
   I: Integer;
 begin
+  AtualizarListaDePacotesConformeTela(Pacotes);
+
   ArqIni := TIniFile.Create(ArquivoIni);
   try
     ArqIni.EraseSection('PACOTES');
     for I := 0 to Pacotes.Count - 1 do
-      ArqIni.WriteBool('PACOTES', Pacotes[I].Caption, Pacotes[I].Checked);
+      ArqIni.WriteBool('PACOTES', Pacotes[I].GetNome, Pacotes[I].MarcadoParaInstalar);
   finally
     ArqIni.Free;
   end;
 
+end;
+
+procedure TframePacotes.AtualizarTelaConformeListaDePacotes(ListaPacotes: TPacotes);
+var
+  I: Integer;
+  j: Integer;
+  achkBox: TCheckBox;
+begin
+  for I := 0 to ListaPacotes.Count - 1 do
+  begin
+    for j := 0 to Self.ComponentCount - 1 do
+    begin
+      if (Self.Components[j] is TCheckBox) then
+      begin
+        achkBox := (Self.Components[j] as TCheckBox);
+        if achkBox.Caption = ListaPacotes[i].GetNome then
+          achkBox.Checked := ListaPacotes[i].MarcadoParaInstalar;
+      end;
+    end;
+  end;
+end;
+
+procedure TframePacotes.AtualizarListaDePacotesConformeTela(ListaPacotes: TPacotes);
+var
+  I: Integer;
+  j: Integer;
+  achkBox: TCheckBox;
+begin
+  for I := 0 to ListaPacotes.Count - 1 do
+  begin
+    for j := 0 to Self.ComponentCount - 1 do
+    begin
+      if (Self.Components[j] is TCheckBox) then
+      begin
+        achkBox := (Self.Components[j] as TCheckBox);
+        if achkBox.Caption = ListaPacotes[i].GetNome then
+        begin
+          ListaPacotes[i].MarcadoParaInstalar := achkBox.Checked;
+          Break;
+        end;
+      end;
+    end;
+  end;
 end;
 
 constructor TframePacotes.Create(AOwner: TComponent);
@@ -272,12 +327,12 @@ begin
   for I := 0 to Self.ComponentCount - 1 do
   begin
     if Self.Components[I] is TCheckBox then
-       FPacotes.Add(TCheckBox(Self.Components[I]));
+       FPacotes.Add(TPacote.Create(TCheckBox(Self.Components[I])));
   end;
-  FPacotes.Sort(TComparer<TCheckBox>.Construct(
-      function(const Dpk1, Dpk2: TCheckBox): Integer
+  FPacotes.Sort(TComparer<TPacote>.Construct(
+      function(const Dpk1, Dpk2: TPacote): Integer
       begin
-         Result := CompareStr( FormatFloat('0000', Dpk1.TabOrder), FormatFloat('0000', Dpk2.TabOrder) );
+         Result := CompareStr( FormatFloat('0000', Dpk1.OrdemListagem), FormatFloat('0000', Dpk2.OrdemListagem) );
       end));
 end;
 
@@ -382,6 +437,7 @@ begin
       begin
         ACBr_BoletoFR_dpk.Checked := False;
         ACBr_BoletoRL_dpk.Checked := False;
+        ACBr_BoletoFPDF_dpk.Checked := False;
       end;
 
       // quando não for selecionado o MDF-e devemos desmarcar
@@ -502,6 +558,16 @@ begin
       if ACBr_OpenDelivery_dpk.Checked then
       begin
         ACBr_OpenSSL_dpk.Checked  := True;
+      end;
+
+      if ACBr_PIXCD_dpk.Checked then
+      begin
+        ACBr_OpenSSL_dpk.Checked  := True;
+      end;
+
+      if ACBr_Boleto_dpk.Checked then
+      begin
+        ACBr_PIXCD_dpk.Checked := True;
       end;
 
     finally

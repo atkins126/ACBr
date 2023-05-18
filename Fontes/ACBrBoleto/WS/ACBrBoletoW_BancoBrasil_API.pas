@@ -37,7 +37,13 @@ unit ACBrBoletoW_BancoBrasil_API;
 interface
 
 uses
-  Classes, SysUtils, ACBrBoletoWS, pcnConversao, ACBrBoletoConversao, ACBrBoleto,
+  Classes,
+  SysUtils,
+  ACBrBoletoWS,
+  pcnConversao,
+  ACBrBoletoConversao,
+  ACBrBoleto,
+  ACBrBoletoWS.Rest,
   Jsons;
 
 
@@ -352,7 +358,7 @@ begin
         Json.Add('indicadorPermissaoRecebimentoParcial').Value.AsString := 'S';
 
       Json.Add('numeroTituloBeneficiario').Value.AsString               := Copy(Trim(UpperCase(ATitulo.NumeroDocumento)),0,15);
-      Json.Add('campoUtilizacaoBeneficiario').Value.AsString            := Copy(Trim(StringReplace(UpperCase(ATitulo.Mensagem.Text),'\r\n',' ',[rfReplaceAll])),0,30);
+      Json.Add('campoUtilizacaoBeneficiario').Value.AsString            := Copy(Trim(StringReplace(UpperCase(TiraPontos(ATitulo.Mensagem.Text)),'\r\n',' ',[rfReplaceAll])),0,30);
       Json.Add('numeroTituloCliente').Value.AsString                    := Boleto.Banco.MontarCampoNossoNumero(ATitulo);
       Json.Add('mensagemBloquetoOcorrencia').Value.AsString             := UpperCase(Copy(Trim(ATitulo.Instrucao1 +' '+ATitulo.Instrucao2+' '+ATitulo.Instrucao3),0,165));
       GerarDesconto(Json);
@@ -432,13 +438,13 @@ begin
 
       case Integer(ATitulo.OcorrenciaOriginal.Tipo) of
         3:  // RemessaConcederAbatimento
-          begin
-            Json.Add('RemessaConcederAbatimento').Value.AsString := 'S';
+          begin                                 
+            Json.Add('indicadorIncluirAbatimento').Value.AsString := 'S';
             AtribuirAbatimento(Json);
           end;
         4:  // RemessaCancelarAbatimento
-          begin
-            Json.Add('RemessaCancelarAbatimento').Value.AsString := 'S';
+          begin                                 
+            Json.Add('indicadorAlterarAbatimento').Value.AsString := 'S';
             AlteracaoAbatimento(Json);
           end;
         5: //RemessaConcederDesconto
@@ -645,6 +651,15 @@ begin
       try
         if (ATitulo.ValorMoraJuros > 0) then
         begin
+          if ATitulo.CodigoMora = '' then
+          begin
+            case aTitulo.CodigoMoraJuros of
+              cjValorDia: aTitulo.CodigoMora   := '1';
+              cjTaxaMensal: aTitulo.CodigoMora := '2';
+              cjIsento: aTitulo.CodigoMora     := '3';
+            end;
+          end;
+
           JsonJuros.Add('tipo').Value.AsInteger             := StrToIntDef(ATitulo.CodigoMora, 3);
           case (StrToIntDef(ATitulo.CodigoMora, 3)) of
             1 : JsonJuros.Add('valor').Value.AsNumber       := ATitulo.ValorMoraJuros;
@@ -687,13 +702,16 @@ begin
             ACodMulta := 2;
         end
         else
-          ACodMulta := 3;
+          ACodMulta := 0;
 
 
         if (ATitulo.DataMulta > 0) then
         begin
           JsonMulta.Add('tipo').Value.AsInteger             := ACodMulta;
-          JsonMulta.Add('data').Value.AsString              := FormatDateBr(ATitulo.DataMulta, 'DD.MM.YYYY');
+
+          if( aCodMulta > 0 ) then
+            JsonMulta.Add('data').Value.AsString              := FormatDateBr(ATitulo.DataMulta, 'DD.MM.YYYY');
+
           case ACodMulta of
             1 : JsonMulta.Add('valor').Value.AsNumber       := ATitulo.PercentualMulta;
             2 : JsonMulta.Add('porcentagem').Value.AsNumber := ATitulo.PercentualMulta;

@@ -75,6 +75,7 @@ function SAT_DesbloquearSAT(const sResposta: PChar; var esTamanho: longint): lon
 function SAT_TrocarCodigoDeAtivacao(codigoDeAtivacaoOuEmergencia: PChar; opcao: integer; novoCodigo: PChar;
   const sResposta: PChar; var esTamanho: longint): longint;{$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 function SAT_ConsultarSAT(const sResposta: PChar; var esTamanho: longint): longint;
+function SAT_ConsultarUltimaSessaoFiscal(const sResposta: PChar; var esTamanho: longint): longint;
   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 function SAT_ConsultarStatusOperacional(const sResposta: PChar; var esTamanho: longint): longint;
   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
@@ -98,6 +99,7 @@ function SAT_CriarCFe(eArquivoIni: PChar; const sResposta: PChar;
   var esTamanho: longint): longint;{$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 function SAT_CriarEnviarCFe(eArquivoIni: PChar; const sResposta: PChar;
   var esTamanho: longint): longint;{$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
+function SAT_ValidarCFe(eArquivoXml: PChar): longint;{$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 function SAT_EnviarCFe(eArquivoXml: PChar; const sResposta: PChar;
   var esTamanho: longint): longint;{$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 function SAT_CancelarCFe(eArquivoXml: PChar; const sResposta: PChar;
@@ -325,6 +327,22 @@ begin
   end;
 end;
 
+function SAT_ConsultarUltimaSessaoFiscal(const sResposta: PChar; var esTamanho: longint): longint;
+        {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
+begin
+  try
+    VerificarLibInicializada(pLib);
+    Result := TACBrLibSAT(pLib^.Lib).ConsultarUltimaSessaoFiscal(sResposta, esTamanho);
+  except
+    on E: EACBrLibException do
+      Result := E.Erro;
+
+    on E: Exception do
+      Result := ErrExecutandoMetodo;
+  end;
+end;
+
+
 function SAT_ConsultarStatusOperacional(const sResposta: PChar; var esTamanho: longint): longint;
   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
 begin
@@ -475,6 +493,21 @@ begin
 
     on E: Exception do
       Result := ErrExecutandoMetodo;
+  end;
+end;
+
+function SAT_ValidarCFe(eArquivoXml: PChar):longint;
+  {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
+begin
+  try
+    VerificarLibInicializada(pLib);
+    Result := TACBrLibSAT(pLib^.Lib).ValidarCFe(eArquivoXml);
+  except
+    on E: EACBrLibException do
+       Result := E.Erro;
+
+    on E: Exception do
+       Result := ErrExecutandoMetodo;
   end;
 end;
 

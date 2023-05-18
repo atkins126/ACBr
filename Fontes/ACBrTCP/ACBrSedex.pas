@@ -67,7 +67,8 @@ type
     Tps85480AEROGRAMA, Tps10030CARTASIMPLES, Tps10014CARTAREGISTRADA,
     Tps16012CARTAOPOSTAL, Tps20010IMPRESSO, Tps14010MALADIRETA,
     Tps04014SEDEXVarejo, Tps40045SEDEXaCobrarVarejo, Tps40215SEDEX10Varejo,
-    Tps40290SEDEXHojeVarejo, Tps04510PACVarejo, Tps04669PACContrato, Tps04162SEDEXContrato, Tps20150IMPRESSOContrato);
+    Tps40290SEDEXHojeVarejo, Tps04510PACVarejo, Tps04669PACContrato, Tps04162SEDEXContrato, Tps20150IMPRESSOContrato,
+    Tps03220SEDEXContrato,Tps03298PACContrato);
 
   TACBrTpFormato = (TpfCaixaPacote, TpfRoloPrisma, TpfEnvelope);
 
@@ -326,7 +327,11 @@ begin
     Tps04162SEDEXContrato:
       TpServico := '04162';
     Tps20150IMPRESSOContrato:
-      TpServico := '20150'
+      TpServico := '20150';
+    Tps03220SEDEXContrato:
+      TpServico := '03220';
+    Tps03298PACContrato:
+      TpServico := '03298';
     else
       raise EACBrSedexException.CreateACBrStr('Tipo de Serviço Inválido');
   end;
@@ -481,21 +486,9 @@ end;
 procedure TACBrSedex.Rastrear(const CodRastreio: String);
 var
   SL: TStringList;
-  I, Cont: integer;
-  vObs, Erro, vData, vLocal: String;
-
-  function CopyDeAte(Texto, TextIni, TextFim: string): string;
-  var
-    ContIni, ContFim: integer;
-  begin
-    Result := '';
-    if (Pos(TextFim, Texto) <> 0) and (Pos(TextIni, Texto) <> 0) then
-    begin
-      ContIni := Pos(TextIni, Texto) + Length(TextIni);
-      ContFim := Pos(TextFim, Texto);
-      Result := Copy(Texto, ContIni, ContFim - ContIni);
-    end;
-  end;
+  I: integer;
+  vObs, Erro, vData, vHora, vLocal, infoLinha: String;
+  vCriar: Boolean;
 begin
   retRastreio.Clear;
 
@@ -531,13 +524,26 @@ begin
   SL := TStringList.Create;
   try
     SL.Text := Self.RespHTTP.Text;
-    Cont := SL.Count - 1;
-
-    for I := cont downto 0 do
+    vCriar := False;
+    for I := 0 to Pred(SL.Count) do
     begin
-      if Pos('<tr><td valign=', SL[I]) > 0 then
+      infoLinha := Trim(SL.Strings[I]);
+      if Pos('>Data', infoLinha) > 0 then
       begin
-        vData :=  Copy(SL[I], 31, 10) + ' ' + Copy(SL[I], 45, 5) + ':00';
+        vData :=(RetornarConteudoEntre(infoLinha, '>Data: </span>', ' às '));
+        vHora :=(RetornarConteudoEntre(infoLinha, ' às ', '<br/>'));
+        vData := VData + ' ' + vHora;
+      end;
+
+      if Pos('>Local', infoLinha) > 0 then
+        vLocal :=(RetornarConteudoEntre(infoLinha, '</span>', '<a class="btn-floating track-fab waves-effect waves-light white">')) + ' -> ' + vObs;
+
+      if Pos('eventoStatus', infoLinha) > 0 then
+        vObs := RetornarConteudoEntre(infoLinha, 'eventoStatus">', '</span>');
+
+      vCriar := Trim(vLocal) <> '';
+      if vCriar then
+      begin
         with retRastreio.New do
         begin
           DataHora   := StrToDateTime(vData);
@@ -545,19 +551,11 @@ begin
           Situacao   := vObs;
           Observacao := vObs;
         end;
+        vData := EmptyStr;
+        vLocal := EmptyStr;
+        vObs := EmptyStr;
+        vCriar := False;
       end;
-
-      If Pos('</label></td>', SL[I]) > 0 Then
-  		Begin
-        vLocal :=(CopyDeAte(SL[I], '<label>', '</label>')) + ' -> ' + vObs;
-      End;
-
-
-     If Pos('<td><strong>', SL[I]) > 0 Then
-		 Begin
-       vObs := CopyDeAte(SL[I], '<td><strong>', '</strong>');
-       //vLocal := vObs;
-     End;
 
     end;
   finally

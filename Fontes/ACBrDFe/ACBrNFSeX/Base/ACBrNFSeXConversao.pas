@@ -50,10 +50,15 @@ type
                      stNFSeImprimir, stNFSeEmail, stNFSeAbrirSessao,
                      stNFSeFecharSessao, stNFSeAguardaProcesso,
                      stNFSeEnvioWebService, stNFSeGerarToken,
-                     stNFSeConsultarEvento, stNFSeConsultarDFe);
+                     stNFSeConsultarEvento, stNFSeConsultarDFe,
+                     stNFSeConsultarParam);
 
   TVersaoNFSe = (ve100, ve101, ve103,
                  ve200, ve201, ve202, ve203, ve204);
+
+  TLayout =(loABRASF, loProprio);
+
+  TLayoutNFSe = (lnfsProvedor, lnfsPadraoNacionalv1);
 
   TStatusRPS = (srNormal, srCancelado);
 
@@ -86,7 +91,11 @@ type
                                    retLucroReal, retLucroPresumido, retSimplesNacional,
                                    retImune, retEmpresaIndividualRELI, retEmpresaPP,
                                    retMicroEmpresario, retOutros, retMovimentoMensal,
-                                   retISSQNAutonomos, retISSQNSociedade, retNotarioRegistrador);
+                                   retISSQNAutonomos, retISSQNSociedade,
+                                   retNotarioRegistrador,
+                                   retTribFaturamentoVariavel, retFixo,
+                                   retIsencao,retExigibSuspensaJudicial,
+                                   retExigibSuspensaAdm);
 
   TnfseSimNao = (snSim, snNao);
 
@@ -103,36 +112,37 @@ type
   TDeducaoPor = (dpNenhum, dpPercentual, dpValor);
 
   TTipoDeducao = (tdNenhum, tdMateriais, tdSubEmpreitada, tdValor, tdVeiculacao,
-                  tdPercentual, tdPercMateriais, tdIntermediacao);
+                  tdPercentual, tdPercMateriais, tdIntermediacao, tdEquipamento);
 
   TnfseProvedor = (proNenhum,
                    proPadraoNacional,
                    proAbaco, proABase, proActcon, proAdm, proADPM, proAEG,
                    proAgili, proAssessorPublico, proAsten, proBauhaus, proBetha,
-                   proBHISS, proCenti, proCIGA, proCitta, proConam, proCoplan,
-                   proCTA, proCTAConsult, proDataSmart, proDBSeller, proDeISS,
-                   proDesenvolve, proDigifred, proDSF, proeGoverneISS, proEL,
-                   proEloTech, proEquiplano, proeReceita, proEtherium,
+                   proBHISS, proCenti, proCIGA, proCitta, proConam, proContass,
+                   proCoplan, proCTA, proCTAConsult, proDataSmart, proDBSeller,
+                   proDeISS, proDesenvolve, proDigifred, proDSF, proeGoverneISS,
+                   proEL, proEloTech, proEquiplano, proeReceita, proEtherium,
                    proFacundo, proFGMaiss, profintelISS, proFiorilli, proFisco,
-                   proFISSLex, proFuturize, proGeisWeb, progeNFe, proGiap,
-                   proGinfes, proGiss, proGovBR, proGovDigital, proGoverna,
+                   proFISSLex, proFuturize, proGeisWeb, progeNFe, proGestaoISS,
+                   proGiap, proGinfes, proGiss, proGovBR, proGovDigital, proGoverna,
                    proHorus, proiiBrasil, proInfisc, proIPM, proISSBarueri,
-                   proISSCambe, proISSCuritiba, proISSDigital, proISSDSF,
-                   proISSe, proISSFortaleza, proISSGoiania, proISSIntel,
+                   proISSCamacari, proISSCambe, proISSCuritiba, proISSDigital,
+                   proISSDSF, proISSe, proISSFortaleza, proISSGoiania, proISSIntel,
                    proISSJoinville, proISSLencois, proISSNatal, proISSNet,
                    proISSPortoVelho, proISSRecife, proISSRio, proISSSalvador,
-                   proISSSaoPaulo, proISSSJP, proISSVitoria, proLexsom, proLink3,
-                   proMegaSoft, proMetropolisWeb, proMitra, proModernizacaoPublica,
-                   proNEAInformatica, proNFSeBrasil, proNotaInteligente,
-                   proProdata, proPronim, proPublica, proRLZ, proSaatri,
+                   proISSSaoPaulo, proISSSJP, proISSVitoria, proLexsom, proLibre,
+                   proLink3, proMegaSoft, proMetropolisWeb, proMitra,
+                   proModernizacaoPublica, proNEAInformatica, proNFSeBrasil,
+                   proNotaInteligente, proPrescon, proPriMax, proProdata,
+                   proPronim, proPublica, proPublicSoft, proRLZ, proSaatri,
                    proSafeWeb, proSH3, proSiam, proSiapNet, proSiappa,
                    proSiapSistemas, proSiat, proSigCorp, proSigep, proSigISS,
                    proSigISSWeb, proSilTecnologia, proSimple, proSimplISS,
                    proSintese, proSisPMJP, proSistemas4R, proSmarAPD,
                    proSoftPlan, proSpeedGov, proSSInformatica, proSudoeste,
-                   proSystemPro, proTcheInfo, proTecnos, proThema, proTinus,
-                   proTiplan, proTributus, proVersaTecnologia, proVirtual,
-                   proWebFisco, proWebISS);
+                   proSysISS, proSystemPro, proTcheInfo, proTecnos, proThema,
+                   proTinus, proTiplan, proTributus, proVersaTecnologia,
+                   proVirtual, proWebFisco, proWebISS);
 
   TnfseSituacaoTributaria = (stRetencao, stNormal, stSubstituicao, stNenhum);
 
@@ -178,7 +188,8 @@ type
              tmConsultarNFSeServicoTomado, tmCancelarNFSe,
              tmGerar, tmGerarLote, tmRecepcionarSincrono, tmSubstituirNFSe,
              tmAbrirSessao, tmFecharSessao, tmTeste, tmTodos,
-             tmGerarToken, tmEnviarEvento, tmConsultarEvento, tmConsultarDFe);
+             tmGerarToken, tmEnviarEvento, tmConsultarEvento, tmConsultarDFe,
+             tmConsultarParam);
 
   TFormatoItemListaServico = (filsComFormatacao, filsSemFormatacao,
                               filsComFormatacaoSemZeroEsquerda,
@@ -192,7 +203,7 @@ type
                  tpPJforaPais);
 
   TtpConsulta = (tcPorNumero, tcPorFaixa, tcPorPeriodo, tcServicoPrestado,
-                 tcServicoTomado);
+                 tcServicoTomado, tcPorCodigoVerificacao);
 
   TtpPeriodo = (tpEmissao, tpCompetencia);
 
@@ -285,6 +296,9 @@ type
                teRejeicaoIntermediario, teAnulacaoRejeicao,
                teCancelamentoPorOficio, teBloqueioPorOficio,
                teDesbloqueioPorOficio, teNenhum);
+
+  TParamMunic = (pmAliquota, pmHistoricoAliquota, pmConvenio,
+                 pmRegimesEspeciais, pmRetencoes, pmBeneficios);
 
 function StatusRPSToStr(const t: TStatusRPS): string;
 function StrToStatusRPS(out ok: boolean; const s: string): TStatusRPS;
@@ -459,8 +473,8 @@ function tpEventoToStr(const t: TtpEvento): string;
 function StrTotpEvento(out ok: Boolean; const s: string): TtpEvento;
 function tpEventoToDesc(const t: TtpEvento): string;
 
-function TipoDeducaoToStr(const t: TTipoDeducao): string;
-function StrToTipoDeducao(out ok: Boolean; const s: string): TTipoDeducao;
+function ParamMunicToStr(const t: TParamMunic): string;
+function StrToParamMunic(out ok: Boolean; const s: string): TParamMunic;
 
 function CodIBGEPaisToSiglaISO2(t: Integer): string;
 function SiglaISO2ToCodIBGEPais(const t: string): Integer;
@@ -663,10 +677,9 @@ begin
   CodProvedor := GetEnumValue(TypeInfo(TnfseProvedor), ProvedorStr);
 
   if CodProvedor = -1 then
-    raise Exception.Create(Format('"%s" não é um valor TnfseProvedor válido.',
-                                                                [ProvedorStr]));
-
-  Result := TnfseProvedor(CodProvedor);
+    Result := proNenhum
+  else
+    Result := TnfseProvedor(CodProvedor);
 end;
 
 function CondicaoToStr(const t: TnfseCondicaoPagamento): string;
@@ -6731,7 +6744,7 @@ begin
 
  Result := CodTOM;
 
- if (Trim(Result) = '') and (ACodigo <= 9999) then
+ if (Trim(Result) = '') and (ACodigo > 0) and (ACodigo <= 9999) then
    Result:= IntToStr(ACodigo);
 end;
 
@@ -12620,17 +12633,17 @@ end;
 function tpConsultaToStr(const t: TtpConsulta): string;
 begin
   Result := EnumeradoToStr(t,
-                           ['1', '2', '3', '4', '5'],
+                           ['1', '2', '3', '4', '5', '6'],
                            [tcPorNumero, tcPorFaixa, tcPorPeriodo,
-                            tcServicoPrestado, tcServicoTomado]);
+                            tcServicoPrestado, tcServicoTomado, tcPorCodigoVerificacao]);
 end;
 
 function StrTotpConsulta(out ok: boolean; const s: string): TtpConsulta;
 begin
   Result := StrToEnumerado(ok, s,
-                           ['1', '2', '3', '4', '5'],
+                           ['1', '2', '3', '4', '5', '6'],
                            [tcPorNumero, tcPorFaixa, tcPorPeriodo,
-                            tcServicoPrestado, tcServicoTomado]);
+                            tcServicoPrestado, tcServicoTomado, tcPorCodigoVerificacao]);
 end;
 
 function tpPeriodoToStr(const t: TtpPeriodo): string;
@@ -12671,7 +12684,7 @@ begin
                         'Gerar', 'GerarLote', 'RecepcionarSincrono', 'SubstituirNFSe',
                         'AbrirSessao', 'FecharSessao', 'Teste', 'Todos',
                         'GerarToken', 'EnviarEvento', 'ConsultarEvento',
-                        'ConsultarDFe'],
+                        'ConsultarDFe', 'ConsultarParam'],
                        [tmRecepcionar, tmConsultarSituacao, tmConsultarLote,
                         tmConsultarNFSePorRps, tmConsultarNFSe,
                         tmConsultarNFSePorFaixa, tmConsultarNFSeServicoPrestado,
@@ -12679,7 +12692,7 @@ begin
                         tmGerar, tmGerarLote, tmRecepcionarSincrono, tmSubstituirNFSe,
                         tmAbrirSessao, tmFecharSessao, tmTeste, tmTodos,
                         tmGerarToken, tmEnviarEvento, tmConsultarEvento,
-                        tmConsultarDFe]);
+                        tmConsultarDFe, tmConsultarParam]);
 end;
 
 function ModoEnvioToStr(const t: TmodoEnvio): string;
@@ -13166,21 +13179,24 @@ begin
                     teDesbloqueioPorOficio]);
 end;
 
-function TipoDeducaoToStr(const t: TTipoDeducao): string;
+function ParamMunicToStr(const t: TParamMunic): string;
 begin
   result := EnumeradoToStr(t,
-                           ['1', '2', '3', '4', '5', '6', '7'],
-                 [tdNenhum, tdMateriais, tdPercentual, tdValor, tdPercMateriais,
-                  tdVeiculacao, tdIntermediacao]);
+                           ['Aliquota', 'HistoricoAliquota', 'Convenio',
+                            'RegimesEspeciais', 'Retencoes', 'Beneficios'],
+                           [pmAliquota, pmHistoricoAliquota, pmConvenio,
+                            pmRegimesEspeciais, pmRetencoes, pmBeneficios]);
 end;
 
-function StrToTipoDeducao(out ok: Boolean; const s: string): TTipoDeducao;
+function StrToParamMunic(out ok: Boolean; const s: string): TParamMunic;
 begin
   result := StrToEnumerado(ok, s,
-                           ['1', '2', '3', '4', '5', '6', '7'],
-                 [tdNenhum, tdMateriais, tdPercentual, tdValor, tdPercMateriais,
-                  tdVeiculacao, tdIntermediacao]);
+                           ['Aliquota', 'HistoricoAliquota', 'Convenio',
+                            'RegimesEspeciais', 'Retencoes', 'Beneficios'],
+                           [pmAliquota, pmHistoricoAliquota, pmConvenio,
+                            pmRegimesEspeciais, pmRetencoes, pmBeneficios]);
 end;
+
 
 function CodIBGEPaisToSiglaISO2(t: Integer): string;
 var

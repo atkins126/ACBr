@@ -38,6 +38,23 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+06/03/2023
+-- ACBrOpenSSLUtils --
+[*] Correção na função "ConvertPEMToASN1()" de problema ao ler uma chave privada que possui a 
+    string "END" dentro do conteúdo.
+    por: Elias César
+
+
+22/11/2022
+-- ACBrOpenSSLUtils --
+[+] Inclusão das funções LoadPEMFromFile e LoadPEMFromStr para carregar específicamente 
+    certificados PEM;
+[+] Inclusão das funções 'LoadX509FromFile' e 'LoadX509FromStr' para carregar especificamente 
+    certificados em formato binário;
+[*] Alteração da função LoadCertificateFromString para tentar carregar o certificado na seguinte ordem:  
+    PEM, binário e PFX.
+    Por: Elias César
+
 23/09/2022
 -- ACBrOpenSSLUtils --
 [+] Inclusão da função "CreateSelfSignedCert()" que permite gerar um novo certificado .pem

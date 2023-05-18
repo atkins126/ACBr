@@ -88,16 +88,19 @@ const
   CChaveRecuoEndereco = 'RecuoEndereco';
   CChaveRecuoEmpresa = 'RecuoEmpresa';
   CChaveLogoemCima = 'LogoemCima';
+  CChaveImprimeInscSuframa = 'ImprimeInscSuframa';
   CChaveRecuoLogo = 'RecuoLogo';
   CChaveExpandirDadosAdicionaisAuto = 'ExpandirDadosAdicionaisAuto';
   CChaveImprimeContDadosAdPrimeiraPagina = 'ImprimeContDadosAdPrimeiraPagina';
   CChaveExibeCampoDePagamento = 'ExibeCampoDePagamento';
+  CChaveImprimeXPedNitemPed = 'ImprimeXPedNitemPed';
   CChaveFonteNome = 'Fonte.Nome';
   CChaveFonteNegrito = 'Fonte.Negrito';
   CChaveFonteTamanhoFonteRazaoSocial = 'Fonte.TamanhoFonteRazaoSocial';
   CChaveFonteTamanhoFonteEndereco = 'Fonte.TamanhoFonteEndereco';
   CChaveFonteTamanhoFonteInformacoesComplementares = 'Fonte.TamanhoFonteInformacoesComplementares';
   CChaveFonteTamanhoFonteDemaisCampos = 'Fonte.TamanhoFonteDemaisCampos';
+  CChaveImprimeDescAcrescItemNFe = 'ImprimeDescAcrescItemNFe';
 
   CSessaoDANFENFCE = 'DANFENFCe';
   CChaveTipoRelatorioEvento = 'TipoRelatorioEvento';

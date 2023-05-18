@@ -60,7 +60,7 @@ type
     FDANFSE: TACBrNFSeXDANFSeClass;
     FNotasFiscais: TNotasFiscais;
     FStatus: TStatusACBrNFSe;
-    fpCidadesJaCarregadas: Boolean;
+//    fpCidadesJaCarregadas: Boolean; //Não precisa desse campo. Já existe o FPIniParamsCarregado.
     FWebService: TWebServices;
 
     function GetConfiguracoes: TConfiguracoesNFSe;
@@ -83,7 +83,7 @@ type
 
     procedure EnviarEmail(const sPara, sAssunto: String;
       sMensagem: TStrings = nil; sCC: TStrings = nil; Anexos: TStrings = nil;
-      StreamNFSe: TStream = nil; const NomeArq: String = ''; sReplyTo: TStrings = nil); override;
+      StreamNFSe: TStream = nil; const NomeArq: String = ''; sReplyTo: TStrings = nil; sBCC: TStrings = nil); override;
 
     procedure GerarLote(const aLote: String; aqMaxRps: Integer = 50;
       aModoEnvio: TmodoEnvio = meAutomatico); overload;
@@ -167,10 +167,15 @@ type
       const ACodCancelamento: string; const AMotCancelamento: String = '';
       const ANumLote: String = ''; const ACodVerificacao: String = '');
 
+    function LinkNFSe(ANumNFSe: String; const ACodVerificacao: String;
+      const AChaveAcesso: String = ''; const AValorServico: String = ''): String;
+
     // Usado pelos provedores que geram token por WebService
     procedure GerarToken;
 
     // Usado pelo provedor PadraoNacional
+    procedure ConsultarDPSPorChave(const aChave: string);
+    procedure ConsultarNFSePorChave(const aChave: string);
     procedure ObterDANFSE(const aChave: String);
     procedure EnviarEvento(aInfEvento: TInfEvento);
     procedure ConsultarEvento(const aChave: string); overload;
@@ -180,8 +185,9 @@ type
     procedure ConsultarDFe(aNSU: Integer); overload;
     procedure ConsultarDFe(const aChave: string); overload;
 
-    function LinkNFSe(ANumNFSe: String; const ACodVerificacao: String;
-      const AChaveAcesso: String = ''; const AValorServico: String = ''): String;
+    procedure ConsultarParametros(ATipoParamMunic: TParamMunic;
+      const ACodigoServico: string = ''; ACompetencia: TDateTime = 0;
+      const ANumeroBeneficio: string = '');
 
     function GetNomeModeloDFe: String; override;
     function GetNameSpaceURI: String; override;
@@ -226,10 +232,7 @@ begin
   FNotasFiscais := TNotasFiscais.Create(Self);
   FWebService := TWebservices.Create;
 
-  fpCidadesJaCarregadas := False;
-
-  if not (csDesigning in Self.ComponentState) then
-    LerCidades;
+  //fpCidadesJaCarregadas := False;
 end;
 
 destructor TACBrNFSeX.Destroy;
@@ -243,13 +246,13 @@ end;
 
 procedure TACBrNFSeX.EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings;
   sCC: TStrings; Anexos: TStrings; StreamNFSe: TStream; const NomeArq: String;
-  sReplyTo: TStrings);
+  sReplyTo: TStrings; sBCC: TStrings);
 begin
   SetStatus( stNFSeEmail );
 
   try
     inherited EnviarEmail(sPara, sAssunto, sMensagem, sCC, Anexos, StreamNFSe,
-                          NomeArq, sReplyTo);
+                          NomeArq, sReplyTo, sBCC);
   finally
     SetStatus( stNFSeIdle );
   end;
@@ -368,11 +371,11 @@ end;
 
 procedure TACBrNFSeX.LerCidades;
 begin
-  if not fpCidadesJaCarregadas then
-  begin
+  //if not fpCidadesJaCarregadas then
+  //begin
     LerParamsIni(True);
-    fpCidadesJaCarregadas := True;
-  end;
+  //  fpCidadesJaCarregadas := True;
+  //end;
 end;
 
 procedure TACBrNFSeX.SetStatus(const stNewStatus: TStatusACBrNFSe);
@@ -391,7 +394,7 @@ begin
     raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
 
   FWebService.Gerar.Clear;
-  FWebService.Gerar.Lote := aLote;
+  FWebService.Gerar.NumeroLote := aLote;
   FWebService.Gerar.MaxRps := aqMaxRps;
   FWebService.Gerar.ModoEnvio := aModoEnvio;
 
@@ -406,7 +409,7 @@ begin
     raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
 
   FWebService.Emite.Clear;
-  FWebService.Emite.Lote := aLote;
+  FWebService.Emite.NumeroLote := aLote;
   FWebService.Emite.ModoEnvio := aModoEnvio;
 
   FProvider.Emite;
@@ -414,7 +417,7 @@ begin
   if Configuracoes.Geral.ConsultaLoteAposEnvio and
      (FWebService.Emite.ModoEnvio = meLoteAssincrono) then
   begin
-    if (FWebService.Emite.Protocolo <> '') or (FWebService.Emite.Lote <> '') then
+    if (FWebService.Emite.Protocolo <> '') or (FWebService.Emite.NumeroLote <> '') then
     begin
       if FProvider.ConfigGeral.ConsultaSitLote then
       begin
@@ -422,7 +425,7 @@ begin
         begin
           FWebService.ConsultaSituacao.Clear;
           FWebService.ConsultaSituacao.Protocolo := FWebService.Emite.Protocolo;
-          FWebService.ConsultaSituacao.Lote := FWebService.Emite.Lote;
+          FWebService.ConsultaSituacao.NumeroLote := FWebService.Emite.NumeroLote;
 
           Sleep(AguardarConsultaRet);
 
@@ -448,12 +451,12 @@ begin
         if FProvider.ConfigMsgDados.UsarNumLoteConsLote then
         begin
           FWebService.ConsultaLoteRps.Protocolo := FWebService.Emite.Protocolo;
-          FWebService.ConsultaLoteRps.Lote := FWebService.Emite.Lote;
+          FWebService.ConsultaLoteRps.NumeroLote := FWebService.Emite.NumeroLote;
         end
         else
         begin
           FWebService.ConsultaLoteRps.Protocolo := FWebService.Emite.Protocolo;
-          FWebService.ConsultaLoteRps.Lote := '';
+          FWebService.ConsultaLoteRps.NumeroLote := '';
         end;
 
         if not FProvider.ConfigGeral.ConsultaSitLote then
@@ -565,6 +568,17 @@ begin
   FProvider.ConsultarDFe;
 end;
 
+procedure TACBrNFSeX.ConsultarDPSPorChave(const aChave: string);
+begin
+  if not Assigned(FProvider) then
+    raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
+
+  FWebService.ConsultaNFSeporRps.Clear;
+  FWebService.ConsultaNFSeporRps.NumeroRps := aChave;
+
+  FProvider.ConsultaNFSeporRps;
+end;
+
 procedure TACBrNFSeX.ConsultarLoteRps(const AProtocolo, ANumLote: String);
 begin
   if not Assigned(FProvider) then
@@ -572,7 +586,7 @@ begin
 
   FWebService.ConsultaLoteRps.Clear;
   FWebService.ConsultaLoteRps.Protocolo := AProtocolo;
-  FWebService.ConsultaLoteRps.Lote := ANumLote;
+  FWebService.ConsultaLoteRps.NumeroLote := ANumLote;
 
   FProvider.ConsultaLoteRps;
 end;
@@ -611,6 +625,22 @@ begin
     CodVerificacao := aInfConsultaNFSe.CodVerificacao;
     tpDocumento := aInfConsultaNFSe.tpDocumento;
     tpRetorno := aInfConsultaNFSe.tpRetorno;
+  end;
+
+  ConsultarNFSe;
+end;
+
+procedure TACBrNFSeX.ConsultarNFSePorChave(const aChave: string);
+begin
+  FWebService.ConsultaNFSe.Clear;
+
+  with FWebService.ConsultaNFSe.InfConsultaNFSe do
+  begin
+    tpConsulta := tcPorNumero;
+    tpRetorno := trXml;
+
+    NumeroIniNFSe := aChave;
+    NumeroFinNFSe := aChave;
   end;
 
   ConsultarNFSe;
@@ -678,10 +708,10 @@ begin
     raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
 
   FWebService.ConsultaNFSeporRps.Clear;
-  FWebService.ConsultaNFSeporRps.NumRPS := ANumRPS;
-  FWebService.ConsultaNFSeporRps.Serie := ASerie;
-  FWebService.ConsultaNFSeporRps.Tipo := ATipo;
-  FWebService.ConsultaNFSeporRps.CodVerificacao := ACodVerificacao;
+  FWebService.ConsultaNFSeporRps.NumeroRps := ANumRPS;
+  FWebService.ConsultaNFSeporRps.SerieRps := ASerie;
+  FWebService.ConsultaNFSeporRps.TipoRps := ATipo;
+  FWebService.ConsultaNFSeporRps.CodigoVerificacao := ACodVerificacao;
 
   FProvider.ConsultaNFSeporRps;
 end;
@@ -883,6 +913,23 @@ begin
   ConsultarNFSe;
 end;
 
+procedure TACBrNFSeX.ConsultarParametros(ATipoParamMunic: TParamMunic;
+  const ACodigoServico: string = ''; ACompetencia: TDateTime = 0;
+  const ANumeroBeneficio: string = '');
+begin
+  if not Assigned(FProvider) then
+    raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
+
+  FWebService.ConsultarParam.Clear;
+  FWebService.ConsultarParam.tpParamMunic := ATipoParamMunic;
+  FWebService.ConsultarParam.CodigoMunicipio := Configuracoes.Geral.CodigoMunicipio;
+  FWebService.ConsultarParam.CodigoServico := ACodigoServico;
+  FWebService.ConsultarParam.Competencia := ACompetencia;
+  FWebService.ConsultarParam.NumeroBeneficio := ANumeroBeneficio;
+
+  FProvider.ConsultarParam;
+end;
+
 procedure TACBrNFSeX.ConsultarSituacao(const AProtocolo, ANumLote: String);
 begin
   if not Assigned(FProvider) then
@@ -890,7 +937,7 @@ begin
 
   FWebService.ConsultaSituacao.Clear;
   FWebService.ConsultaSituacao.Protocolo := AProtocolo;
-  FWebService.ConsultaSituacao.Lote := ANumLote;
+  FWebService.ConsultaSituacao.NumeroLote := ANumLote;
 
   FProvider.ConsultaSituacao;
 end;
@@ -1033,7 +1080,7 @@ end;
 function TACBrNFSeX.LinkNFSe(ANumNFSe: String; const ACodVerificacao,
   AChaveAcesso, AValorServico: String): String;
 var
-  Texto, xNumeroNFSe, xNomeMunic: String;
+  Texto: String;
 begin
   if not Assigned(FProvider) then
     raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
@@ -1043,21 +1090,19 @@ begin
   else
     Texto := Provider.ConfigWebServices.Homologacao.LinkURL;
 
-  // %CodVerif%      : Representa o Código de Verificação da NFS-e
-  // %NumeroNFSe%    : Representa o Numero da NFS-e
-  // %NomeMunicipio% : Representa o Nome do Municipio
-  // %InscMunic%     : Representa a Inscrição Municipal do Emitente
-  // %Cnpj%          : Representa o CNPJ do Emitente
-
-  xNumeroNFSe := ANumNFSe;
+  // %CodVerif%     : Representa o Código de Verificação da NFS-e
+  // %NumeroNFSe%   : Representa o Numero da NFS-e
+  // %ChaveAcesso%  : Representa a Chave de Acesso
+  // %ValorServico% : Representa o Valor do Serviço
+  // %Cnpj%         : Representa o CNPJ do Emitente - Configuração
+  // %InscMunic%    : Representa a Inscrição Municipal do Emitente - Configuração
 
   Texto := StringReplace(Texto, '%CodVerif%', ACodVerificacao, [rfReplaceAll]);
-  Texto := StringReplace(Texto, '%NumeroNFSe%', xNumeroNFSe, [rfReplaceAll]);
-  Texto := StringReplace(Texto, '%NomeMunicipio%', xNomeMunic, [rfReplaceAll]);
-  Texto := StringReplace(Texto, '%InscMunic%', Configuracoes.Geral.Emitente.InscMun, [rfReplaceAll]);
+  Texto := StringReplace(Texto, '%NumeroNFSe%', ANumNFSe, [rfReplaceAll]);
   Texto := StringReplace(Texto, '%ChaveAcesso%', AChaveAcesso, [rfReplaceAll]);
-  Texto := StringReplace(Texto, '%Cnpj%', Configuracoes.Geral.Emitente.CNPJ, [rfReplaceAll]);
   Texto := StringReplace(Texto, '%ValorServico%', AValorServico, [rfReplaceAll]);
+  Texto := StringReplace(Texto, '%Cnpj%', Configuracoes.Geral.Emitente.CNPJ, [rfReplaceAll]);
+  Texto := StringReplace(Texto, '%InscMunic%', Configuracoes.Geral.Emitente.InscMun, [rfReplaceAll]);
 
   Result := Texto;
 end;

@@ -106,7 +106,7 @@ begin
 
   if (ACBrTitulo.ACBrBoleto.Cedente.ResponEmissao = tbBancoEmite) then
   begin
-    if (ACBrTitulo.NossoNumero = '') or (ACBrTitulo.NossoNumero = PadLeft(ACBrTitulo.NossoNumero,ACBrBanco.TamanhoMaximoNossoNum,'0')) then
+    if (ACBrTitulo.NossoNumero = '') or (ACBrTitulo.NossoNumero = PadLeft('0',ACBrBanco.TamanhoMaximoNossoNum,'0')) then
     begin
       ANossoNumero := StringOfChar('0', CalcularTamMaximoNossoNumero(ACBrTitulo.Carteira, ACBrTitulo.NossoNumero) );
       ADigVerificador := '0';
@@ -293,6 +293,7 @@ begin
     with ACBrTitulo do
     begin
       {REGISTRO P}
+      inc(fpQtdRegsLote);
       ListTransacao.Add(IntToStrZero(ACBrBanco.Numero, 3)    + //1 a 3 - Código do banco
         '0001'                                               + //4 a 7 - Lote de serviço
         '3'                                                  + //8 - Tipo do registro: Registro detalhe
@@ -349,6 +350,7 @@ begin
         ' ');                                                 //240 - Uso exclusivo FEBRABAN/CNAB
 
       {SEGMENTO Q}
+      inc(fpQtdRegsLote);
       ListTransacao.Add(IntToStrZero(ACBrBanco.Numero, 3) + //Código do Banco na Compensação 1 3 3 - Num G001
         '0001'                                              + //Lote Lote de Serviço 4 7 4 - Num *G002
         '3'                                                 + //Tipo de Registro 8 8 1 - Num ‘3’ *G003
@@ -380,6 +382,7 @@ begin
          (TipoDesconto3<>tdNaoConcederDesconto) or
          (PercentualMulta > 0) then
       begin
+        inc(fpQtdRegsLote);
         ListTransacao.Add(IntToStrZero(ACBrBanco.Numero, 3)    + //Código do Banco na Compensação 1 3 3 - Num G001
           '0001'                                               + //Lote de Serviço 4 7 4 - Num *G002
           '3'                                                  + //Tipo de Registro 8 8 1 - Num ‘3’ *G003
@@ -399,7 +402,9 @@ begin
             IntToStrZero(round(PercentualMulta * 100), 15),
           PadRight('', 15, '0'))                               + //Multa Valor/Percentual a Ser Aplicado 75 89 13 2 Num G075
           PadRight('', 10, ' ')                                + //Informação ao Pagador Informação ao Pagador 90 99 10 - Alfa *C036
-          PadRight('', 40, ' ')                                + //Informação 3 Mensagem 3 100 139 40 - Alfa *C037
+          PadRight('', 28, ' ')                                + //Informação 3 Mensagem 3 (Tipo de Operação, Utilização do Cheque Especial, Consulta Saldo após o Vencimento, Número Cód. Identificação/Contrato 100 127 28) - Alfa *C037
+          PadRight('', 8, '0')                                 + //Informação 3 Mensagem 3 Prazo de Validade do Contrato/Autorização 128 135 8 - Num *C037
+          PadRight('', 4, ' ')                                 + //Informação 3 Mensagem 3 Branco 136 139 4 - Alfa *C037
           PadRight('', 40, ' ')                                + //Mensagem 4 140 179 40 - Alfa *C037
           PadRight('', 20, ' ')                                + //CNAB Uso Exclusivo FEBRABAN/CNAB 180 199 20 - Alfa Brancos G004
           PadLeft('', 8, '0')                                  +//Cód. Ocor. do Pagador 200 207 8 - Num *C038

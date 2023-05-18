@@ -58,6 +58,13 @@ type
 
   TACBrODAllergenArray = array of TACBrODAllergen;
 
+  TACBrODBrand = (caVisa, caMasterCard, caDiners, caAmex, caHipercard, caElo,
+    caAura, caDiscover, caVRBeneficios, caSodexo, caTicket, caGoodCard,
+    caBanescard, caSoroCard, caPoliCard, caValeCard, caAgiCard, caJCB,
+    caCredSystem, caCabal, caGreenCard, caVeroCheque, caAVista, caOther);
+
+  TACBrODBrandArray = array of TACBrODBrand;
+
   TACBrODCancelRequestCode = (crcSystemicIssues, crcDuplicateApplication, crcUnavailableItem,
     crcRestaurantWithoutDeliveryMan, crcOutdatedMenu, crcOrderOutsideTheDeliveryArea, crcBlockedCustomer,
     crcOutsideDeliveryHours, crcInternalDifficultiesOfTheRestaurant, crcRiskArea);
@@ -74,7 +81,7 @@ type
   TACBrODDiscountTarget = (dtCart, dtDeliveryFee, dtItem);
 
   TACBrODEventType = (etCreated, etConfirmed, etDispatched, etReadyForPickup,
-    etPickupAreaAssigned, etConcluded, etCancellationRequested,
+    etPickupAreaAssigned, etDelivered, etConcluded, etCancellationRequested,
     etCancellationRequestDenied, etCancelled, etOrderCancellationRequest);
 
   TACBrODEventTypeArray = array of TACBrODEventType;
@@ -82,6 +89,8 @@ type
   TACBrODFeeReceivedBy = (rbMarketplace, rbMerchant, rbLogisticServices);
 
   TACBrODFeeType = (ftDeliveryFee, ftServiceFee, ftTip);
+
+  TACBrODIndoorMode = (imDefault, imPlace);
 
   TACBrODMerchantCategories = (mcBurgers, mcPizza, mcFastFood, mcHotDog,
     mcJapanese, mcDesserts, mcAmerican, mcIceCream, mcBBQ, mcSandwich,
@@ -98,8 +107,12 @@ type
 
   TACBrODMerchantUpdateType = (mutEmptyBody, mutOnlyStatus, mutEntityType, mutStatusEntityType);
 
-  TACBrODMerchantUpdateEntity = (mueService, mueMenu, mueCategory, mueItem, mueItemOffer,
-    mueOptionGroup, mueAvailability);
+  TACBrODMerchantUpdateEntity = (mueMerchant, mueBasicInfo, mueService, mueMenu, mueCategory,
+    mueItem, mueItemOffer, mueOptionGroup, mueAvailability);
+
+  TACBrODOrderTiming = (otInstant, otScheduled);
+
+  TACBrODOrderTimingArray = array of TACBrODOrderTiming;
 
   TACBrODPaymentMethod = (pmCredit, pmDebit, pmMealVoucher, pmFoodVoucher,
     pmDigitalWallet, pmPix, pmCash, pmCreditDebit, pmCoupon, pmRedeem,
@@ -107,7 +120,10 @@ type
 
   TACBrODPaymentType = (ptPrepaid, ptPending);
 
-  TACBrODServiceType = (stDelivery, stTakeout);
+  TACBrODScheduleTime = (st15Minutes, st30Minutes, st45Minutes, st60Minutes,
+    st90Minutes, st120Minutes);
+
+  TACBrODServiceType = (stDelivery, stTakeout, stIndoor);
 
   TACBrODSponsor = (sMarketPlace, sMerchant);
 
@@ -121,9 +137,15 @@ type
 
   TACBrODTakeoutMode = (tmDefault, tmPickupArea);
 
+  TACBrODUnit = (unUnit, unKilogram, unLiter, unOunce, unPound, unGallon);
+
 function AllergenToStr(AValue: TACBrODAllergen): string;
 function AllergensToArray(AValue: TACBrODAllergenArray): TSplitResult;
 function StrToAllergen(const AValue: string): TACBrODAllergen;
+
+function BrandToStr(aValue: TACBrODBrand): String;
+function StrToBrand(aValue: String): TACBrODBrand;
+function BrandsToArray(aValue: TACBrODBrandArray): TSplitResult;
 
 function CancelRequestCodeToStr(const AValue: TACBrODCancelRequestCode): string;
 
@@ -147,6 +169,9 @@ function StrToFeeReceivedBy(const AValue: string): TACBrODFeeReceivedBy;
 function FeeTypeToStr(AValue: TACBrODFeeType): string;
 function StrToFeeType(const AValue: string): TACBrODFeeType;
 
+function IndoorModeToStr(AValue: TACBrODIndoorMode): string;
+function StrToIndoorMode(const AValue: string): TACBrODIndoorMode;
+
 function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): string;
 function MerchantCategoriesToArray(AValue: TACBrODMerchantCategoriesArray): TSplitResult;
 function StrToMerchantCategories(const AValue: string): TACBrODMerchantCategories;
@@ -154,11 +179,18 @@ function StrToMerchantCategories(const AValue: string): TACBrODMerchantCategorie
 function MerchantTypeToStr(AValue: TACBrODMerchantType): string;
 function StrToMerchantType(const AValue: string): TACBrODMerchantType;
 
+function OrderTimingToStr(AValue: TACBrODOrderTiming): string;
+function OrderTimingToArray(AValue: TACBrODOrderTimingArray): TSplitResult;
+function StrToOrderTiming(const AValue: string): TACBrODOrderTiming;
+
 function PaymentMethodToStr(AValue: TACBrODPaymentMethod): string;
 function StrToPaymentMethod(const AValue: string): TACBrODPaymentMethod;
 
 function PaymentTypeToStr(AValue: TACBrODPaymentType): string;
 function StrToPaymentType(const AValue: string): TACBrODPaymentType;
+
+function ScheduleTimeToStr(AValue: TACBrODScheduleTime): string;
+function StrToScheduleTime(AValue: string): TACBrODScheduleTime;
 
 function ServiceTypeToStr(AValue: TACBrODServiceType): string;
 function StrToServiceType(AValue: string): TACBrODServiceType;
@@ -175,6 +207,9 @@ function StrToSuitableDiet(const AValue: string): TACBrODSuitableDiet;
 
 function TakeoutModeToStr(AValue: TACBrODTakeoutMode): string;
 function StrToTakeoutMode(AValue: string): TACBrODTakeoutMode;
+
+function UnitToStr(aValue: TACBrODUnit): String;
+function StrToUnit(aValue: String): TACBrODUnit;
 
 implementation
 
@@ -386,6 +421,102 @@ begin
     Result := aWheat;
 end;
 
+function BrandToStr(aValue: TACBrODBrand): String;
+begin
+  case aValue of
+    caVisa: Result := 'VISA';
+    caMasterCard: Result := 'MASTERCARD';
+    caDiners: Result := 'DINERS';
+    caAmex: Result := 'AMEX';
+    caHipercard: Result := 'HIPERCARD';
+    caElo: Result := 'ELO';
+    caAura: Result := 'AURA';
+    caDiscover: Result := 'DISCOVER';
+    caVRBeneficios: Result := 'VR_BENEFICIOS';
+    caSodexo: Result := 'SODEXO';
+    caTicket: Result := 'TICKET';
+    caGoodCard: Result := 'GOOD_CARD';
+    caBanescard: Result := 'BANESCARD';
+    caSoroCard: Result := 'SOROCARD';
+    caPoliCard: Result := 'POLICARD';
+    caValeCard: Result := 'VALECARD';
+    caAgiCard: Result := 'AGICARD';
+    caJCB: Result := 'JCB';
+    caCredSystem: Result := 'CREDSYSTEM';
+    caCabal: Result := 'CABAL';
+    caGreenCard: Result := 'GREEN_CARD';
+    caVeroCheque: Result := 'VEROCHEQUE';
+    caAVista: Result := 'AVISTA';
+    caOther: Result := 'OTHER';
+  else
+    Result := EmptyStr;
+  end;
+end;
+
+function StrToBrand(aValue: String): TACBrODBrand;
+var
+  wUpStr: String;
+begin
+  Result := caOther;
+  wUpStr := UpperCase(aValue);
+
+  if wUpStr = 'VISA' then
+    Result := caVisa
+  else if wUpStr = 'MASTERCARD' then
+    Result := caMasterCard
+  else if wUpStr = 'DINERS' then
+    Result := caDiners
+  else if wUpStr = 'AMEX' then
+    Result := caAmex
+  else if wUpStr = 'HIPERCARD' then
+    Result := caHipercard
+  else if wUpStr = 'ELO' then
+    Result := caElo
+  else if wUpStr = 'AURA' then
+    Result := caAura
+  else if wUpStr = 'DISCOVER' then
+    Result := caDiscover
+  else if wUpStr = 'VR_BENEFICIOS' then
+    Result := caVRBeneficios
+  else if wUpStr = 'SODEXO' then
+    Result := caSodexo
+  else if wUpStr = 'TICKET' then
+    Result := caTicket
+  else if wUpStr = 'GOOD_CARD' then
+    Result := caGoodCard
+  else if wUpStr = 'BANESCARD' then
+    Result := caBanescard
+  else if wUpStr = 'SOROCARD' then
+    Result := caSoroCard
+  else if wUpStr = 'POLICARD' then
+    Result := caPoliCard
+  else if wUpStr = 'VALECARD' then
+    Result := caValeCard
+  else if wUpStr = 'AGICARD' then
+    Result := caAgiCard
+  else if wUpStr = 'JCB' then
+    Result := caJCB
+  else if wUpStr = 'CREDSYSTEM' then
+    Result := caCredSystem
+  else if wUpStr = 'CABAL' then
+    Result := caCabal
+  else if wUpStr = 'GREEN_CARD' then
+    Result := caGreenCard
+  else if wUpStr = 'VEROCHEQUE' then
+    Result := caVeroCheque
+  else if wUpStr = 'AVISTA' then
+    Result := caAVista;
+end;
+
+function BrandsToArray(aValue: TACBrODBrandArray): TSplitResult;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(aValue));
+  for I := 0 to Pred(Length(aValue)) do
+    Result[I] := BrandToStr(aValue[I]);
+end;
+
 function CancelRequestCodeToStr(const AValue: TACBrODCancelRequestCode): string;
 begin
   case AValue of
@@ -503,6 +634,7 @@ begin
     etDispatched: Result := 'DISPATCHED';
     etReadyForPickup: Result := 'READY_FOR_PICKUP';
     etPickupAreaAssigned: Result := 'PICKUP_AREA_ASSIGNED';
+    etDelivered: Result := 'DELIVERED';
     etConcluded: Result := 'CONCLUDED';
     etCancellationRequested: Result := 'CANCELLATION_REQUESTED';
     etCancellationRequestDenied: Result := 'CANCELLATION_REQUEST_DENIED';
@@ -529,6 +661,8 @@ begin
     Result := etReadyForPickup
   else if LStr = 'PICKUP_AREA_ASSIGNED' then
     Result := etPickupAreaAssigned
+  else if LStr = 'DELIVERED' then
+    Result := etDelivered
   else if LStr = 'CONCLUDED' then
     Result := etConcluded
   else if LStr = 'CANCELLATION_REQUESTED' then
@@ -589,6 +723,28 @@ begin
     Result := ftServiceFee
   else if LStr = 'TIP' then
     Result := ftTip;
+end;
+
+function IndoorModeToStr(AValue: TACBrODIndoorMode): string;
+begin
+  case AValue of
+    imDefault: Result := 'DEFAULT';
+    imPlace: Result := 'PLACE';
+  else
+    Result := '';
+  end;
+end;
+
+function StrToIndoorMode(const AValue: string): TACBrODIndoorMode;
+var
+  LStr: string;
+begin
+  Result := imDefault;
+  LStr := UpperCase(AValue);
+  if LStr = 'DEFAULT' then
+    Result := imDefault
+  else if LStr = 'PLACE' then
+    Result := imPlace;
 end;
 
 function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): string;
@@ -765,6 +921,37 @@ begin
   Result := mtRestaurant;
 end;
 
+function OrderTimingToStr(AValue: TACBrODOrderTiming): string;
+begin
+  case AValue of
+    otInstant: Result := 'INSTANT';
+    otScheduled: Result := 'SCHEDULED';
+  else
+    Result := '';
+  end;
+end;
+
+function OrderTimingToArray(AValue: TACBrODOrderTimingArray): TSplitResult;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(AValue));
+  for I := 0 to Pred(Length(AValue)) do
+    Result[I] := OrderTimingToStr(AValue[I]);
+end;
+
+function StrToOrderTiming(const AValue: string): TACBrODOrderTiming;
+var
+  LStr: string;
+begin
+  Result := otInstant;
+  LStr := UpperCase(AValue);
+  if LStr = 'INSTANT' then
+    Result := otInstant
+  else if LStr = 'SCHEDULED' then
+    Result := otScheduled;
+end;
+
 function PaymentMethodToStr(AValue: TACBrODPaymentMethod): string;
 begin
   case AValue of
@@ -839,11 +1026,46 @@ begin
     Result := ptPending;
 end;
 
+function ScheduleTimeToStr(AValue: TACBrODScheduleTime): string;
+begin
+  case AValue of
+    st15Minutes: Result := '15_MINUTES';
+    st30Minutes: Result := '30_MINUTES';
+    st45Minutes: Result := '45_MINUTES';
+    st60Minutes: Result := '60_MINUTES';
+    st90Minutes: Result := '90_MINUTES';
+    st120Minutes: Result := '120_MINUTES';
+  else
+    Result := '';
+  end;
+end;
+
+function StrToScheduleTime(AValue: string): TACBrODScheduleTime;
+var
+  LStr: string;
+begin
+  Result := st120Minutes;
+  LStr := UpperCase(AValue);
+  if LStr = '15_MINUTES' then
+    Result := st15Minutes
+  else if LStr = '30_MINUTES' then
+    Result := st30Minutes
+  else if LStr = '45_MINUTES' then
+    Result := st45Minutes
+  else if LStr = '60_MINUTES' then
+    Result := st60Minutes
+  else if LStr = '90_MINUTES' then
+    Result := st90Minutes
+  else if LStr = '120_MINUTES' then
+    Result := st120Minutes;
+end;
+
 function ServiceTypeToStr(AValue: TACBrODServiceType): string;
 begin
   case AValue of
     stDelivery: Result := 'DELIVERY';
     stTakeout: Result := 'TAKEOUT';
+    stIndoor: Result := 'INDOOR';
   else
     Result := '';
   end;
@@ -858,7 +1080,9 @@ begin
   if LStr = 'DELIVERY' then
     Result := stDelivery
   else if LStr = 'TAKEOUT' then
-    Result := stTakeout;
+    Result := stTakeout
+  else if LStr = 'INDOOR' then
+    Result := stIndoor;
 end;
 
 function SponsorToStr(AValue: TACBrODSponsor): string;
@@ -983,6 +1207,37 @@ begin
     Result := tmDefault
   else if LStr = 'PICKUP_AREA' then
     Result := tmPickupArea
+end;
+
+function UnitToStr(aValue: TACBrODUnit): String;
+begin
+  case aValue of
+    unKilogram: Result := 'KG';
+    unLiter: Result := 'L';
+    unOunce: Result := 'OZ';
+    unPound: Result := 'LB';
+    unGallon: Result := 'GAL';
+  else
+    Result := 'UN';
+  end;
+end;
+
+function StrToUnit(aValue: String): TACBrODUnit;
+var
+  wUpStr: String;
+begin
+  Result := unUnit;
+  wUpStr := UpperCase(aValue);
+  if (wUpStr = 'KG') then
+    Result := unKilogram
+  else if (wUpStr = 'L') then
+    Result := unLiter
+  else if (wUpStr = 'OZ') then
+    Result := unOunce
+  else if (wUpStr = 'LB') then
+    Result := unPound
+  else if (wUpStr = 'GAL') then
+    Result := unGallon;
 end;
 
 end.

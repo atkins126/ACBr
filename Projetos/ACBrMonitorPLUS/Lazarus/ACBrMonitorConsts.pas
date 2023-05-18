@@ -140,6 +140,7 @@ const
   CMetodoGerarAssinaturaSAT =          'gerarassinaturasat';
   CMetodoEnviarEmailCFe =              'enviaremailcfe';
   CMetodoConsultarModeloSAT =          'consultarmodelosat';
+  CMetodoConsultarUltimaSessaoFiscal=  'consultarultimasessaofiscal';
 
   CMetodoECFachar =                                      'achar';
   CMetodoECFativar =                                     'ativar';
@@ -542,6 +543,7 @@ const
   CMetodoConsultaIdentEventosTabela =  'ConsultaIdentificadoresEventosTabela';
   CMetodoConsultaIdentEventosTrab =    'ConsultaIdentificadoresEventosTrabalhador';
   CMetodoDownloadEventos =             'DownloadEventos';
+  CMetodoValidareSocial =              'validaresocial';
 
   CMetodoCriarEventoReinf =          'criareventoreinf';
   CMetodoCriarEnviarReinf =          'criarenviarreinf';
@@ -1067,10 +1069,13 @@ const
   CKeyDANFEImprimirDadosDocReferenciados = 'ImprimirDadosDocReferenciados';
   CKeyDANFEExibirBandInforAdicProduto =    'ExibirBandInforAdicProduto';
   CKeyDANFELogoEmCima =                    'LogoEmCima';
-  CKeyDANFEExpandirDadosAdicionaisAuto = 'ExpandirDadosAdicionaisAuto';
+  CKeyDANFEImprimeInscSuframa =            'ImprimeInscSuframa';
+  CKeyDANFEExpandirDadosAdicionaisAuto =   'ExpandirDadosAdicionaisAuto';
   CKeyDANFEImprimeContinuacaoDadosAdicionaisPrimeiraPagina = 'ImprimeContinuacaoDadosAdicionaisPrimeiraPagina';
-  CKeyDANFEImprimeDescAcrescItemNFe = 'ImprimeDescAcrescItemNFe';
-  CKeyDANFEImprimirCampoFormaPagamento = 'ImprimirCampoFormaPagamento';
+  CKeyDANFEImprimeDescAcrescItemNFe =      'ImprimeDescAcrescItemNFe';
+  CKeyDANFEImprimirCampoFormaPagamento =   'ImprimirCampoFormaPagamento';
+  CKeyDANFEImprimeXPedNitemPed =           'ImprimeXPedNitemPed';
+
 
   CSecDANFCe =                         'DANFCe';
   CKeyDANFCeMargemInf =                'MargemInf';
@@ -1336,6 +1341,8 @@ const
   CKeyBOLETOCedenteModalidade =             'Cedente.Modalidade';
   CKeyBOLETOCedenteConvenio =               'Cedente.Convenio';
 
+  CKeyBOLETOChavePix =                      'ChavePix';
+  CKeyBOLETOTipoChavePix =                  'TipoChavePix';
   CKeyBOLETOClientID =                      'ClientID';
   CKeyBOLETOClientSecret =                  'ClientSecret';
   CKeyBOLETOKeyUser =                       'KeyUser';
@@ -1356,6 +1363,8 @@ const
   CKeyBOLETOTimeOut =                       'TimeOut';
   CKeyBOLETOCertificadoHTTP =               'CertificadoHTTP';
   CKeyBOLETOVersaoDF =                      'VersaoDF';
+  CKeyBOLETOArquivoCRT =                    'ArquivoCRT';
+  CKeyBOLETOArquivoKEY =                    'ArquivoKEY';
 
   CValueTipoEmpregador =                    'tePessoaJuridica';
   CValueTipoContribuinte =                  'tcPessoaJuridica';

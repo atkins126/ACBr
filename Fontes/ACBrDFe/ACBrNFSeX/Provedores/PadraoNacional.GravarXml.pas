@@ -172,7 +172,7 @@ begin
                                                             NFSe.verAplic, ''));
 
   Result.AppendChild(AddNode(tcInt, '#1', 'serie', 1, 5, 1,
-                                    StrToInt(NFSe.IdentificacaoRps.Serie), ''));
+                              StrToIntDef(NFSe.IdentificacaoRps.Serie, 0), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'nDPS', 15, 15, 1,
                                              NFSe.IdentificacaoRps.Numero, ''));
@@ -1137,7 +1137,7 @@ begin
      (NFSe.Servico.Valores.tribFed.vPis >0) or
      (NFSe.Servico.Valores.tribFed.vCofins >0) then
   begin
-    Result := CreateElement('tribNac');
+    Result := CreateElement('tribFed');
 
     Result.AppendChild(GerarTributacaoOutrosPisCofins);
 

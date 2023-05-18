@@ -196,7 +196,8 @@ function TACBrNFSeXWebservicePublica.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverCaracteresDesnecessarios(Result);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
@@ -301,17 +302,17 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod002;
-    AErro.Descricao := Desc002;
+    AErro.Descricao := ACBrStr(Desc002);
   end;
 
   if TACBrNFSeX(FAOwner).NotasFiscais.Count > Response.MaxRps then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod003;
-    AErro.Descricao := 'Conjunto de RPS transmitidos (máximo de ' +
+    AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (máximo de ' +
                        IntToStr(Response.MaxRps) + ' RPS)' +
                        ' excedido. Quantidade atual: ' +
-                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count);
+                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
   end;
 
   if Response.Erros.Count > 0 then Exit;
@@ -394,16 +395,17 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod202;
-        AErro.Descricao := Desc202;
+        AErro.Descricao := ACBrStr(Desc202);
         Exit;
       end;
 
       ANodeArray := ANode.Childrens.FindAllAnyNs('CompNfse');
+
       if not Assigned(ANode) then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod203;
-        AErro.Descricao := Desc203;
+        AErro.Descricao := ACBrStr(Desc203);
         Exit;
       end;
 
@@ -422,13 +424,13 @@ begin
         SalvarXmlNfse(ANota);
       end;
 
-      Response.Sucesso := (Response.Erros.Count > 0);
+      Response.Sucesso := (Response.Erros.Count = 0);
     except
       on E:Exception do
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -455,7 +457,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -474,7 +476,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod203;
-        AErro.Descricao := Desc203;
+        AErro.Descricao := ACBrStr(Desc203);
         Exit;
       end;
 
@@ -518,13 +520,14 @@ begin
         InfNfseID := ObterConteudoTag(AuxNode.Attributes.Items['id']);
         NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
         sLink := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('LinkVisualizacaoNfse'), tcStr);
+        sLink := StringReplace(sLink, '&amp;', '&', [rfReplaceAll]);
 
         with Response do
         begin
           NumeroNota := NumNFSe;
           idNota := InfNfseID;
           Link := sLink;
-          CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+          CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
           Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataEmissao'), tcDatHor);
         end;
 
@@ -538,7 +541,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -550,31 +553,26 @@ procedure TACBrNFSeProviderPublica.PrepararConsultaNFSe(
   Response: TNFSeConsultaNFSeResponse);
 var
   Emitente: TEmitenteConfNFSe;
-  xConsulta, NameSpace, NumFinal, IdAttr: string;
-  NumNFSeI, NumNFSeF: Integer;
+  xConsulta, NameSpace, IdAttr: string;
+  NumNFSeI, NumNFSeF: Int64;
 begin
-  NumNFSeI := StrToIntDef(Response.InfConsultaNFSe.NumeroIniNFSe, 0);
+  NumNFSeI := StrToInt64Def(Response.InfConsultaNFSe.NumeroIniNFSe, 0);
   Response.InfConsultaNFSe.NumeroIniNFSe := FormatFloat('000000000000000', NumNFSeI);
 
-  NumNFSeF := StrToIntDef(Response.InfConsultaNFSe.NumeroFinNFSe, 0);
+  NumNFSeF := StrToInt64Def(Response.InfConsultaNFSe.NumeroFinNFSe, 0);
   Response.InfConsultaNFSe.NumeroFinNFSe := FormatFloat('000000000000000', NumNFSeF);
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
   Response.Metodo := tmConsultarNFSe;
 
-  if (NumNFSeF <> 0) and (NumNFSeF <> NumNFSeI) then
-    NumFinal := '<NumeroNfseFinal>' +
-                  OnlyNumber(Response.InfConsultaNFSe.NumeroFinNFSe) +
-                '</NumeroNfseFinal>'
-  else
-    NumFinal := '';
-
   xConsulta := '<Faixa>' +
                  '<NumeroNfseInicial>' +
                     OnlyNumber(Response.InfConsultaNFSe.NumeroIniNFSe) +
                  '</NumeroNfseInicial>' +
-                 NumFinal +
+                 '<NumeroNfseFinal>' +
+                    OnlyNumber(Response.InfConsultaNFSe.NumeroFinNFSe) +
+                '</NumeroNfseFinal>' +
                '</Faixa>';
 
   if ConfigGeral.Identificador <> '' then

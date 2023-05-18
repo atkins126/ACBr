@@ -197,6 +197,7 @@ end;
 function TEvtAltCadastral.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -375,7 +376,7 @@ begin
         trabalhador.infoDeficiencia.DefMental      := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defMental', 'S'));
         trabalhador.infoDeficiencia.DefIntelectual := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defIntelectual', 'S'));
         trabalhador.infoDeficiencia.ReabReadap     := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'reabReadap', 'S'));
-        trabalhador.infoDeficiencia.infoCota       := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'infoCota', 'S'));
+        trabalhador.infoDeficiencia.infoCota       := eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'infoCota', 'S'));
         trabalhador.infoDeficiencia.Observacao     := INIRec.ReadString(sSecao, 'observacao', '');
       end;
 

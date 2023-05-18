@@ -224,10 +224,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -256,10 +256,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -291,10 +291,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -327,10 +327,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -353,7 +353,7 @@ begin
         NFeDM.ACBrNFe1.NotasFiscais.Items[AIndex].GerarXML;
 
       Resposta := NFeDM.ACBrNFe1.NotasFiscais.Items[AIndex].GerarNFeIni;
-      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+      Resposta := ConverterUTF8ParaAnsi( Resposta );
       MoverStringParaPChar(Resposta, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Resposta);
     finally
@@ -361,10 +361,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -412,10 +412,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -449,10 +449,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -480,10 +480,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -501,10 +501,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -523,10 +523,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -541,7 +541,7 @@ begin
         NFeDM.ACBrNFe1.NotasFiscais.Assinar;
       except
         on E: EACBrNFeException do
-          Result := SetRetorno(ErrAssinarNFe, E.Message);
+          Result := SetRetorno(ErrAssinarNFe, ConverterUTF8ParaAnsi(E.Message));
       end;
 
       Result := SetRetornoNFeCarregadas(NFeDM.ACBrNFe1.NotasFiscais.Count);
@@ -550,10 +550,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -569,17 +569,17 @@ begin
         Result := SetRetornoNFeCarregadas(NFeDM.ACBrNFe1.NotasFiscais.Count);
       except
         on E: EACBrNFeException do
-          Result := SetRetorno(ErrValidacaoNFe, E.Message);
+          Result := SetRetorno(ErrValidacaoNFe, ConverterUTF8ParaAnsi(E.Message));
       end;
     finally
       NFeDM.Destravar;
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -594,7 +594,7 @@ begin
     try
       Erros := '';
       NFeDM.ACBrNFe1.NotasFiscais.ValidarRegrasdeNegocios(Erros);
-      Erros := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Erros), Erros);
+      Erros := ConverterUTF8ParaAnsi(Erros);
       MoverStringParaPChar(Erros, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Erros);
     finally
@@ -602,10 +602,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -620,7 +620,7 @@ begin
     try
       Erros := '';
       NFeDM.ACBrNFe1.NotasFiscais.VerificarAssinatura(Erros);
-      Erros := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Erros), Erros);
+      Erros := ConverterUTF8ParaAnsi(Erros);
       MoverStringParaPChar(Erros, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Erros);
     finally
@@ -628,10 +628,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -659,7 +659,7 @@ begin
     try
       Resposta := '';
       Resposta := GerarChaveAcesso(ACodigoUF, Emissao, CNPJCPF, ASerie, ANumero, ATpEmi, ACodigoNumerico, AModelo);
-      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+      Resposta := ConverterUTF8ParaAnsi(Resposta);
       MoverStringParaPChar(Resposta, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Resposta);
     finally
@@ -667,10 +667,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -686,7 +686,7 @@ begin
     try
       Resposta := '';
       Resposta := ObterCerticados(NFeDM.ACBrNFe1.SSL);
-      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+      Resposta := ConverterUTF8ParaAnsi(Resposta);
       MoverStringParaPChar(Resposta, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Resposta);
     finally
@@ -694,10 +694,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -725,7 +725,7 @@ begin
           3: Resposta := ACBrNFe1.Configuracoes.Arquivos.GetPathEvento(teCancelamento);
         end;
 
-        Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+        Resposta := ConverterUTF8ParaAnsi(Resposta);
         MoverStringParaPChar(Resposta, sResposta, esTamanho);
         Result := SetRetorno(ErrOK, Resposta);
       end;
@@ -734,10 +734,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -762,7 +762,7 @@ begin
       begin
         Resposta := '';
         Resposta := ACBrNFe1.Configuracoes.Arquivos.GetPathEvento(StrToTpEventoNFe(ok, CodEvento));
-        Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+        Resposta := ConverterUTF8ParaAnsi(Resposta);
         MoverStringParaPChar(Resposta, sResposta, esTamanho);
         Result := SetRetorno(ErrOK, Resposta);
       end;
@@ -771,10 +771,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -805,10 +805,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -868,10 +868,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -925,9 +925,9 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -978,7 +978,7 @@ begin
         except
           on E: EACBrNFeException do
           begin
-            Result := SetRetorno(ErrValidacaoNFe, E.Message);
+            Result := SetRetorno(ErrValidacaoNFe, ConverterUTF8ParaAnsi(E.Message) );
             Exit;
           end;
         end;
@@ -1062,10 +1062,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1107,9 +1107,9 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1185,10 +1185,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1291,9 +1291,9 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1343,10 +1343,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1393,6 +1393,7 @@ begin
 
       with NFeDM do
       begin
+        try
         GravarLog('NFe_DistribuicaoDFePorUltNSU, Executar', logCompleto);
 
         // Lê o arquivo selecionado
@@ -1446,16 +1447,22 @@ begin
 
         MoverStringParaPChar(Resposta, sResposta, esTamanho);
         Result := SetRetorno(ErrOK, Resposta);
+        except
+          on E: Exception do
+          begin
+            raise EACBrLibException.Create(ErrRetorno, E.Message + SLineBreak  + '  MotivoRetornadoDoWebService: "' + Trim(ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.xMotivo) + '"' );
+          end;
+        end;
       end;
     finally
       NFeDM.Destravar;
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1512,10 +1519,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1574,10 +1581,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1670,10 +1677,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1797,10 +1804,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1843,10 +1850,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1856,27 +1863,30 @@ var
 begin
   try
     GravarLog('NFe_ImprimirPDF', logNormal);
-
     NFeDM.Travar;
-    Resposta := TLibImpressaoResposta.Create(NFeDM.ACBrNFe1.NotasFiscais.Count, Config.TipoResposta, Config.CodResposta);
-
     try
-      NFeDM.ConfigurarImpressao('', True);
-      NFeDM.ACBrNFe1.NotasFiscais.ImprimirPDF;
-
-      Resposta.Msg := NFeDM.ACBrNFe1.DANFE.ArquivoPDF;
-      Result := SetRetorno(ErrOK, Resposta.Gerar);
+      Resposta := TLibImpressaoResposta.Create(NFeDM.ACBrNFe1.NotasFiscais.Count, Config.TipoResposta, Config.CodResposta);
+      try
+        NFeDM.ConfigurarImpressao('', True);
+        try
+          NFeDM.ACBrNFe1.NotasFiscais.ImprimirPDF;
+          Resposta.Msg := NFeDM.ACBrNFe1.DANFE.ArquivoPDF;
+          Result := SetRetorno(ErrOK, Resposta.Gerar);
+        finally
+          NFeDM.FinalizarImpressao;
+        end;
+      finally
+        Resposta.Free;
+      end;
     finally
-      NFeDM.FinalizarImpressao;
-      Resposta.Free;
       NFeDM.Destravar;
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1907,10 +1917,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -1965,10 +1975,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -2024,10 +2034,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -2086,10 +2096,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -2132,10 +2142,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -2177,10 +2187,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -2227,10 +2237,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 

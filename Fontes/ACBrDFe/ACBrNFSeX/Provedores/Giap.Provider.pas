@@ -187,7 +187,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := ObterConteudoTag(ANodeArray[I].Attributes.Items['code']);
-      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Attributes.Items['message']);
+      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Attributes.Items['message']));
       AErro.Correcao := '';
     end;
   end;
@@ -236,6 +236,7 @@ var
   ANode: TACBrXmlNode;
   i: Integer;
   ANota: TNotaFiscal;
+  aNumeroNota, aCodigoVerificacao, aSituacao, aLink, aNumeroRps: string;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -245,7 +246,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -262,7 +263,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod203;
-        AErro.Descricao := Desc203;
+        AErro.Descricao := ACBrStr(Desc203);
         Exit;
       end;
 
@@ -270,20 +271,30 @@ begin
       begin
         ANode := ANodeArray[I];
 
+        aNumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroNota'), tcStr);
+        aCodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
+        aSituacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('statusEmissao'), tcStr);
+        aLink := ObterConteudoTag(ANode.Childrens.FindAnyNs('link'), tcStr);
+        aLink := StringReplace(aLink, '&amp;', '&', [rfReplaceAll]);
+        aNumeroRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroRps'), tcStr);
+
         with Response do
         begin
-          NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroNota'), tcStr);
-          CodVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
-          Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('statusEmissao'), tcStr);
-          Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('link'), tcStr);
-          NumeroRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroRps'), tcStr);
+          if ModoEnvio <> meLoteAssincrono then
+          begin
+            NumeroNota := aNumeroNota;
+            CodigoVerificacao := aCodigoVerificacao;
+            Situacao := aSituacao;
+            Link := aLink;
+            NumeroRps := aNumeroRps;
+          end;
 
           AResumo := Response.Resumos.New;
-          AResumo.NumeroNota := NumeroNota;
-          AResumo.CodigoVerificacao := CodVerificacao;
-          AResumo.NumeroRps := NumeroRps;
-          AResumo.Link := Link;
-          AResumo.Situacao := Situacao;
+          AResumo.NumeroNota := aNumeroNota;
+          AResumo.CodigoVerificacao := aCodigoVerificacao;
+          AResumo.NumeroRps := aNumeroRps;
+          AResumo.Link := aLink;
+          AResumo.Situacao := aSituacao;
         end;
 
         // GIAP Não retorna o XML da Nota sendo necessário imprimir a Nota já
@@ -292,6 +303,20 @@ begin
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(Response.NumeroRps);
         ANota := CarregarXmlNfse(ANota, Response.XmlEnvio);
+
+        {
+         Carregando dados da NFS-e emitida que não constam no XML de envio e
+         só retornam no Response
+        }
+        with ANota.NFSe do
+        begin
+           Numero := AResumo.NumeroNota;
+           CodigoVerificacao := AResumo.CodigoVerificacao;
+           Link := AResumo.Link;
+           IdentificacaoRps.Numero := AResumo.NumeroRps;
+           ANota.LerXML(ANota.GerarXML);
+        end;
+
         SalvarXmlNfse(ANota);
       end;
     except
@@ -299,7 +324,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -313,11 +338,11 @@ var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
 begin
-  if EstaVazio(Response.CodVerificacao) then
+  if EstaVazio(Response.CodigoVerificacao) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod117;
-    AErro.Descricao := Desc117;
+    AErro.Descricao := ACBrStr(Desc117);
     Exit;
   end;
 
@@ -328,7 +353,7 @@ begin
                             OnlyNumber(Emitente.InscMun) +
                           '</inscricaoMunicipal>' +
                           '<codigoVerificacao>' +
-                            Response.CodVerificacao +
+                            Response.CodigoVerificacao +
                           '</codigoVerificacao>' +
                        '</consulta>';
 end;
@@ -348,7 +373,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -362,13 +387,17 @@ begin
 
       if ANode <> nil then
       begin
-        Response.CodVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
+        Response.CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
 
         if ObterConteudoTag(ANode.Childrens.FindAnyNs('notaExiste'), tcStr) = 'Sim' then
           Response.DescSituacao := 'Nota Autorizada'
         else
         if ObterConteudoTag(ANode.Childrens.FindAnyNs('notaExiste'), tcStr) = 'Cancelada' then
-          Response.DescSituacao := 'Nota Cancelada'
+        begin
+          Response.DescSituacao := 'Nota Cancelada';
+          Response.Cancelamento.DataHora := ObterConteudoTag(ANode.Childrens.FindAnyNs('dataCancelamento'), tcDatVcto);
+          Response.Cancelamento.Motivo := 'Nota Cancelada';
+        end
         else
           Response.DescSituacao := 'Nota não Encontrada';
 
@@ -379,7 +408,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -396,7 +425,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod109;
-    AErro.Descricao := Desc109;
+    AErro.Descricao := ACBrStr(Desc109);
     Exit;
   end;
 
@@ -404,7 +433,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod108;
-    AErro.Descricao := Desc108;
+    AErro.Descricao := ACBrStr(Desc108);
     Exit;
   end;
 
@@ -438,7 +467,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -450,7 +479,7 @@ begin
 
       ANode := Document.Root;
 
-      Response.Lote := ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroLote'), tcStr);
+      Response.NumeroLote := ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroLote'), tcStr);
 
       ANodeArray := ANode.Childrens.FindAllAnyNs('notaFiscal');
 
@@ -458,7 +487,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod203;
-        AErro.Descricao := Desc203;
+        AErro.Descricao := ACBrStr(Desc203);
         Exit;
       end;
 
@@ -477,7 +506,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally

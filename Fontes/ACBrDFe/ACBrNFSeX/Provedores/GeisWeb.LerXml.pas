@@ -130,7 +130,7 @@ begin
       Endereco := ObterConteudo(AuxNode.Childrens.FindAnyNs('Rua'), tcStr);
       Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
       Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('Bairro'), tcStr);
-      CodigoMunicipio := OnlyNumber(ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr));
+      xMunicipio := OnlyNumber(ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr));
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('Estado'), tcStr);
       CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
     end;
@@ -147,7 +147,11 @@ begin
   begin
     with NFSe do
     begin
-      Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('NumeroNfse'), tcStr);
+      Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+
+      if Numero = '' then
+        Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('NumeroNfse'), tcStr);
+
       CodigoVerificacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
       IdentificacaoRps.Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('NumeroRps'), tcStr);
     end;
@@ -365,6 +369,7 @@ begin
   with NFSe do
   begin
     LerIdentificacaoNfse(ANode);
+    LerIdentificacaoRps(ANode);
 
     DataEmissao := ObterConteudo(ANode.Childrens.FindAnyNs('DataEmissao'), tcDatVcto);
     dhRecebimento := ObterConteudo(ANode.Childrens.FindAnyNs('DataLancamento'), tcDatVcto);
@@ -378,6 +383,7 @@ begin
     LerOutrosImpostos(ANode);
 
     Link := ObterConteudo(ANode.Childrens.FindAnyNs('LinkConsulta'), tcStr);
+    Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
   end;
 end;
 
@@ -387,7 +393,7 @@ begin
 
   with NFSe do
   begin
-    DataEmissao := ObterConteudo(ANode.Childrens.FindAnyNs('DataEmissao'), tcDat);
+    DataEmissao := ObterConteudo(ANode.Childrens.FindAnyNs('DataEmissao'), tcDatVcto);
 
     LerIdentificacaoRps(ANode);
     LerServico(ANode);
