@@ -76,7 +76,7 @@ namespace ACBrLib.NFSe
         public delegate int NFSE_SubstituirNFSe(string aNumeroNFSe, string aSerieNFSe, string aCodigoCancelamento, string aMotivoCancelamento, string aNumeroLote, string aCodigoVerificacao, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int NFSE_LinkNFSE(string aNumeroNFSe, string aCodigoVerificacao, string aChaveAcesso, string aValorServico, StringBuilder buffer, ref int bufferSize);
+        public delegate int NFSE_LinkNFSe(string aNumeroNFSe, string aCodigoVerificacao, string aChaveAcesso, string aValorServico, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int NFSE_GerarLote(string aLote, int aQtdMaximaRps, int aModoEnvio, StringBuilder buffer, ref int bufferSize);
@@ -165,12 +165,12 @@ namespace ACBrLib.NFSe
             AddMethod<NFSE_Emitir>("NFSE_Emitir");
             AddMethod<NFSE_Cancelar>("NFSE_Cancelar");
             AddMethod<NFSE_SubstituirNFSe>("NFSE_SubstituirNFSe");
-            AddMethod<NFSE_LinkNFSE>("NFSE_LinkNFSE");
+            AddMethod<NFSE_LinkNFSe>("NFSE_LinkNFSe");
             AddMethod<NFSE_GerarLote>("NFSE_GerarLote");
             AddMethod<NFSE_GerarToken>("NFSE_GerarToken");
             AddMethod<NFSE_ConsultarSituacao>("NFSE_ConsultarSituacao");
             AddMethod<NFSE_ConsultarLoteRps>("NFSE_ConsultarLoteRps");
-            AddMethod<NFSE_ConsultarNFSePorRps>("ConsultarNFSePorRps");
+            AddMethod<NFSE_ConsultarNFSePorRps>("NFSE_ConsultarNFSePorRps");
             AddMethod<NFSE_ConsultarNFSePorNumero>("NFSE_ConsultarNFSePorNumero");
             AddMethod<NFSE_ConsultarNFSePorPeriodo>("NFSE_ConsultarNFSePorPeriodo");
             AddMethod<NFSE_ConsultarNFSePorFaixa>("NFSE_ConsultarNFSePorFaixa");
@@ -186,7 +186,7 @@ namespace ACBrLib.NFSe
             AddMethod<NFSE_ConsultarNFSeServicoTomadoPorPrestador>("NFSE_ConsultarNFSeServicoTomadoPorPrestador");
             AddMethod<NFSE_ConsultarNFSeServicoTomadoPorTomador>("NFSE_ConsultarNFSeServicoTomadoPorTomador");
             AddMethod<NFSE_ConsultarNFSeServicoTomadoPorPeriodo>("NFSE_ConsultarNFSeServicoTomadoPorPeriodo");
-            AddMethod<NFSE_ConsultarNFSeServicoTomadoPorIntermediario>("ConsultarNFSeServicoTomadoPorIntermediario");
+            AddMethod<NFSE_ConsultarNFSeServicoTomadoPorIntermediario>("NFSE_ConsultarNFSeServicoTomadoPorIntermediario");
         }
     }
 }

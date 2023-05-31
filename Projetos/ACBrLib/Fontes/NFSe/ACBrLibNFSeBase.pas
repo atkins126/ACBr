@@ -563,15 +563,9 @@ begin
 
     NFSeDM.Travar;
     try
-      NFSeDM.ACBrNFSeX1.LinkNFSe(NumeroNFSe, CodigoVerificacao, ChaveAcesso, ValorServico);
-      Resp := TLinkNFSeResposta.Create(Config.TipoResposta, Config.CodResposta);
-      try
-        Resposta := Resp.Gerar;
-        MoverStringParaPChar(Resposta, sResposta, esTamanho);
-        Result := SetRetorno(ErrOK, Resposta);
-      finally
-        Resp.Free;
-      end;
+      Resposta := 'LinkNFSe: '+ NFSeDM.ACBrNFSeX1.LinkNFSe(NumeroNFSe, CodigoVerificacao, ChaveAcesso, ValorServico);
+      MoverStringParaPChar(Resposta, sResposta, esTamanho);
+      Result := SetRetorno(ErrOK, Resposta);
     finally
       NFSeDM.Destravar;
     end;
@@ -1121,7 +1115,7 @@ begin
     TipoPeriodo:= TtpPeriodo(aTipoPeriodo);
     NFSeDM.Travar;
     try
-      NFSeDM.ACBrNFSeX1.ConsultarNFSeServicoPrestadoPorNumero(aNumero, aPagina, aDataFinal, aDataFinal, TipoPeriodo);
+      NFSeDM.ACBrNFSeX1.ConsultarNFSeServicoPrestadoPorNumero(aNumero, aPagina, aDataInicial, aDataFinal, TipoPeriodo);
       Resp := TConsultaNFSeResposta.Create(Config.TipoResposta, Config.CodResposta);
       try
         Resp.Processar(NFSeDM.ACBrNFSeX1.WebService.ConsultaNFSe);
@@ -1406,7 +1400,7 @@ begin
     TipoPeriodo:= TtpPeriodo(aTipoPeriodo);
     NFSeDM.Travar;
     try
-      NFSeDM.ACBrNFSeX1.ConsultarNFSeServicoTomadoPorPeriodo(aDataFinal, aDataFinal, aPagina, TipoPeriodo);
+      NFSeDM.ACBrNFSeX1.ConsultarNFSeServicoTomadoPorPeriodo(aDataInicial, aDataFinal, aPagina, TipoPeriodo);
       Resp := TConsultaNFSeResposta.Create(Config.TipoResposta, config.CodResposta);
       try
         Resp.Processar(NFSeDM.ACBrNFSeX1.WebService.ConsultaNFSe);

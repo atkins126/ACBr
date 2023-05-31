@@ -38,8 +38,9 @@ unit ACBrLibNFSeRespostas;
 interface
 
 uses
-  SysUtils, Classes, contnrs,
-  ACBrLibResposta, ACBrNFSeXNotasFiscais, ACBrNFSeX, ACBrNFSeXWebservicesResponse, ACBrNFSeXWebserviceBase, ACBrNFSeXConversao;
+  SysUtils, Classes, contnrs, ACBrLibResposta, ACBrNFSeXNotasFiscais,
+  ACBrNFSeX, ACBrNFSeXWebservicesResponse, ACBrNFSeXWebserviceBase,
+  ACBrNFSeXConversao;
 
 type
 
@@ -90,6 +91,8 @@ type
   published
     property XmlEnvio: String read FXmlEnvio write FXmlEnvio;
     property XmlRetorno: String read FXmlRetorno write FXmlRetorno;
+    property Erros: TObjectList read FErros write FErros;
+    property Alertas: TObjectList read FAlertas write FAlertas;
 
   end;
 
@@ -101,6 +104,11 @@ type
     FProtocolo: string;
     FModoEnvio: string;
     FMaxRps: Integer;
+    FSucesso : boolean;
+    FNumeroNota : string;
+    FCodigoVerificacao : string;
+    FLink : string;
+    FSituacao: string;
 
   public
     constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
@@ -114,7 +122,11 @@ type
     property Protocolo: String read FProtocolo write FProtocolo;
     property MaxRps: Integer read FMaxRps write FMaxRps;
     property ModoEnvio: string read FModoEnvio write FModoEnvio;
-
+    property Sucesso: boolean read FSucesso write FSucesso;
+    property NumeroNota: string read FNumeroNota write FNumeroNota;
+    property CodigoVerificacao: string read FCodigoVerificacao write FCodigoVerificacao;
+    property Link: string read FLink write FLink;
+    property Situacao: string read FSituacao write FSituacao;
   end;
 
   { TConsultaSituacaoResposta }
@@ -384,6 +396,11 @@ begin
   Protocolo := Response.Protocolo;
   MaxRps := Response.MaxRps;
   ModoEnvio := ModoEnvioToStr(Response.ModoEnvio);
+  Sucesso := Response.Sucesso;
+  NumeroNota := Response.NumeroNota;
+  CodigoVerificacao := Response.CodigoVerificacao;
+  Link := Response.Link;
+  Situacao := Response.Situacao;
 end;
 
 { TConsultaSituacaoResposta }

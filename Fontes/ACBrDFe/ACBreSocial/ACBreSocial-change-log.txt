@@ -52,6 +52,25 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+31/05/2023
+-- pcesS1200 --
+[*] Altera valor padrão da propriedade IndApurIR na rotina de leitura do INI para que não gere caso não seja informado.
+  Por: Alexandre de Paula / Rev: Diego F
+-- pcesSConversaoeSocial --
+[+] Adiciona a opção Estabalizados no enumerado e funções de conversão correspondentes de tpTpProv para que fique de acordo com S1.1
+  Por: Andergoncalves / Rev: Alexandre de Paula
+
+26/05/2023
+-- Diversos --
+[*] Revisa as rotinas de leitura de ini visando maior compatibilidade com o layout da versão Simplificada 1.1
+  Por: Alexandre de Paula / Rev: Diego F
+-- pcesS2206 --
+[*] Altera a tag trabTemp para trabTemporario de forma a ficar de acordo com os leiautes de versão simplificada do eSocial.
+  Por: Diego F
+-- pcesS2231 --
+[*] Adiciona validação na função que gera os grupos iniCessao e fimCessao para que não crie o grupo caso não tenha dados preenchidos.
+  Por: Diego F
+
 15/05/2023
 -- pcesConversaoeSocial, pcesS2299, pcesS2399 --
 [*] Adiciona opção paNenhum no enumerado tpPensaoAlim para que a tag não seja gerada caso defina este valor.

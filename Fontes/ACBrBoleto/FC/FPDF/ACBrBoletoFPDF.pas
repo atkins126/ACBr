@@ -67,6 +67,7 @@ type
     procedure GeraBoleto(const AACBrTitulo: TACBrTitulo);
     procedure GeraFichaPagamento(const AACBrTitulo: TACBrTitulo);
     procedure GeraDados(const AACBrTitulo: TACBrTitulo);
+    procedure ImprimirSwHouse;
     procedure ImpressaoUnificada;
     Procedure ImpressaoIndividual;
     procedure InicializarArquivo;
@@ -106,16 +107,24 @@ end;
 
 procedure TACBrBoletoFPDF.FinalizarArquivo;
 var LSenhaPDF : String;
+    LPath : String;
+    LFile : String;
 begin
   LSenhaPDF := Trim(Self.PdfSenha);
 
   if LSenhaPDF <> '' then
     FPDF.SetProtection([canPrint, canCopy],LSenhaPDF,'');
 
+  LPath := IncludeTrailingPathDelimiter(ExtractFilePath(Self.NomeArquivo));
+  LFile := ChangeFileExt(ExtractFileName(Self.NomeArquivo),'');
+
+  if LFile <> '' then
+    LFile := LFile+'_';
+
   if Self.CalcularNomeArquivoPDFIndividual then
-    FPDF.SaveToFile(Self.NomeArquivo + FNomeArquivo + '.pdf')
+    FPDF.SaveToFile( ChangeFileExt(LPath + LFile+FNomeArquivo, '.pdf'))
   else
-    FPDF.SaveToFile(Self.NomeArquivo + '.pdf');
+    FPDF.SaveToFile(ChangeFileExt(Self.NomeArquivo, '.pdf'));
   FPDF.Free;
 end;
 
@@ -299,6 +308,8 @@ begin
   FPDF.Cell(190, 3, AUTENTICACAO_MECANICA + ' - ' + FICHA_COMPENSACAO, '', 1, 'R');
   FPDF.CodeI25(FCodigoBarras, FPDF.GetX, FPDF.GetY + 5, 15, 1);
 
+  if (SoftwareHouse <> '') then
+    ImprimirSwHouse;
 end;
 
 procedure TACBrBoletoFPDF.Imprimir;
@@ -345,6 +356,18 @@ end;
 procedure TACBrBoletoFPDF.Imprimir(AStream: TStream);
 begin
 
+end;
+
+procedure TACBrBoletoFPDF.ImprimirSwHouse;
+begin
+  FPDF.SetXY(6, 265);
+  FPDF.Rotate(90);
+  try
+    FPDF.SetFont('arial', '', 4);
+    FPDF.Cell(100, 5, SoftwareHouse);
+  finally
+    FPDF.Rotate(0);
+  end;
 end;
 
 procedure TACBrBoletoFPDF.InicializarArquivo;

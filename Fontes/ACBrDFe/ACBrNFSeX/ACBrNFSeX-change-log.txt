@@ -42,6 +42,100 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+30/05/2023
+-- NFSeBrasil.LerXml --
+[*] Adiciona leitura da tag: MunicipioPrestacaoServico
+  Por: Diego F
+-- ACBrNFSeXServicos.ini --
+[+] Incluida a cidade de Garuva/SC, provedor é o IPM na versão 1.0
+  Por: forbostec
+
+26/05/2023
+-- Centi.LerXml --
+[*] Acrescentado a leitura da tag: DescontoIncondicionado
+  Por: Diego Reckziegel
+
+25/05/2023
+-- Saatri.Provider --
+[*] Invertido a chamada a função: RemoverCaracteresDesnecessarios no TratarXmlRetornado
+    para resolver o problema com caracteres ESCAPE na mensagem de erro.
+  Por: Italo Giurizzato Junior
+
+24/05/2023
+-- Saatri.Provider --
+[*] Incluído a chamada a função: RemoverCaracteresDesnecessarios no TratarXmlRetornado
+    para resolver o problema com caracteres ESCAPE na mensagem de erro.
+  Por: Italo Giurizzato Junior
+-- IPM.Provider --
+[*] Removido o ParseText ao gerar a string de Authorization, estava ocorrendo
+    erro quando a senha tem caracteres especiais.
+  Por: Paulo V. Ferreira
+-- ACBrNFSeXServicos.ini --
+[*] Atualizado as URLs da cidade de Duartina/SP
+  Por: Alexandre Soares
+[+] Incluída a cidade de Três Pontas/MG - Provedor: IPM
+  Por: Leandro Guindani Gehlen
+
+23/05/2023
+-- ACBrNFSeXConfiguracoes/ACBrNFSeXNotasFiscais --
+[*] Melhoria na aparencia do código e remoção de validação inexistente para a 
+    NFS-e/RPS.
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[+] Incluida a cidade de Cajati/SP, provedor é o Sistemas4R
+  Por: EasySoft Sistemas
+-- IPM.Provider --
+[+] Implementado o ConsultarNfsePorRps para a versão 2.04
+  Por: Mc Sistemas
+-- Libre.Provider --
+[*] Possível solução para o problema de conexão.
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] Incluída a URL de homologação da cidade de São Luis/MA
+  Por: Everton Ferreira Gonçalves
+[+] Incluida a cidade de Brasilia de Minas/MG, provedor é o Sintese
+  Por: João Antonio
+[*] A cidade de Cordeiropolis/SP trocou de provedor, agora é SigISSWeb
+  Por: Glauber Bernado
+[*] A cidade de Campos Altos/MG trocou de provedor, agora é NFSeBrasil
+  Por: Danio
+-- Diversos --
+[*] Possível solução para o problema de gerar indevidamente o grupo RpsSubstituido
+  Por: Italo Giurizzato Junior
+
+22/05/2023
+-- ACBrNFSeXNotasFiscais --
+[*] Adiciona na rotina de leitura do INI validações se a seção existe para que caso negativo, não preencha com valor padrão.
+  Por: Diego F 
+-- ACBrNFSeXServicos.ini --
+[+] Incluida a cidade de Funilandia/MG, provedor é o NFSeBrasil
+  Por: jovitomg
+
+19/05/2023
+-- ACBrNFSeXServicos.ini --
+[+] Incluida a cidade de Francisco Sa/MG, provedor é o Sintese na versão 2.04
+  Por: M3Software Sistemas
+
+18/05/2023
+-- ACBrNFSeXLerXml_ABRASFv2 --
+[*] O provedor Sigep mudou a tag de Endereco para Logradouro, ajuste para 
+    ler corretamente a descrição do Logradouro.
+   Por: Paulo Sergio de Almeida
+-- ACBrNFSeXProviderABRASFv2/MegaSoft.Provider --
+[*] Ajustes para a leitura correta de alertas.
+   Por: Italo Giurizzato Junior
+-- ABase.GravarXml --
+[*] Alterado a configuração para poder gerar a tag OutrasInformacoes.
+  Por: Diego Oliveira
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Macatuba/SP trocou de provedor, agora é Fiorilli
+  Por: Paulo Henrique Panico
+[*] A cidade de Cunha Pora/SC trocou de provedor, agora é IPM na versão 1.01
+  Por: Leo
+-- ACBrNFSeXConfiguracoes --
+[*] Altera a posição de algumas propriedades visando corrigir problema de montagem automática do PathSchemas na Lib
+  Por: Diego F
+
 17/05/2023
 -- ACBrNFSeXServicos.ini --
 [*] Incluida a cidade de Abre Campo/MG - Provedor: EL

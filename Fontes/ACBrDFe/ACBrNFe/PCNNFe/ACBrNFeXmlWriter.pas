@@ -157,8 +157,6 @@ type
 
     procedure AjustarMunicipioUF(out xUF: string; out xMun: string;
       out cMun: integer; cPais: integer; const vxUF, vxMun: string; vcMun: integer);
-    function ObterTipoCampo_TDec_0304Max100Opc(const Valor: Variant): TACBrTipoCampo;
-
   protected
     function CreateOptions: TACBrXmlWriterOptions; override;
 
@@ -241,16 +239,6 @@ end;
 function TNFeXmlWriter.ObterNomeArquivo: string;
 begin
   Result := OnlyNumber(FNFe.infNFe.ID) + '-nfe.xml';
-end;
-
-function TNFeXmlWriter.ObterTipoCampo_TDec_0304Max100Opc(const Valor: Variant): TACBrTipoCampo;
-begin
-  if (Valor = 0) or ((Valor < 1) and ((Trunc(Valor * 10000) mod 10) < 1)) then
-    Result := tcDe3
-  else if Valor = 100 then
-    Result := tcInt
-  else
-    Result := tcDe4;
 end;
 
 function TNFeXmlWriter.GerarXml: boolean;
@@ -426,13 +414,13 @@ begin
   if NFe.infNFe.Versao >= 3 then
   begin
     Result.AppendChild(AddNode(tcStr, 'B09', 'dhEmi', 25, 25, 1,
-      DateTimeTodh(NFe.ide.dEmi) + GetUTC(CodigoParaUF(NFe.ide.cUF), NFe.ide.dEmi),
+      DateTimeWithTimeZone(NFe.ide.dEmi, NFe.ide.cUF),
       DSC_DEMI));
 
     if (NFe.ide.modelo = 55) and (NFe.ide.dSaiEnt <> 0) then
       Result.AppendChild(AddNode(tcStr, 'B10', 'dhSaiEnt', 25, 25,
-        0, DateTimeTodh(NFe.ide.dSaiEnt) + GetUTC(CodigoParaUF(NFe.ide.cUF),
-        NFe.ide.dSaiEnt), DSC_DSAIENT));
+        0, DateTimeWithTimeZone(NFe.ide.dSaiEnt, NFe.ide.cUF),
+        DSC_DSAIENT));
   end
   else
   begin
@@ -500,8 +488,8 @@ begin
   begin
     if NFe.infNFe.Versao >= 3 then
       Result.AppendChild(AddNode(tcStr, 'B28', 'dhCont', 25, 25,
-        1, DateTimeTodh(NFe.ide.dhCont) + GetUTC(CodigoParaUF(NFe.ide.cUF),
-        NFe.ide.dhCont), DSC_DHCONT))
+        1, DateTimeWithTimeZone(NFe.ide.dhCont, NFe.ide.cUF),
+        DSC_DHCONT))
     else
       Result.AppendChild(AddNode(tcStr, 'B28', 'dhCont', 19, 19,
         1, DateTimeTodh(NFe.Ide.dhCont), DSC_DHCONT));
@@ -1561,8 +1549,7 @@ begin
       if NFe.Det[i].Prod.comb.encerrante.nBico > 0 then
         Result.AppendChild(GerarDetProdCombencerrante(i));
 
-      Result.AppendChild(AddNode(ObterTipoCampo_TDec_0304Max100Opc(NFe.Det[i].Prod.comb.pBio),
-        'LA17', 'pBio', 01, 5, 0, NFe.Det[i].Prod.comb.pBio, DSC_PBIO));
+      Result.AppendChild(AddNode(tcDe4, 'LA17', 'pBio', 01, 7, 0, NFe.Det[i].Prod.comb.pBio, DSC_PBIO));
 
       nodeArray := GerarDetProdCombencerranteOrigComb(i);
 
@@ -1624,8 +1611,7 @@ begin
     Result[j].AppendChild(AddNode(tcInt, 'LA20', 'cUFOrig', 2, 2, 1,
       NFe.Det[i].Prod.comb.origComb[j].cUFOrig));
 
-    Result[j].AppendChild(AddNode(ObterTipoCampo_TDec_0304Max100Opc(NFe.Det[i].Prod.comb.origComb[j].pOrig),
-      'LA21', 'pOrig', 1, 5, 1, NFe.Det[i].Prod.comb.origComb[j].pOrig));
+    Result[j].AppendChild(AddNode(tcDe4, 'LA21', 'pOrig', 1, 7, 1, NFe.Det[i].Prod.comb.origComb[j].pOrig));
   end;
 
   if NFe.Det[i].Prod.comb.origComb.Count > 30 then
@@ -1825,10 +1811,10 @@ begin
             01, 15, 0, NFe.Det[i].Imposto.ICMS.vICMSMonoOp, DSC_VICMSMONOOP));
           xmlNode.AppendChild(AddNode(tcDe4, 'N15', 'pDif',
             01, 5, 0, NFe.Det[i].Imposto.ICMS.pDif, DSC_PDIF));
-          xmlNode.AppendChild(AddNode(tcDe2, 'N17', 'vICMSMonoDif',
-            01, 15, 1, NFe.Det[i].Imposto.ICMS.vICMSMonoDif, DSC_VICMSMONODIF));
-          xmlNode.AppendChild(AddNode(tcDe2, 'N17', 'vICMSMono',
-            01, 15, 1, NFe.Det[i].Imposto.ICMS.vICMSMono, DSC_VICMSMONO));
+          xmlNode.AppendChild(AddNode(tcDe2, 'N43', 'vICMSMonoDif',
+            01, 15, 0, NFe.Det[i].Imposto.ICMS.vICMSMonoDif, DSC_VICMSMONODIF));
+          xmlNode.AppendChild(AddNode(tcDe2, 'N39', 'vICMSMono',
+            01, 15, 0, NFe.Det[i].Imposto.ICMS.vICMSMono, DSC_VICMSMONO));
         end;
 
         cst61 :
@@ -3788,9 +3774,9 @@ begin
   xmlNode.AddChild('verAplic').Content := NFe.procNFe.verAplic;
   xmlNode.AddChild('chNFe').Content := NFe.procNFe.chNFe;
   xmlNode.AddChild('dhRecbto').Content :=
-    FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', NFe.procNFe.dhRecbto) +
-    IIf(FNFe.infNFe.Versao >= 3.10, GetUTC(CodigoParaUF(FNFe.Ide.cUF),
-    NFe.procNFe.dhRecbto), '');
+    IIf(FNFe.infNFe.Versao >= 3.10,
+      DateTimeWithTimeZone(NFe.procNFe.dhRecbto, FNFe.Ide.cUF),
+      FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', AjustarDataHoraParaUf(NFe.procNFe.dhRecbto, FNFe.Ide.cUF)));
   xmlNode.AddChild('nProt').Content := NFe.procNFe.nProt;
   xmlNode.AddChild('digVal').Content := NFe.procNFe.digVal;
   xmlNode.AddChild('cStat').Content := IntToStr(NFe.procNFe.cStat);
