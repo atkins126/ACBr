@@ -48,6 +48,19 @@ Símbolo : Significado
 [+]     : Novo recurso
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
+07/06/2023
+[-]TK-4045 Erro na Leitura do retorno CNAB 240 Banco Santander quando ACBrBanco.ACBrBoleto.LerNossoNumeroCompleto = True
+  Por : Pedro E. Braga / Victor H Gonzales - Pandaaa
+07/06/2023
+[-]TK-4004 ACBrBancoABCBrasil - Incluso cod ocorrencia 53 e tratamento para a mesma
+  por : por : Victor H Gonzales  - Pandaaa / Daniel Morais
+01/06/2023
+[-]TK-4004 ACBrBoleto - Contribuição Banco Original
+  por : Marcos Lenharo 
+[*]TK-4003 ACBrBoleto - Contribuição: Banco Daycoval Ajustes de Local Pagamento
+  por : Marcos Lenharo 
+[*]TK-3985 Devolução/Baixa Automática – BANRISUL CNAB 400
+  por : suporteatinfo
 25/05/2023
 [+]TK-3976 ABCrBoletoFibra Retorno400 Conta Vinculada
   por : Victor H Gonzales - Pandaaa
