@@ -42,6 +42,8 @@ namespace ACBrLibNFSe.Demo
             SplashScreenManager.Show<FrmWait>();
             SplashScreenManager.ShowInfo(SplashInfo.Message, "Carregando...");
 
+            
+
             try
             {
                 cmbCidadeEmitente.EnumDataSource(CodigoMunicipio.NenhumaCidadeSelecionada);
@@ -351,7 +353,7 @@ namespace ACBrLibNFSe.Demo
             txtDadosPFX.Text = Convert.ToBase64String(dados);
         }
 
-        private void btnArqGTIN_Click(object sender, EventArgs e)
+        private void btnArqNFSe_Click(object sender, EventArgs e)
         {
             txtArqNFSe.Text = Helpers.SelectFolder();
         }
@@ -564,11 +566,13 @@ namespace ACBrLibNFSe.Demo
         {
             try
             {
+                CheckNFSeLista();
+
                 var aLote = "1";
-                if (InputBox.Show("Gerar Lote EPS", "Número do Lote", ref aLote) != DialogResult.OK) return;
+                if (InputBox.Show("Gerar Lote RPS", "Número do Lote", ref aLote) != DialogResult.OK) return;
 
                 var qtdNaximaRPS = 1;
-                if (InputBox.Show("Gerar Lote EPS", "Quantidade Máxima RPS", ref qtdNaximaRPS) != DialogResult.OK) return;
+                if (InputBox.Show("Gerar Lote RPS", "Quantidade Máxima RPS", ref qtdNaximaRPS) != DialogResult.OK) return;
 
                 var ret = ACBrNFSe.GerarLote(aLote, qtdNaximaRPS, 0);
                 rtbRespostas.AppendText(ret);
@@ -1054,6 +1058,137 @@ namespace ACBrLibNFSe.Demo
                 ACBrNFSe.CarregarINI(arquivoINI);
 
                 var ret = ACBrNFSe.Cancelar(arquivoINI);
+                rtbRespostas.AppendText(ret);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnEnviarEvento_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ACBrNFSe.LimparLista();
+
+                var arquivoINI = Helpers.OpenFile("Arquivo Ini NFSe (*.ini)|*.ini|Todos os Arquivos (*.*)|*.*");
+                if (string.IsNullOrEmpty(arquivoINI)) return;
+
+                ACBrNFSe.CarregarINI(arquivoINI);
+
+                var ret = ACBrNFSe.EnviarEvento(arquivoINI);
+                rtbRespostas.AppendText(ret);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnConsultarDPSPorChave_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var chaveDPS = "";
+                if (InputBox.Show("Consultar DPS Por Chave", "Informe a Chave DPS", ref chaveDPS) != DialogResult.OK) return;
+
+                var ret = ACBrNFSe.ConsultarDPSPorChave(chaveDPS);
+                rtbRespostas.AppendText(ret);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnConsultarNFSePorChave_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var chaveNFSe = "";
+                if (InputBox.Show("Consultar NFSe Por Chave", "Informe a Chave NFSe", ref chaveNFSe) != DialogResult.OK) return;
+
+                var ret = ACBrNFSe.ConsultarNFSePorChave(chaveNFSe);
+                rtbRespostas.AppendText(ret);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnConsultarEvento_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var chave = "";
+                if (InputBox.Show("Consultar Evento", "Informe a Chave", ref chave) != DialogResult.OK) return;
+
+                var tipoEvento = 0;
+                if (InputBox.Show("Consultar Evento", "Informe o Tipo do Evento", ref tipoEvento) != DialogResult.OK) return;
+
+                var numeroSequencia = 0;
+                if (InputBox.Show("Consultar Evento", "Informe o Número Sequencia", ref numeroSequencia) != DialogResult.OK) return;
+
+                var ret = ACBrNFSe.ConsultarEvento(chave, tipoEvento, numeroSequencia);
+                rtbRespostas.AppendText(ret);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnConsultarDFe_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var nsu = 0;
+                if (InputBox.Show("Consultar DFe", "Informe o NSU", ref nsu) != DialogResult.OK) return;
+
+                var ret = ACBrNFSe.ConsultarDFe(nsu);
+                rtbRespostas.AppendText(ret);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnObterDANFSe_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var chaveNFSe = "";
+                if (InputBox.Show("Obter DANFSe", "Informe a Chave NFSe", ref chaveNFSe) != DialogResult.OK) return;
+
+                var ret = ACBrNFSe.ObterDANFSE(chaveNFSe);
+                rtbRespostas.AppendText(ret);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnConsultarParametros_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var tipoParametroMunicipio = 0;
+                if (InputBox.Show("Consultar Parametros", "Informe o Parametro do Municipio", ref tipoParametroMunicipio) != DialogResult.OK) return;
+
+                var codigoServico = "";
+                if (InputBox.Show("Consultar Parametros", "Informe o Código de Serviço", ref codigoServico) != DialogResult.OK) return;
+
+                var competencia = "dd/MM/yyyy";
+                if (InputBox.Show("Consultar Parametros", "Informe a Competencia", ref competencia) != DialogResult.OK) return;
+
+                var numeroBeneficio = "";
+                if (InputBox.Show("Consultar Parametros", "Informe o Numero do Beneficio", ref numeroBeneficio) != DialogResult.OK) return;
+
+                var ret = ACBrNFSe.ConsultarParametros(tipoParametroMunicipio, codigoServico, DateTime.Parse(competencia), numeroBeneficio);
                 rtbRespostas.AppendText(ret);
             }
             catch (Exception exception)

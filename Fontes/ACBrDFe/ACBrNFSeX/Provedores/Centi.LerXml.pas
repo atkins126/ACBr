@@ -593,8 +593,6 @@ begin
 
       with Valores do
       begin
-        IssRetido := FpAOwner.StrToSituacaoTributaria(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('IssRetido'), tcStr));
-
         if IssRetido = stRetencao then
           ValorIssRetido := ValorIss
         else
@@ -819,6 +817,8 @@ begin
 
 //  LerNfseCancelamento(ANode);
 //  LerNfseSubstituicao(ANode);
+
+  LerCampoLink;
 end;
 
 function TNFSeR_Centi202.LerXmlRps(const ANode: TACBrXmlNode): Boolean;

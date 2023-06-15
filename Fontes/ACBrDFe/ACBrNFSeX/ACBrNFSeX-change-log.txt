@@ -42,6 +42,54 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+14/06/2023
+-- Diversos --
+[+] Implementado a versão 1.02 do provedor Tinus para atender 
+    a cidade de Ipojuca/PE.
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[+] Incluído a cidade de Ipojuca/PE - provedor Tinus
+  Por: Italo Giurizzato Junior
+[*] A cidade de Piracanjuba-GO trocou de URL, provedor ainda é Centi na versão 2.02
+  Por: maxdatasistema
+
+13/06/2023
+-- Diversos --
+[*] Remoção da regra de negócio (procurar pelo Link) para montar o QR-Code
+    no DANFSE feito em Fortes Report.
+  Por: Italo Giurizzato Junior/Renato Rubinho
+-- Centi.Provider/Centi.GravarXml/Centi.LerXml --
+[*] Ajustes na geração e leitura da tag IssRetido.
+  Por: Diego Reckziegel
+
+12/06/2023
+-- ISSDSF.Provider --
+[*] Ajustes na procedure ProcessarMensagemErros ao consultar o status do lote 
+    quando este continha erros, estava ocorrendo erro na consulta.
+  Por: Andre Luis Guimaraes
+-- ACBrNFSeXServicos.ini --
+[*] Acrescentado o Params: SolicitarCancelamento para a cidade Cascavel/PR
+  Por: MDO Gomes
+-- Betha.Provider --
+[*] Ajuste na function TratarXmlRetornado por conta de caracteres desnecessarios
+    em mensagens de erros.
+  Por: Procel Software
+-- Equiplano.Provider --
+[*] Ajuste na function TratarXmlRetornado por conta de caracteres desnecessarios
+    em mensagens de erros.
+  Por: Marcos
+-- Giap.Provider --
+[*] Possível solução ao obter o XML de retorno do Emitir.
+  Por: Italo Giurizzato Junior
+
+09/06/2023
+-- ISSDSF.Provider --
+[*] Ajustes na leitura do retorno dos métodos Recepcioar e Teste.
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeXParametros --
+[*] Altera as rotinas que fazem a Leitura das URLs para que preencha a URL de teste com a mesma URL de envio do ambiente correspondente.
+  Por: Diego F
+
 06/06/2023
 -- ACBrNFSeXServicos.ini --
 [+] Incluido ProLinkURL para a cidade de Araxa/MG
