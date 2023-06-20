@@ -105,6 +105,7 @@ const
   CACBreSocialServicosIni =            'ACBreSocialServicos.ini';
   CACBrReinfServicosIni =              'ACBrReinfServicos.ini';
   CACBrBPeServicosIni =                'ACBrBPeServicos.ini';
+  CACBrNFSeServicosIni =               'ACBrNFSeXServicos.ini';
 
   CMetodoSATAtivar =                   'ativar';
   CMetodoInicializar =                 'inicializar';
@@ -468,10 +469,10 @@ const
   CMetodoDistribuicaoDFe =             'distribuicaodfe';
   CMetodoDataVencimentoCertificado =   'datavencimentocertificado';
 
-  CMetodoCriarEnviarRPS =              'criarenviarrps';
-  CMetodoAdicionarRPS =                'adicionarrps';
-  CMetodoEnviarLoteRPS =               'enviarloterps';
-  CMetodoGerarLoteRPS =                'gerarloterps';
+  CMetodoCriarEnviarRPS =              'CriarEnviarRPS';
+  CMetodoAdicionarRPS =                'AdicionarRPS';
+  CMetodoEnviarLoteRPS =               'EnviarLoteRPS';
+  CMetodoGerarLoteRPS =                'GerarLoteRPS';
   CMetodoConsultarSituacaoLote =       'ConsultarSituacaoLote';
   CMetodoConsultarLote =               'ConsultarLote';
   CMetodoConsultarNFSeporRPS =         'ConsultarNFSeporRPS';
@@ -494,6 +495,17 @@ const
   CMetodoEnviarEmailNFSe =             'EnviarEmailNFSe';
   CMetodoImprimirNFSe =                'ImprimirNFSe';
   CMetodoImprimirPDFNFSe =             'ImprimirPDFNFSe';
+  // Utilizado por alguns provedores
+  CMetodoGerarTokenNFSe =              'GerarTokenNFSe';
+  // Utilizados pelo Padrão Nacional
+  CMetodoConsultarDPSPorChave =        'ConsultarDPSPorChave';
+  CMetodoConsultarNFSePorChave =       'ConsultarNFSePorChave';
+  CMetodoObterDANFSE =                 'ObterDANFSE';
+  CMetodoEnviarEventoNFSe =            'EnviarEventoNFSe';
+  CMetodoConsultarEventoNFSe =         'ConsultarEventoNFSe';
+  CMetodoConsultarDFeNFSePorNSU =      'ConsultarDFeNFSePorNSU';
+  CMetodoConsultarDFeNFSePorChave =    'ConsultarDFeNFSePorChave';
+  CMetodoConsultarParametrosNFSe =     'ConsultarParametrosNFSe';
 
   CMetodoValidarCTe =                  'validarcte';
   CMetodoAssinarCTe =                  'assinarcte';
@@ -718,6 +730,7 @@ const
   CMetodoCarregarImagem    = 'carregarimagem';
   CMetodoLimparMemoria     = 'limparmemoria';
   CMetodoSetLimparMemoria  = 'setlimparmemoria';
+  CMetodoImprimirQRCode    = 'imprimirqrcode';
 
   CMetodoConsultaConfig  = 'consultaconfig';
   CMetodoImprimirGNRe    = 'imprimirgnre';
@@ -928,6 +941,7 @@ const
   CKeyArquivoWebServiceseSocial =     'ArquivoWebServiceseSocial';
   CKeyArquivoWebServicesReinf =       'ArquivoWebServicesReinf';
   CKeyArquivoWebServicesBPe =         'ArquivoWebServicesBPe';
+  CKeyArquivoWebServicesNFSe =        'ArquivoWebServicesNFSe';
   CKeyValidarDigest =                 'ValidarDigest';
   CKeyTimeoutWebService =             'TimeoutWebService';
 
@@ -936,6 +950,7 @@ const
   CKeyFormaEmissao =                 'FormaEmissao';
   CKeyLogomarca =                    'Logomarca';
   CKeyLogoMarcaNFCeSAT =             'LogoMarcaNFCeSAT';
+  CKeyLogoMarcaPrefeitura =          'LogoMarcaPrefeitura';
   CKeySalvar =                       'Salvar';
   CKeyPathSalvar =                   'PathSalvar';
   CKeyImpressora =                   'Impressora';
@@ -1005,6 +1020,8 @@ const
   CKeyAssuntoCTe =                   'AssuntoCTe';
   CKeyAssuntoMDFe =                  'AssuntoMDFe';
   CKeyAssuntoBPe =                   'AssuntoBPe';
+  CKeyMensagemNFSe =                 'MensagemNFSe';
+  CKeyAssuntoNFSe =                  'AssuntoNFSe';
 
   CSecNFe =                          'NFe';
   CKeyNFeCNPJContador =              'CNPJContador';
@@ -1376,7 +1393,24 @@ const
   CDFeSATIniFile =                          'dfesat.ini';
   CObjSAT =                                 'SAT';
 
-
+  CSecNFSE =                                'NFSe';
+  CKeyNFSELayoutProvedor =                  'LayoutProvedor';
+  CKeyNFSECodigoMunicipio =                 'CodigoMunicipio';
+  CKeyNFSENomeMunicipio =                   'NomeMunicipio';
+  CKeyNFSEUFMunicipio =                     'UFMunicipio';
+  CKeyNFSeUsuario =                         'Usuario';
+  CKeyNFSeSenha =                           'Senha';
+  CKeyNFSeChaveAcesso =                     'ChaveAcesso';
+  CKeyNFSeChaveAutenticacao =               'ChaveAutenticacao';
+  CKeyNFSeFraseSecreta =                    'FraseSecreta';
+  CKeyNFSeCNPJEmitente =                    'CNPJEmitente';
+  CKeyNFSeIMEmitente =                      'IMEmitente';
+  CKeyNFSeNomeEmitente =                    'NomeEmitente';
+  CKeyNFSeMontarAutoPathSchema =            'MontarAutoPathSchema';
+  CKeyNFSeConsultarLoteAposEnvio =          'ConsultarLoteAposEnvio';
+  CKeyNFSeConsultarAposCancelar =           'ConsultarAposCancelar';
+  CKeyNFSeNomePrefeitura =                  'NomePrefeitura';
+  CKeyNFSeCNPJPrefeitura =                  'CNPJPrefeitura';
 
 implementation
 
