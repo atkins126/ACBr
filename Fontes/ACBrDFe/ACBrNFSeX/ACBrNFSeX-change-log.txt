@@ -42,6 +42,104 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+28/06/2023
+-- Diversos --
+[+] Implementação do método ConsultarSequencialRps do provedor ISSDSF
+  Por: Diego F
+
+27/06/2023
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Bento Goncalves/RS trocou de URL.
+  Por: Maiquel Parisotto
+-- ACBrNFSeXClass/ACBrNFSeXGravarXml_ABRASFv2/ACBrNFSeXLerXml_ABRASFv2/Elotech.GravarXml --
+[*] Implementando os campos: ValorCpp, AliquotaCpp e RetidoCpp. 
+  Por: Arrobba
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Sapiranga/RS trocou de provedor, agora é IPM.
+  Por: Nicolas Dorr
+-- IPM.GravarXml --
+[*] Alterado para gerar a tag nfse_teste também para versão 1.01.
+  Por: Nicolas Dorr
+
+23/06/2023
+-- IPM.LerXml --
+[*] Correção na leitura do XML, não estava lendo a tag do Valor ISS Retido.
+  Por: Magno Costa
+-- ACBrNFSeXDANFSeRL --
+[*] Remoção de units não necessárias.
+  Por: Italo Giurizzato Junior
+-- Giap.Provider --
+[*] Correção na condição para checar se o modo de envio é assincrono.
+  Por: Italo Giurizzato Junior
+-- ISSNet.Provider --
+[*] Alteração visando o correto envio do código do município ao cancelar uma nota.
+  Por: Fabio Luiz Binhara/Italo Giurizzato Junior
+-- SigCorp.Provider --
+[*] Alteração visando o uso de caracteres especiais em nome de tomadores.
+  Por: Delcio
+-- Infisc.Provider/Agili.Provider --
+[*] Trocado a chamada ConsultarNFSe por ConsultarNFSeporFaixa.
+  Por: Italo Giurizzato Junior
+-- ISSSaoPaulo.Provider --
+[*] Em diversos métodos é possível informar o CPF ou CNPJ do Remetente, só estava
+    previsto o envio do CNPJ, alteração realizada para contemplar ambos documentos.
+  Por: Italo Giurizzato Junior
+-- NFSeBrasil.Provider --
+[*] Possível solução para a leitura correta do XML retornado pelo webservice.
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Juazeiro/BA trocou de provedor, agora é Sudoeste
+  Por: Joemil
+[*] A cidade de Porto Belo/SC trocou de provedor, agora é IPM
+  Por: Felipe Nadaletti
+[+] Incluída a cidade de Pato Bragado/PR - Provedor: IPM
+  Por: Alex Heinen
+[*] A cidade de Redencao/PA trocou de provedor, agora é Desenvolve
+  Por: Joemil
+[*] Incluída o parâmetro Não dividir por 100 para a cidade de Barcarena/PA
+  Por: Fabio Luiz Binhara
+[+] Incluída a cidade de Jequie/BA - Provedor: EL
+  Por: PrimeSoftware
+[+] Incluída a cidade de Lins/MG - Provedor: AssessorPublico
+  Por: Antonio Paulo Mangili
+
+22/06/2023
+-- ACBrNFSeXDANFSeRLSimplISS --
+[*] Alteração visando a impressão do conteudo da tag OutrasInformacoes.
+  Por: Italo Giurizzato Junior
+-- NFSeBrasil.Provider --
+[*] Alterado a procedure TratarRetornoConsultaNFSeporRps para que retorne o numero
+    da nota no resumo.
+  Por: Italo Giurizzato Junior
+-- Insfisc.Provider --
+[*] Alterado a montagem do XML do ConsultarNFSe, pois na versão 1.01 o provedor
+    exige que seja informado o numero inicial e final da nota.
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeXDANFSeFR --
+[*] Alteração visando imprimir a data do Rps em vez da nota caso o XML seja do Rps.
+  Por: Neski Soluções
+-- SysISS.GravarXml --
+[*] Alterado a configuração para não formatar o ItemListaServico ao gerar o XML do Rps.
+  Por: Everson Clei
+-- ISSIntel.Provider --
+[*] Possível solução para a leitura da lista de erros.
+  Por: Italo Giurizzato Junior
+
+21/06/2023
+-- ACBrNFSeXServicos.ini --
+[+] Incluída a cidade de Sao Sebastiao do Maranhao/MG - Provedor: EL
+  Por: Robson Pinheiro
+[*] Atualizado a URL da cidade de Conde/PB
+  Por: Gabriel Herdt
+
+20/06/2023
+-- Diversos --
+[*] Acrescentado a propriedade Assinaturas em Geral com os seguintes valores:
+    [taConfigProvedor, taAssinar, taNaoAssinar]
+    O valor padrão é taConfigProvedor, neste caso o componente vai assinar ou
+    não os Xml conforme consta na configuração do provedor.
+  Por: Italo Giurizzato Junior
+
 19/06/2023
 -- Prescon.GravarJson --
 [*] Preenchidos cep e país da obra ao gerar o json

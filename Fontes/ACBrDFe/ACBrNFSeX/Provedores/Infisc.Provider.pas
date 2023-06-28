@@ -72,8 +72,8 @@ type
     procedure PrepararConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
     procedure TratarRetornoConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
@@ -381,15 +381,14 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderInfisc.PrepararConsultaNFSe(
+procedure TACBrNFSeProviderInfisc.PrepararConsultaNFSeporFaixa(
   Response: TNFSeConsultaNFSeResponse);
 var
   Emitente: TEmitenteConfNFSe;
   Versao: string;
   xConsulta: string;
 begin
-  if (Response.InfConsultaNFSe.NumeroIniNFSe <> '') and
-     (Response.InfConsultaNFSe.NumeroFinNFSe <> '') then
+  if ConfigGeral.Versao = ve101 then
   begin
     xConsulta := '<notaInicial>' +
                    Response.InfConsultaNFSe.NumeroIniNFSe +
@@ -398,20 +397,47 @@ begin
                    Response.InfConsultaNFSe.NumeroFinNFSe +
                  '</notaFinal>';
 
+    if (Response.InfConsultaNFSe.DataInicial <> 0) then
+      xConsulta := xConsulta + '<emissaoInicial>' +
+                   FormatDateTime('YYYY-MM-DD', Response.InfConsultaNFSe.DataInicial) +
+                 '</emissaoInicial>';
+
+    if (Response.InfConsultaNFSe.DataFinal <> 0) then
+      xConsulta := xConsulta + '<emissaoFinal>' +
+                   FormatDateTime('YYYY-MM-DD', Response.InfConsultaNFSe.DataFinal) +
+                 '</emissaoFinal>';
+
     if Response.InfConsultaNFSe.SerieNFSe <> '' then
       xConsulta := xConsulta + '<serieNotaFiscal>' +
                                  Response.InfConsultaNFSe.SerieNFSe +
                                '</serieNotaFiscal>';
-
   end
   else
   begin
-    xConsulta := '<emissaoInicial>' +
-                   FormatDateTime('YYYY-MM-DD', Response.InfConsultaNFSe.DataInicial) +
-                 '</emissaoInicial>' +
-                 '<emissaoFinal>' +
-                   FormatDateTime('YYYY-MM-DD', Response.InfConsultaNFSe.DataFinal) +
-                 '</emissaoFinal>';
+    if (Response.InfConsultaNFSe.NumeroIniNFSe <> '') and
+       (Response.InfConsultaNFSe.NumeroFinNFSe <> '') then
+    begin
+      xConsulta := '<notaInicial>' +
+                     Response.InfConsultaNFSe.NumeroIniNFSe +
+                   '</notaInicial>' +
+                   '<notaFinal>' +
+                     Response.InfConsultaNFSe.NumeroFinNFSe +
+                   '</notaFinal>';
+    end
+    else
+    begin
+      xConsulta := '<emissaoInicial>' +
+                     FormatDateTime('YYYY-MM-DD', Response.InfConsultaNFSe.DataInicial) +
+                   '</emissaoInicial>' +
+                   '<emissaoFinal>' +
+                     FormatDateTime('YYYY-MM-DD', Response.InfConsultaNFSe.DataFinal) +
+                   '</emissaoFinal>';
+    end;
+
+    if Response.InfConsultaNFSe.SerieNFSe <> '' then
+      xConsulta := xConsulta + '<serieNotaFiscal>' +
+                                 Response.InfConsultaNFSe.SerieNFSe +
+                               '</serieNotaFiscal>';
   end;
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
@@ -429,7 +455,7 @@ begin
                            '</pedidoLoteNFSe>';
 end;
 
-procedure TACBrNFSeProviderInfisc.TratarRetornoConsultaNFSe(
+procedure TACBrNFSeProviderInfisc.TratarRetornoConsultaNFSeporFaixa(
   Response: TNFSeConsultaNFSeResponse);
 var
   Document: TACBrXmlDocument;

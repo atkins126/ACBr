@@ -677,7 +677,9 @@ end;
 
 procedure TCTeStatusServico.DefinirServicoEAction;
 begin
-  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+  if (FPConfiguracoesCTe.Geral.VersaoDF <= ve300) or
+     ((FPConfiguracoesCTe.WebServices.UFCodigo = 31) and
+      (FPConfiguracoesCTe.Geral.FormaEmissao = teNormal)) then
     FPServico := GetUrlWsd + 'CteStatusServico'
   else
     FPServico := GetUrlWsd + 'CTeStatusServicoV4';
@@ -733,10 +735,12 @@ var
 begin
   FPRetWS := SeparaDados(FPRetornoWS, 'cteStatusServicoCTResult');
 
-  if FPConfiguracoesCTe.Geral.VersaoDF >= ve400 then
-    CTeRetorno := TRetConsStatServ.Create('CTe')
+  if (FPConfiguracoesCTe.Geral.VersaoDF <= ve300) or
+     ((FPConfiguracoesCTe.WebServices.UFCodigo = 31) and
+      (FPConfiguracoesCTe.Geral.FormaEmissao = teNormal)) then
+    CTeRetorno := TRetConsStatServ.Create('Cte')
   else
-    CTeRetorno := TRetConsStatServ.Create('Cte');
+    CTeRetorno := TRetConsStatServ.Create('CTe');
 
   try
     CTeRetorno.Leitor.Arquivo := ParseText(FPRetWS);
@@ -960,7 +964,12 @@ begin
           end
           else
           begin
-            FPServico := GetUrlWsd + 'CTeRecepcaoSincV4';
+            if (FPConfiguracoesCTe.WebServices.UFCodigo = 31) and
+               (FPConfiguracoesCTe.Geral.FormaEmissao = teNormal) then
+              FPServico := GetUrlWsd + 'CTeRecepcaoSinc'
+            else
+              FPServico := GetUrlWsd + 'CTeRecepcaoSincV4';
+
             FPSoapAction := FPServico + '/cteRecepcao';
           end;
         end
@@ -980,14 +989,21 @@ begin
         end
         else
         begin
-          FPServico := GetUrlWsd + 'CTeRecepcaoOSV4';
+          if (FPConfiguracoesCTe.WebServices.UFCodigo = 31) and
+             (FPConfiguracoesCTe.Geral.FormaEmissao = teNormal) then
+            FPServico := GetUrlWsd + 'CteRecepcaoOS'
+          else
+            FPServico := GetUrlWsd + 'CTeRecepcaoOSV4';
+
           FPSoapAction := FPServico + '/cteRecepcaoOS';
         end;
       end;
 
   else
     begin
-      if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+      if (FPConfiguracoesCTe.Geral.VersaoDF <= ve300) or
+         ((FPConfiguracoesCTe.WebServices.UFCodigo = 31) and
+          (FPConfiguracoesCTe.Geral.FormaEmissao = teNormal)) then
         FPServico := GetUrlWsd + 'CTeRecepcaoGTVe'
       else
         FPServico := GetUrlWsd + 'CTeRecepcaoGTVeV4';
@@ -2081,7 +2097,9 @@ end;
 
 procedure TCTeConsulta.DefinirServicoEAction;
 begin
-  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+  if (FPConfiguracoesCTe.Geral.VersaoDF <= ve300) or
+     ((FPConfiguracoesCTe.WebServices.UFCodigo = 31) and
+      (FPConfiguracoesCTe.Geral.FormaEmissao = teNormal)) then
     FPServico := GetUrlWsd + 'CteConsulta'
   else
     FPServico := GetUrlWsd + 'CTeConsultaV4';
@@ -2990,7 +3008,9 @@ end;
 
 procedure TCTeEnvEvento.DefinirServicoEAction;
 begin
-  if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+  if (FPConfiguracoesCTe.Geral.VersaoDF <= ve300) or
+     ((FPConfiguracoesCTe.WebServices.UFCodigo = 31) and
+      (FPConfiguracoesCTe.Geral.FormaEmissao = teNormal)) then
     FPServico := GetUrlWsd + 'CteRecepcaoEvento'
   else
     FPServico := GetUrlWsd + 'CTeRecepcaoEventoV4';

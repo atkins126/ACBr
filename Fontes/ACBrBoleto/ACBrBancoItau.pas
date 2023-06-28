@@ -463,6 +463,7 @@ begin
     with ACBrTitulo do
     begin
        {SEGMENTO P}
+       inc(fpQtdRegsCobranca);
        inc(fpQtdRegsLote);
        {Tipo de Ocorrencia}
        TipoOcorrenciaRemessa := TipoOcorrenciaToCodRemessa(ACBrTitulo.OcorrenciaOriginal.Tipo);
@@ -494,7 +495,7 @@ begin
        ListTransacao.Add( IntToStrZero(ACBrBanco.Numero, 3)                + //1 a 3 - Código do banco
                 '0001'                                                     + //4 a 7 - Lote de serviço
                 '3'                                                        + //8 - Tipo do registro: Registro detalhe
-                IntToStrZero(fpQtdRegsLote + 1 ,5)                         + //9 a 13 - Número seqüencial do registro no lote - Cada registro possui dois segmentos
+                IntToStrZero(fpQtdRegsLote ,5)                             + //9 a 13 - Número seqüencial do registro no lote - Cada registro possui dois segmentos
                 'P'                                                        + //14 - Código do segmento do registro detalhe
                 ' '                                                        + //15 - Uso exclusivo FEBRABAN/CNAB: Branco
                 TipoOcorrenciaRemessa                                      + //16 a 17 - Código de movimento
@@ -546,7 +547,7 @@ begin
        ListTransacao.Add( IntToStrZero(ACBrBanco.Numero, 3)                + //Código do banco
                 '0001'                                                     + //Número do lote
                 '3'                                                        + //Tipo do registro: Registro detalhe
-                IntToStrZero(fpQtdRegsLote + 1 ,5)                         + //Número seqüencial do registro no lote - Cada registro possui dois segmentos
+                IntToStrZero(fpQtdRegsLote ,5)                             + //Número seqüencial do registro no lote - Cada registro possui dois segmentos
                 'Q'                                                        + //Código do segmento do registro detalhe
                 ' '                                                        + //Uso exclusivo FEBRABAN/CNAB: Branco
                 TipoOcorrenciaRemessa                                      + // 16 a 17
@@ -577,7 +578,7 @@ begin
          ListTransacao.Add(IntToStrZero(ACBrBanco.Numero,3)                         + // 001 a 003 - Codigo do Banco
                 '0001'                                                              + // 004 a 007 - Lote de Serviço
                 '3'                                                                 + // 008 a 008 - Registro Detalhe
-                IntToStrZero(fpQtdRegsLote + 1 ,5)                                  + // 009 a 013 - Seq. Registro do Lote
+                IntToStrZero(fpQtdRegsLote ,5)                                      + // 009 a 013 - Seq. Registro do Lote
                 'R'                                                                 + // 014 a 014 - Codigo do Segmento registro detalhe
                 ' '                                                                 + // 015 a 015 - Complemento de Registro
                 TipoOcorrenciaRemessa                                               + // 016 a 017 - Identificação da Ocorrencia
@@ -623,9 +624,10 @@ end;
 
 function TACBrBancoItau.GerarRegistroTrailler240(ARemessa: TStringList): String;
 begin
-  fpQtdRegsCobranca:= fpQtdRegsLote;
+
   Result:= inherited GerarRegistroTrailler240(ARemessa);
   fpQtdRegsLote := 0;
+  fpQtdRegsCobranca := 0;
 end;
 
 procedure TACBrBancoItau.GerarRegistroHeader400(

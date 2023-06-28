@@ -202,6 +202,8 @@ type
     FConsultarDFe: string;
     // URL de homologação ou produção para o serviço ConsultarParam
     FConsultarParam: string;
+    // URL de homologação ou produção para o serviço ConsultarSeqRps
+    FConsultarSeqRps: string;
 
   public
     property LinkURL: string read FLinkURL;
@@ -228,6 +230,7 @@ type
     property ConsultarEvento: string read FConsultarEvento;
     property ConsultarDFe: string read FConsultarDFe;
     property ConsultarParam: string read FConsultarParam;
+    property ConsultarSeqRps: string read FConsultarSeqRps;
 
   end;
 
@@ -334,6 +337,8 @@ type
     FConsultarDFe: TDocElement;
     // Contem a definição dos campos TDocElement para o XML de Consultar Param
     FConsultarParam: TDocElement;
+    // Contem a definição dos campos TDocElement para o XML de Consultar Sequencial RPS
+    FConsultarSeqRps: TDocElement;
 
     // Se True gera o namespace no Lote de Rps
     FGerarNSLoteRps: Boolean;
@@ -370,6 +375,7 @@ type
     property ConsultarEvento: TDocElement read FConsultarEvento;
     property ConsultarDFe: TDocElement read FConsultarDFe;
     property ConsultarParam: TDocElement read FConsultarParam;
+    property ConsultarSeqRps: TDocElement read FConsultarSeqRps;
 
     property GerarNSLoteRps: Boolean read FGerarNSLoteRps write FGerarNSLoteRps;
     property GerarPrestadorLoteRps: Boolean read FGerarPrestadorLoteRps write FGerarPrestadorLoteRps;
@@ -421,11 +427,14 @@ type
     FConsultarDFe: boolean;
     // Se True assina o Consultar Param
     FConsultarParam: boolean;
-
+    // se True assina o Consultar Sequencial Rps
+    FConsultarSeqRps: boolean;
     // Se True Incluir o valor de ID na URI da assinatura
     FIncluirURI: boolean;
     // Se True gera uma assinatura adicional
     FAssinaturaAdicional: boolean;
+    // Tipo de Assinaturas
+    FAssinaturas: TAssinaturas;
 
   public
     property Rps: boolean read FRps write FRps;
@@ -449,9 +458,11 @@ type
     property ConsultarEvento: boolean read FConsultarEvento write FConsultarEvento;
     property ConsultarDFe: boolean read FConsultarDFe write FConsultarDFe;
     property ConsultarParam: boolean read FConsultarParam write FConsultarParam;
+    property ConsultarSeqRps: boolean read FConsultarSeqRps write FConsultarSeqRps;
 
     property IncluirURI: boolean read FIncluirURI write FIncluirURI;
     property AssinaturaAdicional: boolean read FAssinaturaAdicional write FAssinaturaAdicional;
+    property Assinaturas: TAssinaturas read FAssinaturas write FAssinaturas;
   end;
 
   { TConfigSchemas }
@@ -497,6 +508,8 @@ type
     FConsultarDFe: string;
     // Nome do arquivo XSD para validar o Consultar Param
     FConsultarParam: string;
+    // Nome do arquivo XSD para validar o Consultar Sequencial Rps
+    FConsultarSeqRps: string;
 
     // Se True realiza a validação do XML com os Schemas
     FValidar: boolean;
@@ -521,6 +534,7 @@ type
     property ConsultarEvento: string read FConsultarEvento write FConsultarEvento;
     property ConsultarDFe: string read FConsultarDFe write FConsultarDFe;
     property ConsultarParam: string read FConsultarParam write FConsultarParam;
+    property ConsultarSeqRps: string read FConsultarSeqRps write FConsultarSeqRps;
 
     property Validar: boolean read FValidar write FValidar;
   end;
@@ -645,7 +659,6 @@ begin
   with Homologacao do
   begin
     FRecepcionar         := AINI.ReadString(ASession, 'HomRecepcionar'        , '');
-    FTesteEnvio := FRecepcionar;
     FConsultarSituacao   := AINI.ReadString(ASession, 'HomConsultarSituacao'  , FRecepcionar);
     FConsultarLote       := AINI.ReadString(ASession, 'HomConsultarLote'      , FRecepcionar);
     FConsultarNFSeRPS    := AINI.ReadString(ASession, 'HomConsultarNFSeRps'   , FRecepcionar);
@@ -665,6 +678,9 @@ begin
     FConsultarNFSePorFaixa        := AINI.ReadString(ASession, 'HomConsultarNFSePorFaixa'       , FRecepcionar);
     FConsultarNFSeServicoPrestado := AINI.ReadString(ASession, 'HomConsultarNFSeServicoPrestado', FRecepcionar);
     FConsultarNFSeServicoTomado   := AINI.ReadString(ASession, 'HomConsultarNFSeServicoTomado'  , FRecepcionar);
+
+    FTesteEnvio      := AINI.ReadString(ASession, 'HomTesteEnvio'     , FRecepcionar);
+    FConsultarSeqRps := AINI.ReadString(ASession, 'HomConsultarSeqRps', FRecepcionar);
   end;
 end;
 
@@ -673,7 +689,6 @@ begin
   with Producao do
   begin
     FRecepcionar         := AINI.ReadString(ASession, 'ProRecepcionar'        , '');
-    FTesteEnvio := FRecepcionar;
     FConsultarSituacao   := AINI.ReadString(ASession, 'ProConsultarSituacao'  , FRecepcionar);
     FConsultarLote       := AINI.ReadString(ASession, 'ProConsultarLote'      , FRecepcionar);
     FConsultarNFSeRPS    := AINI.ReadString(ASession, 'ProConsultarNFSeRps'   , FRecepcionar);
@@ -693,6 +708,9 @@ begin
     FConsultarNFSePorFaixa        := AINI.ReadString(ASession, 'ProConsultarNFSePorFaixa'       , FRecepcionar);
     FConsultarNFSeServicoPrestado := AINI.ReadString(ASession, 'ProConsultarNFSeServicoPrestado', FRecepcionar);
     FConsultarNFSeServicoTomado   := AINI.ReadString(ASession, 'ProConsultarNFSeServicoTomado'  , FRecepcionar);
+
+    FTesteEnvio      := AINI.ReadString(ASession, 'ProTesteEnvio'     , FRecepcionar);
+    FConsultarSeqRps := AINI.ReadString(ASession, 'ProConsultarSeqRps', FRecepcionar);
   end;
 end;
 
@@ -720,6 +738,7 @@ begin
   FConsultarEvento := TDocElement.Create;
   FConsultarDFe := TDocElement.Create;
   FConsultarParam := TDocElement.Create;
+  FConsultarSeqRps := TDocElement.Create;
 end;
 
 destructor TConfigMsgDados.Destroy;
@@ -744,6 +763,7 @@ begin
   FConsultarEvento.Free;
   FConsultarDFe.Free;
   FConsultarParam.Free;
+  FConsultarSeqRps.Free;
 
   inherited Destroy;
 end;
