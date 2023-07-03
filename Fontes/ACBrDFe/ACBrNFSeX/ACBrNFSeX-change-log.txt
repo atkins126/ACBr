@@ -42,6 +42,47 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+03/07/2023
+-- IPM.Provider --
+[*] Melhorias no TratarRetornoCancelaNFSe, pois dependendo da cidade o XML de
+    retorno é diferente.
+  Por: Italo Giurizzato Junior
+-- GovDigital.GravarXml --
+[*] Incluída a condição para verificar se existe o parâmetro: NaoDividir100
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] Incluído o Parâmetro para não dividir a aliquota por 100 para a cidade Pedro Leopoldo.
+  Por: Italo Giurizzato Junior
+[+] Incluída a cidade de Bom Jesus/PI, provedor é: Fisco
+  Por: Edmilson Vieira Gomes
+-- Sudoeste.Provider --
+[+] Incluído a função para tratar o XML retornado.
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeXLerXml_ABRASFv1/Thema.GravarXml/Thema.LerXml/Thema.Provider --
+[*] Alteração visando a leitura e escrita do grupo Construção Civil, pois o provedor
+    possui um erro de grafia no nome do grupo.
+  Por: Tiago
+-- Infisc.LerXml --
+[*] Alteração visando a leitura do grupo dadosDaObra e da tag empreitadaGlobal.
+  Por: Tiago Tecchio
+
+30/06/2023
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Penha/SC trocou de provedor, agora é IPM
+ Por: BluData
+[*] Atualizado a URL de produção da cidade de Cuiaba/MT
+ Por: Diego Reckziegel
+-- NFSeBrasil.LerXml --
+[*] Possível solução para a leitura da descrição do serviço.
+  Por: Italo Giurizzato Junior
+-- IPM.GravarXml --
+[*] Alterado para 10 casas decimais ao gerar a tag unidade_valor_unitario e
+    imposto uma condição ao gerar a tag valor_issrf.
+  Por: Léo
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Colina/SP, trocou de provedor, agora é Pronim na versão 2.03
+ Por: Destak
+
 29/06/2023
 -- ACBrNFSeXServicos.ini --
 [*] A cidade de São Sebastião do Oeste/MG, mudou a versão para 2.02, provedor ainda é o Betha.
