@@ -42,6 +42,17 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+04/07/2023
+-- Simple.Provider/Simple.LerXml/ACBrNFSeXDANFSeRLRetrato --
+[*] Possível solução para a impressão do ItemListaServico e sua descrição.
+  Por: Italo Giurizzato Junior
+-- Diversos --
+[+] Implementação do provedor Intertec que atende a cidade de São João da Boa Vista/SP
+  Por: Elisângela Borato/Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] A URL da cidade de Araxa/MG mudou, provedor ainda é o Governa.
+  Por: neto233
+
 03/07/2023
 -- IPM.Provider --
 [*] Melhorias no TratarRetornoCancelaNFSe, pois dependendo da cidade o XML de
