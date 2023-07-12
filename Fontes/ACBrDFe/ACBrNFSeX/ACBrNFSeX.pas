@@ -161,6 +161,8 @@ type
 
     procedure ConsultarNFSe;
 
+    procedure ConsultarLinkNFSe(AInfConsultaLinkNFSe: TInfConsultaLinkNFSe);
+
     procedure CancelarNFSe(aInfCancelamento: TInfCancelamento);
 
     procedure SubstituirNFSe(const ANumNFSe: String; const ASerieNFSe: String;
@@ -580,6 +582,26 @@ begin
   FWebService.ConsultaNFSeporRps.NumeroRps := aChave;
 
   FProvider.ConsultaNFSeporRps;
+end;
+
+procedure TACBrNFSeX.ConsultarLinkNFSe(
+  AInfConsultaLinkNFSe: TInfConsultaLinkNFSe);
+var
+  InfConsulta: TInfConsultaLinkNFSe;
+begin
+  if not Assigned(FProvider) then
+    raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
+
+  FWebService.ConsultaLinkNFSe.Clear;
+
+  InfConsulta := FWebService.ConsultaLinkNFSe.InfConsultaLinkNFSe;
+  InfConsulta.Competencia := AInfConsultaLinkNFSe.Competencia;
+  InfConsulta.NumeroNFSe := AInfConsultaLinkNFSe.NumeroNFSe;
+  InfConsulta.SerieNFSe := AInfConsultaLinkNFSe.SerieNFSe;
+  InfConsulta.NumeroRps := AInfConsultaLinkNFSe.NumeroRps;
+  InfConsulta.SerieRps := AInfConsultaLinkNFSe.SerieRps;
+
+  FProvider.ConsultaLinkNFSe;
 end;
 
 procedure TACBrNFSeX.ConsultarLoteRps(const AProtocolo, ANumLote: String);

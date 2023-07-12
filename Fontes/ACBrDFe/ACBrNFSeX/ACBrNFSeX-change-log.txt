@@ -42,6 +42,89 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+12/07/2023
+-- ACBrNFSeXServicos --
+[*] A cidade de Igarape/MG trocou de provedor, agora é ISSDigital
+  Por: JovitoMG
+[+] Incluída a cidade de Rio Bananal/ES, provedor é: EL
+  Por: Neski Soluções
+-- PadraoNacional.Provider --
+[*] Ajuste visando sanar o problema ao receber um array "erro" ao enviar evento para o PadraoNacional
+  Por: Diego F #TK-4116
+
+11/07/2023
+-- ISSCamacari.GravarXml --
+[*] Ajustes para não formatar o conteúdo da tag ItemListaServico.
+  Por: Italo Giurizzato Junior
+-- SoftPlan.GravarXml --
+[*] Ajustes para gerar a tag Aliquota com 4 casas decimais.
+  Por: Ricardo ADM
+-- ACBrNFSeXServicos --
+[*] Ajuste para que não não divida a aliquota por 100 (Itajuba/MG).
+  Por: Daycon
+[+] Incluída a cidade de Monte Alegre/RN, provedor é: Tinus
+  Por: Edulamy
+-- Betha.GravarXml --
+[*] Ajustes para tornar a tag Aliquota obrigatória se o prestador for Optante
+    Simples Nacional
+  Por: Guilherme Costa
+-- SigISS.Provider --
+[*] Possível solução para considerar algumas mensagens retornadas no grupo de erros
+    como sendo alertas.
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeXWebservicesResponse/EL.GravarXml/EL.Provider --
+[*] Possível solução para gerar o XML da NFS-e com base no XML do RPS e do retorno
+    do provedor, uma vez que este não retorna o XML completo da NFS-e.
+  Por: Italo Giurizzato Junior
+-- ISSRecife.Provider --
+[*] Comentado a linha que definia uma sequencia escape para quebra de linha.
+    O provedor estava recusando alegando que a assinatura estava invalida. 
+  Por: Italo Giurizzato Junior
+
+10/07/2023
+-- ACBrNFSeXNotasFiscais --
+[*] Ajuste para que não gere a tag ResponsavelRetencao quando não informar a mesma no Ini para Lib e Monitor.
+  Por: Diego F
+
+07/07/2023
+-- Diversos --
+[*] No método ConsultarLinkNFSe foi substituidos os campos: CompetenciaMes e 
+    CompetenciaAno pelo campo Competencia que é do tipo TDateTime.
+  Por: Italo Giurizzato Junior
+-- NFSeBrasil.Provider --
+[*] Ajuste para tratamento do caracter & no XML de envio.
+  Por: Verissimo
+-- SigISS.GravarXml --
+[*] Alterado de 2 para 4 a quantidade de casas decimais ao gerar a tag: aliquota_simples.
+  Por: Eduardo F. Vicentini
+-- Giap.Provider --
+[*] Correção na leitura do retorno do envio do Rps (TratarRetornoEmitir).
+  Por: Paulo V. Ferreira
+-- ACBrNFSeXProviderABRASFv1/ACBrNFSeXProviderABRASFv2/Fisco.LerXml/Fisco.Provider --
+[*] Possível solução para leitura de datas no formato DD/MM/AAAA do provedor Fisco.
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[+] Inclusão das URL para consultar o Link da NFS-e para cidade de Birigui/SP
+  Por: Italo Giurizzato Junior
+-- SmarAPD.Provider --
+[+] Implementado o método ConsultarLinkNFSe
+  Por: Verissimo/Italo Giurizzato Junior
+-- Conam.Provider --
+[+] Implementado o método ConsultarLinkNFSe
+  Por: Arimateia Jr
+-- ACBrNFSeXServicos.ini --
+[+] Inclusão das URL para consultar o Link da NFS-e para cidade de Serra/ES
+  Por: Italo Giurizzato Junior
+-- Diversos --
+[+] Implementação do método ConsultarLinkNFSe
+  Por: Arimateia Jr/Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Ibiraçu/ES mudou a para a versão 2.04, provedor ainda é o EL.
+  Por: Victor Gomes - DSV Bremen 
+-- ACBrNFSeXProviderABRASFv1 --
+[*] Melhorias no TratarRetornoConsultaLoteRps e TratarRetornoConsultaNFSeporRps
+  Por: Italo Giurizzato Junior
+
 06/07/2023
 -- PadraoNacional.Provider --
 [*] Ajustes na procedure ProcessarMensagemDeErros, não estava lendo as 
