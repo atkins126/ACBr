@@ -317,11 +317,23 @@ type
       BarHeight: double = 0; BarWidth: double = 0);
 
     {$IfDef DelphiZXingQRCode}
-    procedure QRCode(vX: double; vY: double; const QRCodeData: String;
-      DotSize: Double = 0; AEncoding: TQRCodeEncoding = qrAuto);
+    function QRCode(vX: double; vY: double; const QRCodeData: String;
+      DotSize: Double = 0; AEncoding: TQRCodeEncoding = qrAuto): double; overload;
+    procedure QRCode(vX: double; vY: double; vQRCodeSize: double;
+      const QRCodeData: String; AEncoding: TQRCodeEncoding = qrAuto); overload;
     {$EndIf}
     procedure Draw2DMatrix(AMatrix: TFPDF2DMatrix; vX: double; vY: double;
       DotSize: Double = 0);
+
+    procedure SetDash(ABlack, AWhite: double); overload;
+    procedure SetDash(AWidth: double); overload;
+    procedure DashedLine(vX1, vY1, vX2, vY2: Double; ADashWidth: double = 1);
+    procedure DashedRect(vX, vY, vWidht, vHeight: Double; const vStyle: String = ''; ADashWidth: double = 1);
+
+    function WordWrap(var AText: string; AMaxWidth: Double; AIndent: double = 0): integer;
+    function GetNumLines(const AText: string; AWidth: Double; AIndent: double = 0): integer;
+    function GetStringHeight(const AText: string; AWidth: double;
+      ALineSpacing: double = 0; AIndent: double = 0): double;
 
     property OnHeader: TFPDFEvent read fOnHeader write fOnHeader;
     property OnFooter: TFPDFEvent read fOnFooter write fOnFooter;
@@ -1147,6 +1159,77 @@ begin
   Self.open_layer_pane := true;
 end;
 
+function TFPDFExt.WordWrap(var AText: string; AMaxWidth,
+  AIndent: double): integer;
+{ http://www.fpdf.org/en/script/script49.php - Ron Korving }
+var
+  Space, Width, WordWidth: Double;
+  Lines, Words: TStringArray;
+  ALine, Word: string;
+  i, j, L: integer;
+begin
+  AText := Trim(AText);
+  Result := 0;
+  if AText = '' then
+    Exit;
+  
+  Space := Self.GetStringWidth(' ');
+  Lines := Split(AText, sLineBreak);
+  AText := '';
+  AMaxWidth := AMaxWidth - AIndent;
+  Result := 0;
+  for i := 0 to Length(Lines) - 1 do
+  begin
+    ALine := Lines[i];
+    Words := Split(ALine, ' ');
+    Width := 0;
+    for j := 0 to Length(Words) - 1 do
+    begin
+      Word := Words[j];
+      if Trim(Word) = '' then
+        Continue;
+      WordWidth := Self.GetStringWidth(Word);
+      if WordWidth > AMaxWidth then
+      begin
+        // Word is too long, we cut it
+        for L := 1 to Length(Word) do
+        begin
+          WordWidth := Self.GetStringWidth(Copy(Word, L, 1));
+          if (Width + WordWidth <= AMaxWidth) then
+          begin
+            Width := Width + WordWidth;
+            AText := AText + Copy(Word, L, 1);
+          end
+          else
+          begin
+            Width := WordWidth;
+            AText := TrimRight(AText) + sLineBreak + Copy(Word, L, 1);
+            Inc(Result);
+            AMaxWidth := AMaxWidth + AIndent;
+          end;
+        end;
+      end
+      else
+        if (Width + WordWidth <= AMaxWidth) then
+        begin
+          Width := Width + WordWidth + Space;
+          AText := AText + Word + ' ';
+        end
+        else
+        begin
+          Width := WordWidth + Space;
+          AText := TrimRight(AText) + sLineBreak + Word + ' ';
+          Inc(Result);
+          AMaxWidth := AMaxWidth + AIndent;
+        end;
+    end;
+    AText := TrimRight(AText) + sLineBreak;
+    Inc(Result);
+    AMaxWidth := AMaxWidth + AIndent;
+  end;
+  AText := TrimRight(AText);
+end;
+
 procedure TFPDFExt.WriteHTML(const AHtml: String);
 var
   s, ATag, AText: String;
@@ -1169,7 +1252,7 @@ begin
       if (Self.fHREF <> '') then
         PutLink(Self.fHREF, AText)
       else
-        Write(5, AText);
+        Write(Self.FontSize + 0.5, AText);
     end;
 
     if (ATag <> '') then
@@ -1397,6 +1480,20 @@ begin
     Self.fHREF := '';
 end;
 
+procedure TFPDFExt.SetDash(ABlack, AWhite: double);
+{ http://www.fpdf.org/en/script/script33.php - yukihiro_o }
+begin
+  if (ABlack > 0) and (AWhite > 0) then
+    _out(Format('[%.3f %.3f] 0 d', [ABlack * Self.k, AWhite * Self.k], FPDFFormatSetings))
+  else
+    _out('[] 0 d');
+end;
+
+procedure TFPDFExt.SetDash(AWidth: double);
+begin
+  SetDash(AWidth, AWidth);
+end;
+
 procedure TFPDFExt.SetStyle(const ATag: String; Enable: Boolean);
 var
   p: Integer;
@@ -1528,8 +1625,27 @@ begin
 end;
 
 {$IfDef DelphiZXingQRCode}
-procedure TFPDFExt.QRCode(vX: double; vY: double; const QRCodeData: String;
-  DotSize: Double; AEncoding: TQRCodeEncoding);
+procedure TFPDFExt.QRCode(vX, vY, vQRCodeSize: double; const QRCodeData: String;
+  AEncoding: TQRCodeEncoding);
+var
+  qr: TDelphiZXingQRCode;
+  DotSize: double;
+begin
+  qr := TDelphiZXingQRCode.Create;
+  try
+    qr.Encoding  := AEncoding;
+    qr.QuietZone := 1;
+    qr.Data := widestring(QRCodeData);
+    DotSize := vQRCodeSize / qr.Rows;
+  finally
+    qr.Free;
+  end;
+
+  QRCode(vX, vY, QRCodeData, DotSize, AEncoding);
+end;
+
+function TFPDFExt.QRCode(vX: double; vY: double; const QRCodeData: String;
+  DotSize: Double; AEncoding: TQRCodeEncoding): double;
 var
   qr: TDelphiZXingQRCode;
   PDF2DMatrix: TFPDF2DMatrix;
@@ -1553,6 +1669,8 @@ begin
           PDF2DMatrix[r][c] := 0;
       end;
     end;
+
+    Result := qr.Rows * DotSize;
   finally
     qr.Free;
   end;
@@ -1560,6 +1678,27 @@ begin
   Draw2DMatrix(PDF2DMatrix, vX, vY, DotSize);
 end;
 {$EndIf}
+
+procedure TFPDFExt.DashedLine(vX1, vY1, vX2, vY2, ADashWidth: double);
+begin
+  SetDash(ADashWidth);
+  try
+    Line(vX1, vY1, vX2, vY2);
+  finally
+    SetDash(0);
+  end;
+end;
+
+procedure TFPDFExt.DashedRect(vX, vY, vWidht, vHeight: Double;
+  const vStyle: String; ADashWidth: double);
+begin
+  SetDash(ADashWidth);
+  try
+    Rect(vX, vY, vWidht, vHeight, vStyle);
+  finally
+    SetDash(0);
+  end;
+end;
 
 procedure TFPDFExt.Draw2DMatrix(AMatrix: TFPDF2DMatrix; vX: double; vY: double;
   DotSize: Double);
@@ -1602,6 +1741,25 @@ procedure TFPDFExt.Footer;
 begin
   if Assigned(fOnFooter) then
     fOnFooter(Self);
+end;
+
+function TFPDFExt.GetNumLines(const AText: string; AWidth,
+  AIndent: double): integer;
+var
+  LocalText: string;
+begin
+  LocalText := Trim(AText);
+  Result := WordWrap(LocalText, AWidth - 0.2, AIndent);
+end;
+
+function TFPDFExt.GetStringHeight(const AText: string; AWidth, ALineSpacing,
+  AIndent: double): double;
+var
+  NumLines: integer;
+begin
+  NumLines := GetNumLines(AText, AWidth, AIndent);
+  Result := RoundTo((NumLines * FontSize) + IfThen(NumLines > 1, NumLines * ALineSpacing), -2);
+  Result := Result + 0.5;
 end;
 
 {$IfDef HAS_HTTP}

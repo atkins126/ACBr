@@ -42,6 +42,102 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+26/07/2023
+-- Diversos --
+[*] Feito alguns ajustes nas units abaixo para não gerar um efeito colateral com os demais
+    provedores.
+  Por: Italo Giurizzato Junior
+-- ACBrNFSeXGravarXml_ABRASFv2 --
+[+] método LerServico passa a ser virtual
+-- ACBrNFSeXLerXml_ABRASFv2 --
+[-] Remoção da geração da tag OutrasInformacoes, porque é especifica do provedor SimpIISS
+-- SimplISS.GravarXml --
+[-] Geração da tag OutrasInformacoes no local correto
+-- SimplISS.LerXml --
+[+] Leitura da tag OutrasInformacoes corretamente
+
+25/05/2023
+-- ACBrNFSeXServicos --
+[*] As URLS para a cidade de Capão Bonito/SP mudaram, provedor ainda é o Sistemas4R
+  Por: Diego Folieni
+-- ACBrNFSeXClass/ACBrNFSeXLerXml_ABRASFv1/ACBrNFSeXLerXml_ABRASFv2/ACBrNFSeXDANFSeRLRetrato --
+[*] Acrescentado o campo xMunicipioIncidencia bem como a obtenção da descrição do municipio com
+    base em seu código, alteração realizada no DANFSE em Fortes Report para a impessão da 
+    respectiva informação.
+  Por: Italo Giurizzato Junior 
+-- ACBrNFSeXNotasFiscais --
+[+] Adiciona nas rotinas de leitura e de geração do INI o campo AliquotaSN para o provedor Conam.
+   Por: Diego Folieni
+
+21/07/2023
+-- Tecnos.GravarXml --
+[*] Implementado a sobrecarga da function: GerarEnderecoTomador.
+    O provedor existe a presença da tag CodigoPais para o tomador.
+  Por: Italo Giurizzato Junior 
+-- ACBrNFSeXServicos --
+[+] Incluída a cidade: Vianopolis/Go - provedor: Megasoft.
+  Por: PrimeSoftware
+[+] Incluída a cidade: Buerarema/BA - provedor: Saatri.
+  Por: Welington Junior
+[*] Alterado as URLs da cidade: Marituba/PA
+  Por: Adriano Wolff/Italo Giurizzato Junior
+-- SigISSWeb.Provider --
+[*] Alteração visando sanar problema no cancelamento com o provedor SigISSWeb.
+  Por: Italo Giurizzato Junior 
+
+20/07/2023
+-- ACBrNFSeXNotasFiscais --
+[*] Adiciona nas rotinas de leitura e geração do arquivo INI a propriedade TipoTributacaoRPS
+  Por: Diego F #TK-4219
+-- Diversos --
+[*] Move as funções TipoTributacaoRPSToStr/StrToTipoTributacaoRPS de ACBrNFSeXConversao para a Interface e ajustes necessários para adequar para os provedores que as usam.
+  Por: Diego F #TK-4219
+-- ACBrNFSeXServicos --
+[*] Incluído a URL do link da cidade: Parauapegas/PA.
+  Por: Duarte
+[*] Troca de versão e URLs da cidade: Itauna/MG o provedor continua o mesmo ISSNet.
+  Por: João Antônio
+
+19/07/2023
+-- ACBrNFSeXProviderBase, ACBrNFSeXDANFSeRLRetrato.lfm --
+[*] Alterações visando corrigir impressão cortando informação na compilação Lazarus.
+ Por: Diego F
+-- ACBrNFSeXNotasFiscais --
+[*] Adiciona na rotina de leitura e geração do INI os campos CodigoCnae e xMunicipio
+    para INIs com mais de um serviço
+ Por: Diego F
+
+14/07/2023
+-- ACBrNFSeXServicos --
+[+] Incluído a cidade: Conceicao do Castelo/ES o provedor é EL
+  Por: Marcos Giordani
+[+] Incluído a cidade: Liberdade/MG o provedor é Futurize
+  Por: Bill Barsch
+[+] Incluído as cidades: Itaporanga/SP e Candido Mota/SP ambas o provedor é Fiorilli.
+  Por: Willians wsac
+[*] A URL de homologação da cidade de Novo Hamburgo/RS foi atualizada, provedor 
+    ainda é o IPM na versão 2.04
+  Por: Arimateia Jr.
+
+13/07/2023
+-- ACBrNFSeXServicos --
+[*] Atualizado a URL da cidade de Camboriu/SC.
+  Por: Rose - SPI Informatica
+[+] Incluída a cidade de Governador Lindenberg/ES, provedor é: EL
+  Por: Neski Soluções/Italo Giurizzato Junior
+[*] Incluído a URL de homologação para a cidade de Igarape/MG.
+    Observação: O provedor ISSDigital possui a tag <Producao> que indica se o 
+                Rps esta sendo enviado em modo produção ou homologação.
+  Por: Italo Giurizzato Junior
+-- ISSDSF.Provider --
+[*] Incluído a checagem no PrepararConsultarSeqRps se o CNPJ e a Insc. Est. do
+    Emitente foram informados.
+  Por: Italo Giurizzato Junior
+-- Ginfes.Provider --
+[*] Possível solução para realizar o cancelamento com a mudança promovida pelo
+    provedor.
+  Por: Italo Giurizzato Junior
+
 12/07/2023
 -- ACBrNFSeXServicos --
 [*] A cidade de Igarape/MG trocou de provedor, agora é ISSDigital

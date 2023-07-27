@@ -49,7 +49,8 @@ uses
   httpsend,
   ACBrBoletoConversao,
   ACBrBoletoWS,
-  ACBrBoletoWS.Rest;
+  ACBrBoletoWS.Rest,
+  Math;
 
 type
 
@@ -151,7 +152,7 @@ begin
        else if ATitulo.OcorrenciaOriginal.Tipo = ACBrBoleto.toRemessaCobrarJurosMora then
            FPURL := FPURL + '/boletos/encargos/juros-mora'
        else if ATitulo.OcorrenciaOriginal.Tipo = ACBrBoleto.toRemessaAlterarMulta then
-          FPURL := FPURL + '/boletos/encargos/multas'
+          FPURL := FPURL + '/boletos/encargos/multa'
        else if ATitulo.OcorrenciaOriginal.Tipo = ACBrBoleto.toRemessaAlterarDesconto then
            FPURL := FPURL +  '/boletos/descontos'
        else if ATitulo.OcorrenciaOriginal.Tipo = ACBrBoleto.toRemessaAlterarValorAbatimento then
@@ -325,7 +326,14 @@ begin
       Json.Add('numeroContaCorrente').Value.AsInteger             := strtoInt(aTitulo.ACBrBoleto.Cedente.Conta + aTitulo.ACBrBoleto.Cedente.ContaDigito);
       Json.Add('especieDocumento').Value.AsString                 := aTitulo.EspecieDoc;
       Json.Add('dataEmissao').Value.AsString                      := DateTimeToDateBancoob(aTitulo.DataDocumento);
-      Json.Add('nossoNumero').Value.AsString                      := OnlyNumber(aTitulo.ACBrBoleto.Banco.MontarCampoNossoNumero(aTitulo));
+      {
+        Número que identifica o boleto de cobrança no Sisbr.
+        Caso deseje, o beneficiário poderá informar o nossoNumero,
+        Caso contrário, o sistema gerará automáticamente.
+      }
+      if StrToInt(ATitulo.NossoNumero) > 0 then
+         Json.Add('nossoNumero').Value.AsString                   := OnlyNumber(aTitulo.ACBrBoleto.Banco.MontarCampoNossoNumero(aTitulo));
+
       Json.Add('seuNumero').Value.asString                        := IfThen(ATitulo.NumeroDocumento <> '',
                                                                        ATitulo.NumeroDocumento,
                                                                        IfThen(ATitulo.SeuNumero <> '',
@@ -343,7 +351,7 @@ begin
 
       Json.Add('valor').Value.asNumber                            := aTitulo.ValorDocumento;
       Json.Add('dataVencimento').Value.asString                   := DateTimeToDateBancoob(aTitulo.Vencimento);
-      Json.Add('numeroParcela').Value.AsInteger                   := 1;
+      Json.Add('numeroParcela').Value.AsInteger                   := max(1,ATitulo.Parcela);
       Json.Add('aceite').Value.AsBoolean                          := ATitulo.Aceite = atSim;
 
       GerarDesconto(Json);

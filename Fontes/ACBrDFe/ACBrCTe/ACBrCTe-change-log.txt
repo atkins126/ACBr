@@ -44,6 +44,24 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+17/07/2023
+-- ACBrCTeConhecimentos --
+[+] Adiciona na rotina de geração do INI do CTe as seções ObsCont e ObsFisco
+  Por: Diego F
+-- pcteCTeR --
+[*] Possível solução para o problema de não gerar as tags qtdRat ao ler um XML e gerar novamente.
+  Por: Diego F
+
+14/07/2023
+-- pcteConsts/pcteCTeW --
+[*] Possível solução para o texto informano em xNome quando enviado para o 
+    ambiente de homologação.
+  Por: Italo Giurizzato Junior
+-- ACBrCTeDACTeRLRetrato --
+[*] Ajustes para imprimir corretamente CT-e com dezenas de NF-e vinculadas.
+    Observação: O ajuste foi feito só funciona se a posíção do canhoto for
+                cabeçalho, rodapé ainda esta com problemas.
+  Por: Rosemir
 
 11/04/2023
 -- ACBrCTeWebServices --
