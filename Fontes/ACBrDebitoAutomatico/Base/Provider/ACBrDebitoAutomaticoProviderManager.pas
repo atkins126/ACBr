@@ -52,6 +52,8 @@ implementation
 uses
   ACBrDebitoAutomatico, ACBrDebitoAutomaticoConversao,
 
+  DebitoAutomatico.BancodoBrasil.Provider,
+  DebitoAutomatico.Banrisul.Provider,
   DebitoAutomatico.Santander.Provider;
 
   { TACBrDebitoAutomaticoProviderManager }
@@ -61,6 +63,12 @@ begin
   with TACBrDebitoAutomatico(ACBrDebitoAutomatico).Configuracoes.Geral do
   begin
     case Banco of
+      debBancodoBrasil:
+        Result := TACBrDebitoAutomaticoProviderBancodoBrasil.Create(ACBrDebitoAutomatico);
+
+      debBanrisul:
+        Result := TACBrDebitoAutomaticoProviderBanrisul.Create(ACBrDebitoAutomatico);
+
       debSantander:
         Result := TACBrDebitoAutomaticoProviderSantander.Create(ACBrDebitoAutomatico);
     else

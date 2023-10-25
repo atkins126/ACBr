@@ -113,6 +113,12 @@ begin
   begin
     ModoEnvio := meLoteSincrono;
     CancPreencherMotivo := True;
+    FormatoArqEnvio := tfaJson;
+    FormatoArqRetorno := tfaJson;
+    FormatoArqEnvioSoap := tfaJson;
+    FormatoArqRetornoSoap := tfaJson;
+    FormatoArqRecibo := tfaJson;
+    FormatoArqNota := tfaJson;
   end;
 
   ConfigSchemas.Validar := False;

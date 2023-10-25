@@ -224,8 +224,10 @@ uses
 
 {$IFDEF FPC}
  {$R ACBrNFSeXServicos.rc}
+ {$R TabServicos.rc}
 {$ELSE}
  {$R ACBrNFSeXServicos.res}
+ {$R TabServicos.res}
 {$ENDIF}
 
 { TACBrNFSeX }
@@ -338,6 +340,22 @@ end;
 function TACBrNFSeX.GetNumID(ANFSe: TNFSe): String;
 var
   xNumDoc, xSerie, xCNPJ: String;
+
+  function NomeXmlProvedor: string;
+  begin
+    if Configuracoes.Arquivos.NomeLongoNFSe then
+      Result := GerarNomeNFSe(Configuracoes.WebServices.UFCodigo,
+                              ANFSe.DataEmissao,
+                              OnlyNumber(xCNPJ),
+                              StrToInt64Def(xNumDoc, 0))
+    else
+      Result := xNumDoc + xSerie;
+  end;
+
+  function NomeXmlPadraoNacional: string;
+  begin
+    Result := OnlyNumber(ANFSe.infNFSe.ID);
+  end;
 begin
   if ANFSe = nil then
     raise EACBrNFSeException.Create('Não foi informado o objeto TNFSe para gerar a chave!');
@@ -355,13 +373,17 @@ begin
 
   xCNPJ := ANFSe.Prestador.IdentificacaoPrestador.CpfCnpj;
 
-  if Configuracoes.Arquivos.NomeLongoNFSe then
-    Result := GerarNomeNFSe(Configuracoes.WebServices.UFCodigo,
-                            ANFSe.DataEmissao,
-                            OnlyNumber(xCNPJ),
-                            StrToInt64Def(xNumDoc, 0))
+  if Configuracoes.Geral.Provedor = proPadraoNacional then
+  begin
+    Result := NomeXmlPadraoNacional;
+
+    if Result = '' then
+      Result := NomeXmlProvedor;
+  end
   else
-    Result := xNumDoc + xSerie;
+  begin
+    Result := NomeXmlProvedor;
+  end;
 end;
 
 function TACBrNFSeX.GetConfiguracoes: TConfiguracoesNFSe;
@@ -596,10 +618,13 @@ begin
 
   InfConsulta := FWebService.ConsultaLinkNFSe.InfConsultaLinkNFSe;
   InfConsulta.Competencia := AInfConsultaLinkNFSe.Competencia;
+  InfConsulta.DtEmissao := AInfConsultaLinkNFSe.DtEmissao;
   InfConsulta.NumeroNFSe := AInfConsultaLinkNFSe.NumeroNFSe;
   InfConsulta.SerieNFSe := AInfConsultaLinkNFSe.SerieNFSe;
   InfConsulta.NumeroRps := AInfConsultaLinkNFSe.NumeroRps;
   InfConsulta.SerieRps := AInfConsultaLinkNFSe.SerieRps;
+  InfConsulta.TipoRps := AInfConsultaLinkNFSe.TipoRps;
+  InfConsulta.Pagina := AInfConsultaLinkNFSe.Pagina;
 
   FProvider.ConsultaLinkNFSe;
 end;
@@ -631,10 +656,11 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := aInfConsultaNFSe.tpConsulta;
+    tpPeriodo := aInfConsultaNFSe.tpPeriodo;
     NumeroIniNFSe := aInfConsultaNFSe.NumeroIniNFSe;
     NumeroFinNFSe := aInfConsultaNFSe.NumeroFinNFSe;
     SerieNFSe := aInfConsultaNFSe.SerieNFSe;
-    tpPeriodo := aInfConsultaNFSe.tpPeriodo;
+    NumeroLote := aInfConsultaNFSe.NumeroLote;
     DataInicial := aInfConsultaNFSe.DataInicial;
     DataFinal := aInfConsultaNFSe.DataFinal;
     CNPJPrestador := aInfConsultaNFSe.CNPJPrestador;
@@ -643,13 +669,13 @@ begin
     IMTomador := aInfConsultaNFSe.IMTomador;
     CNPJInter := aInfConsultaNFSe.CNPJInter;
     IMInter := aInfConsultaNFSe.IMInter;
-    NumeroLote := aInfConsultaNFSe.NumeroLote;
-    Pagina := aInfConsultaNFSe.Pagina;
+    RazaoInter := aInfConsultaNFSe.RazaoInter;
     CadEconomico := aInfConsultaNFSe.CadEconomico;
     CodServ := aInfConsultaNFSe.CodServ;
     CodVerificacao := aInfConsultaNFSe.CodVerificacao;
-    tpDocumento := aInfConsultaNFSe.tpDocumento;
     tpRetorno := aInfConsultaNFSe.tpRetorno;
+    ChaveNFSe := aInfConsultaNFSe.ChaveNFSe;
+    Pagina := aInfConsultaNFSe.Pagina;
   end;
 
   ConsultarNFSe;
@@ -661,11 +687,10 @@ begin
 
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
-    tpConsulta := tcPorNumero;
+    tpConsulta := tcPorChave;
     tpRetorno := trXml;
 
-    NumeroIniNFSe := aChave;
-    NumeroFinNFSe := aChave;
+    ChaveNFSe := aChave;
   end;
 
   ConsultarNFSe;
@@ -1001,7 +1026,6 @@ begin
     NumeroNFSeSubst := aInfCancelamento.NumeroNFSeSubst;
     SerieNFSeSubst := aInfCancelamento.SerieNFSeSubst;
     CodServ := aInfCancelamento.CodServ;
-    tpDocumento:= aInfCancelamento.tpDocumento;
 
     if (ChaveNFSe <> '') and (NumeroNFSe = '') then
       NumeroNFSe := Copy(ChaveNFSe, 22, 9);
@@ -1080,10 +1104,10 @@ begin
 
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
-    tpConsulta := tcPorNumero;
+    tpConsulta := tcPorChave;
     tpRetorno := trPDF;
 
-    NumeroIniNFSe := aChave;
+    ChaveNFSe := aChave;
   end;
 
   ConsultarNFSe;

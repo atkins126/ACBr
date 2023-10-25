@@ -48,6 +48,8 @@ type
   private
 
   protected
+    procedure Configuracao; override;
+
     function LerDataHoraCancelamento(const ANode: TACBrXmlNode): TDateTime; virtual;
     function LerDataHora(const ANode: TACBrXmlNode): TDateTime; virtual;
     function LerDataEmissao(const ANode: TACBrXmlNode): TDateTime; virtual;
@@ -108,7 +110,7 @@ implementation
 
 uses
   ACBrUtil.Base, ACBrUtil.Strings,
-  ACBrConsts, ACBrDFeUtil,
+  ACBrConsts,
   ACBrNFSeXConversao;
 
 //==============================================================================
@@ -117,6 +119,13 @@ uses
 //==============================================================================
 
 { TNFSeR_ABRASFv2 }
+
+procedure TNFSeR_ABRASFv2.Configuracao;
+begin
+  // Executa a Configuração Padrão
+  inherited Configuracao;
+
+end;
 
 function TNFSeR_ABRASFv2.LerCompetencia(const ANode: TACBrXmlNode): TDateTime;
 begin
@@ -282,7 +291,7 @@ begin
       UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('Uf'), tcStr);
       CodigoPais      := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoPais'), tcInt);
       CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
-      xMunicipio      := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+      xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
       if UF = '' then
         UF := xUF;
@@ -314,7 +323,7 @@ begin
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoMunicipio'), tcStr);
       UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('Uf'), tcStr);
       CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
-      xMunicipio      := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+      xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
       if UF = '' then
         UF := xUF;
@@ -551,12 +560,16 @@ begin
     begin
       NFSe.InformacoesComplementares := ObterConteudo(AuxNode.Childrens.FindAnyNs('InformacoesComplementares'), tcStr);
       NFSe.InformacoesComplementares := StringReplace(NFSe.InformacoesComplementares, '&lt;br&gt;', ';', [rfReplaceAll]);
+      NFSe.InformacoesComplementares := StringReplace(NFSe.InformacoesComplementares, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
     end;
 
     if NFSe.OutrasInformacoes = '' then
     begin
       NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('OutrasInformacoes'), tcStr);
       NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, '&lt;br&gt;', ';', [rfReplaceAll]);
+      NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
     end;
   end;
 end;
@@ -582,7 +595,11 @@ begin
     NFSe.NfseSubstituida   := ObterConteudo(AuxNode.Childrens.FindAnyNs('NfseSubstituida'), tcStr);
 
     NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('OutrasInformacoes'), tcStr);
+    NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
     NFSe.InformacoesComplementares := ObterConteudo(AuxNode.Childrens.FindAnyNs('InformacoesComplementares'), tcStr);
+    NFSe.InformacoesComplementares := StringReplace(NFSe.InformacoesComplementares, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
     NFSe.Link := ObterConteudo(AuxNode.Childrens.FindAnyNs('UrlNfse'), tcStr);
     NFSe.Competencia := LerCompetencia(AuxNode);
 
@@ -869,6 +886,8 @@ begin
       ItemListaServico := NormatizarItemListaServico(CodigoItemServico);
       CodigoCnae := ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoCnae'), tcStr);
       Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Discriminacao'), tcStr);
+      Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
     end;
 
     with NFSe.Servico do
@@ -891,12 +910,17 @@ begin
         else
           ValorIssRetido := 0;
 
-        ValorLiq := ValorServicos - ValorPis - ValorCofins - ValorInss -
-                    ValorIr - ValorCsll - OutrasRetencoes - ValorIssRetido -
-                    DescontoIncondicionado - DescontoCondicionado;
+        RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr +
+                             ValorCsll + ValorCpp;
 
-        if (ValorLiquidoNfse = 0) or (ValorLiquidoNfse <> ValorLiq) then
+        ValorLiq := ValorServicos - RetencoesFederais - OutrasRetencoes -
+                    ValorIssRetido - DescontoIncondicionado - DescontoCondicionado;
+
+        if (ValorLiquidoNfse = 0) or (ValorLiquidoNfse > ValorLiq) then
           ValorLiquidoNfse := ValorLiq;
+
+        ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                                DescontoIncondicionado;
       end;
     end;
   end;
@@ -943,6 +967,8 @@ begin
       CodigoTributacaoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoTributacaoMunicipio'), tcStr);
       CodigoNBS                 := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoNbs'), tcStr);
       Discriminacao             := ObterConteudo(AuxNode.Childrens.FindAnyNs('Discriminacao'), tcStr);
+      Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
       VerificarSeConteudoEhLista(Discriminacao);
 
@@ -951,7 +977,7 @@ begin
       if CodigoMunicipio = '' then
         CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('MunicipioPrestacaoServico'), tcStr);
 
-      MunicipioPrestacaoServico := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+      MunicipioPrestacaoServico := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
       MunicipioPrestacaoServico := MunicipioPrestacaoServico + '/' + xUF;
 
       CodigoPais          := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoPais'), tcInt);
@@ -959,7 +985,8 @@ begin
       IdentifNaoExigibilidade := ObterConteudo(AuxNode.Childrens.FindAnyNs('IdentifNaoExigibilidade'), tcStr);
 
       MunicipioIncidencia := ObterConteudo(AuxNode.Childrens.FindAnyNs('MunicipioIncidencia'), tcInt);
-      xMunicipioIncidencia := ObterNomeMunicipio(MunicipioIncidencia, xUF, '', False);
+      xMunicipioIncidencia := ObterNomeMunicipioUF(MunicipioIncidencia, xUF);
+
       xMunicipioIncidencia := xMunicipioIncidencia + '/' + xUF;
 
       NumeroProcesso := ObterConteudo(AuxNode.Childrens.FindAnyNs('NumeroProcesso'), tcStr);
@@ -974,12 +1001,17 @@ begin
         else
           ValorIssRetido := 0;
 
-        ValorLiq := ValorServicos - ValorPis - ValorCofins - ValorInss -
-                    ValorIr - ValorCsll - OutrasRetencoes - ValorIssRetido -
-                    DescontoIncondicionado - DescontoCondicionado;
+        RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr +
+                             ValorCsll + ValorCpp;
 
-        if (ValorLiquidoNfse = 0) or (ValorLiquidoNfse <> ValorLiq) then
+        ValorLiq := ValorServicos - RetencoesFederais - OutrasRetencoes -
+                    ValorIssRetido - DescontoIncondicionado - DescontoCondicionado;
+
+        if (ValorLiquidoNfse = 0) or (ValorLiquidoNfse > ValorLiq) then
           ValorLiquidoNfse := ValorLiq;
+
+        ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                                DescontoIncondicionado;
       end;
     end;
   end;
@@ -1089,13 +1121,10 @@ begin
       if AliquotaCpp = 0 then
       AliquotaCpp := ObterConteudo(AuxNode.Childrens.FindAnyNs('AliquotaCpp'), tcDe2);
 
-      RetidoCpp := FpAOwner.StrToSimNao(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('RetidoCsll'), tcStr));
+      RetidoCpp := FpAOwner.StrToSimNao(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('RetidoCpp'), tcStr));
 
       if ValorCpp = 0 then
-        ValorCpp := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorCsll'), tcDe2);
-
-      if ValorIss = 0 then
-        ValorIss := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorIss'), tcDe2);
+        ValorCpp := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorCpp'), tcDe2);
 
       OutrasRetencoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('OutrasRetencoes'), tcDe2);
       ValorTotalTributos := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorTotTributos'), tcDe2);
@@ -1107,10 +1136,7 @@ begin
       end;
 
       if NFSe.ValoresNfse.ValorIss = 0 then
-      begin
-        ValorIss := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorIss'), tcDe2);
         NFSe.ValoresNfse.ValorIss := ValorIss;
-      end;
 
       if Aliquota = 0 then
         Aliquota := ObterConteudo(AuxNode.Childrens.FindAnyNs('Aliquota'), tcDe4);
@@ -1180,8 +1206,12 @@ function TNFSeR_ABRASFv2.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 

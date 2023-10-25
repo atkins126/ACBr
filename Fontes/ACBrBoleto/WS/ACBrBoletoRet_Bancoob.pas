@@ -116,9 +116,9 @@ var
 begin
   Result := True;
   TipoOperacao := ACBrBoleto.Configuracoes.WebService.Operacao;
-
-  ARetornoWs.JSONEnvio      := EnvWs;
-  ARetornoWS.HTTPResultCode := HTTPResultCode;
+  ARetornoWS.HTTPResultCode  := HTTPResultCode;
+  ARetornoWS.JSONEnvio       := EnvWs;
+  ARetornoWS.Header.Operacao := TipoOperacao;
 
   if RetWS <> '' then
   begin
@@ -172,6 +172,7 @@ begin
             ARetornoWS.DadosRet.TituloRet.LinhaDig       := ARetornoWS.DadosRet.IDBoleto.LinhaDig;
             ARetornoWS.DadosRet.TituloRet.NossoNumero    := ARetornoWS.DadosRet.IDBoleto.NossoNum;
             ARetornoWS.DadosRet.TituloRet.EMV            := AJSonObject.Values['qrcode'].AsString;
+            ARetornoWS.DadosRet.TituloRet.UrlPix         := AJSonObject.Values['qrCode'].AsString;
             ARetornoWS.DadosRet.TituloRet.Vencimento     := DateBancoobToDateTime(AJSonObject.Values['dataVencimento'].AsString);
             ARetornoWS.DadosRet.TituloRet.NossoNumero    := AJSonObject.Values['nossoNumero'].AsString;
             ARetornoWS.DadosRet.TituloRet.SeuNumero      := AJSonObject.Values['seuNumero'].AsString;
@@ -193,38 +194,44 @@ begin
             ARetornoWS.DadosRet.TituloRet.NossoNumero     := ARetornoWS.DadosRet.IDBoleto.NossoNum;
             ARetornoWS.DadosRet.TituloRet.Vencimento      := DateBancoobToDateTime(AJSonObject.Values['dataVencimento'].AsString);
             ARetornoWS.DadosRet.TituloRet.ValorDocumento  := AJSonObject.Values['valor'].AsNumber;
+            ARetornoWS.DadosRet.TituloRet.EspecieDoc      := AJSonObject.Values['especieDocumento'].AsString;
 
             case AJSonObject.Values['tipoMulta'].AsInteger of
              1 : begin // Multa Valor Fixo
+              ARetornoWS.DadosRet.TituloRet.CodigoMulta      := cmValorFixo;
               ARetornoWS.DadosRet.TituloRet.PercentualMulta  := AJSonObject.Values['valorMulta'].AsNumber;
+              ARetornoWS.DadosRet.TituloRet.MultaValorFixo   := True;
               ARetornoWS.DadosRet.TituloRet.DataMulta        := DateBancoobToDateTime(AJSonObject.Values['dataMulta'].AsString);
-              ARetornoWS.DadosRet.TituloRet.DataMoraJuros    := DateBancoobToDateTime(AJSonObject.Values['dataJurosMora'].AsString);
              end;
              2 : begin // Multa com Valor em Percentual
-              ARetornoWS.DadosRet.TituloRet.PercentualMulta := AJSonObject.Values['valorMulta'].AsNumber;
+              ARetornoWS.DadosRet.TituloRet.CodigoMulta      := cmPercentual;
+              ARetornoWS.DadosRet.TituloRet.PercentualMulta  := AJSonObject.Values['valorMulta'].AsNumber;
+              ARetornoWS.DadosRet.TituloRet.MultaValorFixo   := False;
               ARetornoWS.DadosRet.TituloRet.DataMulta        := DateBancoobToDateTime(AJSonObject.Values['dataMulta'].AsString);
-              ARetornoWS.DadosRet.TituloRet.DataMoraJuros    := DateBancoobToDateTime(AJSonObject.Values['dataJurosMora'].AsString);
              end;
              3 : begin // Sem Multa
+               ARetornoWS.DadosRet.TituloRet.CodigoMulta     := cmIsento;
                ARetornoWS.DadosRet.TituloRet.PercentualMulta := 0;
              end;
-
             end;
 
+            ARetornoWS.DadosRet.TituloRet.ValorMulta := ARetornoWS.DadosRet.TituloRet.PercentualMulta;
+
             case AJSonObject.Values['tipoJurosMora'].AsInteger of
-             0 : begin // Isento
+             1 : begin // Valor Dia
+               ARetornoWS.DadosRet.TituloRet.CodigoMoraJuros := cjValorDia;
+               ARetornoWS.DadosRet.TituloRet.ValorMoraJuros  := AJSonObject.Values['valorJurosMora'].AsNumber;
+               ARetornoWS.DadosRet.TituloRet.DataMoraJuros   := DateBancoobToDateTime(AJSonObject.Values['dataJurosMora'].AsString);
+             end;
+             2 : begin // Taxa Mensal
+               ARetornoWS.DadosRet.TituloRet.CodigoMoraJuros := cjTaxaMensal;
+               ARetornoWS.DadosRet.TituloRet.ValorMoraJuros  := AJSonObject.Values['valorJurosMora'].AsNumber;
+               ARetornoWS.DadosRet.TituloRet.DataMoraJuros   := DateBancoobToDateTime(AJSonObject.Values['dataJurosMora'].AsString);
+             end;
+             3 : begin // Isento
                ARetornoWS.DadosRet.TituloRet.CodigoMoraJuros := cjIsento;
                ARetornoWS.DadosRet.TituloRet.ValorMoraJuros  := AJSonObject.Values['valorJurosMora'].AsNumber;
              end;
-             2 : begin // Valor Dia
-               ARetornoWS.DadosRet.TituloRet.CodigoMoraJuros := cjValorDia;
-               ARetornoWS.DadosRet.TituloRet.ValorMoraJuros  := AJSonObject.Values['valorJurosMora'].AsNumber;
-             end;
-             3 : begin // Taxa Mensal
-               ARetornoWS.DadosRet.TituloRet.CodigoMoraJuros := cjTaxaMensal;
-               ARetornoWS.DadosRet.TituloRet.ValorMoraJuros  := AJSonObject.Values['valorJurosMora'].AsNumber;
-             end;
-
             end;
 
             ARetornoWS.DadosRet.TituloRet.CodBarras       := ARetornoWS.DadosRet.IDBoleto.CodBarras;
@@ -247,7 +254,8 @@ begin
                ARetornoWS.DadosRet.TituloRet.CodigoEstadoTituloCobranca := '6';
 
 
-            ARetornoWS.DadosRet.TituloRet.UrlPix                := AJSonObject.Values['qrCode'].AsString;
+            ARetornoWS.DadosRet.TituloRet.UrlPix  := AJSonObject.Values['qrCode'].AsString;
+            ARetornoWS.DadosRet.TituloRet.EMV     := AJSonObject.Values['qrcode'].AsString;
 
             //ARetornoWS.DadosRet.TituloRet.ValorAtual      := AJSonObject.Values['valor'].AsNumber;
             //ARetornoWS.DadosRet.TituloRet.ValorPago       := AJSonObject.Values['valorTotalRecebimento'].AsNumber;

@@ -47,6 +47,52 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+20/10/2023
+-- ACBrPSP --
+[*] Ajuste para tratar a RespostaHTTP de UTF8 para String nativa da IDE.
+
+16/10/2023
+-- ACBrPIXSchemasPix --
+[*] Ajuste para prevenir erro quando o PSP envia uma resposta fora do padrão (PSP Inter)
+    Por: Elias César
+
+05/10/2023
+-- ACBrPIXPSPCielo --
+[+] Adicionado novo PSP Cielo
+
+02/10/2023
+-- ACBrSchemasMatera --
+[+] Incluídos novos schemas de mapeamento da API específica da Matera
+
+-- ACBrPIXPSPMatera --
+[+] Adicionados métodos para adaptação do PSP Matera com API Padrão Bacen.
+    Por: Elias César
+
+01/09/2023
+-- ACBrSchemasMatera --
+[-] Correções na implementação dos objetos para o PSP Matera
+    Por: Elias César
+
+30/08/2023
+-- ACBrPIXPSPMatera --
+[+] Inclusão do novo PSP Matera (--EM DESENVOLVIMENTO--)
+    Por: Elias César e Alexandre de Paula
+
+14/08/2023
+-- ACBrPIXCD --
+[*] Remoção da fução "Trim()" no momento de setar o conteúdo do PFX, pra não ocorrer 
+    perca de caracteres de controle.
+
+04/08/2023
+-- ACBrPIXPSPBancoDoBrasil --
+[*] Alteração do ResultCode recebido ao solicitar uma devolução de Pix (Método PUT ao endpoint /pix)
+    Por: Elias César
+
+02/08/2023
+-- ACBrPIXPSPSicoob --
+[-] Correções para ambiente Sandbox funcionar corretamente no componente ACBrPIXCD.
+    Por: Lucas VG
+
 24/07/2023
 -- ACBrPIXPSPAilos --
 [-] Correção da URL de homologação no PSP Ailos

@@ -86,6 +86,8 @@ begin
       xItemListaServico := ItemListaServicoDescricao(ItemListaServico);
       ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('nValorServico'), tcDe2);
       Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('sDescricao'), tcStr);
+      Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
       Aliquota := ObterConteudo(ANodes[i].Childrens.FindAnyNs('nAliquota'), tcDe2);
       ValorISS := ObterConteudo(ANodes[i].Childrens.FindAnyNs('nValorIss'), tcDe2);
       ValorTotal := ObterConteudo(ANodes[i].Childrens.FindAnyNs('nValorTotal'), tcDe2);
@@ -137,8 +139,12 @@ function TNFSeR_Simple.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -193,6 +199,10 @@ begin
     Servico.Valores.BaseCalculo := ObterConteudo(ANode.Childrens.FindAnyNs('nValorBaseCalculo'), tcDe2);
 
     Servico.Valores.ValorLiquidoNfse := Servico.Valores.ValorServicos;
+
+    Servico.Valores.ValorTotalNotaFiscal := Servico.Valores.ValorServicos -
+                                            Servico.Valores.DescontoCondicionado -
+                                            Servico.Valores.DescontoIncondicionado;
   end;
 
   LerTomador(ANode);
@@ -205,6 +215,8 @@ begin
     ValorCofins := ObterConteudo(ANode.Childrens.FindAnyNs('nCofins'), tcDe2);
     ValorInss := ObterConteudo(ANode.Childrens.FindAnyNs('nInss'), tcDe2);
     ValorCsll := ObterConteudo(ANode.Childrens.FindAnyNs('nCsll'), tcDe2);
+
+    RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
   end;
 
   LerTItens(ANode);
@@ -217,6 +229,8 @@ begin
       ';'};
 
   NFSe.OutrasInformacoes := aValor;
+  NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
   LerCampoLink;
 end;

@@ -248,6 +248,7 @@ type
     lbIdentificacao: TRLLabel;
     rllTomadorNomeEnt: TRLLabel;
     rllNumNF0Ent: TRLLabel;
+    rllRespRetencao: TRLLabel;
 
     procedure rlbCabecalhoBeforePrint(Sender: TObject; var PrintIt: Boolean);
     procedure rlbItensServicoBeforePrint(Sender: TObject; var PrintIt: Boolean);
@@ -266,7 +267,6 @@ type
   private
     { Private declarations }
     FNumItem: Integer;
-    function ManterAliquota(dAliquota: Double): String;
   public
     { Public declarations }
     class procedure QuebradeLinha(const sQuebradeLinha: String); override;
@@ -339,10 +339,10 @@ begin
     rlmDadosAdicionais.Lines.Add(StringReplace(fpDANFSe.OutrasInformacaoesImp, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]))
   else
     if fpNFSe.OutrasInformacoes <> '' then
-    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.OutrasInformacoes, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
+    rlmDadosAdicionais.Lines.Add(fpNFSe.OutrasInformacoes);
 
   if fpNFSe.InformacoesComplementares <> '' then
-    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.InformacoesComplementares, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
+    rlmDadosAdicionais.Lines.Add(fpNFSe.InformacoesComplementares);
 
   rlmDadosAdicionais.Lines.EndUpdate;
   rllDataHoraImpressao.Caption := Format(ACBrStr('DATA E HORA DA IMPRESSÃO: %s'), [FormatDateTime('dd/mm/yyyy hh:nn', Now)]);
@@ -397,8 +397,6 @@ end;
 procedure TfrlXDANFSeRLISSnet.rlbDadosNotaBeforePrint(Sender: TObject;
   var PrintIt: Boolean);
 var
-  CodigoIBGE: Integer;
-  xUF: string;
   FProvider: IACBrNFSeXProvider;
 begin
   inherited;
@@ -410,13 +408,9 @@ begin
     rllNatOperacao.Caption := ACBrStr(FProvider.NaturezaOperacaoDescricao(NaturezaOperacao));
     rllNumeroRPS.Caption := IdentificacaoRps.Numero;
     rllDataRPS.Caption := FormatDateTime('dd/mm/yyyy', DataEmissaoRps);
-
-    // Será necessário uma analise melhor para saber em que condições devemos usar o código do municipio
-    // do tomador em vez do que foi informado em Serviço.
-    CodigoIBGE := StrToIntDef(Servico.CodigoMunicipio, 0);
-    xUF := '';
-    rllLocalServico.Caption := ObterNomeMunicipio(CodigoIBGE, xUF, '', False) + ' - ' + xUF;
-    rllMunicipioIncidencia.Caption := ObterNomeMunicipio(Servico.MunicipioIncidencia, xUF, '', False) + ' - ' + xUF;
+    rllLocalServico.Caption := Servico.MunicipioPrestacaoServico;
+    rllMunicipioIncidencia.Caption := Servico.xMunicipioIncidencia;
+    rllRespRetencao.Caption := ACBrStr(FProvider.ResponsavelRetencaoDescricao(Servico.ResponsavelRetencao));
   end;
 end;
 
@@ -426,7 +420,7 @@ begin
   begin
     txtServicoQtde.Caption := FormatFloatBr(Quantidade);
     rlmServicoDescricao.Lines.Clear;
-    rlmServicoDescricao.Lines.Add(StringReplace(Descricao, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
+    rlmServicoDescricao.Lines.Add(Descricao);
     txtServicoUnitario.Caption := FormatFloatBr(ValorUnitario);
 
     if ValorTotal = 0.0 then
@@ -452,7 +446,7 @@ begin
       rllCodNBS.Caption := Servico.CodigoNBS;
       rllCodCNAE.Caption := Servico.CodigoCnae;
 
-      rllAliquota.Caption := ManterAliquota(Aliquota);
+      rllAliquota.Caption := fpDANFSe.FormatarAliquota(Aliquota);
       rllValorServicos1.Caption := FormatCurr('R$ ,0.00', ValorServicos);
       rllDescIncondicionado1.Caption := FormatCurr('R$ ,0.00', DescontoIncondicionado);
       rllValorDeducoes.Caption := FormatCurr('R$ ,0.00', ValorDeducoes);
@@ -476,8 +470,7 @@ begin
   inherited;
 
   rlmDescricao.Lines.Clear;
-  rlmDescricao.Lines.Add(StringReplace(fpNFSe.Servico.Discriminacao,
-    FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
+  rlmDescricao.Lines.Add(fpNFSe.Servico.Discriminacao);
 end;
 
 procedure TfrlXDANFSeRLISSnet.rlbPrestadorBeforePrint(Sender: TObject; var PrintIt: Boolean);
@@ -658,12 +651,6 @@ begin
   FNumItem := RecNo - 1;
   Eof := (RecNo > fpNFSe.Servico.ItemServico.Count);
   RecordAction := raUseIt;
-end;
-
-function TfrlXDANFSeRLISSnet.ManterAliquota(dAliquota: Double): String;
-begin
-  // Agora a multiplicação por 100 é feita pela rotina que lê o XML.
-  Result := FormatFloat(',0.00', dAliquota);
 end;
 
 end.

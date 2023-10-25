@@ -171,6 +171,7 @@ uses
   CTA.Provider,
   CTAConsult.Provider,
   eGoverneISS.Provider,
+  eISS.Provider,
   Equiplano.Provider,
   Facundo.Provider,
   FGMaiss.Provider,
@@ -290,6 +291,8 @@ begin
       proeGoverneISS:
         Result := TACBrNFSeProvidereGoverneISS.Create(ACBrNFSe);
 
+      proeISS: Result := TACBrNFSeProvidereISS.Create(ACBrNFSe);
+
       proEL:
         begin
           case Versao of
@@ -343,7 +346,17 @@ begin
       proGinfes:     Result := TACBrNFSeProviderGinfes.Create(ACBrNFSe);
       proGiss:       Result := TACBrNFSeProviderGiss204.Create(ACBrNFSe);
       proGovBr:      Result := TACBrNFSeProviderGovBr.Create(ACBrNFSe);
-      proGovDigital: Result := TACBrNFSeProviderGovDigital200.Create(ACBrNFSe);
+
+      proGovDigital:
+        begin
+          case Versao of
+            ve200: Result := TACBrNFSeProviderGovDigital200.Create(ACBrNFSe);
+            ve201: Result := TACBrNFSeProviderGovDigital201.Create(ACBrNFSe);
+          else
+            Result := nil;
+          end;
+        end;
+
       proGoverna:    Result := TACBrNFSeProviderGoverna.Create(ACBrNFSe);
       proHorus:      Result := TACBrNFSeProviderHorus.Create(ACBrNFSe);
       proiiBrasil:   Result := TACBrNFSeProvideriiBrasil204.Create(ACBrNFSe);
@@ -476,7 +489,16 @@ begin
           end;
         end;
 
-      proSaatri:  Result := TACBrNFSeProviderSaatri201.Create(ACBrNFSe);
+      proSaatri:
+        begin
+          case Versao of
+            ve201: Result := TACBrNFSeProviderSaatri201.Create(ACBrNFSe);
+            ve203: Result := TACBrNFSeProviderSaatri203.Create(ACBrNFSe);
+          else
+            Result := nil;
+          end;
+        end;
+
       proSafeWeb: Result := TACBrNFSeProviderSafeWeb200.Create(ACBrNFSe);
       proSH3:     Result := TACBrNFSeProviderSH3200.Create(ACBrNFSe);
       proSiam:    Result := TACBrNFSeProviderSiam200.Create(ACBrNFSe);

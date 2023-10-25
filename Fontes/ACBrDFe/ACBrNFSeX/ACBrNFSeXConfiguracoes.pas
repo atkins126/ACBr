@@ -140,6 +140,7 @@ type
     procedure GravarIni(const AIni: TCustomIniFile); override;
     procedure LerIni(const AIni: TCustomIniFile); override;
     procedure LerParamsMunicipio;
+
   published
     property CodigoMunicipio: Integer read FCodigoMunicipio write SetCodigoMunicipio;
     property Provedor: TnfseProvedor read FProvedor write FProvedor;
@@ -158,6 +159,7 @@ type
     property Layout: TLayout read FLayout;
     property LayoutNFSe: TLayoutNFSe read FLayoutNFSe write FLayoutNFSe default lnfsProvedor;
     property Assinaturas: TAssinaturas read FAssinaturas write FAssinaturas default taConfigProvedor;
+    property PIniParams: TMemIniFile read FPIniParams;
   end;
 
   { TArquivosConfNFSe }
@@ -171,8 +173,10 @@ type
     FPathCan: String;
     FNomeLongoNFSe: Boolean;
     FTabServicosExt: Boolean;
+    FIniTabServicos: String;
 
     procedure SetTabServicosExt(const Value: Boolean);
+    function GetIniTabServicos: String;
   public
     constructor Create(AOwner: TConfiguracoes); override;
     procedure Assign(DeArquivosConfNFSe: TArquivosConfNFSe); reintroduce;
@@ -205,6 +209,7 @@ type
       write FNomeLongoNFSe default False;
     property TabServicosExt: Boolean read FTabServicosExt
       write SetTabServicosExt default False;
+    property IniTabServicos: String read GetIniTabServicos write FIniTabServicos;
   end;
 
   { TConfiguracoesNFSe }
@@ -452,7 +457,7 @@ begin
   CodIBGE := IntToStr(FCodigoMunicipio);
 
   FxMunicipio := FPIniParams.ReadString(CodIBGE, 'Nome', '');
-  FxUF := FPIniParams.ReadString(CodIBGE, 'UF'  , '');
+  FxUF := FPIniParams.ReadString(CodIBGE, 'UF', '');
   FxProvedor := FPIniParams.ReadString(CodIBGE, 'Provedor', '');
   FVersao := StrToVersaoNFSe(Ok, FPIniParams.ReadString(CodIBGE, 'Versao', '1.00'));
 
@@ -628,6 +633,16 @@ begin
   end;
 end;
 
+function TArquivosConfNFSe.GetIniTabServicos: String;
+begin
+  if FIniTabServicos = '' then
+    if Assigned(fpConfiguracoes.Owner) then
+      if not (csDesigning in fpConfiguracoes.Owner.ComponentState) then
+        FIniTabServicos := ApplicationPath + 'TabServicos.ini';
+
+  Result := FIniTabServicos;
+end;
+
 function TArquivosConfNFSe.GetPathCan(Data: TDateTime = 0;
   const CNPJ: String = ''; const IE: String = ''): String;
 var
@@ -653,8 +668,8 @@ function TArquivosConfNFSe.GetPathEvento(Data: TDateTime; const CNPJ,
 var
   Dir: String;
 begin
-  if FPathCan <> '' then
-    Result := GetPath(FPathCan, 'Eventos', CNPJ, IE, Data)
+  if FPathNFSe <> '' then
+    Result := GetPath(FPathNFSe, 'Eventos', CNPJ, IE, Data)
   else
   begin
     Dir := GetPath(FPathGer, 'NFSe', CNPJ, IE, Data);

@@ -37,6 +37,17 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+16/10/2023
+-- ACBrJSON --
+[+] Inclusão de novas funções para facilitar o tratamento do JSON em objetos
+    Por: Elias César
+
+28/07/2023
+-- ACBrJSON --
+[+] Implementado a função IsJSONArray que retorna True se o elemento for um Array ou 
+    False se for um Objeto.
+    Por: Italo Giurizzato Junior
+
 01/07/2023
 -- ACBrUtil.DateTime --
 [*] Ajuste na ParseDataHora para interpretar datas com iniciais do mês ao invés de numeral

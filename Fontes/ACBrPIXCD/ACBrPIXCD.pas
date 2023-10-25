@@ -889,7 +889,7 @@ end;
 
 procedure TACBrPSPCertificate.SetPFX(aValue: AnsiString);
 begin
-  fPFX := Trim(aValue);
+  fPFX := aValue;
   fArquivoPFX := EmptyStr;
 end;
 
@@ -2020,7 +2020,7 @@ begin
   else
   begin
     try
-      Problema.AsJSON := String(RespostaHttp);
+      Problema.AsJSON := UTF8ToNativeString(RespostaHttp);
     except
     end;
 

@@ -38,6 +38,9 @@ type
   { TfrmACBrNFSe }
 
   TfrmACBrNFSe = class(TForm)
+    btnConsultarLinkNFSe: TButton;
+    btnConsultarNFSePelaChave: TButton;
+    btnLerINI: TButton;
     cbLayoutNFSe: TComboBox;
     Label48: TLabel;
     Label49: TLabel;
@@ -280,8 +283,8 @@ type
     btnEventoRejTomPN: TButton;
     btnEventoRejInterPN: TButton;
     tsConsultas1: TTabSheet;
-    btnConsultarNFSeRPSPN: TButton;
-    btnConsultarNFSePeloNumeroPN: TButton;
+    btnConsultarDPSPorChavePN: TButton;
+    btnConsultarNFSePelaChavePN: TButton;
     btnObterPDFdoDANFSEPN: TButton;
     btnConsultarEventoChavPN: TButton;
     btnConsultarDFe: TButton;
@@ -292,9 +295,13 @@ type
     btnConsultarParamMunicRegimesEspeciais: TButton;
     btnConsultarParamMunicRetencoes: TButton;
     btnConsultarParamMunicBeneficio: TButton;
+    procedure btnConsultarLinkNFSeClick(Sender: TObject);
+    procedure btnConsultarNFSePelaChaveClick(Sender: TObject);
+    procedure btnConsultarNFSePelaChavePNClick(Sender: TObject);
     procedure btnEmitirPNClick(Sender: TObject);
     procedure btnEnviaremailPNClick(Sender: TObject);
     procedure btnImprimirPNClick(Sender: TObject);
+    procedure btnLerINIClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
     procedure sbPathNFSeClick(Sender: TObject);
@@ -369,7 +376,7 @@ type
     procedure btnEventoRejPrestPNClick(Sender: TObject);
     procedure btnEventoRejTomPNClick(Sender: TObject);
     procedure btnEventoRejInterPNClick(Sender: TObject);
-    procedure btnConsultarNFSeRPSPNClick(Sender: TObject);
+    procedure btnConsultarDPSPorChavePNClick(Sender: TObject);
     procedure btnConsultarEventoChavPNClick(Sender: TObject);
     procedure btnConsultarDFeClick(Sender: TObject);
     procedure btnConsultarParamMunicConvenioClick(Sender: TObject);
@@ -401,10 +408,14 @@ var
 implementation
 
 uses
-  strutils, math, TypInfo, DateUtils, synacode, blcksock, FileCtrl, Grids,
+  strutils, math, TypInfo, DateUtils,
+  blcksock,
+  Grids,
   IniFiles, Printers,
   pcnAuxiliar, pcnConversao,
-  ACBrDFeConfiguracoes, ACBrDFeSSL, ACBrDFeOpenSSL, ACBrDFeUtil,
+  ACBrOpenSSLUtils, OpenSSLExt,
+  ACBrDFeConfiguracoes, ACBrDFeSSL,
+  ACBrDFeUtil,
   ACBrNFSeXWebserviceBase,
   Frm_Status, Frm_SelecionarCertificado;
 
@@ -510,8 +521,7 @@ end;
 procedure TfrmACBrNFSe.AlimentarNFSe(NumDFe, NumLote: String);
 var
   vValorISS: Double;
-  i, CodigoIBGE: Integer;
-  xMunicipio, xUF: string;
+  i: Integer;
 begin
   with ACBrNFSeX1 do
   begin
@@ -549,6 +559,7 @@ begin
       Numero := NumDFe;
       // Provedor Infisc - Layout Proprio
       cNFSe := GerarCodigoDFe(StrToIntDef(Numero, 0));
+      ModeloNFSe := '90';
 
       // no Caso dos provedores abaixo o campo SeriePrestacao devemos informar:
       {
@@ -600,6 +611,10 @@ begin
       DataEmissao := Now;
       Competencia := Now;
       DataEmissaoRPS := Now;
+      // Provedor RLZ
+      Vencimento := Now + 1;
+      // Provedor fintelISS
+      DataPagamento := Now;
 
       (*
         TnfseNaturezaOperacao = ( no1, no2, no3, no4, no5, no6, no7,
@@ -621,16 +636,13 @@ begin
 
       case ACBrNFSeX1.Configuracoes.Geral.Provedor of
         proPadraoNacional:
-          RegimeEspecialTributacao := retCooperativa;
+          RegimeEspecialTributacao := retNenhum;
       else
         RegimeEspecialTributacao := retMicroempresaMunicipal;
       end;
 
       // TnfseSimNao = ( snSim, snNao );
       OptanteSimplesNacional := snSim;
-
-      // Provedor PadraoNacional
-      OptanteSN := osnNaoOptante;
 
       // TnfseSimNao = ( snSim, snNao );
       IncentivadorCultural := snNao;
@@ -645,6 +657,7 @@ begin
       // TnfseSimNao = ( snSim, snNao );
       // snSim = Ambiente de Produção
       // snNao = Ambiente de Homologação
+      {=== Usado pelo provedor ISSDigital ===}
       if ACBrNFSeX1.Configuracoes.WebServices.Ambiente = taProducao then
         Producao := snSim
       else
@@ -653,9 +666,9 @@ begin
       // TnfseStatusRPS = ( srNormal, srCancelado );
       StatusRps := srNormal;
 
-      // Somente Os provedores Betha, FISSLex e SimplISS permitem incluir no RPS
-      // a TAG: OutrasInformacoes os demais essa TAG é gerada e preenchida pelo
-      // WebService do provedor.
+      // Somente Os provedores Betha, FISSLex, SimplISS e TcheInfo
+      // permitem incluir no RPS a TAG: OutrasInformacoes os demais essa TAG
+      // é gerada e preenchida pelo WebService do provedor.
       OutrasInformacoes := 'Pagamento a Vista';
 
       {=========================================================================
@@ -676,10 +689,10 @@ begin
       // Provedores que permitem informar mais de 1 serviço:
       if (ACBrNFSeX1.Configuracoes.Geral.Provedor in [proAgili, proAssessorPublico,
            proCTA, proCTAConsult, proEloTech, proEquiplano, proFacundo, proFGMaiss,
-           profintelISS, proGoverna, proInfisc, proIPM, proPriMax, proISSDSF, proRLZ,
-           proSimple, proSimplISS, proSmarAPD, proWebFisco, proBauhaus,
+           profintelISS, proGoverna, proInfisc, proIPM, proISSDSF, proPriMax,
+           proRLZ, proSimple, proSmarAPD, proWebFisco, proBauhaus, proeISS,
            proSoftPlan]) or
-         ((ACBrNFSeX1.Configuracoes.Geral.Provedor in [proEL]) and
+         ((ACBrNFSeX1.Configuracoes.Geral.Provedor in [proEL, proSimplISS]) and
           (ACBrNFSeX1.Configuracoes.Geral.Versao = ve100)) then
       begin
         // Provedor Elotech
@@ -715,7 +728,7 @@ begin
           TipoUnidade := tuQtde;
           Unidade := 'UN';
           Quantidade := 10;
-          ValorUnitario := 0.01;
+          ValorUnitario := 5;
 
           QtdeDiaria := 0;
           ValorTaxaTurismo := 0;
@@ -724,7 +737,7 @@ begin
 
           BaseCalculo := ValorTotal - ValorDeducoes - DescontoIncondicionado;
 
-          Aliquota := 0.10;
+          Aliquota := 2;
 
           ValorISS := BaseCalculo * Aliquota / 100;
 
@@ -808,23 +821,38 @@ begin
         Servico.Valores.Aliquota := 2;
 
         // Provedor PadraoNacional
-        Servico.Valores.tribMun.tribISSQN := tiOperacaoTributavel;
-        Servico.Valores.tribMun.cPaisResult := 0;
+        // Provedor PadraoNacional (osnNaoOptante, osnOptanteMEI, osnOptanteMEEPP)
+        OptanteSN := osnOptanteMEI;
 
+        Servico.Valores.tribMun.cPaisResult := 0;
+        // TtribISSQN = (tiOperacaoTributavel, tiImunidade, tiExportacao, tiNaoIncidencia);
+        Servico.Valores.tribMun.tribISSQN := tiNaoIncidencia;
+        Servico.Valores.tribMun.tpImunidade := timNenhum;
+        Servico.Valores.tribMun.tpRetISSQN := trNaoRetido;
+        Servico.Valores.totTrib.indTotTrib := indNao;
+
+        if OptanteSN = osnOptanteMEEPP then
+        begin
+          Servico.Valores.totTrib.indTotTrib := indSim;
+          Servico.Valores.totTrib.pTotTribSN := 2.01;
+        end;
+
+        {
         Servico.Valores.tribFed.CST := cst01;
         Servico.Valores.tribFed.vBCPisCofins := Servico.Valores.BaseCalculo;
         Servico.Valores.tribFed.pAliqPis := 1.65;
         Servico.Valores.tribFed.pAliqCofins := 7.60;
         Servico.Valores.tribFed.vPis := Servico.Valores.tribFed.vBCPisCofins *
-                                         Servico.Valores.tribFed.pAliqPis / 100;
+                                        Servico.Valores.tribFed.pAliqPis / 100;
         Servico.Valores.tribFed.vCofins := Servico.Valores.tribFed.vBCPisCofins *
                                       Servico.Valores.tribFed.pAliqCofins / 100;
         Servico.Valores.tribFed.tpRetPisCofins := trpcNaoRetido;
 
-        Servico.Valores.totTrib.vTotTribFed := Servico.Valores.tribFed.vPis;
+        Servico.Valores.totTrib.vTotTribFed := Servico.Valores.tribFed.vPis +
+                                               Servico.Valores.tribFed.vCofins;
         Servico.Valores.totTrib.vTotTribEst := 0;
-        Servico.Valores.totTrib.vTotTribMun := Servico.Valores.tribFed.vCofins;
-
+        Servico.Valores.totTrib.vTotTribMun := 0;
+        }
 
         vValorISS := Servico.Valores.BaseCalculo * Servico.Valores.Aliquota / 100;
 
@@ -865,6 +893,7 @@ begin
       DeducaoMateriais := snSim;
       with Servico.Deducao.New do
       begin
+        DeducaoPor := dpValor;
         TipoDeducao := tdMateriais;
         ValorDeduzir := 10.00;
       end;
@@ -875,7 +904,7 @@ begin
           Servico.ItemListaServico := '01.05.00';
 
         proPadraoNacional:
-          Servico.ItemListaServico := '010201';
+          Servico.ItemListaServico := '010601';
 
         proCTAConsult:
           Servico.ItemListaServico := '01050';
@@ -884,7 +913,7 @@ begin
         Servico.ItemListaServico := '09.01';
       end;
 
-      servico.CodigoNBS := '123456789';
+//      servico.CodigoNBS := '123456789';
       Servico.Discriminacao := 'discriminacao I; discriminacao II';
 
       // TnfseResponsavelRetencao = ( rtTomador, rtPrestador, rtIntermediario, rtNenhum )
@@ -943,15 +972,19 @@ begin
       Prestador.IdentificacaoPrestador.CpfCnpj := edtEmitCNPJ.Text;
       Prestador.IdentificacaoPrestador.InscricaoMunicipal := edtEmitIM.Text;
 
-      Prestador.RazaoSocial  := edtEmitRazao.Text;
-      Prestador.NomeFantasia := edtEmitRazao.Text;
+      if ACBrNFSeX1.Configuracoes.Geral.Provedor <> proPadraoNacional then
+      begin
+        Prestador.RazaoSocial  := edtEmitRazao.Text;
+        Prestador.NomeFantasia := edtEmitRazao.Text;
+      end;
       // Para o provedor ISSDigital deve-se informar também:
       Prestador.cUF := UFtoCUF(edtEmitUF.Text);
 
+      Prestador.Endereco.CodigoMunicipio := edtCodCidade.Text;
+      {
       Prestador.Endereco.Endereco := edtEmitLogradouro.Text;
       Prestador.Endereco.Numero   := edtEmitNumero.Text;
       Prestador.Endereco.Bairro   := edtEmitBairro.Text;
-      Prestador.Endereco.CodigoMunicipio := edtCodCidade.Text;
 
       CodigoIBGE := StrToIntDef(edtCodCidade.Text, 0);
 
@@ -967,7 +1000,7 @@ begin
       Prestador.Endereco.CEP := edtEmitCEP.Text;
 
       Prestador.Contato.DDD := '16';
-
+      }
       case ACBrNFSeX1.Configuracoes.Geral.Provedor of
         proSigep, proCTAConsult:
           Prestador.Contato.Telefone := '33224455';
@@ -1007,19 +1040,18 @@ begin
       Tomador.Endereco.TipoBairro := 'BAIRRO';
       Tomador.Endereco.Bairro := 'CENTRO';
       Tomador.Endereco.CodigoMunicipio := edtCodCidade.Text;
-
-      CodigoIBGE := StrToIntDef(edtCodCidade.Text, 0);
-
-      if CodigoIBGE > 0 then
-        xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
-
-      Tomador.Endereco.xMunicipio := xMunicipio;
+      Tomador.Endereco.xMunicipio := 'Cidade do Tomador';
       Tomador.Endereco.UF := edtEmitUF.Text;
       Tomador.Endereco.CodigoPais := 1058; // Brasil
       Tomador.Endereco.CEP := '14800000';
       Tomador.Endereco.xPais := 'BRASIL';
 
-      Tomador.Contato.DDD := '16';
+      case ACBrNFSeX1.Configuracoes.Geral.Provedor of
+        proSigep:
+          Tomador.Contato.DDD := '016';
+      else
+        Tomador.Contato.DDD := '16';
+      end;
 
       case ACBrNFSeX1.Configuracoes.Geral.Provedor of
         proSigep, proCTAConsult:
@@ -1079,7 +1111,7 @@ var
 begin
   IniCidades := TMemIniFile.Create('');
   try
-    Cidades    := TStringList.Create;
+    Cidades := TStringList.Create;
     try
       IniCidades.SetStrings(ACBrNFSeX1.Configuracoes.WebServices.Params);
       IniCidades.ReadSections(Cidades);
@@ -1124,11 +1156,10 @@ procedure TfrmACBrNFSe.btnCancNFSeClick(Sender: TObject);
 var
   Titulo, NumNFSe, Codigo, Motivo, NumLote, CodVerif, SerNFSe, NumRps,
   SerRps, ValNFSe, ChNFSe, eMailTomador, vNumRPS, xCodServ,
-  xDataEmissao, xTipo: String;
+  xDataEmissao: String;
   DataEmissao: TDateTime;
   CodCanc: Integer;
   InfCancelamento: TInfCancelamento;
-  Ok: Boolean;
 begin
   Titulo := 'Cancelar NFSe';
   DataEmissao := 0;
@@ -1162,7 +1193,7 @@ begin
       exit;
 
     if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proiiBrasil, proWebFisco,
-      proSimple, proFGMaiss, proIPM, proPriMax] then
+      proSimple, proFGMaiss, proIPM, proPriMax, proSigISSWeb] then
     begin
       SerNFSe := '1';
       if not (InputQuery(Titulo, 'Série da NFSe', SerNFSe)) then
@@ -1229,7 +1260,7 @@ begin
       proConam, proEquiplano, proFGMaiss, proGoverna, proIPM, proISSBarueri,
       proISSDSF, proISSLencois, proModernizacaoPublica, proPrescon, proPriMax, proPublica,
       proSiat, proSigISS, proSigep, proSimple, proSmarAPD, proSudoeste, proTecnos,
-      proWebFisco, proCenti, proCTA, proBauhaus] then
+      proWebFisco, proCenti, proCTA, proBauhaus, proSigISSWeb] then
     begin
       Motivo := 'Motivo do Cancelamento';
       if not (InputQuery(Titulo, 'Motivo do Cancelamento', Motivo)) then
@@ -1298,13 +1329,6 @@ begin
     AlimentarNFSe(vNumRPS, '1');
   end;
 
-  xTipo := '';
-  if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proFGMaiss, proPriMax, proWebFisco] then
-  begin
-    if not(InputQuery(Titulo, 'Tipo (1 = NFSe, 2 = Rps):', xTipo)) then
-      exit;
-  end;
-
   InfCancelamento := TInfCancelamento.Create;
 
   try
@@ -1323,7 +1347,6 @@ begin
       email           := eMailTomador;
       DataEmissaoNFSe := DataEmissao;
       CodServ         := xCodServ;
-      tpDocumento     := StrTotpDocumento(Ok, xTipo);
     end;
 
     ACBrNFSeX1.CancelarNFSe(InfCancelamento);
@@ -1573,9 +1596,8 @@ end;
 procedure TfrmACBrNFSe.btnConsultarNFSePeloNumeroClick(Sender: TObject);
 var
   xTitulo, NumeroNFSe, SerNFSe, NumPagina, NumLote, xDataIni, xDataFin,
-  xTipo, xCodServ, xCodVerif: String;
+  xCodServ, xCodVerif: String;
   InfConsultaNFSe: TInfConsultaNFSe;
-  Ok: Boolean;
 begin
   xTitulo := 'Consultar NFSe Por Numero';
 
@@ -1622,13 +1644,6 @@ begin
         exit;
     end;
 
-    xTipo := '';
-    if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proFGMaiss, proPriMax, proWebFisco] then
-    begin
-      if not(InputQuery(xTitulo, 'Tipo (1 = NFSe, 2 = Rps):', xTipo)) then
-        exit;
-    end;
-
     if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proSiappa] then
     begin
       xDataIni := FormatDateTime('MM/YYYY',Date);
@@ -1665,27 +1680,6 @@ begin
             DataInicial :=  StrToDateDef(xDataIni, 0);
             DataFinal := StrToDateDef(xDataFin, 0);
             Pagina := StrToIntDef(NumPagina, 1);
-          end;
-
-          ACBrNFSeX1.ConsultarNFSeGenerico(InfConsultaNFSe);
-        finally
-          InfConsultaNFSe.Free;
-        end;
-      end;
-
-    proFGMaiss,
-    proPriMax,
-    proWebFisco:
-      begin
-        InfConsultaNFSe := TInfConsultaNFSe.Create;
-
-        try
-          with InfConsultaNFSe do
-          begin
-            tpConsulta := tcPorNumero;
-
-            NumeroIniNFSe := NumeroNFSe;
-            tpDocumento := StrTotpDocumento(Ok, xTipo);
           end;
 
           ACBrNFSeX1.ConsultarNFSeGenerico(InfConsultaNFSe);
@@ -1840,7 +1834,8 @@ begin
     end;
   end;
 
-  if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proGiap, proGoverna, proPrescon] then
+  if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proGiap, proGoverna,
+     proPrescon, proIntertec] then
   begin
     CodVerificacao := '123';
     if not (InputQuery('Consultar NFSe por RPS', 'Codigo Verificação:', CodVerificacao)) then
@@ -1852,17 +1847,17 @@ begin
   ChecarResposta(tmConsultarNFSePorRps);
 end;
 
-procedure TfrmACBrNFSe.btnConsultarNFSeRPSPNClick(Sender: TObject);
+procedure TfrmACBrNFSe.btnConsultarDPSPorChavePNClick(Sender: TObject);
 var
   xTitulo, xChaveDPS: String;
 begin
-  xTitulo := 'Consultar NFSe pela Chave do DPS';
+  xTitulo := 'Consultar DPS por Chave';
 
   xChaveDPS := '';
   if not (InputQuery(xTitulo, 'Chave do DPS:', xChaveDPS)) then
     exit;
 
-  ACBrNFSeX1.ConsultarNFSeporRps(xChaveDPS, '', '');
+  ACBrNFSeX1.ConsultarDPSPorChave(xChaveDPS);
 
   ChecarResposta(tmConsultarNFSePorRps);
 end;
@@ -2744,7 +2739,7 @@ begin
 
   ACBrNFSeX1.ObterDANFSE(xChaveNFSe);
 
-  ChecarResposta(tmConsultarNFSe);
+  ChecarResposta(tmConsultarNFSePorChave);
 end;
 
 procedure TfrmACBrNFSe.btnSalvarConfigClick(Sender: TObject);
@@ -3199,6 +3194,83 @@ begin
   ChecarResposta(tmGerar);
 end;
 
+procedure TfrmACBrNFSe.btnConsultarNFSePelaChaveClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe: String;
+begin
+  xTitulo := 'Consultar NFSe pela Chave de Acesso da NFSe';
+
+  xChaveNFSe := '';
+  if not (InputQuery(xTitulo, 'Chave de Acesso:', xChaveNFSe)) then
+    exit;
+
+  ACBrNFSeX1.ConsultarNFSePorChave(xChaveNFSe);
+
+  ChecarResposta(tmConsultarNFSePorChave);
+end;
+
+procedure TfrmACBrNFSe.btnConsultarNFSePelaChavePNClick(Sender: TObject);
+var
+  xTitulo, xChaveNFSe: String;
+begin
+  xTitulo := 'Consultar NFSe pela Chave da NFSe';
+
+  xChaveNFSe := '';
+  if not (InputQuery(xTitulo, 'Chave da NFSe:', xChaveNFSe)) then
+    exit;
+
+  ACBrNFSeX1.ConsultarNFSePorChave(xChaveNFSe);
+
+  ChecarResposta(tmConsultarNFSePorChave);
+end;
+
+procedure TfrmACBrNFSe.btnConsultarLinkNFSeClick(Sender: TObject);
+var
+  InfConsultaLinkNFSe: TInfConsultaLinkNFSe;
+  xTitulo, xCompetencia, xNumeroNFSe, xSerieNFSe,
+  xNumeroRps, xSerieRps: string;
+begin
+  xTitulo := 'Consultar Link da NFSe';
+
+  if ACBrNFSeX1.Configuracoes.Geral.Provedor = proConam then
+  begin
+    xCompetencia := '07/07/2023';
+    if not(InputQuery(xTitulo, 'Data de Competencia:', xCompetencia)) then
+      exit;
+
+    xNumeroRps := '';
+    if not(InputQuery(xTitulo, 'Numero do RPS:', xNumeroRps)) then
+      exit;
+
+    xSerieRps := '';
+    if not(InputQuery(xTitulo, 'Serie do RPS:', xSerieRps)) then
+      exit;
+  end;
+
+  xNumeroNFSe := '';
+  if not(InputQuery(xTitulo, 'Numero da NFS-e:', xNumeroNFSe)) then
+    exit;
+
+  xSerieNFSe := '';
+  if not(InputQuery(xTitulo, 'Serie da NFS-e:', xSerieNFSe)) then
+    exit;
+
+  InfConsultaLinkNFSe := TInfConsultaLinkNFSe.Create;
+  try
+    InfConsultaLinkNFSe.Competencia := StrToDateDef(xCompetencia, 0);
+    InfConsultaLinkNFSe.NumeroNFSe := xNumeroNFSe;
+    InfConsultaLinkNFSe.SerieNFSe := xSerieNFSe;
+    InfConsultaLinkNFSe.NumeroRps := StrToIntDef(xNumeroRps, 1);
+    InfConsultaLinkNFSe.SerieRps := xSerieRps;
+
+    ACBrNFSeX1.ConsultarLinkNFSe(InfConsultaLinkNFSe);
+
+   ChecarResposta(tmConsultarLinkNFSe);
+  finally
+    InfConsultaLinkNFSe.Free;
+  end;
+end;
+
 procedure TfrmACBrNFSe.btnEnviaremailPNClick(Sender: TObject);
 var
   vAux: String;
@@ -3282,6 +3354,32 @@ begin
       memoLog.Lines.Add('A Nota encontra-se Cancelada.');
 
     pgRespostas.ActivePageIndex := 0;
+  end;
+end;
+
+procedure TfrmACBrNFSe.btnLerINIClick(Sender: TObject);
+var
+  vNumLote: string;
+begin
+  OpenDialog1.Title := 'Selecione o Arquivo INI';
+  OpenDialog1.DefaultExt := '*.ini';
+  OpenDialog1.Filter :=
+    'Arquivos INI (*.ini)|*.ini|Todos os Arquivos (*.*)|*.*';
+  OpenDialog1.InitialDir := ACBrNFSeX1.Configuracoes.Arquivos.PathSalvar;
+
+  if OpenDialog1.Execute then
+  begin
+    ACBrNFSeX1.NotasFiscais.Clear;
+
+    // LoadFromIni - Usado para carregar o arquivo INI para gerar posteriormente
+    // o XML do Rps
+    ACBrNFSeX1.NotasFiscais.LoadFromIni(OpenDialog1.FileName);
+
+    vNumLote := '1';
+    if not(InputQuery('Gerar Lote de Envio', 'Numero do Lote', vNumLote)) then
+      exit;
+
+    ACBrNFSeX1.GerarLote(vNumLote);
   end;
 end;
 
@@ -3532,7 +3630,88 @@ end;
 procedure TfrmACBrNFSe.ChecarResposta(aMetodo: TMetodo);
 var
   i: Integer;
+
+  procedure ListaDeErros(aErros: TNFSeEventoCollection);
+  var
+    i: Integer;
+  begin
+    if aErros.Count > 0 then
+    begin
+      memoLog.Lines.Add(' ');
+      memoLog.Lines.Add('Erro(s):');
+      for i := 0 to aErros.Count -1 do
+      begin
+        memoLog.Lines.Add('Código  : ' + aErros[i].Codigo);
+        memoLog.Lines.Add('Mensagem: ' + aErros[i].Descricao);
+        memoLog.Lines.Add('Correção: ' + aErros[i].Correcao);
+        memoLog.Lines.Add('---------');
+      end;
+    end;
+  end;
+
+  procedure ListaDeAlertas(aAlertas: TNFSeEventoCollection);
+  var
+    i: Integer;
+  begin
+    if aAlertas.Count > 0 then
+    begin
+      memoLog.Lines.Add(' ');
+      memoLog.Lines.Add('Alerta(s):');
+      for i := 0 to aAlertas.Count -1 do
+      begin
+        memoLog.Lines.Add('Código  : ' + aAlertas[i].Codigo);
+        memoLog.Lines.Add('Mensagem: ' + aAlertas[i].Descricao);
+        memoLog.Lines.Add('Correção: ' + aAlertas[i].Correcao);
+        memoLog.Lines.Add('---------');
+      end;
+    end;
+  end;
+
+  procedure ListaDeResumos(aResumos: TNFSeResumoCollection; aMetodo: TMetodo);
+  var
+    i: Integer;
+  begin
+    if aResumos.Count > 0 then
+    begin
+      memoLog.Lines.Add(' ');
+      memoLog.Lines.Add('Resumo(s):');
+      for i := 0 to aResumos.Count -1 do
+      begin
+        case aMetodo of
+          tmConsultarEvento:
+            begin
+              memoLog.Lines.Add('Chave DFe: ' + aResumos[i].ChaveDFe);
+              memoLog.Lines.Add('Tipo Doc.: ' + aResumos[i].TipoDoc);
+            end;
+
+          tmConsultarDFe:
+            begin
+              memoLog.Lines.Add('NSU      : ' + IntToStr(aResumos[i].NSU));
+              memoLog.Lines.Add('Chave DFe: ' + aResumos[i].ChaveDFe);
+              memoLog.Lines.Add('Tipo Doc.: ' + aResumos[i].TipoDoc);
+            end;
+        else
+          begin
+            memoLog.Lines.Add('Numero da Nota    : ' + aResumos[i].NumeroNota);
+            memoLog.Lines.Add('Código Verificação: ' + aResumos[i].CodigoVerificacao);
+            memoLog.Lines.Add('Numero do Rps     : ' + aResumos[i].NumeroRps);
+            memoLog.Lines.Add('Série do Rps      : ' + aResumos[i].SerieRps);
+          end;
+        end;
+
+        memoLog.Lines.Add('---------');
+      end;
+    end;
+  end;
 begin
+  memoLog.Lines.Add('------------------------------');
+  memoLog.Lines.Add('Versão OpenSSL');
+  memoLog.Lines.Add( OpenSSLExt.OpenSSLVersion(0) );
+  memoLog.Lines.Add( ACBrOpenSSLUtils.OpenSSLFullVersion );
+  memoLog.Lines.Add( OpenSSLExt.SSLUtilFile );
+  memoLog.Lines.Add( OpenSSLExt.SSLLibFile );
+  memoLog.Lines.Add('------------------------------');
+
   memoLog.Clear;
   memoLog.Lines.Clear;
   memoLog.Update;
@@ -3569,31 +3748,8 @@ begin
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
 
           if ACBrNFSeX1.Configuracoes.Geral.ConsultaLoteAposEnvio and
@@ -3613,36 +3769,14 @@ begin
                 memoLog.Lines.Add(' ');
                 memoLog.Lines.Add('Parâmetros de Retorno');
                 memoLog.Lines.Add('Situação Lote : ' + Situacao);
+                memoLog.Lines.Add('Descrição Sit : ' + DescSituacao);
                 memoLog.Lines.Add('Sucesso       : ' + BoolToStr(Sucesso, True));
 
                 LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml', 1000);
                 LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml', 1000);
 
-                if Erros.Count > 0 then
-                begin
-                  memoLog.Lines.Add(' ');
-                  memoLog.Lines.Add('Erro(s):');
-                  for i := 0 to Erros.Count -1 do
-                  begin
-                    memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                    memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                    memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                    memoLog.Lines.Add('---------');
-                  end;
-                end;
-
-                if Alertas.Count > 0 then
-                begin
-                  memoLog.Lines.Add(' ');
-                  memoLog.Lines.Add('Alerta(s):');
-                  for i := 0 to Alertas.Count -1 do
-                  begin
-                    memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                    memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                    memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                    memoLog.Lines.Add('---------');
-                  end;
-                end;
+                ListaDeErros(Erros);
+                ListaDeAlertas(Alertas);
               end;
             end;
 
@@ -3662,48 +3796,13 @@ begin
                 memoLog.Lines.Add('Situação Lote : ' + Situacao);
                 memoLog.Lines.Add('Sucesso       : ' + BoolToStr(Sucesso, True));
 
-                if Resumos.Count > 0 then
-                begin
-                  memoLog.Lines.Add(' ');
-                  memoLog.Lines.Add('Resumo(s):');
-                  for i := 0 to Resumos.Count -1 do
-                  begin
-                    memoLog.Lines.Add('Numero Nota       : ' + Resumos[i].NumeroNota);
-                    memoLog.Lines.Add('Código Verificação: ' + Resumos[i].CodigoVerificacao);
-                    memoLog.Lines.Add('Numero Rps        : ' + Resumos[i].NumeroRps);
-                    memoLog.Lines.Add('Série Rps         : ' + Resumos[i].SerieRps);
-                    memoLog.Lines.Add('---------');
-                  end;
-                end;
+                ListaDeResumos(Resumos, tmConsultarLote);
 
                 LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml', 1000);
                 LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml', 1000);
 
-                if Erros.Count > 0 then
-                begin
-                  memoLog.Lines.Add(' ');
-                  memoLog.Lines.Add('Erro(s):');
-                  for i := 0 to Erros.Count -1 do
-                  begin
-                    memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                    memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                    memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                    memoLog.Lines.Add('---------');
-                  end;
-                end;
-
-                if Alertas.Count > 0 then
-                begin
-                  memoLog.Lines.Add(' ');
-                  memoLog.Lines.Add('Alerta(s):');
-                  for i := 0 to Alertas.Count -1 do
-                  begin
-                    memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                    memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                    memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                    memoLog.Lines.Add('---------');
-                  end;
-                end;
+                ListaDeErros(Erros);
+                ListaDeAlertas(Alertas);
               end;
             end;
           end;
@@ -3730,31 +3829,8 @@ begin
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
         end;
 
@@ -3770,36 +3846,14 @@ begin
             memoLog.Lines.Add(' ');
             memoLog.Lines.Add('Parâmetros de Retorno');
             memoLog.Lines.Add('Situação Lote : ' + Situacao);
+            memoLog.Lines.Add('Descrição Sit : ' + DescSituacao);
             memoLog.Lines.Add('Sucesso       : ' + BoolToStr(Sucesso, True));
 
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
         end;
 
@@ -3817,48 +3871,13 @@ begin
             memoLog.Lines.Add('Situação Lote : ' + Situacao);
             memoLog.Lines.Add('Sucesso       : ' + BoolToStr(Sucesso, True));
 
-            if Resumos.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Resumo(s):');
-              for i := 0 to Resumos.Count -1 do
-              begin
-                memoLog.Lines.Add('Numero Nota       : ' + Resumos[i].NumeroNota);
-                memoLog.Lines.Add('Código Verificação: ' + Resumos[i].CodigoVerificacao);
-                memoLog.Lines.Add('Numero Rps        : ' + Resumos[i].NumeroRps);
-                memoLog.Lines.Add('Série Rps         : ' + Resumos[i].SerieRps);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeResumos(Resumos, tmConsultarLote);
 
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
         end;
 
@@ -3885,31 +3904,8 @@ begin
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
         end;
 
@@ -3937,31 +3933,59 @@ begin
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
+          end;
+        end;
 
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+      tmConsultarNFSePorChave:
+        begin
+          with ConsultaNFSe do
+          begin
+            memoLog.Lines.Add('Método Executado: ' + MetodoToStr(Metodo));
+            memoLog.Lines.Add(' ');
+            memoLog.Lines.Add('Parâmetros de Envio');
+            memoLog.Lines.Add('Chave da NFSe: ' + InfConsultaNFSe.ChaveNFSe);
+            memoLog.Lines.Add(' ');
+            memoLog.Lines.Add('Parâmetros de Retorno');
+            memoLog.Lines.Add('Sucesso       : ' + BoolToStr(Sucesso, True));
+
+            if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proPrescon] then
+              memoLog.Lines.Add('Número NFSe   : ' + NumeroNota);
+
+            LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
+            LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
+
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
+          end;
+        end;
+
+      tmConsultarLinkNFSe:
+        begin
+          with ConsultaLinkNFSe do
+          begin
+            memoLog.Lines.Add('Método Executado: ' + MetodoToStr(tmConsultarLinkNFSe));
+            memoLog.Lines.Add(' ');
+            memoLog.Lines.Add('Parâmetros de Envio');
+            memoLog.Lines.Add('Competencia   : ' + DateToStr(InfConsultaLinkNFSe.Competencia));
+            memoLog.Lines.Add('Numero da NFSe: ' + InfConsultaLinkNFSe.NumeroNFSe);
+            memoLog.Lines.Add('Série da NFSe : ' + InfConsultaLinkNFSe.SerieNFSe);
+            memoLog.Lines.Add('Numero da NFSe: ' + IntToStr(InfConsultaLinkNFSe.NumeroRps));
+            memoLog.Lines.Add('Série da NFSe : ' + InfConsultaLinkNFSe.SerieRps);
+
+            memoLog.Lines.Add(' ');
+            memoLog.Lines.Add('Parâmetros de Retorno');
+            memoLog.Lines.Add('Situação: ' + Situacao);
+            memoLog.Lines.Add('Link    : ' + Link);
+            memoLog.Lines.Add('Sucesso : ' + BoolToStr(Sucesso, True));
+            memoLog.Lines.Add(' ');
+
+            LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
+            LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
+
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
         end;
 
@@ -3990,31 +4014,8 @@ begin
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
 
           if ACBrNFSeX1.Configuracoes.Geral.ConsultaAposCancelar and
@@ -4035,31 +4036,8 @@ begin
               LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml', 1000);
               LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml', 1000);
 
-              if Erros.Count > 0 then
-              begin
-                memoLog.Lines.Add(' ');
-                memoLog.Lines.Add('Erro(s):');
-                for i := 0 to Erros.Count -1 do
-                begin
-                  memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                  memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                  memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                  memoLog.Lines.Add('---------');
-                end;
-              end;
-
-              if Alertas.Count > 0 then
-              begin
-                memoLog.Lines.Add(' ');
-                memoLog.Lines.Add('Alerta(s):');
-                for i := 0 to Alertas.Count -1 do
-                begin
-                  memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                  memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                  memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                  memoLog.Lines.Add('---------');
-                end;
-              end;
+              ListaDeErros(Erros);
+              ListaDeAlertas(Alertas);
             end;
           end;
         end;
@@ -4091,31 +4069,8 @@ begin
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
         end;
 
@@ -4134,31 +4089,8 @@ begin
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
         end;
 
@@ -4181,31 +4113,8 @@ begin
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
         end;
 
@@ -4241,31 +4150,8 @@ begin
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
         end;
 
@@ -4288,34 +4174,13 @@ begin
             memoLog.Lines.Add('ID do Evento    : ' + idEvento);
             memoLog.Lines.Add('Sucesso         : ' + BoolToStr(Sucesso, True));
 
+            ListaDeResumos(Resumos, tmConsultarEvento);
+
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
         end;
 
@@ -4333,47 +4198,13 @@ begin
             memoLog.Lines.Add('Data   : ' + DateToStr(Data));
             memoLog.Lines.Add('Sucesso: ' + BoolToStr(Sucesso, True));
 
-            if Resumos.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Resumo(s):');
-              for i := 0 to Resumos.Count -1 do
-              begin
-                memoLog.Lines.Add('NSU      : ' + IntToStr(Resumos[i].NSU));
-                memoLog.Lines.Add('Chave DFe: ' + Resumos[i].ChaveDFe);
-                memoLog.Lines.Add('Tipo Doc.: ' + Resumos[i].TipoDoc);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeResumos(Resumos, tmConsultarDFe);
 
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
         end;
 
@@ -4404,47 +4235,11 @@ begin
               end;
             end;
 
-            if Resumos.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Resumo(s):');
-              for i := 0 to Resumos.Count -1 do
-              begin
-                memoLog.Lines.Add('NSU      : ' + IntToStr(Resumos[i].NSU));
-                memoLog.Lines.Add('Chave DFe: ' + Resumos[i].ChaveDFe);
-                memoLog.Lines.Add('Tipo Doc.: ' + Resumos[i].TipoDoc);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');
 
-            if Erros.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Erro(s):');
-              for i := 0 to Erros.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Erros[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Erros[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Erros[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
-
-            if Alertas.Count > 0 then
-            begin
-              memoLog.Lines.Add(' ');
-              memoLog.Lines.Add('Alerta(s):');
-              for i := 0 to Alertas.Count -1 do
-              begin
-                memoLog.Lines.Add('Código  : ' + Alertas[i].Codigo);
-                memoLog.Lines.Add('Mensagem: ' + Alertas[i].Descricao);
-                memoLog.Lines.Add('Correção: ' + Alertas[i].Correcao);
-                memoLog.Lines.Add('---------');
-              end;
-            end;
+            ListaDeErros(Erros);
+            ListaDeAlertas(Alertas);
           end;
         end;
     end;
@@ -4595,20 +4390,25 @@ begin
     PathSalvar       := PathMensal;
   end;
 
-  if ACBrNFSeX1.DANFSe <> nil then
+  if ACBrNFSeX1.DANFSE <> nil then
   begin
     // TTipoDANFSE = ( tpPadrao, tpIssDSF, tpFiorilli );
-    ACBrNFSeX1.DANFSe.TipoDANFSE := tpPadrao;
-    ACBrNFSeX1.DANFSe.Logo       := edtLogoMarca.Text;
-    ACBrNFSeX1.DANFSe.Prefeitura := edtPrefeitura.Text;
-    ACBrNFSeX1.DANFSe.PathPDF    := edtPathPDF.Text;
+    ACBrNFSeX1.DANFSE.TipoDANFSE := tpPadrao;
+    ACBrNFSeX1.DANFSE.Logo       := edtLogoMarca.Text;
+    ACBrNFSeX1.DANFSE.Prefeitura := edtPrefeitura.Text;
+    ACBrNFSeX1.DANFSE.PathPDF    := edtPathPDF.Text;
 
-    ACBrNFSeX1.DANFSe.Prestador.Logo := edtPrestLogo.Text;
+    ACBrNFSeX1.DANFSE.Prestador.Logo := edtPrestLogo.Text;
 
-    ACBrNFSeX1.DANFSe.MargemDireita  := 5;
-    ACBrNFSeX1.DANFSe.MargemEsquerda := 5;
-    ACBrNFSeX1.DANFSe.MargemSuperior := 5;
-    ACBrNFSeX1.DANFSe.MargemInferior := 5;
+    ACBrNFSeX1.DANFSE.MargemDireita  := 5;
+    ACBrNFSeX1.DANFSE.MargemEsquerda := 5;
+    ACBrNFSeX1.DANFSE.MargemSuperior := 5;
+    ACBrNFSeX1.DANFSE.MargemInferior := 5;
+
+    ACBrNFSeX1.DANFSE.ImprimeCanhoto := True;
+
+    // Defini a quantidade de casas decimais para o campo aliquota
+    ACBrNFSeX1.DANFSE.CasasDecimais.Aliquota := 2;
   end;
 
   with ACBrNFSeX1.MAIL do

@@ -76,9 +76,13 @@ function TNFSeR_Prescon.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   // O provedor recebe as informações em json e devolve xml
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -226,6 +230,9 @@ begin
     Servico := NFSe.Servico;
     Servico.ItemListaServico := ObterConteudo(AuxNode.Childrens.FindAnyNs('codigo'), tcStr);
     Servico.Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('descricao'), tcStr);
+    Servico.Discriminacao := StringReplace(Servico.Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
     Servico.Valores.ValorServicos := ObterConteudo(AuxNode.Childrens.FindAnyNs('valorServico'), tcDe2);
 
     Servico.Valores.Aliquota := ObterConteudo(AuxNode.Childrens.FindAnyNs('aliquota'), tcDe2);
@@ -241,12 +248,20 @@ begin
     Servico.Valores.ValorCofins := ObterConteudo(AuxNode.Childrens.FindAnyNs('cofins'), tcDe2);
     Servico.Valores.ValorPis := ObterConteudo(AuxNode.Childrens.FindAnyNs('pispasep'), tcDe2);
 
-    if ObterConteudo(AuxNode.Childrens.FindAnyNs('issretido'), tcStr) = '0' then
+    Servico.Valores.RetencoesFederais := Servico.Valores.ValorPis +
+                                         Servico.Valores.ValorCofins +
+                                         Servico.Valores.ValorInss +
+                                         Servico.Valores.ValorIr +
+                                         Servico.Valores.ValorCsll;
+
+          if ObterConteudo(AuxNode.Childrens.FindAnyNs('issretido'), tcStr) = '0' then
       NFSe.Servico.Valores.IssRetido := stNormal
     else
       NFSe.Servico.Valores.IssRetido := stRetencao;
 
     NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('obs'), tcStr);
+    NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
   end;
 end;
 

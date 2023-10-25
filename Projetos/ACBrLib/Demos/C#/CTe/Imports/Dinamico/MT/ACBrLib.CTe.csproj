@@ -76,6 +76,8 @@
 	  <Compile Include="..\Shared\CTe\PassCTe.cs" Link="CTe\PassCTe.cs" />
 	  <Compile Include="..\Shared\CTe\IndicadorTomadorCTe.cs" Link="CTe\IndicadorTomadorCTe.cs" />
 	  <Compile Include="..\Shared\CTe\Tomador4CTe.cs" Link="CTe\Tomador4CTe.cs" />
+	  <Compile Include="..\Shared\CTe\Tomador3CTe.cs" Link="CTe\Tomador3CTe.cs" />
+	  <Compile Include="..\Shared\CTe\TomadorCTeOS.cs" Link="CTe\TomadorCTeOS.cs" />
 	  <Compile Include="..\Shared\CTe\EntregaCTe.cs" Link="CTe\EntregaCTe.cs" />
 	  <Compile Include="..\Shared\CTe\ObsContCTe.cs" Link="CTe\ObsContCTe.cs" />
 	  <Compile Include="..\Shared\CTe\ObsFiscoCTe.cs" Link="CTe\ObsFiscoCTe.cs" />
@@ -120,8 +122,26 @@
 	  <Compile Include="..\Shared\CTe\InfGlobalizadoCTe.cs" Link="CTe\InfGlobalizadoCTe.cs" />
 	  <Compile Include="..\Shared\CTe\InfServVincCTe.cs" Link="CTe\InfServVincCTe.cs" />
 	  <Compile Include="..\Shared\CTe\InfCTeMultimodalCTe.cs" Link="CTe\InfCTeMultimodalCTe.cs" />
+	  <Compile Include="..\Shared\CTe\ProtCTe.cs" Link="CTe\ProtCTe.cs" />
+	  <Compile Include="..\Shared\CTe\ComponentesValGTVe.cs" Link="CTe\ComponentesValGTVe.cs" />
+	  <Compile Include="..\Shared\CTe\InfGTVe.cs" Link="CTe\InfGTVe.cs" />
+	  <Compile Include="..\Shared\CTe\TipoComponenteGTVe.cs" Link="CTe\TipoComponenteGTVe.cs" />
+	  <Compile Include="..\Shared\CTe\InfRespTec.cs" Link="CTe\InfRespTec.cs" />
+	  <Compile Include="..\Shared\CTe\InfTributacaoFederal.cs" Link="CTe\InfTributacaoFederal.cs" />
+	  <Compile Include="..\Shared\CTe\InfServico.cs" Link="CTe\InfServico.cs" />
+	  <Compile Include="..\Shared\CTe\ResponsavelSeguro.cs" Link="CTe\ResponsavelSeguro.cs" />
+	  <Compile Include="..\Shared\CTe\Seguro.cs" Link="CTe\Seguro.cs" />
+	  <Compile Include="..\Shared\CTe\InfDocRef.cs" Link="CTe\InfDocRef.cs" />
+	  <Compile Include="..\Shared\CTe\TipoFretamento.cs" Link="CTe\TipoFretamento.cs" />
+	  <Compile Include="..\Shared\CTe\InfFretamento.cs" Link="CTe\InfFretamento.cs" />
+	  <Compile Include="..\Shared\CTe\TipoProprietario.cs" Link="CTe\TipoProprietario.cs" />
+	  <Compile Include="..\Shared\CTe\Proprietario.cs" Link="CTe\Proprietario.cs" />
+	  <Compile Include="..\Shared\CTe\VeiculosCTe.cs" Link="CTe\VeiculosCTe.cs" />
+	  <Compile Include="..\Shared\CTe\OrdensColetaCTe.cs" Link="CTe\OrdensColetaCTe.cs" />
 
 	  <Compile Include="..\Shared\Respostas\ConsultaCTeResposta.cs" Link="Respostas\ConsultaCTeResposta.cs" />
+	  <Compile Include="..\Shared\Respostas\CancelamentoCTeResposta.cs" Link="Respostas\CancelamentoCTeResposta.cs" />
+	  <Compile Include="..\Shared\Respostas\InutilizacaoCTeResposta.cs" Link="Respostas\InutilizacaoCTeResposta.cs" />
 
   </ItemGroup>
 

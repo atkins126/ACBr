@@ -91,8 +91,8 @@ type
   end;
 const
   C_URL = 'https://trust-open.api.santander.com.br/collection_bill_management/v2';
-  C_URL_HOM = 'https://trust-open-h.api.santander.com.br/collection_bill_management/v2';
-  C_URL_OAUTH_HOM = 'https://trust-open-h.api.santander.com.br/auth/oauth/v2/token';
+  C_URL_HOM = 'https://trust-sandbox.api.santander.com.br/collection_bill_management/v2';
+  C_URL_OAUTH_HOM = 'https://trust-sandbox.api.santander.com.br/auth/oauth/v2/token';
   C_URL_OAUTH_PROD = 'https://trust-open.api.santander.com.br/auth/oauth/v2/token';
 
 implementation
@@ -111,7 +111,7 @@ begin
      tpInclui         : FPURL := FPURL + '/workspaces/' + Boleto.Cedente.CedenteWS.KeyUser + '/bank_slips';
      tpAltera         : FPURL := FPURL + '/workspaces/' + Boleto.Cedente.CedenteWS.KeyUser + '/bank_slips';
      tpConsulta       : FPURL := FPURL + '/bills?' +  DefinirParametros;
-     tpConsultaDetalhe: FPURL := FPURL + '/bills?' +  DefinirParametros;
+     tpConsultaDetalhe: FPURL := FPURL + '/bills/' +  DefinirParametros;
      tpBaixa          : FPURL := FPURL + '/workspaces/' + Boleto.Cedente.CedenteWS.KeyUser + '/bank_slips';
   end;
 end;
@@ -141,8 +141,16 @@ begin
     begin
       case Boleto.Configuracoes.WebService.Operacao of
         tpInclui: RequisicaoJson;
-        tpAltera: RequisicaoAltera;
-        tpBaixa : RequisicaoBaixa;
+        tpAltera:
+        begin
+          FMetodoHTTP := htPATCH; // Define Método PATCH conforme manual do banco
+          RequisicaoAltera;
+        end;
+        tpBaixa :
+        begin
+          FMetodoHTTP := htPATCH; // Define Método PATCH conforme manual do banco
+          RequisicaoBaixa;
+        end;
         tpConsulta:
         begin
           FMetodoHTTP := htGET; // Define Método GET Consulta
@@ -198,8 +206,7 @@ begin
     5. registry: Pesquisa de informações de cartório do boleto
     }
     if Assigned(ATitulo) then
-       with ATitulo do
-       ANossoNumero := NossoNumero;
+      ANossoNumero := ATitulo.NossoNumero;
 
     Consulta := TStringList.Create;
     try
@@ -226,13 +233,13 @@ begin
             isbBaixado:
               begin
                 //settlement: Pesquisa para informações de baixas/liquidações do boleto
-                Consulta.Add('{'+ Boleto.Cedente.Convenio+'.'+ ANossoNumero+'}');
+                Consulta.Add(Boleto.Cedente.Convenio + '.' + ANossoNumero);
                 Consulta.Add('tipoConsulta=settlement');
               end;
             isbAberto:
               begin
                 // bankslip: Pesquisa para dados completos do boleto
-                Consulta.Add('{'+ Boleto.Cedente.Convenio+'.'+ ANossoNumero+'}');
+                Consulta.Add(Boleto.Cedente.Convenio + '.' + ANossoNumero);
                 Consulta.Add('tipoConsulta=bankslip');
               end;
           end;
@@ -368,7 +375,7 @@ begin
         Json.Add('covenantCode').Value.AsString := Boleto.Cedente.Convenio;
         Json.Add('bankNumber').Value.AsString   := NossoNumero;
         Json.Add('operation').Value.AsString    := 'BAIXAR';
-        GerarMensagens(Json);
+
         Data := Json.Stringify;
         FPDadosMsg := Data;
       finally
@@ -618,8 +625,7 @@ begin
       begin
         JsonSacadorAvalista := TJSONObject.Create;
         try
-          JsonSacadorAvalista.Add('name').Value.AsString :=
-            Sacado.SacadoAvalista.NomeAvalista;
+          JsonSacadorAvalista.Add('name').Value.AsString := Sacado.SacadoAvalista.NomeAvalista;
           if Length(SCnpjCpf) <= 11 then
             JsonSacadorAvalista.Add('documentType').Value.AsString := 'CPF'
           else

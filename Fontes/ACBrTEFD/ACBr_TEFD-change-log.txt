@@ -46,6 +46,33 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+28/09/2023
+-- ACBrTEFAPIComum --
+[*] Melhorias quando estiver Trantando Transações Pendentes durante a inicializaçao
+    da aplicação, para usar Status mais apropriados.
+
+-- ACBrTEFAPICliSiTef --
+[*] Melhorias na rotina de inicialização
+[-] Correção de mensagens exibidas com o Encode incorreto
+    (por: DSA)
+
+20/09/2023
+-- ACBrTEFPayGoWebComum --
+[-] Correção na validação de Campos com PWDAT_TYPED = "MMAA"
+    www.projetoacbr.com.br/forum/index.php?showtopic=74275
+    (por: DSA)
+
+18/09/2023
+-- ACBrTEFComum, ACBrTEFPayGoComum--
+[*] Inclusão tefstsErroEnergia em TACBrTEFStatusTransacao para realização do teste 51 (Queda de Energia) para homologação PayGo utilizando Componente ACBrTEFAPI.
+    (Por: Antonio Carlos Junior)
+
+18/08/2023
+-- ACBrTEFPayGoComum --
+[-] Aplicado WorkAround para quanto PWINFO_RCPTPRN=1 e PWINFO_RCPTMERCH está presente
+    ocasionado a não impressão da Segunda Via diferenciada do Estabelecimento
+    (por: DSA)
+
 31/05/2023
 -- ACBrTEFAndroidPayGo, ACBrTEFAPIPayGoWeb, ACBrTEFAndroidElginIDH, ACBrTEFAndroidMSitef --
 [-] Correção no método "EfetuarPagamento", que estava compondo a Data de forma errada

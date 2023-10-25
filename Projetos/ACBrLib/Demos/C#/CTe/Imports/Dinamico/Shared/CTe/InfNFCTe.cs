@@ -12,10 +12,10 @@ namespace ACBrLib.Core.CTe
 
         public string chave { get; set; }
 
-        public DateTime dPrev { get; set; }
+        public DateTime? dPrev { get; set; }
 
-        public InfUnidCargaCTe infUnidCarga { get; set; } = new InfUnidCargaCTe();
+        public List<InfUnidCargaCTe> infUnidCarga { get; set; } = new List<InfUnidCargaCTe>();
 
-        public InfUnidTranspCTe infUnidTransp { get; set; } = new InfUnidTranspCTe();
+        public List<InfUnidTranspCTe> infUnidTransp { get; set; } = new List<InfUnidTranspCTe>();
     }
 }

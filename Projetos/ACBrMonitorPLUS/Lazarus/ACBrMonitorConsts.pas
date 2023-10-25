@@ -81,6 +81,7 @@ ResourceString
   SErroReinfConsulta = 'Erro ao Consultar Evento - Parâmetro não Preenchido.';
   SErroSSLDesabilitado = 'Será utilizado a configuração padrão SSL: %s !';
 
+  SErroVersaoInvalida = 'Versão Inválida.';
 
 const
   CMonitorIni = 'ACBrMonitor.ini';
@@ -423,6 +424,7 @@ const
   CMetodoEncodeBase64 =                'encodebase64';
   CMetodoDecodeBase64 =                'decodebase64';
   CMetodoRoundABNT =                   'roundabnt';
+  CMetodoSetTimeZone =                 'settimezone';
 
   CMetodoValidarnfe =                  'validarnfe';
   CMetodoAssinarnfe =                  'assinarnfe';
@@ -595,6 +597,10 @@ const
   CMetodoEnviarBoleto =              'enviarboleto';
   CMetodoSetOperacaoWS =             'setoperacaows';
   CMetodoConsultarTitulosPorPeriodo= 'consultartitulosporperiodo';
+  CMetodoGerarPDFComSenha=           'gerarpdfcomsenha';
+  CMetodoGerarPDFBoletoComSenha =    'gerarpdfboletocomsenha';
+  CMetodoSetMotorBoletoRelatorio =   'setmotorboletorelatorio';
+  CMetodoSetMargem  =                'setmargem';
 
   CMetodoAtivar =               'ativar';
   CMetodoDesativar =            'desativar';
@@ -738,6 +744,7 @@ const
   CMetodoImprimirGNRe    = 'imprimirgnre';
   CMetodoImprimirGNRePDF = 'imprimirgnrepdf';
   CMetodoGerarGuia       = 'gerarguia';
+  CMetodoGerarXMLGNRe    = 'gerarxml';
 
   CMetodoImprimirCMD            = 'imprimircmd';
   CMetodoImprimirTAGs           = 'imprimirtags';
@@ -1012,6 +1019,8 @@ const
   CKeyEmailSegundoPlano =            'SegundoPlano';
   CKeyEmailCodificacao =             'Codificacao';
   CKeyEmailHTML =                    'HTML';
+  CKeyEmailSSLType =                 'SSLType';
+
   CKeyAttemptsMail =                 'AttemptsMail';
   CKeyTimeoutMail =                  'TimeOutMail';
   CKeyMensagemNFe =                  'MensagemNFe';
@@ -1344,6 +1353,12 @@ const
   CKeyBOLETOEmailFormatoHTML =              'EmailFormatoHTML';
   CKeyBOLETOImpressora =                    'Impressora';
   CKeyBOLETONomeArquivoBoleto =             'NomeArquivoBoleto';
+  CKeyBOLETOTipoMotorRelatorio =            'TipoMotorRelatorio';
+  CKeyBOLETOMargemInferior =                'MargemInferior';
+  CKeyBOLETOMargemSuperior =                'MargemSuperior';
+  CKeyBOLETOMargemEsquerda =                'MargemEsquerda';
+  CKeyBOLETOMargemDireita =                 'MargemDireita';
+
   //Manter Compatibilidade
   CKeyBOLETOCedenteNome =                   'Cedente.Nome';
   CKeyBOLETOCedenteCNPJCPF =                'Cedente.CNPJCPF';

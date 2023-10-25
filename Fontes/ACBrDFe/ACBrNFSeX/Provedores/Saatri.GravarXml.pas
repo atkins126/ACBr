@@ -52,6 +52,13 @@ type
 
   end;
 
+  { TNFSeW_Saatri203 }
+
+  TNFSeW_Saatri203 = class(TNFSeW_Saatri201)
+  protected
+
+  end;
+
 implementation
 
 uses
@@ -70,7 +77,6 @@ begin
 
   NrOcorrValorISS := 1;
   NrOcorrAliquota := 1;
-  NrOcorrNIFTomador := 0;
 
   GerarIDRps := True;
 end;

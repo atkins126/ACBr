@@ -34,14 +34,16 @@ namespace ACBrLib.Core.CTe
 
         public int nCFOP { get; set; }
 
-        public decimal nPeso { get; set; }
+        public decimal? nPeso { get; set; }
 
         public string chave { get; set; }
 
-        public DateTime dPrev { get; set; }
+        public string PIN { get; set; }
 
-        public InfUnidCargaCTe infUnidCarga { get; set; } = new InfUnidCargaCTe();
+        public DateTime? dPrev { get; set; }
 
-        public InfUnidTranspCTe infUnidTransp { get; set; } = new InfUnidTranspCTe();
+        public List<InfUnidCargaCTe> infUnidCarga { get; } = new List<InfUnidCargaCTe>();
+
+        public List<InfUnidTranspCTe> infUnidTransp{ get; } = new List<InfUnidTranspCTe>();
     }
 }

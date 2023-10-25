@@ -76,6 +76,8 @@ type
     FNumMaxRpsGerar: integer;
     // define o numero maximo de Rps a serem incluidos no EnviarLoteRpsEnvio e EnviarLoteRpsSincronoEnvio
     FNumMaxRpsEnviar: integer;
+    // define o numero minimo de Rps a serem incluidos no EnviarLoteRpsEnvio e EnviarLoteRpsSincronoEnvio
+    FNumMinRpsEnviar: integer;
     // define se vai ser utilizado uma tabela externa de serviço ou não
     FTabServicosExt: Boolean;
     // define o modo de envio dos Rps para o webservice
@@ -115,6 +117,23 @@ type
     FDetalharServico: Boolean;
     // Layout setando ao ler o provedor
     FLayout: TLayout;
+    FIniTabServicos: string;
+    // Formato do Arquivo de Envio utilizado pelo provedor
+    FFormatoArqEnvio: TFormatoArq;
+    // Formato do Arquivo de Retorno utilizado pelo provedor
+    FFormatoArqRetorno: TFormatoArq;
+    // Formato do Arquivo de Envio Soap utilizado pelo provedor
+    FFormatoArqEnvioSoap: TFormatoArq;
+    // Formato do Arquivo de Retorno Soap utilizado pelo provedor
+    FFormatoArqRetornoSoap: TFormatoArq;
+    // Formato do Arquivo do Recibo utilizado pelo provedor
+    FFormatoArqRecibo: TFormatoArq;
+    // Formato do Arquivo da Nota utilizado pelo provedor
+    FFormatoArqNota: TFormatoArq;
+    // Formato do Arquivo do Evento utilizado pelo provedor
+    FFormatoArqEvento: TFormatoArq;
+    // define se deve imprimir o Local da Prestação de Serviço ou não
+    FImprimirLocalPrestServ: Boolean;
 
   public
     constructor Create;
@@ -128,6 +147,7 @@ type
     property UseAuthorizationHeader: boolean read FUseAuthorizationHeader write FUseAuthorizationHeader;
     property NumMaxRpsGerar: integer read FNumMaxRpsGerar write FNumMaxRpsGerar;
     property NumMaxRpsEnviar: integer read FNumMaxRpsEnviar write FNumMaxRpsEnviar;
+    property NumMinRpsEnviar: integer read FNumMinRpsEnviar write FNumMinRpsEnviar;
     property TabServicosExt: Boolean read FTabServicosExt write FTabServicosExt;
     property ModoEnvio: TmodoEnvio read FModoEnvio write FModoEnvio;
     property ConsultaSitLote: Boolean read FConsultaSitLote write FConsultaSitLote;
@@ -149,6 +169,15 @@ type
     property CodIBGE: string read FCodIBGE write FCodIBGE;
     property DetalharServico: Boolean read FDetalharServico write FDetalharServico;
     property Layout: TLayout read FLayout write FLayout;
+    property IniTabServicos: string read FIniTabServicos write FIniTabServicos;
+    property FormatoArqEnvio: TFormatoArq read FFormatoArqEnvio write FFormatoArqEnvio;
+    property FormatoArqRetorno: TFormatoArq read FFormatoArqRetorno write FFormatoArqRetorno;
+    property FormatoArqEnvioSoap: TFormatoArq read FFormatoArqEnvioSoap write FFormatoArqEnvioSoap;
+    property FormatoArqRetornoSoap: TFormatoArq read FFormatoArqRetornoSoap write FFormatoArqRetornoSoap;
+    property FormatoArqRecibo: TFormatoArq read FFormatoArqRecibo write FFormatoArqRecibo;
+    property FormatoArqNota: TFormatoArq read FFormatoArqNota write FFormatoArqNota;
+    property FormatoArqEvento: TFormatoArq read FFormatoArqEvento write FFormatoArqEvento;
+    property ImprimirLocalPrestServ: Boolean read FImprimirLocalPrestServ write FImprimirLocalPrestServ;
   end;
 
   { TWebserviceInfo }
@@ -170,6 +199,8 @@ type
     FConsultarSituacao: string;
     // URL de homologação ou produção para o serviço ConsultarNFSe
     FConsultarNFSe: string;
+    // URL de homologação ou produção para o serviço ConsultarNFSePorChave
+    FConsultarNFSePorChave: string;
     // URL de homologação ou produção para o serviço ConsultarNFSePorFaixa
     FConsultarNFSePorFaixa: string;
     // URL de homologação ou produção para o serviço ConsultarNFSeServicoPrestado
@@ -216,6 +247,7 @@ type
     property ConsultarNFSeRps: string read FConsultarNFSeRps;
     property ConsultarSituacao: string read FConsultarSituacao;
     property ConsultarNFSe: string read FConsultarNFSe;
+    property ConsultarNFSePorChave: string read FConsultarNFSePorChave;
     property ConsultarNFSePorFaixa: string read FConsultarNFSePorFaixa;
     property ConsultarNFSeServicoPrestado: string read FConsultarNFSeServicoPrestado;
     property ConsultarNFSeServicoTomado: string read FConsultarNFSeServicoTomado;
@@ -314,6 +346,8 @@ type
     FConsultarNFSeRps: TDocElement;
     // Contem a definição dos campos TDocElement para o XML da Consulta a NFS-e
     FConsultarNFSe: TDocElement;
+    // Contem a definição dos campos TDocElement para o XML da Consulta a NFS-e por Chave
+    FConsultarNFSePorChave: TDocElement;
     // Contem a definição dos campos TDocElement para o XML da Consulta a NFS-e por Faixa
     FConsultarNFSePorFaixa: TDocElement;
     // Contem a definição dos campos TDocElement para o XML da Consulta a NFS-e Serviço Prestado
@@ -367,6 +401,7 @@ type
     property ConsultarLote: TDocElement read FConsultarLote;
     property ConsultarNFSeRps: TDocElement read FConsultarNFSeRps;
     property ConsultarNFSe: TDocElement read FConsultarNFSe;
+    property ConsultarNFSePorChave: TDocElement read FConsultarNFSePorChave;
     property ConsultarNFSePorFaixa: TDocElement read FConsultarNFSePorFaixa;
     property ConsultarNFSeServicoPrestado: TDocElement read FConsultarNFSeServicoPrestado;
     property ConsultarNFSeServicoTomado: TDocElement read FConsultarNFSeServicoTomado;
@@ -403,6 +438,8 @@ type
     FConsultarNFSeRps: boolean;
     // Se True assina a Consulta a NFS-e
     FConsultarNFSe: boolean;
+    // Se True assina a Consulta a NFS-e por Chave
+    FConsultarNFSePorChave: boolean;
     // Se True assina a Consulta a NFS-e por Faixa
     FConsultarNFSePorFaixa: boolean;
     // Se True assina a Consulta a NFS-e Serviço Prestado
@@ -451,6 +488,7 @@ type
     property ConsultarLote: boolean read FConsultarLote write FConsultarLote;
     property ConsultarNFSeRps: boolean read FConsultarNFSeRps write FConsultarNFSeRps;
     property ConsultarNFSe: boolean read FConsultarNFSe write FConsultarNFSe;
+    property ConsultarNFSePorChave: boolean read FConsultarNFSePorChave write FConsultarNFSePorChave;
     property ConsultarNFSePorFaixa: boolean read FConsultarNFSePorFaixa write FConsultarNFSePorFaixa;
     property ConsultarNFSeServicoPrestado: boolean read FConsultarNFSeServicoPrestado write FConsultarNFSeServicoPrestado;
     property ConsultarNFSeServicoTomado: boolean read FConsultarNFSeServicoTomado write FConsultarNFSeServicoTomado;
@@ -487,6 +525,8 @@ type
     FConsultarNFSeRps: string;
     // Nome do arquivo XSD para validar o Consultar NFSe
     FConsultarNFSe: string;
+    // Nome do arquivo XSD para validar o Consultar NFSe por Chave
+    FConsultarNFSePorChave: string;
     // Nome do arquivo XSD para validar o Consultar NFSe por Faixa
     FConsultarNFSePorFaixa: string;
     // Nome do arquivo XSD para validar o Consultar NFSe Serviço Prestado
@@ -530,6 +570,7 @@ type
     property ConsultarLote: string read FConsultarLote write FConsultarLote;
     property ConsultarNFSeRps: string read FConsultarNFSeRps write FConsultarNFSeRps;
     property ConsultarNFSe: string read FConsultarNFSe write FConsultarNFSe;
+    property ConsultarNFSePorChave: string read FConsultarNFSePorChave write FConsultarNFSePorChave;
     property ConsultarNFSePorFaixa: string read FConsultarNFSePorFaixa write FConsultarNFSePorFaixa;
     property ConsultarNFSeServicoPrestado: string read FConsultarNFSeServicoPrestado write FConsultarNFSeServicoPrestado;
     property ConsultarNFSeServicoTomado: string read FConsultarNFSeServicoTomado write FConsultarNFSeServicoTomado;
@@ -688,6 +729,7 @@ begin
     FConsultarDFe        := AINI.ReadString(ASession, 'HomConsultarDFe'       , FRecepcionar);
     FConsultarParam      := AINI.ReadString(ASession, 'HomConsultarParam'     , FRecepcionar);
 
+    FConsultarNFSePorChave        := AINI.ReadString(ASession, 'HomConsultarNFSePorChave'       , FRecepcionar);
     FConsultarNFSePorFaixa        := AINI.ReadString(ASession, 'HomConsultarNFSePorFaixa'       , FRecepcionar);
     FConsultarNFSeServicoPrestado := AINI.ReadString(ASession, 'HomConsultarNFSeServicoPrestado', FRecepcionar);
     FConsultarNFSeServicoTomado   := AINI.ReadString(ASession, 'HomConsultarNFSeServicoTomado'  , FRecepcionar);
@@ -719,6 +761,7 @@ begin
     FConsultarDFe        := AINI.ReadString(ASession, 'ProConsultarDFe'       , FRecepcionar);
     FConsultarParam      := AINI.ReadString(ASession, 'ProConsultarParam'     , FRecepcionar);
 
+    FConsultarNFSePorChave        := AINI.ReadString(ASession, 'ProConsultarNFSePorChave'       , FRecepcionar);
     FConsultarNFSePorFaixa        := AINI.ReadString(ASession, 'ProConsultarNFSePorFaixa'       , FRecepcionar);
     FConsultarNFSeServicoPrestado := AINI.ReadString(ASession, 'ProConsultarNFSeServicoPrestado', FRecepcionar);
     FConsultarNFSeServicoTomado   := AINI.ReadString(ASession, 'ProConsultarNFSeServicoTomado'  , FRecepcionar);
@@ -739,6 +782,7 @@ begin
   FConsultarLote := TDocElement.Create;
   FConsultarNFSeRps := TDocElement.Create;
   FConsultarNFSe := TDocElement.Create;
+  FConsultarNFSePorChave := TDocElement.Create;
   FConsultarNFSePorFaixa := TDocElement.Create;
   FConsultarNFSeServicoPrestado := TDocElement.Create;
   FConsultarNFSeServicoTomado := TDocElement.Create;
@@ -765,6 +809,7 @@ begin
   FConsultarLote.Free;
   FConsultarNFSeRps.Free;
   FConsultarNFSe.Free;
+  FConsultarNFSePorChave.Free;
   FConsultarNFSePorFaixa.Free;
   FConsultarNFSeServicoPrestado.Free;
   FConsultarNFSeServicoTomado.Free;

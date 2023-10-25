@@ -270,12 +270,10 @@ type
     txtVencCanhoto: TRLLabel;
     txtAceite: TRLLabel;
     txtCarteira: TRLLabel;
-    txtCidadeSacado: TRLLabel;
     txtCodCedenteCarne: TRLLabel;
     txtCPF: TRLLabel;
     txtDataDocto: TRLLabel;
     txtDataProces: TRLLabel;
-    txtEndSacado: TRLLabel;
     txtEspecieDoc: TRLLabel;
     txtLinhaDigitavelCarne: TRLLabel;
     RLDBText17: TRLDBText;
@@ -433,7 +431,6 @@ type
     txtEndCedenteCarne: TRLLabel;
     memoEndCedenteCarne: TRLMemo;
     txtOrientacoesBancoCarne: TRLMemo;
-    txtNomeSacadorAval4: TRLLabel;
     BoletoReciboTopo: TRLReport;
     RLBand5: TRLBand;
     RLDraw79: TRLDraw;
@@ -1260,6 +1257,8 @@ type
     imgQrCodePixLayoutBoleto: TRLImage;
     imgQrCodePixCarneA5: TRLImage;
     imgQrCodePixServicos: TRLImage;
+    mmNomeSacadorAval4: TRLMemo;
+    mmEndSacadoCarne: TRLMemo;
     procedure BoletoCarneBeforePrint ( Sender: TObject; var PrintIt: boolean ) ;
     procedure BoletoCarneDataCount ( Sender: TObject; var DataCount: integer ) ;
     procedure BoletoCarneDataRecord ( Sender: TObject; RecNo: integer;
@@ -1320,6 +1319,8 @@ type
      fIndice: Integer;
      function GetACBrTitulo: TACBrTitulo;
      procedure printEMVPix(const AEMV : String; out ASender : TRLImage);
+     procedure AjustarMargem(FReport: TRLReport; AConfig: TACBrBoletoFCClass);
+
     { Private declarations }
   public
     { Public declarations }
@@ -1533,6 +1534,7 @@ begin
 
    fIndice := 0;
    txtSwHouse.Caption := BoletoFC.SoftwareHouse ;
+   AjustarMargem(BoletoCarne,BoletoFC);
 
 end;
 
@@ -1570,6 +1572,7 @@ procedure TACBrBoletoFCFortesFr.LayoutBoletoBeforePrint(Sender: TObject;
 begin
    fIndice := 0 ;
    txtSwHouse.Caption := BoletoFC.SoftwareHouse ;
+   AjustarMargem(LayoutBoleto,BoletoFC);
 end;
 
 procedure TACBrBoletoFCFortesFr.LayoutBoletoDataCount(Sender: TObject;
@@ -1597,6 +1600,7 @@ procedure TACBrBoletoFCFortesFr.LayoutCarneA5BeforePrint(Sender: TObject;
 begin
   fIndice := 0 ;
   txtCA5Sw.Caption := BoletoFC.SoftwareHouse ;
+  AjustarMargem(layOutCarneA5,BoletoFC);
 
 end;
 
@@ -1624,6 +1628,7 @@ begin
   fIndice := 0 ;
   txtSwHouseCentDet.Caption := BoletoFC.SoftwareHouse ;
   txtSwHouseDet.Caption := BoletoFC.SoftwareHouse ;
+  AjustarMargem(LayoutFaturaDetal,BoletoFC);
 end;
 
 procedure TACBrBoletoFCFortesFr.LayoutFaturaDetalDataCount(Sender: TObject;
@@ -1650,6 +1655,7 @@ procedure TACBrBoletoFCFortesFr.LayoutServicosBeforePrint(Sender: TObject;
 begin
    fIndice := 0;
    txtSwHouseServicos.Caption := BoletoFC.SoftwareHouse ;
+   AjustarMargem(LayoutServicos,BoletoFC);
 end;
 
 procedure TACBrBoletoFCFortesFr.LayoutServicosDataCount(Sender: TObject;
@@ -1676,6 +1682,7 @@ procedure TACBrBoletoFCFortesFr.LayoutTermicaBeforePrint(Sender: TObject;
 begin
    fIndice := 0 ;
    txtSwHouse80mm.Caption := BoletoFC.SoftwareHouse;
+   AjustarMargem(LayoutTermica,BoletoFC);
 end;
 
 procedure TACBrBoletoFCFortesFr.LayoutTermicaDataCount(Sender: TObject;
@@ -1917,12 +1924,13 @@ begin
       txtParcela.Caption              := IntToStrZero(Titulo.Parcela,3)+' /';
       txtTotPar.Caption               := IntToStrZero(Titulo.TotalParcelas,3);
 
-      txtEndSacado.Caption            := Titulo.Sacado.Logradouro + ' '+
-                                         Titulo.Sacado.Numero + ' ' + Titulo.Sacado.Complemento +
-                                         ' ' + Titulo.Sacado.Bairro;
-      txtCidadeSacado.Caption         := Titulo.Sacado.Cidade +
-                                         ' '+Titulo.Sacado.UF +
-                                         ' '+Titulo.Sacado.CEP;
+      mmEndSacadoCarne.Lines.Text     := Titulo.Sacado.Logradouro +
+                                         ',' + Titulo.Sacado.Numero +
+                                         ', ' + Titulo.Sacado.Complemento +
+                                         ', ' + Titulo.Sacado.Bairro +
+                                         ', ' + Titulo.Sacado.Cidade +
+                                         '- ' + Titulo.Sacado.UF +
+                                         '- ' + Titulo.Sacado.CEP;
       txtCPF.Caption                  := 'CPF/CNPJ: '+ FormatarCNPJouCPF(Titulo.Sacado.CNPJCPF);
       txtCPFCarne2.Caption            := FormatarCNPJouCPF(Titulo.Sacado.CNPJCPF);
       mIntrucoes.Lines.Text           := MensagemPadrao.Text;
@@ -1946,13 +1954,13 @@ begin
 
         if (NomeAvalista <> '') then
         begin
-          txtNomeSacadorAval4.Caption   := NomeAvalista + ' - ' + TipoDoc + ' ' + FormatarCNPJouCPF(CNPJCPF)+ ' ' +
+          mmNomeSacadorAval4.Lines.Text := NomeAvalista + ' - ' + TipoDoc + ' ' + FormatarCNPJouCPF(CNPJCPF)+ ' ' +
             Logradouro + ' ' + Numero + ' ' + Complemento + ' - ' +
             Bairro + ', ' + Cidade + ' / ' + UF + ' - ' + CEP;
         end
         else
         begin
-          txtNomeSacadorAval4.Caption   := '';
+          mmNomeSacadorAval4.Lines.Clear;
         end;
       end;
    end;
@@ -2106,6 +2114,7 @@ procedure TACBrBoletoFCFortesFr.RLBandPixBeforePrint(Sender: TObject;
 var
    EnderecoCed: String;
 begin
+
   with fBoletoFC.ACBrBoleto do
   begin
     EnderecoCed := Cedente.Logradouro+' '+Cedente.NumeroRes+' '+Cedente.Complemento+'  '+
@@ -2115,7 +2124,8 @@ begin
     txtCNPJCedentePix.Caption     := Cedente.CNPJCPF;
     txtEnderecoPIX.Caption        := EnderecoCed;
     txtValorPix.Caption           := FormatFloatBr(Titulo.ValorDocumento,',R$ 0.00');
-
+    lblCopiaeCola.Visible := (Titulo.QrCode.emv <> '');
+    lblCopiaeCola.Caption := Titulo.QrCode.emv;
     printEMVPix(Titulo.QrCode.emv, imgQRCodePix);
 
   end;
@@ -2357,6 +2367,7 @@ procedure TACBrBoletoFCFortesFr.RLBandCarneA5TopoBeforePrint(Sender: TObject;
 Var
    NossoNum,CodCedente,TipoDoc, Carteira, CodBarras, LinhaDigitavel: String;
 begin
+
    with fBoletoFC.ACBrBoleto do
    begin
       NossoNum    := Banco.MontarCampoNossoNumero( Titulo );
@@ -2803,6 +2814,18 @@ begin
   end
   else
     ASender.Visible := False;
+end;
+
+procedure TACBrBoletoFCFortesFr.AjustarMargem(FReport: TRLReport; AConfig: TACBrBoletoFCClass);
+begin
+  // AJuste das Margens
+  with FReport.Margins do
+  begin
+    TopMargin    := AConfig.MargemSuperior;
+    BottomMargin := AConfig.MargemInferior;
+    LeftMargin   := AConfig.MargemEsquerda;
+    RightMargin  := AConfig.MargemDireita;
+  end;
 end;
 
 {$ifdef FPC}

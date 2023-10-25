@@ -68,7 +68,7 @@ type
     RLLabel12: TRLLabel;
     rliLogo: TRLImage;
     rllEmissao: TRLLabel;
-    RLLabel8: TRLLabel;
+    rllCodigoChave: TRLLabel;
     rllCodVerificacao: TRLLabel;
     RLLabel7: TRLLabel;
     rllCompetencia: TRLLabel;
@@ -231,6 +231,7 @@ type
     RLLabel9: TRLLabel;
     txtBaseCalculo: TRLLabel;
     txtISS: TRLLabel;
+    RLDraw12: TRLDraw;
 
     procedure rlbCabecalhoBeforePrint(Sender: TObject; var PrintIt: Boolean);
     procedure rlbItensServicoBeforePrint(Sender: TObject; var PrintIt: Boolean);
@@ -303,10 +304,10 @@ begin
     rlmDadosAdicionais.Lines.Add(StringReplace(fpDANFSe.OutrasInformacaoesImp, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]))
   else
     if fpNFSe.OutrasInformacoes <> '' then
-    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.OutrasInformacoes, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
+    rlmDadosAdicionais.Lines.Add(fpNFSe.OutrasInformacoes);
 
   if fpNFSe.InformacoesComplementares <> '' then
-    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.InformacoesComplementares, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
+    rlmDadosAdicionais.Lines.Add(fpNFSe.InformacoesComplementares);
 
   if fpNFSe.Link <> '' then
   begin
@@ -379,6 +380,11 @@ begin
   begin
     rllNumNF0.Caption := FormatFloat('00000000000', StrToFloatDef(Numero, 0));
     rllEmissao.Caption := FormatDateTime('dd/mm/yyyy hh:nn', DataEmissao);
+    rllCodigoChave.Caption := 'Código de Verificação:';
+
+    if fpDANFSe.Provedor = proPadraoNacional then
+      rllCodigoChave.Caption := 'Chave de Acesso:';
+
     rllCodVerificacao.Caption := CodigoVerificacao;
 
     rllCompetencia.Caption := IfThen(Competencia > 0, FormatDateTime('mm/yyyy', Competencia), '');
@@ -391,6 +397,9 @@ begin
     rllNumNFSeSubstituida.Caption := NfseSubstituida;
 
     rllMunicipioPrestacaoServico.Caption := Servico.MunicipioPrestacaoServico;
+
+    RLLabel64.Visible := ACBrNFSe.Provider.ConfigGeral.ImprimirLocalPrestServ;
+    rllMunicipioPrestacaoServico.Visible := ACBrNFSe.Provider.ConfigGeral.ImprimirLocalPrestServ;
   end;
 end;
 
@@ -399,7 +408,7 @@ begin
   with fpNFSe.Servico.ItemServico.Items[FNumItem] do
   begin
     rlmServicoDescricao.Lines.Clear;
-    rlmServicoDescricao.Lines.Add(StringReplace(Descricao, FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
+    rlmServicoDescricao.Lines.Add(Descricao);
     txtServicoUnitario.Caption := FormatFloatBr(ValorUnitario);
     txtServicoQtde.Caption := FormatFloatBr(Quantidade);
 
@@ -451,7 +460,8 @@ begin
 
     with Servico.Valores do
     begin
-      rllValorTotal.Caption := 'VALOR TOTAL DA NOTA = R$ ' + FormatFloat(',0.00', ValorServicos);
+      rllValorTotal.Caption := 'VALOR TOTAL DA NOTA = R$ ' +
+                               FormatFloat(',0.00', ValorTotalNotaFiscal);
       rlmCodServico.Lines.Clear;
 
       if (Servico.xItemListaServico = '') and (Servico.ItemServico.Count > 0) then
@@ -501,11 +511,7 @@ begin
       rllValorServicos1.Caption := FormatFloat(',0.00', ValorServicos);
       rllDescIncondicionado1.Caption := FormatFloat(',0.00', DescontoIncondicionado);
       rllDescCondicionado.Caption := FormatFloat(',0.00', DescontoCondicionado);
-      rllRetencoesFederais.Caption := FormatFloat(',0.00', ValorPis +
-        ValorCofins +
-        ValorInss +
-        ValorIr +
-        ValorCsll);
+      rllRetencoesFederais.Caption := FormatFloat(',0.00', RetencoesFederais);
       rllOutrasRetencoes.Caption := FormatFloat(',0.00', OutrasRetencoes);
       rllValorIssRetido.Caption := FormatFloat(',0.00', ValorIssRetido);
       rllValorLiquido.Caption := FormatFloat(',0.00', ValorLiquidoNfse);
@@ -513,7 +519,10 @@ begin
       rllValorDeducoes.Caption := FormatFloat(',0.00', ValorDeducoes);
       rllDescIncondicionado2.Caption := FormatFloat(',0.00', DescontoIncondicionado);
       rllBaseCalc.Caption := FormatFloat(',0.00', BaseCalculo);
-      rllAliquota.Caption := FormatFloat(',0.00', Aliquota);
+
+      rllAliquota.Caption := fpDANFSe.FormatarAliquota(Aliquota);
+
+//      rllAliquota.Caption := FormatFloat(',0.00', Aliquota);
       rllISSReter.Caption := FProvider.SituacaoTributariaDescricao(IssRetido);
       rllValorISS.Caption := FormatFloat(',0.00', ValorIss);
     end;
@@ -525,8 +534,7 @@ begin
   inherited;
 
   rlmDescricao.Lines.Clear;
-  rlmDescricao.Lines.Add(StringReplace(fpNFSe.Servico.Discriminacao,
-    FQuebradeLinha, #13#10, [rfReplaceAll, rfIgnoreCase]));
+  rlmDescricao.Lines.Add(fpNFSe.Servico.Discriminacao);
 end;
 
 procedure TfrlXDANFSeRLRetrato.rlbPrestadorBeforePrint(Sender: TObject; var PrintIt: Boolean);

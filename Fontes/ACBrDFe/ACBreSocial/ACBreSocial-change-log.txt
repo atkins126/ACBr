@@ -52,6 +52,46 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+10/10/2023
+-- pcesS2405, pcesS2500, pcesS2501, S2405.ini, S2500.ini, S2501.ini --
+[+] Criada leitura dos inis e arquivos de exemplo para o Evento S-2405, S-2500 e S-2501
+  Por: Renato Rubinho
+-- Frm_ACBreSocial.lfm, Frm_ACBreSocial.pas, pcesGerador --
+[+] Criados métodos no programa de exemplo em Lazarus nos Eventos S-2500 e S-2501
+  Por: Renato Rubinho
+-- pcesS5002 --
+[*] Implementadas novas classes no método SalvarINI
+  Por: Renato Rubinho
+
+09/10/2023
+-- ACBre_Social.dpk --
+[+] Adicionada nova unit pcesS5503, do leiaute 1.2, no pacote do Delphi
+  Por: Renato Rubinho
+
+22/09/2023
+-- pcesS2200 --
+[*] Correção quando não for informada a dtBase, no grupo infoCeletista, na leitura do XML e INI
+  Por: Ray Hildebrant / Renato Rubinho
+
+20/09/2023
+-- diversos --
+[+] Implementado novo leiaute 1.2
+  Por: Marcelo Pontes Melim / Renato Rubinho
+
+-- pcesS2500, pcesConversaoeSocial, schemas --
+[+] Implementações para o novo leiaute 1.2
+  Por: Andergoncalves / Renato Rubinho
+
+31/08/2023
+-- pcesNaoPeriodicos, pcesS2200 --
+[+] Implementada leitura do xml para o evento S-2200
+  Por: Rodrigo - Digibyte / Renato Rubinho
+
+17/07/2023
+-- pcesS5003 --
+[*] Validação de campo tpLocacao no grupo ideLotacao para leitura dos demais dados do grupo
+  Por: Hudson G Leite / Rev.: Alexandre de Paula e Elton Barbosa
+
 06/07/2023
 -- pcesS1280 --
 [*] Criar TAG infoPercTransf11096 somente se houver valor informado (.INI e Componente);

@@ -42,6 +42,44 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+19/09/2023
+-- Diversos --
+[*] Ajuste para gerar corretamente o Tipo de Movimento no Segmento J.
+   Por: Italo Giurizzato Junior
+-- ACBrPagForClass/CNAB240.LerTxtRetorno --
+[*] Alteração visando a leitura do Segmento E muito utilizado para a 
+    conciliação bancária.
+   Por: Valter FC
+-- Diversos --
+[*] Alteração visando colocar cada ocorrência em um item da lista: Aviso.
+   Por: Italo Giurizzato Junior
+
+16/09/2023
+-- PagFor.Itau.GravarTxtRemessa/ACBrPagForClass/CNAB240.GravarTxtRemessa --
+[*] Correção para gerar o campo TipoMovimento nos segmentos N e J52
+   Por: SuporteATInfo/Italo Giurizzato Junior
+-- CNAB240.LerTxtRetorno --
+[*] Alterado o caracter usando para separar as descrições ocorrências, antes era o "/"
+    agora é o "|", pois algumas descrições contem o caractere "/".
+   Por: Alex Klehn
+
+29/08/2023
+-- PagFor.Itau.GravarTxtRemessa --
+[*] Ajuste para gerar o campo do numero de inscrição do favorecido com 14 digitos.
+   Por: Fabricio Furtado
+
+23/08/2023
+-- CNAB240.LerTxtRetorno --
+[*] Ajuste para a leitura correta do segmento opcional (Segmento H) ao ler o 
+    Segmento G.
+   Por: Innovae Brasil Engenharia
+
+14/08/2023
+-- PagFor.Bradesco.LerTxtRetorno/ACBrPagForClass --
+[*] Acrescentado no Registro 1 a leitura de ocorrências.
+    O Bradesco inclui nesse registro algumas ocorrências.
+   Por: Italo Giurizzato Junior
+
 21/07/2023
 -- PagFor.Sicoob.GravarTxtRemessa --
 [*] Implementado a sobrecarga da procedure GeraSegmentoJ52 e realizado mais alguns

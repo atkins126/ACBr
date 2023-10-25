@@ -44,6 +44,96 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+21/09/2023
+-- ACBrCTeWebServices --
+[-] Correção para não fazer a consulta do recibo após o envio, quando o envio foi no modo síncrono.
+  Por: BigWings
+
+19/09/2023
+-- pcteCTeW --
+[*] Possível solução para a rejeição: Rejeição 646: 
+   CT-e emitido em ambiente de homologação com Razão Social do remetente diferente de 
+   CT-E EMITIDO EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL.
+  Por: Italo Giurizzato Junior
+
+06/09/2023
+-- ACBrCTeConhecimentos --
+[*] Altera a condição para ler a seção infOutros no arquivo INI.
+  Por: Diego Folieni
+-- pcteCTeW --
+[*] Altera a validação que verifica se vai gerar a tag TAF do grupo prop para CTe-OS.
+  Por: Diego Folieni
+
+30/08/2023
+-- ACBrCTeWebServices --
+[*] Adiciona checagem para que o parâmetro de envio seja definido como sincrôno quando versão for 4.00
+  Por: Diego Folieni
+
+29/08/2023
+-- ACBrCTeConhecimentos --
+[*] Alteração na leitura do valor da UF do grupo prop para que leia UF caso não ache propUF.
+  Por: Diego Folieni
+
+28/08/2023
+-- ACBrCTe/ACBrCTeWebServices --
+[*] Movido a checagem da versão para definir se é síncrono ou não para o CTe da
+    unit ACBrCTe para ACBrCTeWebServices.
+  Por: Italo Giurizzato Junior
+
+24/08/2023
+-- ACBrCTeConhecimentos --
+[*] Ajuste na rotina de geração e leitura do ini no grupo infCTeSub, visando melhor compatibilidade com MOC.
+  Por: Diego Folieni
+[*] Ajuste na rotina de leitura e geração do ini no grupo prop, visando melhor compatibilidade com MOC.
+  Por: Diego Folieni
+
+18/08/2023
+-- ACBrCTeWebServices --
+[*] Possível solução para a leitura correta do retorno do status de serviço.
+  Por: Sebastião Elivaldo
+-- ACBrCTeConhecimentos --
+[*] Adiciona na rotina de geração do INI o grupo InfOutros e seus subgrupos.
+  Por: Diego Folieni
+[*] Adiciona na rotina de geração e leitura do INI o grupo InfCTeMultimodal.
+  Por: Diego Folieni
+
+17/06/2023
+-- ACBrCTeConhecimentos --
+[*] Adiciona na rotina de geração do INI os subgrupos de infNF e infNFe visando compatibilidade com o MOC.
+  Por: Diego Folieni
+
+16/08/2023
+-- ACBrCTeConhecimentos --
+[*] Corrige o indice do grupo InfGTVeComp na rotina de leitura do INI.
+  Por: Diego Folieni 
+
+14/08/2023
+-- ACBrCTeConhecimentos --
+[*] Adiciona na rotina de geração de INI a seção InfCteComp;
+  Por: Diego Folieni
+
+11/08/2023
+-- ACBrCTeConhecimentos --
+[*] Adiciona na rotina de geração de INI as seções emiDocAnt, idDocAntPap e idDocAntEle.
+  Por: Diego Folieni
+
+08/08/2023
+-- ACBrCTeConhecimentos --
+[+] Adiciona na rotina de geração do INI o campo tpAmb no grupo Ide.
+  Por: Diego Folieni 
+[+] Adiciona na rotina de leitura do INI do CTe leitura do grupo protCTe
+  Por: Diego Folieni
+
+03/08/2023
+-- ACBrCTeConhecimentos --
+[+] Adicionado na rotina de geração do INI do CTe as informações que faltavam em no grupo Entrega.
+  Por: Diego Folieni
+
+28/07/2023
+-- ACBrCTeConhecimentos --
+[+] Adicionado na rotina de geração do INI do CTe as seções infPercurso e veicNovos.
+  Por: Italo Giurizzato Junior
+
 17/07/2023
 -- ACBrCTeConhecimentos --
 [+] Adiciona na rotina de geração do INI do CTe as seções ObsCont e ObsFisco
@@ -54,7 +144,7 @@ Símbolo : Significado
 
 14/07/2023
 -- pcteConsts/pcteCTeW --
-[*] Possível solução para o texto informano em xNome quando enviado para o 
+[*] Possível solução para o texto informado em xNome quando enviado para o 
     ambiente de homologação.
   Por: Italo Giurizzato Junior
 -- ACBrCTeDACTeRLRetrato --

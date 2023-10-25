@@ -174,25 +174,28 @@ begin
     Scope:= LibConfig.BoletoCedenteWS.Scope;
     IndicadorPix:= LibConfig.BoletoCedenteWS.IndicadorPix;
   end;
-
-  with ACBrBoleto1.Configuracoes do
-  begin
-    Arquivos.LogRegistro := LibConfig.BoletoConfigWS.LogRegistro;
-    Arquivos.PathGravarRegistro := LibConfig.BoletoConfigWS.PathGravarRegistro;
-    WebService.Ambiente := LibConfig.BoletoDFeConfigWS.WebServices.Ambiente;
-    WebService.Operacao := LibConfig.BoletoConfigWS.Operacao;
-    WebService.VersaoDF := LibConfig.BoletoConfigWS.VersaoDF;
-    WebService.ArquivoCRT:= LibConfig.BoletoConfigWS.ArquivoCRT;
-    WebService.ArquivoKEY:= LibConfig.BoletoConfigWS.ArquivoKEY;
-    WebService.UseCertificateHTTP := LibConfig.BoletoConfigWS.UseCertificateHTTP;
-    WebService.ProxyHost := LibConfig.BoletoDFeConfigWS.WebServices.ProxyHost;
-    WebService.ProxyPass := LibConfig.BoletoDFeConfigWS.WebServices.ProxyPass;
-    WebService.ProxyPort := LibConfig.BoletoDFeConfigWS.WebServices.ProxyPort;
-    WebService.ProxyUser := LibConfig.BoletoDFeConfigWS.WebServices.ProxyUser;
-    WebService.SSLCryptLib := LibConfig.BoletoDFeConfigWS.Geral.SSLCryptLib;
-    WebService.SSLHttpLib := LibConfig.BoletoDFeConfigWS.Geral.SSLHttpLib;
-    WebService.SSLType := LibConfig.BoletoDFeConfigWS.WebServices.SSLType;
-    WebService.TimeOut := LibConfig.BoletoDFeConfigWS.WebServices.TimeOut;
+  try
+    with ACBrBoleto1.Configuracoes do
+    begin
+      Arquivos.LogRegistro := LibConfig.BoletoConfigWS.LogRegistro;
+      Arquivos.PathGravarRegistro := LibConfig.BoletoConfigWS.PathGravarRegistro;
+      WebService.Ambiente := LibConfig.BoletoDFeConfigWS.WebServices.Ambiente;
+      WebService.Operacao := LibConfig.BoletoConfigWS.Operacao;
+      WebService.VersaoDF := LibConfig.BoletoConfigWS.VersaoDF;
+      WebService.ArquivoCRT:= LibConfig.BoletoConfigWS.ArquivoCRT;
+      WebService.ArquivoKEY:= LibConfig.BoletoConfigWS.ArquivoKEY;
+      WebService.UseCertificateHTTP := LibConfig.BoletoConfigWS.UseCertificateHTTP;
+      WebService.ProxyHost := LibConfig.BoletoDFeConfigWS.WebServices.ProxyHost;
+      WebService.ProxyPass := LibConfig.BoletoDFeConfigWS.WebServices.ProxyPass;
+      WebService.ProxyPort := LibConfig.BoletoDFeConfigWS.WebServices.ProxyPort;
+      WebService.ProxyUser := LibConfig.BoletoDFeConfigWS.WebServices.ProxyUser;
+      WebService.SSLCryptLib := LibConfig.BoletoDFeConfigWS.Geral.SSLCryptLib;
+      WebService.SSLHttpLib := LibConfig.BoletoDFeConfigWS.Geral.SSLHttpLib;
+      WebService.SSLType := LibConfig.BoletoDFeConfigWS.WebServices.SSLType;
+      WebService.TimeOut := LibConfig.BoletoDFeConfigWS.WebServices.TimeOut;
+    end;
+  except on E: Exception do
+     GravarLog('Erro ao aplicar configurações de Webservices' + E.Message, logNormal);
   end;
 
   AplicarConfigMail;
@@ -209,6 +212,10 @@ begin
   with BoletoFortes do
   begin
      DirLogo := LibConfig.BoletoFCFortesConfig.DirLogo;
+     MargemInferior := LibConfig.BoletoFCFortesConfig.MargemInferior;
+     MargemSuperior := LibConfig.BoletoFCFortesConfig.MargemSuperior;
+     MargemEsquerda := LibConfig.BoletoFCFortesConfig.MargemEsquerda;
+     MargemDireita  := LibConfig.BoletoFCFortesConfig.MargemDireita;
      Filtro := LibConfig.BoletoFCFortesConfig.Filtro;
      if (FLayoutImpressao <> -1) then
        Layout := TACBrBolLayOut(FLayoutImpressao)

@@ -466,7 +466,7 @@ end;
 function TACBrLibCTe.LimparListaEventos: longint;  
 begin
   try
-    GravarLog('NFE_LimparListaEventos', logNormal);
+    GravarLog('CTE_LimparListaEventos', logNormal);
 
     CTeDM.Travar;
     try
@@ -936,6 +936,9 @@ begin
         finally
           RespEnvio.Free;
         end;
+
+        if CTeDM.ACBrCTe1.Configuracoes.Geral.VersaoDF >= ve400 then
+           ASincrono := True;
 
         if not ASincrono or ((NaoEstaVazio(WebServices.Enviar.Recibo)) and (WebServices.Enviar.cStat = 103)) then
         begin

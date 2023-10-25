@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Base, ACBrDFeUtil;
+  ACBrUtil.Base;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -87,7 +87,7 @@ begin
       Complemento := ObterConteudo(AuxNode.Childrens.FindAnyNs('Complemento'), tcStr);
       Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('Bairro'), tcStr);
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('Municipio'), tcStr);
-      xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+      xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
       if UF = '' then
         UF := xUF;
@@ -168,8 +168,12 @@ function TNFSeR_ISSLencois.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -216,6 +220,8 @@ begin
     AMensagemInformacao := AMensagemInformacao + sLineBreak + ANodeArray[I].Content;
 
   NFSe.InformacoesComplementares := Trim(AMensagemInformacao);
+  NFSe.InformacoesComplementares := StringReplace(NFSe.InformacoesComplementares, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 end;
 
 function TNFSeR_ISSLencois.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
@@ -301,7 +307,9 @@ begin
     end;
   end;
 
-  NFSe.Servico.Discriminacao    := ObterConteudo(ANode.Childrens.FindAnyNs('Descricao'), tcStr);
+  NFSe.Servico.Discriminacao := ObterConteudo(ANode.Childrens.FindAnyNs('Descricao'), tcStr);
+  NFSe.Servico.Discriminacao := StringReplace(NFSe.Servico.Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
   AuxNode := ANode.Childrens.FindAnyNs('Tomador');
   if AuxNode <> nil then
@@ -358,11 +366,15 @@ begin
     RetidoPis        := ObterConteudo(ANode.Childrens.FindAnyNs('RetencaoPIS'), tcDe2);
     RetidoCofins     := ObterConteudo(ANode.Childrens.FindAnyNs('RetencaoCOFINS'), tcDe2);
     RetidoCsll       := ObterConteudo(ANode.Childrens.FindAnyNs('RetencaoCSLL'), tcDe2);
-    ValorLiquidoNfse := ValorServicos -
-                        ValorPis - ValorCofins - ValorInss -
-                        ValorIr - ValorCsll - OutrasRetencoes -
+
+    RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
+
+    ValorLiquidoNfse := ValorServicos - RetencoesFederais - OutrasRetencoes -
                         ValorIssRetido - DescontoIncondicionado -
                         DescontoCondicionado;
+
+    ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                            DescontoIncondicionado;
   end;
 
   AuxNode := ANode.Childrens.FindAnyNs('Cancelamento');

@@ -90,6 +90,8 @@ resourcestring
   Desc003 = 'Conjunto de RPS transmitidos (máximo de xxx RPS) excedido. Quantidade atual: yyy';
   Cod004 = 'X004';
   Desc004 = 'Nenhum Evento adicionado ao componente';
+  Cod005 = 'X005';
+  Desc005 = 'Conjunto de RPS transmitidos (mínimo de xxx RPS). Quantidade atual: yyy';
 
   Cod101 = 'X101';
   Desc101 = 'Número do Protocolo não informado.';
@@ -153,6 +155,10 @@ resourcestring
   Desc130	= 'Emitente.CNPJ não informado.';
   Cod131 = 'X131';
   Desc131 =	'Data de Competencia não informada.';
+  Cod132 = 'X132';
+  Desc132 =	'Página de retorno da consulta não informada.';
+  Cod133 = 'X133';
+  Desc133	= 'Geral.CNPJPrefeitura não informado.';
 
   Cod201 = 'X201';
   Desc201 = 'WebService retornou um XML vazio.';

@@ -48,23 +48,21 @@ uses
   ACBrDANFCeFortesFr, ACBrDANFCeFortesFrA4, ACBrNFeDANFeRLClass, ACBrBoleto,
   ACBrBoletoFCFortesFr, Printers, DbCtrls, DBGrids, LazHelpHTML,
   SynHighlighterXML, SynMemo, PrintersDlgs, IpHtml, TreeFilterEdit,
-  ACBrNFSeXConversao,
-  pcnConversao, pcnConversaoNFe, pcteConversaoCTe, pcnConversaoBPe, ACBrSAT,
-  ACBrSATExtratoESCPOS, ACBrSATExtratoFortesFr, ACBrSATClass, pcnRede,
-  pgnreConversao, ACBrDFeSSL, ACBrGNRE2, ACBrGNReGuiaRLClass, ACBrBlocoX,
-  ACBrMDFe, ACBrMDFeDAMDFeRLClass, ACBrCTe, ACBrCTeDACTeRLClass, types,
-  fileinfo, ACBrDFeConfiguracoes, ACBrBPe, ACBrBPeDABPeESCPOS, ACBrReinf,
-  ACBreSocial, ACBrIntegrador, pmdfeConversaoMDFe, pcesConversaoeSocial,
-  pcnConversaoReinf, ACBrMonitorConfig, ACBrMonitorConsts, DOACBrNFeUnit,
-  DoACBrCTeUnit, DoACBrMDFeUnit, DoBoletoUnit, DoACBrReinfUnit, DoBALUnit,
-  DoEmailUnit, DoCEPUnit, DoCHQUnit, DoGAVUnit, DoIBGEUnit, DoNcmUnit,
-  DoLCBUnit, DoDISUnit, DoSedexUnit, DoETQUnit, DoACBrGNReUnit,
-  DoPosPrinterUnit, DoECFUnit, DoECFObserver, DoECFBemafi32, DoSATUnit,
-  DoACBreSocialUnit, DoACBrBPeUnit, ACBrLibResposta, DoACBrUnit, DoCNPJUnit,
-  DoCPFUnit, ACBrBoletoConversao, FormConsultaCNPJ, ACBrMonitorMenu,
-  ACBrDFeReport, ACBrNFSeX, ACBrNFSeXDANFSeRLClass,
-  DoACBrNFSeUnit, ACBrGTIN, DoACBrGTINUnit,
-  ACBrPIXBase;
+  ACBrNFSeXConversao, pcnConversao, pcnConversaoNFe, pcteConversaoCTe,
+  pcnConversaoBPe, ACBrSAT, ACBrSATExtratoESCPOS, ACBrSATExtratoFortesFr,
+  ACBrSATClass, pcnRede, pgnreConversao, ACBrDFeSSL, ACBrGNRE2,
+  ACBrGNReGuiaRLClass, ACBrBlocoX, ACBrMDFe, ACBrMDFeDAMDFeRLClass, ACBrCTe,
+  ACBrCTeDACTeRLClass, types, fileinfo, ACBrDFeConfiguracoes, ACBrBPe,
+  ACBrBPeDABPeESCPOS, ACBrReinf, ACBreSocial, ACBrIntegrador,
+  pmdfeConversaoMDFe, pcesConversaoeSocial, pcnConversaoReinf,
+  ACBrMonitorConfig, ACBrMonitorConsts, DOACBrNFeUnit, DoACBrCTeUnit,
+  DoACBrMDFeUnit, DoBoletoUnit, DoACBrReinfUnit, DoBALUnit, DoEmailUnit,
+  DoCEPUnit, DoCHQUnit, DoGAVUnit, DoIBGEUnit, DoNcmUnit, DoLCBUnit, DoDISUnit,
+  DoSedexUnit, DoETQUnit, DoACBrGNReUnit, DoPosPrinterUnit, DoECFUnit,
+  DoECFObserver, DoECFBemafi32, DoSATUnit, DoACBreSocialUnit, DoACBrBPeUnit,
+  ACBrLibResposta, DoACBrUnit, DoCNPJUnit, DoCPFUnit, ACBrBoletoConversao,
+  ACBrBoletoFPDF, FormConsultaCNPJ, ACBrMonitorMenu, ACBrDFeReport, ACBrNFSeX,
+  ACBrNFSeXDANFSeRLClass, DoACBrNFSeUnit, ACBrGTIN, DoACBrGTINUnit, ACBrPIXBase;
 
 const
   CEstados: array[TACBrECFEstado] of string =
@@ -113,6 +111,7 @@ type
     ACBrBlocoX1: TACBrBlocoX;
     ACBrBoleto1: TACBrBoleto;
     ACBrBoletoFCFortes1: TACBrBoletoFCFortes;
+    ACBrBoletoFPDF1: TACBrBoletoFPDF;
     ACBrBPe1: TACBrBPe;
     ACBrBPeDABPeESCPOS1: TACBrBPeDABPeESCPOS;
     ACBrCEP1: TACBrCEP;
@@ -342,6 +341,7 @@ type
     cbSSLType: TComboBox;
     cbSSLTypeBoleto: TComboBox;
     cbOperacaoBoleto: TComboBox;
+    cbSSLTypeEmail: TComboBox;
     cbTagRejeicao938: TComboBox;
     cbTipoContribuinte: TComboBox;
     cbTipoEmpregador: TComboBox;
@@ -363,6 +363,7 @@ type
     cbVersaoWSReinf: TComboBox;
     cbxAdicionaLiteral: TCheckBox;
     cbxAjustarAut: TCheckBox;
+    cbxBolMotorRelatorio: TComboBox;
     cbxMontarPathSchemas: TCheckBox;
     cbxAmbiente: TComboBox;
     cbxAtualizarXMLCancelado: TCheckBox;
@@ -511,10 +512,14 @@ type
     edEntTXT: TEdit;
     edIBGECodNome: TEdit;
     edConsultarGTIN: TEdit;
+    edtBolMargemInferior: TEdit;
     edtArquivoWebServicesNFSe: TEdit;
     edtBOLChavePix: TEdit;
     edtBolArquivoKey: TEdit;
     edtBolArquivoCRT: TEdit;
+    edtBolMargemEsquerda: TEdit;
+    edtBolMargemSuperior: TEdit;
+    edtBolMargemDireita: TEdit;
     edtCodigoCidade: TEdit;
     edtCNPJPrefeitura: TEdit;
     edtNomeCidade: TEdit;
@@ -747,6 +752,7 @@ type
     GrbVersaoDFe: TGroupBox;
     GrbDadosBeneficiarioBoletoWeb: TGroupBox;
     grbWsConfig: TGroupBox;
+    grbMargem: TGroupBox;
     GroupBox2: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
@@ -845,9 +851,14 @@ type
     Label280: TLabel;
     Label281: TLabel;
     Label282: TLabel;
+    Label283: TLabel;
+    Label284: TLabel;
+    Label285: TLabel;
+    Label286: TLabel;
     lbConsultarGTIN: TLabel;
     Label254: TLabel;
     lblBOLChavePix: TLabel;
+    lblBolMotorRelatorio: TLabel;
     lblBOLTipoChavePix: TLabel;
     lblPrefixRemessa: TLabel;
     Label255: TLabel;
@@ -857,6 +868,7 @@ type
     Label259: TLabel;
     lblPathLogBoleto: TLabel;
     labelbolcep: TLabel;
+    lblSslTypeEmail: TLabel;
     lbNCMCarregando: TLabel;
     lbNCMDiasValidade: TLabel;
     lbNCMDiretorio: TLabel;
@@ -1598,6 +1610,7 @@ type
     procedure cbxBOLBancoChange(Sender: TObject);
     procedure cbxBOLF_JChange(Sender: TObject);
     procedure cbCEPWebServiceChange(Sender: TObject);
+    procedure cbxBolMotorRelatorioChange(Sender: TObject);
     procedure cbxBOLUFChange(Sender: TObject);
     procedure cbxEmitCidadeChange(Sender: TObject);
     procedure cbxExibeResumoChange(Sender: TObject);
@@ -2303,6 +2316,10 @@ begin
   end;
   cbxBOLTipoChavePix.ItemIndex:=0;
 
+  { Criando lista motor impressão boleto disponiveis}
+  cbxBolMotorRelatorio.Items.Clear;
+  cbxBolMotorRelatorio.AddItem('Fortes Reports', ACBrBoletoFCFortes1);
+  cbxBolMotorRelatorio.AddItem('FDPF', ACBrBoletoFPDF1);
 
 
   { Criando lista de Layouts de Boleto disponiveis }
@@ -2500,6 +2517,13 @@ begin
   For iOperacao := Low(TOperacao) to High(TOperacao) do
     cbOperacaoBoleto.Items.Add( GetEnumName(TypeInfo(TOperacao), integer(iOperacao) ) ) ;
   cbOperacaoBoleto.ItemIndex := 0 ;
+
+  {Email}
+  cbSSLTypeEmail.Items.Clear ;
+  For Y := Low(TSSLType) to High(TSSLType) do
+    cbSSLTypeEmail.Items.Add( GetEnumName(TypeInfo(TSSLType), integer(Y) ) ) ;
+  cbSSLTypeEmail.ItemIndex := 0 ;
+
 
   {SAT}
   cbxModeloSAT.Items.Clear;
@@ -2992,6 +3016,7 @@ begin
     Port := Teste;
     SetSSL := cbEmailSsl.Checked;
     SetTLS := cbEmailTls.Checked;
+    SSLType:= TSSLType( cbSSLTypeEmail.ItemIndex);
     ReadingConfirmation := cbEmailConfirmation.Checked;
     UseThread := cbEmailThread.Checked;
     DefaultCharset := TMailCharset(GetEnumValue(TypeInfo(TMailCharset),
@@ -4371,6 +4396,23 @@ begin
   edCEPChaveBuscarCEP.Enabled := (ACBrCEP1.WebService in [wsBuscarCep, wsCepLivre]);
 end;
 
+procedure TFrmACBrMonitor.cbxBolMotorRelatorioChange(Sender: TObject);
+var
+  LSelectedItemIndex: Integer;
+  LSelectedObject: TObject;
+begin
+  LSelectedItemIndex := cbxBolMotorRelatorio.ItemIndex;
+
+  if LSelectedItemIndex <> -1 then
+    LSelectedObject := TObject(cbxBolMotorRelatorio.Items.Objects[LSelectedItemIndex]);
+
+  if Assigned(LSelectedObject) then
+  begin
+    ACBrBoleto1.ACBrBoletoFC := TACBrBoletoFCClass(LSelectedObject);
+    ACBrBoleto1.ACBrBoletoFC.DirLogo := deBOLDirLogo.Text;
+  end;
+end;
+
 procedure TFrmACBrMonitor.cbxBOLUFChange(Sender: TObject);
 var
   cUF: Integer;
@@ -4546,8 +4588,9 @@ end;
 
 procedure TFrmACBrMonitor.cbxTimeZoneModeChange(Sender: TObject);
 begin
-  ACBrNFe1.Configuracoes.WebServices.TimeZoneConf.ModoDeteccao :=
-    TTimeZoneModoDeteccao( cbxTimeZoneMode.ItemIndex );
+  if edTimeZoneStr.Caption <> '' then
+     ACBrNFe1.Configuracoes.WebServices.TimeZoneConf.TimeZoneStr := edTimeZoneStr.Caption;
+  ACBrNFe1.Configuracoes.WebServices.TimeZoneConf.ModoDeteccao :=  TTimeZoneModoDeteccao( cbxTimeZoneMode.ItemIndex );
   edTimeZoneStr.Caption := ACBrNFe1.Configuracoes.WebServices.TimeZoneConf.TimeZoneStr;
   edTimeZoneStr.Enabled := (ACBrNFe1.Configuracoes.WebServices.TimeZoneConf.ModoDeteccao = tzManual);
 
@@ -5686,6 +5729,12 @@ begin
       deBOLDirArquivo.Text             := DirArquivoBoleto;
       edNomeArquivo.Text               := NomeArquivoBoleto;
       cbxBOLImpressora.ItemIndex       := cbxBOLImpressora.Items.IndexOf(Impressora);
+      cbxBolMotorRelatorio.ItemIndex   := TipoMotorRelatorio;
+      cbxBolMotorRelatorio.OnChange(cbxBolMotorRelatorio);
+      edtBolMargemInferior.text        := FloatToStr(MargemInferior);
+      edtBolMargemSuperior.text        := FloatToStr(MargemSuperior);
+      edtBolMargemEsquerda.text        := FloatToStr(MargemEsquerda);
+      edtBolMargemDireita.text         := FloatToStr(MargemDireita);
     end;
 
     with PIX do
@@ -5755,6 +5804,7 @@ begin
     cbEmailHTML.Checked                := HTML;
     spnAttemptsMail.Value              := AttemptsMail;
     spnTimeOutMail.Value               := TimeoutMail;
+    cbSSLTypeEmail.ItemIndex           := SSLType;
   end;
 
   {Parametro Sedex}
@@ -6547,11 +6597,11 @@ begin
     SetTLS := cbEmailTls.Checked;
     ReadingConfirmation := cbEmailConfirmation.Checked;
     UseThread := cbEmailThread.Checked;
-    DefaultCharset := TMailCharset(GetEnumValue(TypeInfo(TMailCharset),
-      cbEmailCodificacao.Text));
+    DefaultCharset := TMailCharset(GetEnumValue(TypeInfo(TMailCharset), cbEmailCodificacao.Text));
     IsHTML := cbEmailHTML.Checked;
     Attempts := spnAttemptsMail.Value;
     TimeOut := spnTimeOutMail.Value;
+    SSLType := TSSLType(cbSSLTypeEmail.ItemIndex );
   end;
 
   with ACBrSedex1 do
@@ -6672,6 +6722,11 @@ begin
       wDirArquivo := PathWithDelim(wDirArquivo);
 
     wNomeArquivo:= edNomeArquivo.Text;
+
+    MargemInferior := StrToFloatDef(edtBolMargemInferior.text,0.5);
+    MargemSuperior := StrToFloatDef(edtBolMargemSuperior.text,0.5);
+    MargemEsquerda := StrToFloatDef(edtBolMargemEsquerda.text,0.5);
+    MargemDireita  := StrToFloatDef(edtBolMargemDireita.text,0.5);
 
     if wNomeArquivo <> '' then
       wPathArquivo:= wDirArquivo + wNomeArquivo
@@ -7035,6 +7090,7 @@ begin
       HTML                    := cbEmailHTML.Checked;
       AttemptsMail            := spnAttemptsMail.Value;
       TimeoutMail             := spnTimeOutMail.Value;
+      SSLType                 := cbSSLTypeEmail.ItemIndex;
     end;
 
     { Parametros Sedex }
@@ -7589,6 +7645,11 @@ begin
        DirArquivoBoleto         := PathWithoutDelim(deBOLDirArquivo.Text);
        NomeArquivoBoleto        := trim(edNomeArquivo.Text);
        Impressora               := cbxBOLImpressora.Text;
+       TipoMotorRelatorio       := cbxBolMotorRelatorio.ItemIndex;
+       MargemInferior           := StrToFloatDef(edtBolMargemInferior.Text,0);
+       MargemSuperior           := StrToFloatDef(edtBolMargemSuperior.Text,0);
+       MargemEsquerda           := StrToFloatDef(edtBolMargemEsquerda.Text,0);
+       MargemDireita            := StrToFloatDef(edtBolMargemDireita.Text,0);
      end;
 
      with RemessaRetorno do
@@ -11926,7 +11987,7 @@ begin
   begin
     PathSchemaDFe := edtPathSchemasDFe.Text + PathDelim + 'GTIN';
     if DirectoryExists(PathSchemaDFe) then
-      TConfiguracoesReinf(Configuracoes).Arquivos.PathSchemas:= PathSchemaDFe;
+      TConfiguracoesGTIN(Configuracoes).Arquivos.PathSchemas:= PathSchemaDFe;
   end;
 
 end;

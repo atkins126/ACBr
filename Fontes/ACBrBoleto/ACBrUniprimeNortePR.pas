@@ -59,7 +59,7 @@ type
 
     function TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia) : String; override;
     function CodOcorrenciaToTipo(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
-    function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
+    function TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
     function CodMotivoRejeicaoToDescricao(const TipoOcorrencia:TACBrTipoOcorrencia; CodMotivo:Integer): String; override;
 
     function CodOcorrenciaToTipoRemessa(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
@@ -150,7 +150,8 @@ begin
                PadRight( 'COBRANCA', 15 )                      + // Descrição do tipo de serviço
                PadLeft( CodigoCedente, 20, '0')                + // Codigo da Empresa no Banco
                PadRight( Nome, 30)                             + // Nome da Empresa
-               FormatFloat( '000', Numero) + PadRight('UNIPRIME', 15)    + // Código e Nome do Banco(084 - Uniprime)
+               FormatFloat( '000', Numero)                     + // Código do Banco
+               PadRight(fpNome, 15)                            + // Nome do Banco
                FormatDateTime('ddmmyy',Now)  + Space(08)+'MX'  + // Data de geração do arquivo + brancos
                IntToStrZero(NumeroRemessa,7) + Space(277)      + // Nr. Sequencial de Remessa + brancos
                IntToStrZero(1,6);                                // Nr. Sequencial de Remessa + brancos + Contador
@@ -305,6 +306,7 @@ begin
             aIdentificacaoOcorrencia := '00';
       end;
 
+      if (iInstrucao1 in [1,2,7]) then
       if (StrToIntDef(aIdentificacaoOcorrencia,0) < 5) or (StrToIntDef(aIdentificacaoOcorrencia,0) > 55) then
          raise Exception.Create(ACBrStr('O número de dias a protestar / negativar '+
                                        'deve ser mínimo 05 a máximo 55 dias'));
@@ -567,7 +569,7 @@ var
   CodOcorrencia: Integer;
 begin
   Result := '';
-  CodOcorrencia := StrToIntDef(TipoOCorrenciaToCod(TipoOcorrencia),0);
+  CodOcorrencia := StrToIntDef(TipoOcorrenciaToCod(TipoOcorrencia),0);
 
   if (ACBrBanco.ACBrBoleto.LayoutRemessa = c240) then
   begin

@@ -55,8 +55,6 @@ type
     function PreencherNotaRespostaConsultaNFSe(Node, parentNode: TACBrXmlNode;
       Response: TNFSeConsultaNFSeResponse): Boolean;
 
-
-
     procedure PrepararEmitir(Response: TNFSeEmiteResponse); override;
     procedure GerarMsgDadosEmitir(Response: TNFSeEmiteResponse;
       Params: TNFSeParamsResponse); override;
@@ -283,6 +281,8 @@ begin
     ANota := CarregarXmlNfse(ANota, parentNode.OuterXml);
     SalvarXmlNfse(ANota);
 
+    AResumo.NomeArq := ANota.NomeArq;
+
     Result := True; // Processado com sucesso pois retornou a nota
   end;
 end;
@@ -362,6 +362,8 @@ begin
     ANota := CarregarXmlNfse(ANota, parentNode.OuterXml);
     SalvarXmlNfse(ANota);
 
+    AResumo.NomeArq := ANota.NomeArq;
+
     Result := True; // Processado com sucesso pois retornou a nota
   end;
 end;
@@ -389,6 +391,17 @@ begin
     AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (máximo de ' +
                        IntToStr(Response.MaxRps) + ' RPS)' +
                        ' excedido. Quantidade atual: ' +
+                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
+  end;
+
+  if (TACBrNFSeX(FAOwner).NotasFiscais.Count < Response.MinRps) and
+     (Response.ModoEnvio <> meUnitario) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod005;
+    AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (mínimo de ' +
+                       IntToStr(Response.MinRps) + ' RPS)' +
+                       '. Quantidade atual: ' +
                        IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
   end;
 
@@ -591,11 +604,13 @@ end;
 
 procedure TACBrNFSeProviderABRASFv2.TratarRetornoEmitir(Response: TNFSeEmiteResponse);
 var
+  NumNFSe, CodVerif, NumRps, SerieRps: string;
+  DataAut: TDateTime;
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
+  AResumo: TNFSeResumoCollectionItem;
   ANode, AuxNode, AuxNode2: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
-  NumRps: String;
   ANota: TNotaFiscal;
   I: Integer;
 begin
@@ -657,11 +672,15 @@ begin
 
           AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
 
+          NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+          CodVerif := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+          DataAut := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataEmissao'), tcDatHor);
+
           with Response do
           begin
-            NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
-            CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
-            Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataEmissao'), FpFormatoDataEmissao);
+            NumeroNota := NumNFSe;
+            CodigoVerificacao := CodVerif;
+            Data := DataAut;
           end;
 
           AuxNode2 := AuxNode.Childrens.FindAnyNs('DeclaracaoPrestacaoServico');
@@ -683,6 +702,7 @@ begin
             if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
 
             NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+            SerieRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Serie'), tcStr);
           end;
 
           if NumRps <> '' then
@@ -690,8 +710,16 @@ begin
           else
             ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(Response.NumeroNota);
 
+          AResumo := Response.Resumos.New;
+          AResumo.NumeroNota := NumNFSe;
+          AResumo.CodigoVerificacao := CodVerif;
+          AResumo.NumeroRps := NumRps;
+          AResumo.SerieRps := SerieRps;
+
           ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
           SalvarXmlNfse(ANota);
+
+          AResumo.NomeArq := ANota.NomeArq;
         end;
       end;
 
@@ -1169,6 +1197,16 @@ procedure TACBrNFSeProviderABRASFv2.PrepararConsultaNFSe(Response: TNFSeConsulta
 var
   AErro: TNFSeEventoCollectionItem;
 begin
+  case Response.InfConsultaNFSe.tpConsulta of
+    tcPorPeriodo,
+    tcPorFaixa: Response.Metodo := tmConsultarNFSePorFaixa;
+    tcServicoTomado: Response.Metodo := tmConsultarNFSeServicoTomado;
+    tcServicoPrestado: Response.Metodo := tmConsultarNFSeServicoPrestado;
+    tcPorChave: Response.Metodo := tmConsultarNFSePorChave;
+  else
+    Response.Metodo := tmConsultarNFSe;
+  end;
+
   case Response.InfConsultaNFSe.tpConsulta of
     tcPorPeriodo,
     tcPorFaixa: PrepararConsultaNFSeporFaixa(Response);

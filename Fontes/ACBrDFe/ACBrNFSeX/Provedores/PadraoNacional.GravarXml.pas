@@ -246,7 +246,8 @@ begin
   Result.AppendChild(AddNode(tcStr, '#1', 'xNome', 1, 300, 0,
                                                NFSe.Prestador.RazaoSocial, ''));
 
-  Result.AppendChild(GerarEnderecoPrestador);
+  if NFSe.tpEmit <> tePrestador then
+    Result.AppendChild(GerarEnderecoPrestador);
 
   Result.AppendChild(AddNode(tcStr, '#1', 'fone', 6, 20, 0,
                                           NFSe.Prestador.Contato.Telefone, ''));
@@ -635,13 +636,22 @@ begin
   if NFSe.ConstrucaoCivil.CodigoObra <> '' then
   begin
     Result := CreateElement('obra');
-
     Result.AppendChild(AddNode(tcStr, '#1', 'cObra', 1, 30, 1,
                                           NFSe.ConstrucaoCivil.CodigoObra, ''));
+    exit;
+  end;
 
+  if NFSe.ConstrucaoCivil.inscImobFisc <> '' then
+  begin
+    Result := CreateElement('obra');
     Result.AppendChild(AddNode(tcStr, '#1', 'inscImobFisc', 1, 30, 1,
                                         NFSe.ConstrucaoCivil.inscImobFisc, ''));
+    exit;
+  end;
 
+  if (NFSe.ConstrucaoCivil.Endereco.CEP <> '') or (NFSe.ConstrucaoCivil.Endereco.Endereco <> '') then
+  begin
+    Result := CreateElement('obra');
     Result.AppendChild(GerarEnderecoObra);
   end;
 end;
@@ -842,13 +852,22 @@ begin
   if (NFSe.Servico.Valores.AliquotaDeducoes > 0) then
   begin
     Result := CreateElement('vDedRed');
-
     Result.AppendChild(AddNode(tcDe2, '#1', 'pDR', 1, 5, 1,
-                                    NFSe.Servico.Valores.AliquotaDeducoes, ''));
+                                       NFSe.Servico.Valores.AliquotaDeducoes, ''));
+    exit;
+  end;
 
+  if (NFSe.Servico.Valores.AliquotaDeducoes > 0) then
+  begin
+    Result := CreateElement('vDedRed');
     Result.AppendChild(AddNode(tcDe2, '#1', 'vDR', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorDeducoes, ''));
+    exit;
+  end;
 
+  if (NFSe.Servico.Valores.DocDeducao.Count > 0) then
+  begin
+    Result := CreateElement('vDedRed');
     Result.AppendChild(GerarDocDeducoes);
   end;
 end;

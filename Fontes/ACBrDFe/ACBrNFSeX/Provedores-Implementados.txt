@@ -34,6 +34,7 @@ DSF                  1.00
 DSF                  2.00
 DSF                  2.03
 eGoverneISS          1.00  06/09/2022
+eISS                 1.00
 EL                   1.00
 EL                   2.04
 EloTech              2.03  10/08/2022
@@ -57,6 +58,7 @@ Ginfes               1.00  19/09/2022
 Giss                 2.04
 GovBr                1.00
 GovDigital           2.00
+GovDigital           2.01
 Governa              1.00
 Horus                1.00
 iiBrasil             2.04
@@ -112,6 +114,7 @@ PublicSoft           2.03
 RLZ                  1.00
 RLZ                  2.03
 Saatri               2.01
+Saatri               2.03
 SafeWeb              2.00
 SH3                  2.00
 Siam                 2.00

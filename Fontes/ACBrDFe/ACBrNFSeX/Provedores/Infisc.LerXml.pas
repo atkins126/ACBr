@@ -99,8 +99,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Base, ACBrUtil.Strings,
-  ACBrDFeUtil;
+  ACBrUtil.Base, ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -235,7 +234,7 @@ begin
 
       if xMunicipio = '' then
       begin
-        xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+        xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
         if UF = '' then
           UF := xUF;
@@ -276,7 +275,7 @@ begin
 
       if xMunicipio = '' then
       begin
-        xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+        xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
         if UF = '' then
           UF := xUF;
@@ -415,6 +414,9 @@ begin
     NFSe.OutrasInformacoes := NFSe.OutrasInformacoes + ANodes[i].Content;
 //                  ObterConteudo(ANodes[i].Childrens.FindAnyNs('infAdic'), tcStr);
   end;
+
+  NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 end;
 
 procedure TNFSeR_Infisc.LerISS(const ANode: TACBrXmlNode);
@@ -489,6 +491,8 @@ begin
       ValorCofins := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetCOFINS'), tcDe2);
       ValorCsll   := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetCSLL'), tcDe2);
       ValorInss   := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetINSS'), tcDe2);
+
+      RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
     end;
   end;
 end;
@@ -625,6 +629,9 @@ begin
       DescontoIncondicionado := ObterConteudo(AuxNode.Childrens.FindAnyNs('vDesc'), tcDe2);
       ValorLiquidoNfse       := ObterConteudo(AuxNode.Childrens.FindAnyNs('vtLiq'), tcDe2);
 
+      ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                              DescontoIncondicionado;
+
       // versão 1.1
       ValorDespesasNaoTributaveis := ObterConteudo(AuxNode.Childrens.FindAnyNs('vtDespesas'), tcDe2);
     end;
@@ -665,8 +672,12 @@ function TNFSeR_Infisc.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 

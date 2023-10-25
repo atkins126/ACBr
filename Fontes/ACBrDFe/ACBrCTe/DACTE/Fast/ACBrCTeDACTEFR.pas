@@ -1755,22 +1755,33 @@ begin
       Post;
     end;
   end;
-
 end;
 
 procedure TACBrCTeDACTEFR.CarregaCTeAnuladoComplementado;
+var
+  i: Integer;
 begin
   with cdsAnuladoComple do
   begin
-
-    Append;
-    if CTE.ide.tpCTe = tcComplemento then
-      FieldByName('Chave').AsString := CTE.infCteComp.chave
-    else if CTE.ide.tpCTe = tcAnulacao then
-      FieldByName('Chave').AsString := CTE.infCteAnu.chCTe;
-    Post;
+    if CTe.infCTe.versao > 3 then
+    begin
+      for i := 0 to CTe.infCTeComp10.Count - 1 do
+      begin
+        Append;
+        FieldByName('Chave').AsString := CTE.infCteComp10[i].chCTe;
+        Post;
+      end;
+    end
+    else
+    begin
+      Append;
+      case CTE.ide.tpCTe of
+        tcComplemento: FieldByName('Chave').AsString := CTE.infCteComp.Chave;
+        tcAnulacao: FieldByName('Chave').AsString := CTE.infCteAnu.chCTe;
+      end;
+      Post;
+    end;
   end;
-
 end;
 
 procedure TACBrCTeDACTEFR.CarregaDados;
@@ -1999,6 +2010,81 @@ begin
               FieldByName('nProtCE').AsString             := InfEvento.detEvento.nProtCE;
               frxReport.Variables['HOMOLOGACAO']          := (InfEvento.tpAmb = taHomologacao);
               Post;
+            end;
+          teInclusaoCondutor:
+            begin
+              TipoEvento := teInclusaoCondutor;
+              Append;
+              FieldByName('DescricaoTipoEvento').AsString := InfEvento.DescricaoTipoEvento(InfEvento.tpEvento);
+              FieldByName('Modelo').AsString              := Copy(InfEvento.chCTe, 21, 2);
+              FieldByName('Serie').AsString               := Copy(InfEvento.chCTe, 23, 3);
+              FieldByName('Numero').AsString              := Copy(InfEvento.chCTe, 26, 9);
+              FieldByName('MesAno').AsString              := Copy(InfEvento.chCTe, 05, 2) + '/' + Copy(InfEvento.chCTe, 03, 2);
+              FieldByName('Barras').AsString              := InfEvento.chCTe;
+              FieldByName('ChaveAcesso').AsString         := FormatarChaveAcesso(InfEvento.chCTe);
+              FieldByName('cOrgao').AsInteger             := InfEvento.cOrgao;
+              FieldByName('nSeqEvento').AsInteger         := InfEvento.nSeqEvento;
+              FieldByName('tpAmb').AsString               := MantertpAmb(InfEvento.tpAmb);
+              FieldByName('dhEvento').AsDateTime          := InfEvento.dhEvento;
+              FieldByName('TipoEvento').AsString          := InfEvento.TipoEvento;
+              FieldByName('DescEvento').AsString          := InfEvento.DescEvento;
+              FieldByName('versaoEvento').AsString        := InfEvento.versaoEvento;
+              FieldByName('cStat').AsInteger              := RetInfEvento.cStat;
+              FieldByName('xMotivo').AsString             := RetInfEvento.xMotivo;
+              FieldByName('nProt').AsString               := RetInfEvento.nProt;
+              FieldByName('dhRegEvento').AsDateTime       := RetInfEvento.dhRegEvento;
+              FieldByName('nProtCE').AsString             := InfEvento.detEvento.nProtCE;
+              frxReport.Variables['HOMOLOGACAO']          := (InfEvento.tpAmb = taHomologacao);
+            end;
+          teInsucessoEntregaCTe:
+            begin
+              TipoEvento := teInsucessoEntregaCTe;
+              Append;
+              FieldByName('DescricaoTipoEvento').AsString := InfEvento.DescricaoTipoEvento(InfEvento.tpEvento);
+              FieldByName('Modelo').AsString              := Copy(InfEvento.chCTe, 21, 2);
+              FieldByName('Serie').AsString               := Copy(InfEvento.chCTe, 23, 3);
+              FieldByName('Numero').AsString              := Copy(InfEvento.chCTe, 26, 9);
+              FieldByName('MesAno').AsString              := Copy(InfEvento.chCTe, 05, 2) + '/' + Copy(InfEvento.chCTe, 03, 2);
+              FieldByName('Barras').AsString              := InfEvento.chCTe;
+              FieldByName('ChaveAcesso').AsString         := FormatarChaveAcesso(InfEvento.chCTe);
+              FieldByName('cOrgao').AsInteger             := InfEvento.cOrgao;
+              FieldByName('nSeqEvento').AsInteger         := InfEvento.nSeqEvento;
+              FieldByName('tpAmb').AsString               := MantertpAmb(InfEvento.tpAmb);
+              FieldByName('dhEvento').AsDateTime          := InfEvento.dhEvento;
+              FieldByName('TipoEvento').AsString          := InfEvento.TipoEvento;
+              FieldByName('DescEvento').AsString          := InfEvento.DescEvento;
+              FieldByName('versaoEvento').AsString        := InfEvento.versaoEvento;
+              FieldByName('cStat').AsInteger              := RetInfEvento.cStat;
+              FieldByName('xMotivo').AsString             := RetInfEvento.xMotivo;
+              FieldByName('nProt').AsString               := RetInfEvento.nProt;
+              FieldByName('dhRegEvento').AsDateTime       := RetInfEvento.dhRegEvento;
+              FieldByName('nProtCE').AsString             := InfEvento.detEvento.nProtCE;
+              frxReport.Variables['HOMOLOGACAO']          := (InfEvento.tpAmb = taHomologacao);
+            end;
+          teCancInsucessoEntregaCTe:
+            begin
+              TipoEvento := teCancInsucessoEntregaCTe;
+              Append;
+              FieldByName('DescricaoTipoEvento').AsString := InfEvento.DescricaoTipoEvento(InfEvento.tpEvento);
+              FieldByName('Modelo').AsString              := Copy(InfEvento.chCTe, 21, 2);
+              FieldByName('Serie').AsString               := Copy(InfEvento.chCTe, 23, 3);
+              FieldByName('Numero').AsString              := Copy(InfEvento.chCTe, 26, 9);
+              FieldByName('MesAno').AsString              := Copy(InfEvento.chCTe, 05, 2) + '/' + Copy(InfEvento.chCTe, 03, 2);
+              FieldByName('Barras').AsString              := InfEvento.chCTe;
+              FieldByName('ChaveAcesso').AsString         := FormatarChaveAcesso(InfEvento.chCTe);
+              FieldByName('cOrgao').AsInteger             := InfEvento.cOrgao;
+              FieldByName('nSeqEvento').AsInteger         := InfEvento.nSeqEvento;
+              FieldByName('tpAmb').AsString               := MantertpAmb(InfEvento.tpAmb);
+              FieldByName('dhEvento').AsDateTime          := InfEvento.dhEvento;
+              FieldByName('TipoEvento').AsString          := InfEvento.TipoEvento;
+              FieldByName('DescEvento').AsString          := InfEvento.DescEvento;
+              FieldByName('versaoEvento').AsString        := InfEvento.versaoEvento;
+              FieldByName('cStat').AsInteger              := RetInfEvento.cStat;
+              FieldByName('xMotivo').AsString             := RetInfEvento.xMotivo;
+              FieldByName('nProt').AsString               := RetInfEvento.nProt;
+              FieldByName('dhRegEvento').AsDateTime       := RetInfEvento.dhRegEvento;
+              FieldByName('nProtCE').AsString             := InfEvento.detEvento.nProtCE;
+              frxReport.Variables['HOMOLOGACAO']          := (InfEvento.tpAmb = taHomologacao);
             end;
         end;
       end;

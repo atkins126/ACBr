@@ -44,6 +44,37 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+18/10/2023
+-- ACBrNFeDANFeRLPaisagem, ACBrNFeDANFeRLRetrao --
+[*] Altera a forma como é formatado o Nº da NFe visando padronização com o Fast e o MOC.
+    Por: Diego Folieni
+
+06/10/2023
+-- ACBrNFeNotasFiscais --
+[*] Ajuste no ValidarRegrasdeNegocios, pois estava gerando indevidadmente um alerta
+    ao checar o valor da nota (vNT).
+    por: Italo Giurizzato Junior
+
+03/10/2023
+-- ACBrNFeNotasFiscais --
+[*] Ajuste para entender o Tipo SAT no grupo NFRef no arquivo INI para poder referenciar SAT.
+   Por: Diego Folieni
+
+12/09/2023
+-- ACBrNFeNotasFiscais --
+[*] Melhorias na função ValidarRegrasdeNegocios, pois estava gerando indevidamente um
+    alerta de erro ao comparar a UF da Retirada ou Entrega com o código do municipio,
+    quando a UF era 'EX'.
+    por: Italo Giurizzato Junior
+-- ACBrNFeWebServices --
+[*] Alterações visando atender a versão 1.00 da NT 2023/002 que elimina o envio
+    em lote de NFC-e a partir de 04/09/2023 em produção.
+    por: Italo Giurizzato Junior
+
+06/09/2023
+[*] Altera a validação para geração do grupo IPI no arquivo INI.
+  Por: Diego Folieni
+
 30/06/2023
 [*] TK-4041 Aumenta o tamanho maximo do campo pDif visando evitar problemas com valores longos.
   Por: Altamogiana / Rev: Alexandre de Paula

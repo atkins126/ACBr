@@ -144,17 +144,17 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'fone_destinatario', 1, 10, 0,
                                           NFSe.Tomador.Contato.Telefone, ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'email_destinatario', 1, 100, 0,
+  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'email_destinatario', 1, 100, 1,
                                              NFSe.Tomador.Contato.Email, ''));
 
   NFSeNode.AppendChild(AddNode(tcDe2, '#1', 'valor_nf', 1, 15, 1,
-                                    NFSe.Servico.Valores.ValorLiquidoNfse, ''));
+                                    NFSe.Servico.Valores.ValorServicos, ''));
 
   NFSeNode.AppendChild(AddNode(tcDe2, '#1', 'deducao', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorDeducoes, ''));
 
   NFSeNode.AppendChild(AddNode(tcDe2, '#1', 'valor_servico', 1, 15, 1,
-                                       NFSe.Servico.Valores.ValorServicos, ''));
+                                       NFSe.Servico.Valores.ValorLiquidoNfse, ''));
 
   NFSeNode.AppendChild(AddNode(tcDatVcto, '#1', 'data_emissao', 10, 10, 1,
                                                          NFSe.DataEmissao, ''));

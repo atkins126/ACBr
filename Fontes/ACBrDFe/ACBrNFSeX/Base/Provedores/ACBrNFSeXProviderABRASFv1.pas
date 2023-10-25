@@ -226,6 +226,9 @@ begin
 
     ANota := CarregarXmlNfse(ANota, parentNode.OuterXml);
     SalvarXmlNfse(ANota);
+
+    AResumo.NomeArq := ANota.NomeArq;
+
     Result := True; // Processado com sucesso pois retornou a nota
   end;
 end;
@@ -282,6 +285,9 @@ begin
 
     ANota := CarregarXmlNfse(ANota, parentNode.OuterXml);
     SalvarXmlNfse(ANota);
+
+    AResumo.NomeArq := ANota.NomeArq;
+
     Result := True; // Processado com sucesso pois retornou a nota
   end;
 end;
@@ -316,6 +322,16 @@ begin
     AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (máximo de ' +
                        IntToStr(Response.MaxRps) + ' RPS)' +
                        ' excedido. Quantidade atual: ' +
+                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
+  end;
+
+  if TACBrNFSeX(FAOwner).NotasFiscais.Count < Response.MinRps then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod005;
+    AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (mínimo de ' +
+                       IntToStr(Response.MinRps) + ' RPS)' +
+                       '. Quantidade atual: ' +
                        IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
   end;
 
@@ -613,6 +629,8 @@ procedure TACBrNFSeProviderABRASFv1.TratarRetornoConsultaSituacao(Response: TNFS
 var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
+  Ok: Boolean;
+  Situacao: TSituacaoLoteRps;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -638,6 +656,8 @@ begin
       if not Response.Sucesso then
         Response.Situacao := '3';
 
+      Situacao := TACBrNFSeX(FAOwner).Provider.StrToSituacaoLoteRps(Ok, Response.Situacao);
+      Response.DescSituacao := TACBrNFSeX(FAOwner).Provider.SituacaoLoteRpsToDescr(Situacao);
     except
       on E:Exception do
       begin
@@ -1051,7 +1071,17 @@ var
   aParams: TNFSeParamsResponse;
   XmlConsulta, RazaoInter, NameSpace, Prefixo, PrefixoTS, TagEnvio: string;
 begin
-  if Response.InfConsultaNFSe.tpConsulta in [tcPorFaixa, tcServicoTomado] then
+  case Response.InfConsultaNFSe.tpConsulta of
+    tcPorFaixa: Response.Metodo := tmConsultarNFSePorFaixa;
+    tcServicoTomado: Response.Metodo := tmConsultarNFSeServicoTomado;
+    tcServicoPrestado: Response.Metodo := tmConsultarNFSeServicoPrestado;
+    tcPorChave: Response.Metodo := tmConsultarNFSePorChave;
+  else
+    Response.Metodo := tmConsultarNFSe;
+  end;
+
+  if Response.InfConsultaNFSe.tpConsulta in [tcPorFaixa, tcServicoTomado,
+     tcServicoPrestado, tcPorChave, tcPorCodigoVerificacao] then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod001;
@@ -1061,8 +1091,6 @@ begin
 
   Prefixo := '';
   PrefixoTS := '';
-
-  Response.Metodo := tmConsultarNFSe;
 
   if EstaVazio(ConfigMsgDados.ConsultarNFSe.xmlns) then
     NameSpace := ''

@@ -75,6 +75,7 @@ type
     function GetIDEvento: string;
   public
     constructor Create(AOwner: TComponent); reintroduce;
+    destructor Destroy; override;
 
     property IDEvento: string read GetIDEvento;
     property XML: String read FXML write SetXML;
@@ -263,10 +264,11 @@ begin
   else
   begin
     nrInsc := TACBrReinf(FACBrReinf).Configuracoes.Geral.IdContribuinte;
+    tpInsc := '1';
 
-    if Length(nrInsc) = 14 then
-      tpInsc := '1'
-    else
+    if TACBrReinf(FACBrReinf).Configuracoes.Geral.TipoContribuinte = tcPessoaJuridica then
+      nrInsc := Copy(nrInsc, 1, 8)
+    else if TACBrReinf(FACBrReinf).Configuracoes.Geral.TipoContribuinte = tcPessoaFisica then
       tpInsc := '2';
 
     FXML :=
@@ -274,7 +276,7 @@ begin
         '<envioLoteEventos>' +
           '<ideContribuinte>' +
             '<tpInsc>' + tpInsc + '</tpInsc>' +
-            '<nrInsc>' + Copy(nrInsc, 1, 8) + '</nrInsc>' +
+            '<nrInsc>' + nrInsc + '</nrInsc>' +
           '</ideContribuinte>' +
           '<eventos>';
 
@@ -400,6 +402,13 @@ begin
   FACBrReinf := AOwner;
   FLeitor := TLeitor.Create;
   FXML := '';
+end;
+
+destructor TItemLoteEventos.Destroy;
+begin
+  FLeitor.Free;
+
+  inherited;
 end;
 
 function TItemLoteEventos.GetIDEvento: string;

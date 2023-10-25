@@ -77,6 +77,7 @@ const
   CChaveEmailCodificacao = 'Codificacao';
   CChaveEmailSSL = 'SSL';
   CChaveEmailTLS = 'TLS';
+  CChaveEmailSSLType = 'SSLType';
   CChaveEmailConfirmacao = 'Confirmacao';
   CChaveEmailConfirmacaoEntrega = 'ConfirmacaoEntrega';
   CChaveEmailSegundoPlano = 'SegundoPlano';
@@ -199,6 +200,7 @@ const
   CSessaoRespRetorno = 'Retorno';
   CSessaoRespDistribuicaoDFe = 'DistribuicaoDFe';
   CSessaoRespConsultaCadastro = 'ConsultaCadastro';
+  CSessaoRespArquivo = 'Arquivo';
 
 resourcestring
   SErrLibSemNome = 'Nome da Biblioteca não foi definido';
