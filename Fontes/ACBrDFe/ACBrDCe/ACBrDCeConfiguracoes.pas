@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
@@ -38,7 +38,7 @@ interface
 
 uses
   Classes, SysUtils, IniFiles,
-  ACBrDFeConfiguracoes, pcnConversao, ACBrDCeConversao;
+  ACBrDFeConfiguracoes, pcnConversao, ACBrDCe.Conversao;
 
 type
 
@@ -114,7 +114,8 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings, DateUtils;
+  ACBrUtil.Strings, ACBrUtil.FilesIO,
+  DateUtils;
 
 { TConfiguracoesDCe }
 

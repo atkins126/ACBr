@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Jurisato Junior                           }
 {                                                                              }
@@ -38,7 +38,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, ACBrLibConfig, syncobjs,
-  ACBrLibComum, ACBrSedex;
+  ACBrLibComum, ACBrSedex, ACBrUtil.FilesIO;
 
 type
 
@@ -66,7 +66,7 @@ type
 implementation
 
 uses
-  ACBrUtil.FilesIO, ACBrUtil.Strings, ACBrLibSedexConfig, ACBrLibSedexBase;
+  ACBrUtil.Strings, ACBrLibSedexConfig, ACBrLibSedexBase;
 
 {$R *.lfm}
 

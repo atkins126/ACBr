@@ -45,8 +45,8 @@ uses
 type
   TACBrNFSeXWebserviceISSGoiania200 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -63,6 +63,9 @@ type
 
     procedure TratarRetornoEmitir(Response: TNFSeEmiteResponse); override;
     procedure TratarRetornoConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse); override;
+
+    function VerificarAlerta(const ACodigo, AMensagem, ACorrecao: string): Boolean; override;
+    function VerificarErro(const ACodigo, AMensagem, ACorrecao: string): Boolean; override;
   end;
 
 implementation
@@ -83,6 +86,15 @@ begin
     QuebradeLinha := '\s\n';
     ModoEnvio := meUnitario;
     ConsultaNFSe := False;
+
+    ServicosDisponibilizados.EnviarLoteAssincrono := False;
+    ServicosDisponibilizados.EnviarLoteSincrono := False;
+    ServicosDisponibilizados.ConsultarLote := False;
+    ServicosDisponibilizados.ConsultarFaixaNfse := False;
+    ServicosDisponibilizados.ConsultarServicoPrestado := False;
+    ServicosDisponibilizados.ConsultarServicoTomado := False;
+    ServicosDisponibilizados.CancelarNfse := False;
+    ServicosDisponibilizados.SubstituirNfse := False;
   end;
 
   with ConfigAssinar do
@@ -292,10 +304,10 @@ begin
           ANode := ANodeArray[I];
 
           AuxNode := ANode.Childrens.FindAnyNs('Nfse');
-          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+          if not Assigned(AuxNode) then Exit;
 
           AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
-          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+          if not Assigned(AuxNode) then Exit;
 
           with Response do
           begin
@@ -304,10 +316,10 @@ begin
           end;
 
           AuxNode := AuxNode.Childrens.FindAnyNs('DeclaracaoPrestacaoServico');
-          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+          if not Assigned(AuxNode) then Exit;
 
           AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
-          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+          if not Assigned(AuxNode) then Exit;
 
           NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
 
@@ -359,9 +371,27 @@ begin
   inherited ValidarSchema(Response, aMetodo);
 end;
 
+function TACBrNFSeProviderISSGoiania200.VerificarAlerta(const ACodigo,
+  AMensagem, ACorrecao: string): Boolean;
+begin
+  if ACodigo = 'L000' then
+    Result := True
+  else
+    Result := inherited VerificarAlerta(ACodigo, AMensagem, ACorrecao);
+end;
+
+function TACBrNFSeProviderISSGoiania200.VerificarErro(const ACodigo,
+  AMensagem, ACorrecao: string): Boolean;
+begin
+  if ACodigo = 'L000' then
+    Result := False
+  else
+    Result := inherited VerificarErro(ACodigo, AMensagem, ACorrecao);
+end;
+
 { TACBrNFSeXWebserviceISSGoiania200 }
 
-function TACBrNFSeXWebserviceISSGoiania200.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceISSGoiania200.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -377,7 +407,7 @@ begin
                      ['xmlns:ws="http://nfse.goiania.go.gov.br/ws/"']);
 end;
 
-function TACBrNFSeXWebserviceISSGoiania200.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceISSGoiania200.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -398,7 +428,7 @@ function TACBrNFSeXWebserviceISSGoiania200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;

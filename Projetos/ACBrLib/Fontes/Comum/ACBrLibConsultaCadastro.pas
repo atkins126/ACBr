@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 {                                                                              }
@@ -38,8 +38,8 @@ interface
 
 uses
   Classes, SysUtils, contnrs,
-  pcnRetConsCad,
-  ACBrLibResposta;
+  ACBrDFeComum.RetConsCad,
+  ACBrLibResposta, ACBrLibConfig;
 
 type
   { TConsultaCadastroItemResposta }
@@ -219,7 +219,7 @@ begin
   begin
     for i := 0 to InfCad.Count - 1 do
     begin
-      Item := TConsultaCadastroItemResposta.Create('INFCAD' + Trim(IntToStrZero(i + 1, 3)), Tipo, Formato);
+      Item := TConsultaCadastroItemResposta.Create('INFCAD' + Trim(IntToStrZero(i + 1, 3)), Tipo, Codificacao);
       Item.Processar(InfCad.Items[i]);
       FItems.Add(Item);
     end;

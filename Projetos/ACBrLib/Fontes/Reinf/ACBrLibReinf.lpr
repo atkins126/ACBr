@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 
-{ Direitos Autorais Reservados (c) 2018 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 
 { Colaboradores nesse arquivo: Italo Jurisato Junior                           }
 
@@ -36,9 +36,11 @@
 library ACBrLibReinf;
 
 uses
-  Interfaces, sysutils, Classes,
-  ACBrLibConfig, ACBrLibComum,
-  ACBrLibReinfClass, ACBrLibReinfConfig, ACBrLibReinfDataModule;
+  Interfaces, Forms,
+  sysutils, Classes, ACBrLibReinfDataModule,
+  {$IFDEF MT} ACBrLibReinfMT {$ELSE} ACBrLibReinfST{$ENDIF},
+  ACBrLibConfig, ACBrLibResposta, ACBrLibComum, ACBrLibConsts,
+  ACBrLibDataModule, ACBrLibReinfConfig, ACBrLibReinfBase;
 
 {$R *.res}
 
@@ -53,16 +55,29 @@ exports
   Reinf_Finalizar,
   Reinf_Nome,
   Reinf_Versao,
+  Reinf_OpenSSLInfo,
   Reinf_UltimoRetorno,
+  Reinf_ConfigImportar,
+  Reinf_ConfigExportar,
   Reinf_ConfigLer,
   Reinf_ConfigGravar,
   Reinf_ConfigLerValor,
   Reinf_ConfigGravarValor,
 
   // Reinf
-  Reinf_LerArqIni,
-  Reinf_Enviar,
-  Reinf_Consultar;
+  Reinf_CriarEventoReinf,
+  Reinf_EnviarReinf,
+  Reinf_ConsultarReinf,
+  Reinf_ConsultarReciboReinf,
+  Reinf_CriarEnviarReinf,
+  Reinf_LimparReinf,
+  Reinf_CarregarXMLEventoReinf,
+  Reinf_SetIDContribuinte,
+  Reinf_SetIDTransmissor,
+  Reinf_SetTipoContribuinte,
+  Reinf_SetVersaoDF,
+  Reinf_ObterCertificados,
+  Reinf_Validar;
 
 begin
   {$IFDEF DEBUG}
@@ -71,7 +86,7 @@ begin
    SetHeapTraceOutput( HeapTraceFile );
   {$ENDIF}
 
-  pLibClass := TACBrLibReinf; // Ajusta a classe a ser criada
   MainThreadID := GetCurrentThreadId();
+  Application.Initialize;
 end.
 

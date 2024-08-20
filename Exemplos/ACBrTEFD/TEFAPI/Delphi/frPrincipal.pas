@@ -274,7 +274,8 @@ uses
   IniFiles, typinfo, dateutils, math, strutils,
   frIncluirPagamento, frMenuTEF, frObtemCampo, frExibeMensagem,
   configuraserial,
-  ACBrUtil, ACBrDelphiZXingQRCode,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.FilesIO, ACBrUtil.DateTime,
+  ACBrDelphiZXingQRCode,
   ACBrTEFPayGoComum, ACBrTEFAPIPayGoWeb;
 
 {$R *.dfm}
@@ -1922,7 +1923,7 @@ end;
 procedure TFormPrincipal.seValorInicialVendaKeyPress(Sender: TObject;
   var Key: Char);
 begin
-  if not CharInSet(Key, ['0'..'9',#8,#13,#27])  then
+  if not( Key in ['0'..'9',#8,#13,#27])  then
     Key := #0;
 end;
 

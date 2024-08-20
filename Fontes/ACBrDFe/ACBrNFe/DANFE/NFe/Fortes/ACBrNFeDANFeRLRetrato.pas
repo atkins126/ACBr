@@ -1101,7 +1101,11 @@ begin
     rlbCodigoBarras.Visible := True;
     rlbCodigoBarras.Caption := OnlyNumber(fpNFe.InfNFe.Id);
 
-    rllNumNF0.Caption := ACBrStr('Nº ') + FormatarNumeroDocumentoFiscal(IntToStr(nNF));
+    if fpDANFe.FormatarNumeroDocumento then
+      rllNumNF0.Caption := ACBrStr('Nº ') + FormatarNumeroDocumentoFiscal(IntToStr(nNF))
+    else
+      rllNumNF0.Caption := ACBrStr('Nº ') + IntToStr(nNF);
+
     rllNumNF1.Caption := rllNumNF0.Caption;
 
     rllSERIE0.Caption := ACBrStr('SÉRIE ') + PadLeft(IntToStr(Serie), 3, '0');
@@ -1974,7 +1978,7 @@ begin
       lblCST1.Caption := 'CST';
       lblCST2.Caption := '';
     end;
-    crtSimplesNacional: begin
+    crtSimplesNacional, crtMEI: begin
       lblCST1.Caption := 'CSOSN';
       lblCST2.Caption := '/ CST';
     end;
@@ -2300,9 +2304,7 @@ procedure TfrlDANFeRLRetrato.AdicionarInformacoesPagamento;
     for x := 0 to (Result - 1) do
     begin
       TRLLabel(FindComponent('RLPagDescricao' + IntToStr(x))).Caption :=
-        ACBrStr(
-          Copy(FormaPagamentoToDescricao(fpNFe.pag.Items[x].tPag, fpNFe.pag.Items[x].xPag),1,22)
-                  );
+        ACBrStr(FormaPagamentoToDescricao(fpNFe.pag.Items[x].tPag, fpNFe.pag.Items[x].xPag));
       TRLLabel(FindComponent('RLPagValor' + IntToStr(x))).Caption :=
         FormatFloatBr(fpNFe.pag.Items[x].vPag);
     end;

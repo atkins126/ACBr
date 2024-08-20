@@ -430,8 +430,8 @@ begin
             natJurid := '0001';
 
           indCoop := tpIndCoop(1);
-          indConstr := tpIndConstr(2);
-          indDesFolha := tpIndDesFolha(1);
+          indConstr := tpIndConstr(1);
+          indDesFolha := tpIndDesFolha(2);
           indPorte := tpNao;
           indOptRegEletron := tpIndOptRegEletron(1);
           cnpjEFR := '01234567890123';
@@ -2069,7 +2069,7 @@ begin
             with planSaude.New do
             begin
               cnpjOper := '01234567890123';
-              regANS := 123456;
+              regANS := '123456';
               vlrSaudeTit := 1200.23;
 
               with infoDepSau.New do
@@ -2083,7 +2083,7 @@ begin
             begin
               indOrgReemb := '1';
               cnpjOper := '01234567890123';
-              regANS := 123456;
+              regANS := '123456';
 
               with detReembTit.New do
               begin
@@ -2754,6 +2754,10 @@ begin
 
         end;
 
+        // ClassTrib apenas informativo no S1280 para aplicação de regra de preenchimento da infoAtivConcom
+        //   para Simples Nacional, preencher ClassTrib = ct03 em casos sem faturamento para gerar fatores zerados
+        //   ClassTrib := ct03;
+
         with infoAtivConcom do
         begin
           fatorMes := 9.00;
@@ -2761,7 +2765,7 @@ begin
         end;
 
         with infoPercTransf11096 do
-          percTransf := 20;
+          percTransf := 5;
       end;
     end;
   end;
@@ -3683,8 +3687,8 @@ begin
 
         with vinculo do
         begin
+          tpRegTrab := trCLT;
           tpRegPrev := rpRGPS;
-        end;
 
         with infoRegimeTrab do
         begin
@@ -3745,7 +3749,7 @@ begin
             dtIngrCarr := Now;
           end;
 
-                                                                                     
+
           with remuneracao do
           begin
             vrSalFx := 780.00;
@@ -3786,7 +3790,7 @@ begin
               CodMunic    := 1234567;
               Uf          := 'PR';
             end;
-              
+
           end;
 }
           with horContratual do
@@ -3825,10 +3829,6 @@ begin
           with alvaraJudicial do
             nrProcJud := '12345678901234567890';
 
-          if VersaoDFx <= ve02_05_00 then
-            with servPubl do
-              mtvAlter := maPromocao;
-
           with observacoes.New do
             observacao := 'Descrever aqui qualquer observacao';
 
@@ -3837,6 +3837,7 @@ begin
 
           with treiCap.New do
             codTreiCap := 3703;
+        end;
         end;
       end;
     end;
@@ -4044,9 +4045,6 @@ end;
 
 procedure TfrmACBreSocial.GerareSocial2221;
 begin
-  if VersaoDFx > ve02_05_00 then
-    exit;
-
   with ACBreSocial1.Eventos.NaoPeriodicos.S2221.New do
   begin
     with evtToxic do
@@ -4070,7 +4068,8 @@ begin
       with ideVinculo do
       begin
         cpfTrab   := '12345678901';
-        nisTrab   := '12345678901';
+        if VersaoDFx <= ve02_05_00 then
+          nisTrab   := '12345678901';
         matricula := '5000';
       end;
 
@@ -4078,11 +4077,10 @@ begin
       begin
         dtExame     := Date;
         cnpjLab     := '12548526587101';
-        codSeqExame := '999999999';
+        codSeqExame := 'SP999999999';
         nmMed       := 'MEDICO TESTE';
         nrCRM       := '54646548';
         ufCRM       := 'SP';
-//        indRecusa   := tpNao;
       end;
     end;
   end;
@@ -6117,6 +6115,17 @@ begin
               vrInden := 3250.55;
               vrBaseIndenFGTS := 6785.22;
               pagDiretoResc := snfNao;
+
+              with idePeriodo.New do
+              begin
+                perRef := '2012-07';
+
+                with baseCalculo do
+                begin
+                  vrBcCpMensal := 0;
+                  vrBcCp13 := 10000;
+                end;
+              end;
             end;
           end;
         end;
@@ -7007,6 +7016,7 @@ begin
         Add('');
         Add('Código Retorno: ' + IntToStr(Status.cdResposta));
         Add('Mensagem: ' + Status.descResposta);
+        Add('Arquivo Salvo: ' + ACBreSocial1.WebServices.EnvioLote.PathNome);
 
         if Status.cdResposta in [201, 202] then
         begin
@@ -7068,6 +7078,7 @@ begin
         Add('');
         Add('Código Retorno: ' + IntToStr(Status.cdResposta));
         Add('Mensagem: ' + Status.descResposta);
+        Add('Arquivo Salvo: ' + ACBreSocial1.WebServices.EnvioLote.PathNome);
 
         if Status.cdResposta in [201, 202] then
         begin
@@ -7137,6 +7148,7 @@ begin
     memoLinhas.Add('');
     memoLinhas.Add('Código Retorno: ' + IntToStr(vRetornoConsultaLote.Status.cdResposta));
     memoLinhas.Add('Mensagem: ' + vRetornoConsultaLote.Status.descResposta);
+    memoLinhas.Add('Arquivo Salvo: ' + ACBreSocial1.WebServices.ConsultaLote.PathNome);
 
     if vRetornoConsultaLote.Status.cdResposta in [201, 202] then
     begin
@@ -7280,6 +7292,7 @@ begin
         Add('');
         Add('Código Retorno: ' + IntToStr(Status.cdResposta));
         Add('Mensagem: ' + Status.descResposta);
+        Add('Arquivo Salvo: ' + ACBreSocial1.WebServices.ConsultaIdentEventos.PathNome);
         Add('');
         Add('Qtde Total de Eventos na Consulta: ' + IntToStr(RetIdentEvts.qtdeTotEvtsConsulta));
         Add('dhUltimo Evento Retornado: ' + DateTimeToStr(RetIdentEvts.dhUltimoEvtRetornado));
@@ -7333,6 +7346,7 @@ begin
         Add('');
         Add('Código Retorno: ' + IntToStr(Status.cdResposta));
         Add('Mensagem: ' + Status.descResposta);
+        Add('Arquivo Salvo: ' + ACBreSocial1.WebServices.ConsultaIdentEventos.PathNome);
         Add('');
         Add('Qtde Total de Eventos na Consulta: ' + IntToStr(RetIdentEvts.qtdeTotEvtsConsulta));
         Add('dhUltimo Evento Retornado: ' + DateTimeToStr(RetIdentEvts.dhUltimoEvtRetornado));
@@ -7380,6 +7394,7 @@ begin
         Add('');
         Add('Código Retorno: ' + IntToStr(Status.cdResposta));
         Add('Mensagem: ' + Status.descResposta);
+        Add('Arquivo Salvo: ' + ACBreSocial1.WebServices.ConsultaIdentEventos.PathNome);
         Add('');
         Add('Qtde Total de Eventos na Consulta: ' + IntToStr(RetIdentEvts.qtdeTotEvtsConsulta));
         Add('dhUltimo Evento Retornado: ' + DateTimeToStr(RetIdentEvts.dhUltimoEvtRetornado));
@@ -7428,6 +7443,7 @@ begin
         Add('');
         Add('Código Retorno: ' + IntToStr(Status.cdResposta));
         Add('Mensagem: ' + Status.descResposta);
+        Add('Arquivo Salvo: ' + ACBreSocial1.WebServices.DownloadEventos.PathNome);
 
         for i := 0 to arquivo.Count - 1 do
         begin

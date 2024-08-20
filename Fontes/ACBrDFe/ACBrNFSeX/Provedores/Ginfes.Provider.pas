@@ -48,12 +48,12 @@ type
   private
     function GetNameSpace: string;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -68,7 +68,6 @@ type
     function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
-//    procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     function DefinirIDCancelamento(const CNPJ: string; const InscMunic: string;
                                    const NumNfse: string): string; override;
 
@@ -94,11 +93,12 @@ begin
   inherited Configuracao;
 
   ConfigGeral.QuebradeLinha := '\n';
-
   with ConfigMsgDados do
   begin
     Prefixo := 'ns3';
     PrefixoTS := 'ns4';
+
+    ConsultarNFSePorFaixa.DocElemento := 'ConsultarNfseEnvio';
 
     DadosCabecalho := '<ns2:cabecalho versao="3" xmlns:ns2="http://www.ginfes.com.br/cabecalho_v03.xsd">' +
                       '<versaoDados>3</versaoDados>' +
@@ -116,25 +116,20 @@ begin
 
     ConsultarNFSe.xmlns := 'http://www.ginfes.com.br/servico_consultar_nfse_envio_v03.xsd';
 
+    ConsultarNFSePorFaixa.xmlns := 'http://www.ginfes.com.br/servico_consultar_nfse_envio_v03.xsd';
+
     CancelarNFSe.xmlns := 'http://www.ginfes.com.br/servico_cancelar_nfse_envio_v03.xsd';
-    {
-    with CancelarNFSe do
-    begin
-      xmlns := 'http://www.ginfes.com.br/servico_cancelar_nfse_envio';
-      InfElemento := 'Prestador';
-      DocElemento := 'CancelarNfseEnvio';
-    end;
-    }
   end;
 
   with ConfigAssinar do
   begin
-    LoteRps           := True;
+    LoteRps := True;
     ConsultarSituacao := True;
-    ConsultarLote     := True;
-    ConsultarNFSeRps  := True;
-    ConsultarNFSe     := True;
-    CancelarNFSe      := True;
+    ConsultarLote := True;
+    ConsultarNFSeRps := True;
+    ConsultarNFSe := True;
+    ConsultarNFSePorFaixa := True;
+    CancelarNFSe := True;
   end;
 
   SetNomeXSD('***');
@@ -146,7 +141,7 @@ begin
     ConsultarLote := 'servico_consultar_lote_rps_envio_v03.xsd';
     ConsultarNFSeRps := 'servico_consultar_nfse_rps_envio_v03.xsd';
     ConsultarNFSe := 'servico_consultar_nfse_envio_v03.xsd';
-//    CancelarNFSe := 'servico_cancelar_nfse_envio_v02.xsd';
+    ConsultarNFSePorFaixa := 'servico_consultar_nfse_envio_v03.xsd';
     CancelarNFSe := 'servico_cancelar_nfse_envio_v03.xsd';
 
     Validar := False;
@@ -246,80 +241,6 @@ begin
   end;
 end;
 
-(*
-procedure TACBrNFSeProviderGinfes.GerarMsgDadosCancelaNFSe(
-  Response: TNFSeCancelaNFSeResponse; Params: TNFSeParamsResponse);
-var
-  Emitente: TEmitenteConfNFSe;
-  InfoCanc: TInfCancelamento;
-begin
-  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
-  InfoCanc := Response.InfCancelamento;
-
-  with Params do
-  begin
-    NameSpace := StringReplace(NameSpace, '_v03.xsd', '', [rfReplaceAll]);
-
-    Response.ArquivoEnvio := '<' + Prefixo + 'CancelarNfseEnvio' + NameSpace + '>' +
-                           '<' + Prefixo + 'Prestador>' +
-                             '<' + Prefixo2 + 'Cnpj>' +
-                               OnlyNumber(Emitente.CNPJ) +
-                             '</' + Prefixo2 + 'Cnpj>' +
-                             GetInscMunic(Emitente.InscMun, Prefixo2) +
-                           '</' + Prefixo + 'Prestador>' +
-                           '<' + Prefixo + 'NumeroNfse>' +
-                             InfoCanc.NumeroNFSe +
-                           '</' + Prefixo + 'NumeroNfse>' +
-                         '</' + Prefixo + 'CancelarNfseEnvio>';
-  end;
-end;
-*)
-
-(*
-procedure TACBrNFSeProviderGinfes.TratarRetornoCancelaNFSe(
-  Response: TNFSeCancelaNFSeResponse);
-var
-  AErro: TNFSeEventoCollectionItem;
-  Document: TACBrXmlDocument;
-  ANode: TACBrXmlNode;
-  Ret: TRetCancelamento;
-begin
-  Document := TACBrXmlDocument.Create;
-
-  try
-    try
-      if Response.ArquivoRetorno = '' then
-      begin
-        AErro := Response.Erros.New;
-        AErro.Codigo := Cod201;
-        AErro.Descricao := ACBrStr(Desc201);
-        Exit
-      end;
-
-      Document.LoadFromXml(Response.ArquivoRetorno);
-
-      ProcessarMensagemErros(Document.Root, Response);
-
-      ANode := Document.Root;
-
-      Response.Sucesso := (Response.Erros.Count = 0);
-
-      Ret :=  Response.RetCancelamento;
-      Ret.Sucesso := ObterConteudoTag(ANode.Childrens.FindAnyNs('Sucesso'), tcBool);
-      Ret.DataHora := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataHora'), tcDatHor);
-    except
-      on E:Exception do
-      begin
-        AErro := Response.Erros.New;
-        AErro.Codigo := Cod999;
-        AErro.Descricao := ACBrStr(Desc999 + E.Message);
-      end;
-    end;
-  finally
-    FreeAndNil(Document);
-  end;
-end;
-*)
 { TACBrNFSeXWebserviceGinfes }
 
 function TACBrNFSeXWebserviceGinfes.GetNameSpace: string;
@@ -332,7 +253,7 @@ begin
   Result := ' xmlns:ns1="' + Result + '"';
 end;
 
-function TACBrNFSeXWebserviceGinfes.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceGinfes.Recepcionar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -348,7 +269,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceGinfes.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceGinfes.ConsultarLote(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -364,7 +285,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceGinfes.ConsultarSituacao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceGinfes.ConsultarSituacao(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -380,7 +301,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceGinfes.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceGinfes.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -396,7 +317,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceGinfes.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceGinfes.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -412,16 +333,12 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceGinfes.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceGinfes.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
   FPMsgOrig := AMSG;
-{
-  Request := '<ns1:CancelarNfse' + NameSpace + '>';
-  Request := Request + '<arg0>' + XmlToStr(AMSG) + '</arg0>';
-  Request := Request + '</ns1:CancelarNfse>';
-}
+
   Request := '<ns1:CancelarNfseV3>';
   Request := Request + '<arg0>' + XmlToStr(ACabecalho) + '</arg0>';
   Request := Request + '<arg1>' + XmlToStr(AMSG) + '</arg1>';
@@ -438,7 +355,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 
   if Pos('ns1:ConsultarNfsePorRpsV3Response', Result) > 0 then

@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Antonio Carlos Junior                           }
 {                                                                              }
@@ -37,8 +37,9 @@ library ACBrLibPIXCD;
 uses
   Interfaces, Forms, sysutils, Classes,
   {$IFDEF MT} ACBrLibPIXCDMT{$ELSE}ACBrLibPIXCDST{$ENDIF},
-  ACBrLibPIXCDDataModule, ACBrLibPIXCDConfig, ACBrLibPIXCDBase, ACBrLibConfig,
-  ACBrLibResposta, ACBrLibComum, ACBrLibConsts, ACBrLibDataModule, ACBrPIXPSPBradesco;
+  ACBrLibPIXCDDataModule, ACBrLibPIXCDConfig, ACBrLibPIXCDBase,
+  ACBrLibPIXCDMateraRespostas, ACBrLibConfig, ACBrLibResposta, ACBrLibComum,
+  ACBrLibConsts, ACBrLibDataModule;
 
 {$R *.res}
 
@@ -53,34 +54,54 @@ exports
   PIXCD_Finalizar,
   PIXCD_Nome,
   PIXCD_Versao,
+  PIXCD_OpenSSLInfo,
   PIXCD_UltimoRetorno,
   PIXCD_ConfigImportar,
   PIXCD_ConfigExportar,
   PIXCD_ConfigLer,
   PIXCD_ConfigGravar,
   PIXCD_ConfigLerValor,
-  PIXCD_ConfigGravarValor;
-
-  //EndPoint /Pix
-  //PIXCD_ConsultarPIX,
-  //PIXCD_ConsultarPixRecebidos,
-  //PIXCD_SolicitarDevolucaoPix,
-  //PIXCD_ConsultarDevolucaoPix,
-
-  //EndPoint /cob
-  //PIXCD_CriarCobrancaImediata,
-  //PIXCD_ConsultarCobrancaImediata,
-  //PIXCD_RevisarCobrancaImediata,
-
-  //EndPoint /cobv
-  //PIXCD_CriarCobranca,
-  //PIXCD_RevisarCobranca,
-  //PIXCD_ConsultarCobranca,
+  PIXCD_ConfigGravarValor,
 
   //PIXCD
-  //PIXCD_ConsultarCobrancas,
-  //PIXCD_GerarQRCodeEstatico,
-  //PIXCD_GerarQRCodeDinamico;
+  PIXCD_GerarQRCodeEstatico,
+
+  //EndPoint /pix
+  PIXCD_ConsultarPix,
+  PIXCD_ConsultarPixRecebidos,
+  PIXCD_SolicitarDevolucaoPix,
+  PIXCD_ConsultarDevolucaoPix,
+
+  //EndPoint /cob
+  PIXCD_CriarCobrancaImediata,
+  PIXCD_ConsultarCobrancaImediata,
+  PIXCD_ConsultarCobrancasCob,
+  PIXCD_RevisarCobrancaImediata,
+  PIXCD_CancelarCobrancaImediata,
+
+  //EndPoint /cobv
+  PIXCD_CriarCobranca,
+  PIXCD_ConsultarCobranca,
+  PIXCD_ConsultarCobrancasCobV,
+  PIXCD_RevisarCobranca,
+  PIXCD_CancelarCobranca,
+
+  //PSP Matera
+  PIXCD_Matera_IncluirConta,
+  PIXCD_Matera_ConsultarConta,
+  PIXCD_Matera_InativarConta,
+  PIXCD_Matera_IncluirChavePix,
+  PIXCD_Matera_ConsultarChavePix,
+  PIXCD_Matera_ExcluirChavePix,
+
+  PIXCD_Matera_GerarQRCode,
+  PIXCD_Matera_ConsultarTransacao,
+  PIXCD_Matera_ConsultarSaldoEC,
+  PIXCD_Matera_ConsultarExtratoEC,
+  PIXCD_Matera_ConsultarMotivosDevolucao,
+  PIXCD_Matera_SolicitarDevolucao,
+  PIXCD_Matera_ConsultarAliasRetirada,
+  PIXCD_Matera_SolicitarRetirada;
 
 begin
   {$IFDEF DEBUG}
@@ -90,5 +111,6 @@ begin
   {$ENDIF}
 
   MainThreadID := GetCurrentThreadId();
+  Application.Initialize;
 end.
 

@@ -1,6 +1,6 @@
 { criar uma interface de comunicação com equipamentos de automacao comercial.   }
 {                                                                               }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida                }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida                }
 {                                                                               }
 { Colaboradores nesse arquivo: Antonio Carlos Junior                            }
 {                                                                               }
@@ -39,94 +39,244 @@ uses
 
 const
   CLibPIXCDNome = 'ACBrLibPIXCD';
-  CLibPIXCDVersao = '1.0.0.21';
+  CLibPIXCDVersao = '1.0.0.9';
 
-  CSessaoPixCDConfig = 'PIXCD';
+  CSessaoRespPIXCD = 'Resposta';
+  CSessaoRespCobGerada = 'CobGerada';
+  CSessaoRespCobVGerada = 'CobVGerada';
+  CSessaoRespCalendario = 'Calendario';
+  CSessaoRespDevedor = 'Devedor';
+  CSessaoRespRecebedor = 'Recebedor';
+  CSessaoRespLocation = 'Loc';
+  CSessaoRespValor = 'Valor';
+
+  CSessaoRespPixInfo = 'PIX';
+  CSessaoRespDevolucao = 'Devolucao';
+  CSessaoRespConsultarPixRecebidos = 'ConsultarPIXRecebidos';
+
+  CSessaoRespCobsConsultadas = 'CobsConsultadas';
+  CSessaoRespParametrosConsultaCob = 'Parametros';
+  CSessaoRespPaginacaoCob = 'Paginacao';
+  CSessaoRespCobCompleta = 'CobCompleta';
+  CSessaoRespCobsInfo = 'CobsInfo';
+  CSessaoRespCobs = 'Cobs';
+
+  CSessaoRespCobsVConsultadas = 'CobsVConsultadas';
+  CSessaoRespParametrosConsultaCobV = 'Parametros';
+  CSessaoRespPaginacaoCobV = 'Paginacao';
+  CSessaoRespCobVCompleta = 'CobVCompleta';
+  CSessaoRespCobsVInfo = 'CobsVInfo';
+  CSessaoRespCobsV = 'CobsV';
+
+  CSessaoRespIncluirContaMatera = 'IncluirContaMatera';
+  CSessaoRespConsultarContaMatera = 'ConsultarContaMatera';
+  CSessaoRespInativarContaMatera = 'InativarContaMatera';
+
+  CSessaoRespAccountMatera = 'Account';
+  CSessaoRespRepresentativeMatera = 'Representative';
+  CSessaoRespDocumentsMatera = 'Documents';
+  CSessaoRespBillingAddressMatera = 'BillingAddress';
+  CSessaoRespAdditionalDetailsCorporateMatera = 'AdditionalDetailsCorporate';
+
+  CSessaoRespMateraClient = 'MateraClient';
+  CSessaoRespMateraClientMailAddress = 'MailAddress';
+  CSessaoRespMateraClientMobilePhone = 'MobilePhone';
+  CSessaoRespMateraClientTaxIdentifier = 'TaxIdentifier';
+
+  CSessapRespMateraAccount = 'MateraAccount';
+  CSessaoRespAliasMatera = 'Alias';
+
+  CSessaoRespConsultarTransacao = 'ConsultarTransacao';
+  CSessaoRespTransactionResponse = 'TransactionResponse';
+  CSessaoRespTransactionResponseMobilePhone = 'mobilePhone';
+  CSessaoRespTransactionResponseUtilities = 'Utilities';
+  CSessaoRespBankTransfer = 'bankTransfer';
+  CSessaoRespBoletoPayment = 'Boleto';
+  CSessaoRespCancelPaymentTransactionResponse = 'cancelPaymentTransaction';
+  CSessaoRespAccountHolderResponse = 'counterPart';
+  CSessaoRespAccountHolderResponseBillingAddress = 'billingAddress';
+  CSessaoRespMateraCoupon = 'Coupon';
+  CSessaoRespMateraDrawee = 'Drawee';
+  CSessaoRespMateraInstantPaymentTransactionResponse  = 'instantPayment';
+  CSessaoRespMateraInstantPaymentTransactionResponseInstantPaymentCashValue = 'instantPaymentCashValue';
+  CSessaoRespMateraInstantPaymentTransactionResponseRecipient = 'Recipient';
+  CSessaoRespMateraInstantPaymentTransactionResponseRejectionReason = 'rejectionReason';
+  CSessaoRespMateraInstantPaymentTransactionResponseReturnInfo = 'returnInfo';
+  CSessaoRespMateraInstantPaymentTransactionResponseOriginDepositTransaction = 'originDepositTransaction';
+  CSessaoRespMateraParticipantInstantPaymentAccount = 'Account';
+  CSessaoRespMateraParticipantInstantPaymentPsp = 'Psp';
+  CSessaoRespMateraParticipantInstantPaymentTaxIdentifier = 'taxIdentifier';
+  CSessaoRespMateraCashValue = 'instantPaymentCashValue';
+  CSessaoRespMateraCashValueWithdrawProviders = 'withdrawProviders';
+  CSessaoRespMateraInstantPaymentTransactionReturnInfo = 'returnInfo';
+  CSessaoRespMateraInstantPaymentTransactionReturnInfoReturnReasonInformation = 'returnReasonInformation';
+  CSessaoRespMateraOriginDepositTransactionResponse = 'originDepositTransaction';
+  CSessaoRespMateraOriginInstantPaymentTransactionResponse = 'originInstantPaymentTransaction';
+  CSessaoRespMateraPaymentReceived = 'paymentReceived';
+  CSessaoRespMateraPaymentReceivedSender = 'Sender';
+
+  CSessaoRespSaldoECResposta = 'SaldoECResposta';
+
+  CSessaoRespExtratoECResposta = 'ExtratoECResposta';
+  CSessaoRespMaterastatementEntry = 'statementEntry';
+  CSessaoRespMateraCounterpart = 'counterpart';
+  CSessaoRespMateraStatementInstantPaymentCashValue = 'statementInstantPaymentCashValue';
+  CSessaoRespMateraStatementInstantPaymentCashValueData = 'statementInstantPaymentCashValueData';
+
+  CSessaoRespMotivosDevolucaoResposta = 'MotivosDevolucaoResposta';
+  CSessaoRespMateraReturnCode = 'ReturnCode';
+
+  CSessaoRespAliasRetiradaResposta = 'AliasRetiradaResposta';
+  CSessaoRespAliasRetiradaRespostaAccountDestination = 'accountDestination';
+  CSessaoRespAliasRetiradaRespostaAccountHolder = 'accountHolder';
+  CSessaoRespAliasRetiradaRespostaAntiFraudClearingInfo = 'antiFraudClearingInfo';
+  CSessaoRespAliasRetiradaRespostaPsp = 'Psp';
+
+  CSessaoRespAliasAccountHolder = 'accountHolder';
+  CSessaoRespAliasAccountHolderTaxIdentifier = 'TaxIdentifier';
+
+  CSessaoRespAntiFraudClearingInfo = 'antiFraudClearingInfo';
+
+  CSessaoRespMateraCounter = 'MateraCounter';
+
+  CSessaoRespAliasResponseV2 = 'AliasResponseV2';
+  CSessaoRespAliasResponseV2AliasHolderAddress = 'aliasHolderAddress';
+  CSessaoRespAliasResponseV2AliasStatistics = 'aliasStatistics';
+  CSessaoRespAliasResponseV2PersonStatistics = 'personStatistics';
+
+  CSessaoRespMateraaliasStatistics = 'aliasStatistics';
+  CSessaoRespMateraaliasStatisticsEntries = 'entries';
+  CSessaoRespMateraaliasStatisticsFraudMarkers = 'fraudMarkers';
+  CSessaoRespMateraaliasStatisticsInfractionReports = 'infractionReports';
+  CSessaoRespMateraaliasStatisticsSpi = 'spi';
+
+  CSessaoRespMateraFraudMarkers = 'fraudMarkers';
+  CSessaoRespMateraFraudMarkersApplicationFrauds = 'applicationFrauds';
+  CSessaoRespMateraFraudMarkersDistinctFraudReporters = 'distinctFraudReporters';
+  CSessaoRespMateraFraudMarkersMuleAccounts = 'muleAccounts';
+  CSessaoRespMateraFraudMarkersOtherFrauds = 'otherFrauds';
+  CSessaoRespMateraFraudMarkersScammerAccounts = 'scammerAccounts';
+  CSessaoRespMateraFraudMarkersTotalFrauds = 'totalFrauds';
+  CSessaoRespMateraFraudMarkersTotalFraudTransactionAmount = 'totalFraudTransactionAmount';
+
+  CSessaoRespMaterainfractionReports = 'infractionReports';
+  CSessaoRespMaterainfractionReportsRejectedReports = 'rejectedReports';
+
+  CSessaoRespMateraSpi = 'spi';
+  CSessaoRespMateraSpiSettlements = 'settlements';
+
+  CSessaoRespMaterapersonStatistics = 'personStatistics';
+  CSessaoRespMaterapersonStatisticsEntries = 'entries';
+  CSessaoRespMaterapersonStatisticsFraudMarkers = 'fraudMarkers';
+  CSessaoRespMaterapersonStatisticsInfractionReports = 'infractionReports';
+  CSessaoRespMaterapersonStatisticsspi = 'spi';
+
+  CSessaoRespSolicitarDevolucaoResposta = 'SolicitarDevolucaoResposta';
+
+  CSessaoRespSolicitarRetiradaResposta = 'SolicitarRetiradaResposta';
+
+  CSessaoRespQRCodeResposta = 'QRCodeResposta';
+  CSessaoRespMateraFinancialStatement = 'FinancialStatement';
+  CSessaoRespMateraInstantPaymentQRCodeResponse = 'InstantPaymentQRCodeResponse';
+
+  CSessaoRespChavePIX = 'ChavePIX';
+  CSessaoRespExcluirChavePIX = 'ExcluirChavePIX';
+
+  CSessaoRespProblema = 'Problema';
+  CSessaoRespProblemaMatera = 'ProblemaMatera';
+
+  CSessaoPIXCDConfig = 'PIXCD';
   CChaveAmbiente = 'Ambiente';
+  CChavePSP = 'PSP';
+  CChaveTipoChave = 'TipoChave';
+  CChaveTimeOut = 'TimeOut';
+  CChaveNivelLog = 'NivelLog';
   CChaveArqLogPixCD = 'ArqLog';
   CChaveCNPJSoftwareHouse = 'CNPJSoftwareHouse';
   CChaveNomeAplicacao = 'NomeAplicacao';
   CChaveNomeSoftwareHouse = 'NomeSoftwareHouse';
   CChaveVersaoAplicacao = 'VersaoAplicacao';
-  CChaveNivelLog = 'NivelLog';
   CChaveProxyHost = 'ProxyHost';
   CChaveProxyPass = 'ProxyPass';
   CChaveProxyPort = 'ProxyPort';
   CChaveProxyUser = 'ProxyUser';
+  CChaveCodCategoriaComerciante = 'ChaveCategoriaComerciante';
   CChaveCEPRecebedor = 'CEPRecebedor';
   CChaveCidadeRecebedor = 'CidadeRecebedor';
-  CChaveCodCategoriaComerciante = 'ChaveCategoriaComerciante';
   CChaveNomeRecebedor = 'NomeRecebedor';
   CChaveUFRecebedor = 'UFRecebedor';
-  CChaveTimeOut = 'TimeOut';
-  CChavePSP = 'PSP';
-  CChaveTipoChave = 'TipoChave';
+  CChaveScopes = 'Scopes';
 
-  CSessaoPixCDBradescoConfig = 'Bradesco';
+  CSessaoPIXCDBradescoConfig = 'Bradesco';
   CChavePIXBradesco = 'ChavePIX';
   CChaveClientIDBradesco = 'ClientID';
   CChaveClientSecretBradesco = 'ClientSecret';
   CChaveArqPFXBradesco = 'ArqPFX';
   CChaveSenhaPFXBradesco = 'SenhaPFX';
 
-  CSessaoPixCDSicrediConfig = 'Sicredi';
+  CSessaoPIXCDSicrediConfig = 'Sicredi';
   CChavePIXSicredi = 'ChavePIX';
   CChaveClientIDSicredi = 'ClientID';
   CChaveClientSecretSicredi = 'ClientSecret';
   CChaveArqChavePrivadaSicredi = 'ArqChavePrivada';
   CChaveArqCertificadoSicredi = 'ArqCertificado';
+  CChaveAPIVersionSicredi = 'APIVersion';
 
-  CSessaoPixCDSicoobConfig = 'Sicoob';
+  CSessaoPIXCDSicoobConfig = 'Sicoob';
   CChavePIXSicoob = 'ChavePIX';
   CChaveClientIDSicoob = 'ClientID';
+  CChaveTokenSandboxSicoob = 'TokenSandbox';
   CChaveArqChavePrivadaSicoob = 'ArqChavePrivada';
   CChaveArqCertificadoSicoob = 'ArqCertificado';
+  CChaveAPIVersionSicoob = 'APIVersion';
 
-  CSessaoPixCDShipayConfig = 'Shipay';
+  CSessaoPIXCDShipayConfig = 'Shipay';
   CChaveClientIDShipay = 'ClientID';
   CChaveSecretKeyShipay = 'SecretKey';
-  CChaveAccessKey = 'AccessKey';
+  CChaveAccessKeyShipay = 'AccessKey';
 
-  CSessaoPixCDSantanderConfig = 'Santander';
+  CSessaoPIXCDSantanderConfig = 'Santander';
   CChavePIXSantander = 'ChavePIX';
-  CChaveConsumerKey = 'ConsumerKey';
-  CChaveConsumerSecret = 'ConsumerSecret';
-  CChaveArqCertificadoPFX = 'ArqCertificadoPFX';
-  CChaveSenhaCertificadoPFX = 'SenhaCertificadoPFX';
+  CChaveConsumerKeySantander = 'ConsumerKey';
+  CChaveConsumerSecretSantander = 'ConsumerSecret';
+  CChaveArqCertificadoPFXSantander = 'ArqCertificadoPFX';
+  CChaveSenhaCertificadoPFXSantander = 'SenhaCertificadoPFX';
+  CChaveAPIVersionSantander = 'APIVersion';
 
-  CSessaoPixCDPixPDVConfig = 'PixPDV';
+  CSessaoPIXCDPixPDVConfig = 'PixPDV';
   CChaveCNPJPixPDV = 'CNPJ';
   CChaveToken = 'Token';
   CChaveSecretKeyPixPDV = 'SecretKey';
 
-  CSessaoPixCDPagSeguroConfig = 'PagSeguro';
+  CSessaoPIXCDPagSeguroConfig = 'PagSeguro';
   CChavePIXPagSeguro = 'ChavePIX';
   CChaveClientIDPagSeguro = 'ClientID';
   CChaveClientSecretPagSeguro = 'ClientSecret';
   CChaveArqChavePrivadaPagSeguro = 'ArqChavePrivada';
   CChaveArqCertificadoPagSeguro = 'ArqCertificado';
 
-  CSessaoPixCDItauConfig = 'Itau';
+  CSessaoPIXCDItauConfig = 'Itau';
   CChavePIXItau = 'ChavePIX';
   CChaveClientIDItau = 'ClientID';
   CChaveClientSecretItau = 'ClientSecret';
   CChaveArqChavePrivadaItau = 'ArqChavePrivada';
   CChaveArqCertificadoItau = 'ArqCertificado';
+  CChaveAPIVersionItau = 'APIVersion';
 
-  CSessaoPixCDInterConfig = 'Inter';
+  CSessaoPIXCDInterConfig = 'Inter';
   CChavePIXInter = 'ChavePIX';
   CChaveClientIDInter = 'ClientID';
   CChaveClientSecretInter = 'ClientSecret';
   CChaveArqChavePrivadaInter = 'ArqChavePrivada';
   CChaveArqCertificadoInter = 'ArqCertificado';
 
-  CSessaoPixCDGerenciaNetConfig = 'GerenciaNet';
+  CSessaoPIXCDGerenciaNetConfig = 'GerenciaNet';
   CChavePIXGerenciaNet = 'ChavePIX';
   CChaveClientIDGerenciaNet = 'ClientID';
   CChaveClientSecretGerenciaNet = 'ClientSecret';
   CChaveArqPFXGerenciaNet = 'ArqPFX';
 
-  CSessaoPixCDBancoBrasilConfig = 'BancoBrasil';
+  CSessaoPIXCDBancoBrasilConfig = 'BancoBrasil';
   CChavePIXBancoBrasil = 'ChavePIX';
   CChaveClientIDBancoBrasil = 'ClientID';
   CChaveClientSecretBancoBrasil = 'ClientSecret';
@@ -135,16 +285,53 @@ const
   CChaveArqCertificadoBancoBrasil = 'ArqCertificado';
   CChaveArqPFXBancoBrasil = 'ArqPFX';
   CChaveSenhaPFXBancoBrasil = 'SenhaPFX';
-  CChaveVersaoAPIBancoBrasil = 'VersaoAPI';
-  CChaveTipoCertificadoBancoBrasil = 'TipoCertificado';
+  CChaveBBAPIVersaoBancoBrasil = 'BBAPIVersao';
+  CChaveAPIVersionBancoBrasil = 'APIVersion';
 
-  CSessaoPixCDAilosConfig = 'Ailos';
+  CSessaoPIXCDAilosConfig = 'Ailos';
   CChavePIXAilos = 'ChavePIX';
   CChaveClientIDAilos = 'ClientID';
   CChaveClientSecretAilos = 'ClientSecret';
   CChaveArqChavePrivadaAilos = 'ArqChavePrivada';
   CChaveArqCertificadoAilos = 'ArqCertificado';
   CChaveArqCertificadoRootAilos = 'ArqCertificadoRoot';
+
+  CSessaoPIXCDMateraConfig = 'Matera';
+  CChavePIXMatera = 'ChavePIX';
+  CChaveClientIDMatera = 'ClientID';
+  CChaveSecretKeyMatera = 'SecretKey';
+  CChaveClientSecretMatera = 'ClientSecret';
+  CChaveArqCertificadoMatera = 'ArqCertificado';
+  CChaveArqChavePrivadaMatera = 'ArqChavePrivada';
+  CChaveAccountIDMatera = 'AccountID';
+  CChaveMediatorFeeMatera = 'MediatorFee';
+
+  CSessaoPIXCDCieloConfig = 'Cielo';
+  CChavePIXCielo = 'ChavePIX';
+  CChaveClientIDCielo = 'ClientID';
+  CChaveClientSecretCielo = 'ClientSecret';
+
+  CSessaoPIXCDMercadoPagoConfig = 'MercadoPago';
+  CChavePIXMercadoPago = 'ChavePIX';
+  CChaveAccesTokenMercadoPago = 'AccessToken';
+
+  CSessaoPIXCDGate2AllConfig = 'Gate2All';
+  CChaveAuthenticationApiGate2All = 'AuthenticationApi';
+  CChaveAuthenticationKeyGate2All = 'AuthenticationKey';
+
+  CSessaoPIXCDBanrisulConfig = 'Banrisul';
+  CChavePIXBanrisul = 'ChavePIX';
+  CChaveClientIDBanrisul = 'ClientID';
+  CChaveClientSecretBanrisul = 'ClientSecret';
+  CChaveArquivoCertificadoBanrisul = 'ArquivoCertificado';
+  CChaveSenhaPFXBanrisul = 'SenhaPFX';
+
+  CSessaoPIXCDC6BankConfig = 'C6Bank';
+  CChavePIXC6Bank = 'ChavePIX';
+  CChaveClientIDC6Bank = 'ClientID';
+  CChaveClientSecretC6Bank = 'ClientSecret';
+  CChaveArqChavePrivadaC6Bank = 'ArqChavePrivada';
+  CChaveArqCertificadoC6Bank = 'ArqCertificado';
 
 implementation
 

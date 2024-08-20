@@ -109,9 +109,10 @@ uses
 
 constructor TACBrConsultaCPF.Create(AOwner: TComponent);
 begin
+  {$MESSAGE WARN 'Informamos que o suporte ao Componente ACBrConsultaCPF foi descontinuado devido ao encerramento do suporte a URL da Receita Federal do Brasil. '}
+  {$MESSAGE WARN 'No momento, este componente não é funcional. Qualquer atualização ou novo suporte será notificado no fórum. Estamos à disposição para esclarecer eventuais dúvidas.'}
   inherited Create(AOwner);
   HTTPSend.Sock.SSL.SSLType := LT_TLSv1;
-  Self.IsUTF8 := False;
   FResourceName := 'ACBrConsultaCPFServicos';
   FParams := TStringList.Create;
   LerParams;
@@ -129,7 +130,7 @@ var
 begin
   try
     Self.HTTPGet(LerSessaoChaveIni('ENDERECOS','CAPTCH'));
-    Html := Self.RespHTTP.Text;
+    Html := DecodeToString(HTTPResponse, RespIsUTF8);
     //Debug
     //WriteToTXT('C:\TEMP\ACBrConsultaCPF-Captcha.TXT',Html);
     AURL := RetornarConteudoEntre(Html, 'src="data:image/png;base64,', '">');
@@ -154,6 +155,11 @@ procedure TACBrConsultaCPF.Captcha(Stream: TStream);
 var
   LErro : String;
 begin
+  LErro := 'Informamos que o suporte ao Componente ACBrConsultaCPF foi descontinuado devido ao encerramento do suporte a URL da Receita Federal do Brasil. '+
+           'No momento, este componente não é funcional. Qualquer atualização ou novo suporte será notificado no fórum. Estamos à disposição para esclarecer eventuais dúvidas.';
+  raise EACBrConsultaCPFException.Create(LErro);
+
+
   try
     Stream.Size := 0; // Trunca o Stream
     WriteStrToStream(Stream, DecodeBase64(GetCaptchaURL));
@@ -307,14 +313,14 @@ begin
     //Debug
     //RespHTTP.SaveToFile('C:\TEMP\ACBrConsultaCPF-1.TXT');
 
-    Erro := VerificarErros(RespHTTP.Text);
+    Erro := VerificarErros(DecodeToString(HTTPResponse, RespIsUTF8));
 
     if Erro = '' then
     begin
       Result:= True;
       Resposta := TStringList.Create;
       try
-        Resposta.Text := StripHTML(RespHTTP.Text);
+        Resposta.Text := StripHTML(DecodeToString(HTTPResponse, RespIsUTF8));
         Resposta.Text := ACBrUtil.XMLHTML.ParseText( Resposta.Text );
         RemoveEmptyLines( Resposta );
 

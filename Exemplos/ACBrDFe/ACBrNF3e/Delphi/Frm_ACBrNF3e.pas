@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -39,7 +39,8 @@ uses
   Dialogs, ExtCtrls, StdCtrls, Spin, Buttons, ComCtrls, OleCtrls, SHDocVw,
   ShellAPI, XMLIntf, XMLDoc, zlib,
   ACBrDFe, ACBrDFeReport, ACBrBase,
-  ACBrPosPrinter, ACBrNF3eDANF3eClass, ACBrNF3eDANF3eESCPOS, ACBrNF3e, ACBrMail;
+  ACBrPosPrinter, ACBrNF3eDANF3eClass, ACBrNF3eDANF3eESCPOS, ACBrNF3e, ACBrMail,
+  ACBrNF3e.DANF3ERLClass;
 
 type
   TfrmACBrNF3e = class(TForm)
@@ -246,6 +247,7 @@ type
     btnStatusServ: TButton;
     ACBrNF3e1: TACBrNF3e;
     ACBrNF3eDANF3eESCPOS1: TACBrNF3eDANF3eESCPOS;
+    ACBrNF3eDANF3eRL1: TACBrNF3eDANF3eRL;
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
     procedure sbPathNF3eClick(Sender: TObject);
@@ -707,7 +709,7 @@ begin
     memoRespWS.Lines.Text := ACBrNF3e1.WebServices.EnvEvento.RetornoWS;
     LoadXML(ACBrNF3e1.WebServices.EnvEvento.RetornoWS, WBResposta);
     ShowMessage(IntToStr(ACBrNF3e1.WebServices.EnvEvento.cStat));
-    ShowMessage(ACBrNF3e1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0].RetInfEvento.nProt);
+    ShowMessage(ACBrNF3e1.WebServices.EnvEvento.EventoRetorno.RetInfEvento.nProt);
   end;
 end;
 
@@ -750,7 +752,7 @@ begin
 
     MemoDados.Lines.Add('');
     MemoDados.Lines.Add('Envio NF3e');
-    MemoDados.Lines.Add('tpAmb: '+ TpAmbToStr(ACBrNF3e1.WebServices.Retorno.TpAmb));
+    MemoDados.Lines.Add('tpAmb: '+ TipoAmbienteToStr(ACBrNF3e1.WebServices.Retorno.TpAmb));
     MemoDados.Lines.Add('verAplic: '+ ACBrNF3e1.WebServices.Retorno.verAplic);
     MemoDados.Lines.Add('cStat: '+ IntToStr(ACBrNF3e1.WebServices.Retorno.cStat));
     MemoDados.Lines.Add('cUF: '+ IntToStr(ACBrNF3e1.WebServices.Retorno.cUF));
@@ -882,7 +884,7 @@ begin
 
     MemoDados.Lines.Add('');
     MemoDados.Lines.Add('Envio NF3e');
-    MemoDados.Lines.Add('tpAmb: ' + TpAmbToStr(ACBrNF3e1.WebServices.Retorno.TpAmb));
+    MemoDados.Lines.Add('tpAmb: ' + TipoAmbienteToStr(ACBrNF3e1.WebServices.Retorno.TpAmb));
     MemoDados.Lines.Add('verAplic: ' + ACBrNF3e1.WebServices.Retorno.verAplic);
     MemoDados.Lines.Add('cStat: ' + IntToStr(ACBrNF3e1.WebServices.Retorno.cStat));
     MemoDados.Lines.Add('cUF: ' + IntToStr(ACBrNF3e1.WebServices.Retorno.cUF));
@@ -1107,7 +1109,8 @@ begin
 
   if OpenDialog1.Execute then
   begin
-    PrepararImpressao;
+    if ACBrNF3e1.DANF3E = ACBrNF3eDANF3eESCPOS1 then
+      PrepararImpressao;
 
     ACBrNF3e1.NotasFiscais.Clear;
     ACBrNF3e1.NotasFiscais.LoadFromFile(OpenDialog1.FileName,False);
@@ -1125,7 +1128,8 @@ begin
 
   if OpenDialog1.Execute then
   begin
-    PrepararImpressao;
+    if ACBrNF3e1.DANF3E = ACBrNF3eDANF3eESCPOS1 then
+      PrepararImpressao;
 
     ACBrNF3e1.NotasFiscais.Clear;
     ACBrNF3e1.NotasFiscais.LoadFromFile(OpenDialog1.FileName,False);
@@ -1719,12 +1723,12 @@ begin
   ACBrNF3e1.Configuracoes.Certificados.ArquivoPFX  := edtCaminho.Text;
   ACBrNF3e1.Configuracoes.Certificados.Senha       := edtSenha.Text;
   ACBrNF3e1.Configuracoes.Certificados.NumeroSerie := edtNumSerie.Text;
-  {
-  if cbModeloDF.ItemIndex = 0 then
-    ACBrNF3e1.DANF3e := ACBrNF3eDANF3eRL1
-  else
-    ACBrNF3e1.DANF3e := ACBrNF3eDANF3eESCPOS1;
-  }
+
+  case rgDANF3E.ItemIndex of
+    0: ACBrNF3e1.DANF3E := ACBrNF3eDANF3eRL1;
+    1: ACBrNF3e1.DANF3E := ACBrNF3eDANF3eESCPOS1;
+  end;
+
   ACBrNF3e1.SSL.DescarregarCertificado;
 
   with ACBrNF3e1.Configuracoes.Geral do
@@ -1817,7 +1821,7 @@ end;
 procedure TfrmACBrNF3e.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser);
 begin
   WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
-                      ConverteXMLtoUTF8(RetWS), False, False);
+                      RetWS, False, False);
 
   MyWebBrowser.Navigate(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml');
 

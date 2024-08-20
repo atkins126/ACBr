@@ -47,11 +47,12 @@ type
   private
     function GetDadosUsuario: string;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function TesteEnvio(const ACabecalho, AMSG: string): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -84,6 +85,8 @@ type
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'erros';
                                      const AMessageTag: string = 'erro'); override;
+
+    function MontarMensagemErros(const ARetorno: string): string;
   end;
 
 implementation
@@ -116,17 +119,17 @@ begin
   end;
 end;
 
-function TACBrNFSeXWebserviceNFSeBrasil.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceNFSeBrasil.Recepcionar(const ACabecalho, AMSG: String): string;
 var
-  Request: string;
+  Request, AMSGaux: string;
 begin
   FPMsgOrig := AMSG;
 
   // Tratamento de nomes com &
-  AMSG := StringReplace(AMSG, '&amp;', '&amp;amp;', [rfReplaceAll]);
+  AMSGaux := StringReplace(AMSG, '&amp;', '&amp;amp;', [rfReplaceAll]);
 
   Request := '<urn:tm_lote_rps_service.importarLoteRPS' + encodingStyle +'>';
-  Request := Request + '<xml xsi:type="xsd:string">' + XmlToStr(AMSG) + '</xml>';
+  Request := Request + '<xml xsi:type="xsd:string">' + XmlToStr(AMSGaux) + '</xml>';
   Request := Request + DadosUsuario;
   Request := Request + '</urn:tm_lote_rps_service.importarLoteRPS>';
 
@@ -135,7 +138,7 @@ begin
                      ['xmlns:urn="urn:loterpswsdl"', xsi]);
 end;
 
-function TACBrNFSeXWebserviceNFSeBrasil.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceNFSeBrasil.ConsultarLote(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -152,7 +155,7 @@ begin
                      ['xmlns:urn="urn:loterpswsdl"', xsi]);
 end;
 
-function TACBrNFSeXWebserviceNFSeBrasil.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceNFSeBrasil.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -169,7 +172,7 @@ begin
                      ['xmlns:urn="urn:loterpswsdl"', xsi]);
 end;
 
-function TACBrNFSeXWebserviceNFSeBrasil.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceNFSeBrasil.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -185,7 +188,7 @@ begin
                      ['xmlns:urn="urn:loterpswsdl"', xsi]);
 end;
 
-function TACBrNFSeXWebserviceNFSeBrasil.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceNFSeBrasil.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -201,16 +204,35 @@ begin
                      ['xmlns:urn="urn:loterpswsdl"', xsi]);
 end;
 
+function TACBrNFSeXWebserviceNFSeBrasil.TesteEnvio(const ACabecalho,
+  AMSG: string): string;
+var
+  Request, AMSGaux: string;
+begin
+  FPMsgOrig := AMSG;
+
+  // Tratamento de nomes com &
+  AMSGaux := StringReplace(AMSG, '&amp;', '&amp;amp;', [rfReplaceAll]);
+
+  Request := '<urn:tm_lote_rps_service.testarLoteRPSRequest' + encodingStyle +'>';
+  Request := Request + '<xml xsi:type="xsd:string">' + XmlToStr(AMSGaux) + '</xml>';
+  Request := Request + DadosUsuario;
+  Request := Request + '</urn:tm_lote_rps_service.testarLoteRPSRequest>';
+
+  Result := Executar('urn:loterpswsdl#tm_lote_rps_service.testarLoteRPS', Request,
+                     ['return', 'RespostaLoteRps'],
+                     ['xmlns:urn="urn:loterpswsdl"', xsi]);
+end;
+
 function TACBrNFSeXWebserviceNFSeBrasil.TratarXmlRetornado(
   const aXML: string): string;
 begin
-  Result := inherited TratarXmlRetornado(aXML);
-
-  if Pos('ISO-8859-1', Result) > 0 then
-    Result := AnsiToNativeString(Result);
+  Result := ConverteANSIparaUTF8(aXML);
+  Result := inherited TratarXmlRetornado(Result);
 
   Result := StringReplace(Result, '&amp;amp;', 'e',[rfReplaceAll]);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
+  Result := RemoverDeclaracaoXML(Result, True);
   Result := RemoverDeclaracaoXML(Result, True);
   Result := RemoverCDATA(Result);
   Result := RemoverIdentacao(Result);
@@ -219,7 +241,6 @@ begin
   Result := StringReplace(Result, 'R$', '', [rfReplaceAll]);
   Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
   Result := StringReplace(Result, ']]', '', [rfReplaceAll]);
-  Result := NativeStringToUTF8(Result);
 end;
 
 { TACBrNFSeProviderNFSeBrasil }
@@ -229,10 +250,22 @@ begin
   inherited Configuracao;
 
   ConfigGeral.UseCertificateHTTP := False;
+  ConfigGeral.ConsultaSitLote := False;
+  ConfigGeral.Autenticacao.RequerCertificado := False;
+  ConfigGeral.Autenticacao.RequerChaveAcesso := True;
+
+  with ConfigGeral.ServicosDisponibilizados do
+  begin
+    ConsultarSituacao := False;
+    TestarEnvio := True;
+  end;
+
   ConfigMsgDados.Prefixo := 'xs';
 
-//  SetXmlNameSpace('https://www.nfsebrasil.net.br/nfse/rps/xsd/rps.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance');
-  SetXmlNameSpace('');
+  if FAOwner.Configuracoes.WebServices.AmbienteCodigo = 1 then
+    SetXmlNameSpace(ConfigWebServices.Producao.XMLNameSpace)
+  else
+    SetXmlNameSpace(ConfigWebServices.Homologacao.XMLNameSpace);
 
   ConfigMsgDados.ConsultarNFSe.DocElemento := 'ConsultarNfsePorRpsEnvio';
 
@@ -281,7 +314,7 @@ var
   TagEnvio, Prefixo, PrefixoTS: string;
   I: Integer;
 begin
-  if Response.ModoEnvio in [meLoteSincrono, meUnitario, meTeste] then
+  if Response.ModoEnvio in [meLoteSincrono, meUnitario] then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod001;
@@ -535,6 +568,8 @@ begin
 
       Response.Situacao := '3'; // Processado com Falhas
 
+      Response.ArquivoRetorno := MontarMensagemErros(Response.ArquivoRetorno);
+
       Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root.Childrens.FindAnyNs('RespostaLoteRps');
@@ -639,6 +674,8 @@ begin
       end;
 
       Response.Situacao := '3'; // Processado com Falhas
+
+      Response.ArquivoRetorno := MontarMensagemErros(Response.ArquivoRetorno);
 
       Document.LoadFromXml(Response.ArquivoRetorno);
 
@@ -760,7 +797,7 @@ begin
 
     AErro := Response.Erros.New;
     AErro.Codigo := '';
-    AErro.Descricao := ACBrStr(Mensagem);
+    AErro.Descricao := Mensagem;
     AErro.Correcao := '';
   end;
 
@@ -774,9 +811,26 @@ begin
 
     AAlerta := Response.Alertas.New;
     AAlerta.Codigo := '';
-    AAlerta.Descricao := ACBrStr(Mensagem);
+    AAlerta.Descricao := Mensagem;
     AAlerta.Correcao := '';
   end;
+end;
+
+function TACBrNFSeProviderNFSeBrasil.MontarMensagemErros(
+  const ARetorno: string): string;
+begin
+  if Pos('RespostaLoteRps', ARetorno) = 0 then
+  begin
+    Result := '<a>' +'<RespostaLoteRps>' +
+                '<erros>' +
+                  '<erro>' + SeparaDados(ARetorno, 'return') + '</erro>' +
+                '</erros>' +
+              '</RespostaLoteRps>' + '</a>';
+
+    Result := ParseText(Result);
+  end
+  else
+    Result := ARetorno;
 end;
 
 end.

@@ -65,7 +65,6 @@ type
     FOldVersion: Boolean;
 
     procedure GetCertInfo(cert: pX509);
-
     procedure DestroyKey;
     procedure DestroyCert;
   protected
@@ -114,12 +113,14 @@ implementation
 
 uses
   strutils, dateutils, typinfo, synautil, synacode,
+  {$IfDef FPC}ctypes,{$EndIf}
+  ACBrOpenSSLUtils,
   ACBrUtil.FilesIO,
   ACBrUtil.Strings,
   ACBrUtil.Math,
   ACBrUtil.DateTime,
-  ACBrDFeException,
-  pcnAuxiliar;
+  ACBrUtil.Base,
+  ACBrDFeException;
 
 function CertToDERBase64(cert: pX509): AnsiString;
 var
@@ -196,7 +197,7 @@ end;
 function GetThumbPrint( cert: pX509 ): String;
 var
   md_type: PEVP_MD;
-  md_len: LongInt;
+  md_len: cint;
   md: AnsiString;
 begin
   md_type := EVP_get_digestbyname( 'sha1' );
@@ -454,7 +455,7 @@ begin
   Result := False;
   DestroyKey;
 
-   b := BioNew(BioSMem);
+  b := BioNew(BioSMem);
   try
     BioWrite(b, PFXData, Length(PFXData));
     p12 := d2iPKCS12bio(b, nil);
@@ -462,10 +463,10 @@ begin
       Exit;
 
     try
+      ca := nil;
       DestroyCert;
       DestroyKey;
-      ca := nil;
-      if PKCS12parse(p12, FpDFeSSL.Senha, FPrivKey, FCert, ca) > 0 then
+      if (PKCS12parse(p12, FpDFeSSL.Senha, FPrivKey, FCert, ca) > 0) then
       begin
         if (FCert <> nil) then
         begin
@@ -475,6 +476,7 @@ begin
       end;
     finally
       PKCS12free(p12);
+      OPENSSL_sk_pop_free(ca, @X509free);
     end;
   finally
     BioFreeAll(b);
@@ -487,7 +489,7 @@ begin
     raise EACBrDFeException.Create(sErrCarregarOpenSSL);
 
   if not LerPFXInfo(FpDFeSSL.DadosPFX) then
-    raise EACBrDFeException.Create(sErrCertSenhaErrada);
+    raise EACBrDFeException.Create(sErrCertSenhaErrada + sLineBreak + GetLastOpenSSLError);
 end;
 
 function TDFeOpenSSL.CarregarCertificadoPublico(const DadosX509Base64: Ansistring): Boolean;
@@ -593,7 +595,7 @@ begin
     md_len := 0;
     md := EVP_get_digestbyname( NameDgst );
     if md = Nil then
-      raise EACBrDFeException.Create('Erro ao carregar Digest: '+NameDgst);
+      raise EACBrDFeException.Create('Erro ao carregar Digest: '+NameDgst + sLineBreak + GetLastOpenSSLError);
 
     if OpenSSLOldVersion then
       pmd_ctx := @md_ctx
@@ -670,7 +672,7 @@ begin
     md_len := 0;
     md := EVP_get_digestbyname( NameDgst );
     if md = Nil then
-      raise EACBrDFeException.Create('Erro ao carregar Digest: '+NameDgst);
+      raise EACBrDFeException.Create('Erro ao carregar Digest: '+NameDgst + sLineBreak + GetLastOpenSSLError);
 
     if OpenSSLOldVersion then
       pmd_ctx := @md_ctx

@@ -53,7 +53,8 @@ uses
    System.Contnrs,
   {$IfEnd}
   ACBrBase,
-  pcnConversao, pcnGerador, pcnConsts,
+  ACBrDFeConsts,
+  pcnConversao, pcnGerador,
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
@@ -89,6 +90,7 @@ type
 
   TEvtInfoComplPer = class(TESocialEvento)
   private
+    FClassTrib: TpClassTrib;
     FIdeEvento: TIdeEvento3;
     FIdeEmpregador: TIdeEmpregador;
     FInfoSubstPatr: TInfoSubstPatr;
@@ -118,6 +120,7 @@ type
     function infoSubstPatrOpPortInst(): Boolean;
     function infoPercTransf11096Inst(): Boolean;
 
+    property ClassTrib: TpClassTrib read FClassTrib write FClassTrib;
     property IdeEvento: TIdeEvento3 read FIdeEvento write FIdeEvento;
     property IdeEmpregador: TIdeEmpregador read FIdeEmpregador write FIdeEmpregador;
     property InfoSubstPatr: TInfoSubstPatr read getInfoSubstPatr write FInfoSubstPatr;
@@ -244,12 +247,15 @@ end;
 
 procedure TEvtInfoComplPer.GerarInfoAtivConcom;
 begin
-  Gerador.wGrupo('infoAtivConcom');
+  if (FClassTrib = ct03) or (InfoAtivConcom.fatorMes <> 0) then
+  begin
+    Gerador.wGrupo('infoAtivConcom');
 
-  Gerador.wCampo(tcDe2, '', 'fatorMes', 1, 5, 1, InfoAtivConcom.fatorMes);
-  Gerador.wCampo(tcDe2, '', 'fator13',  1, 5, 1, InfoAtivConcom.fator13);
+    Gerador.wCampo(tcDe2, '', 'fatorMes', 1, 5, 1, InfoAtivConcom.fatorMes);
+    Gerador.wCampo(tcDe2, '', 'fator13',  1, 5, 1, InfoAtivConcom.fator13);
 
-  Gerador.wGrupo('/infoAtivConcom');
+    Gerador.wGrupo('/infoAtivConcom');
+  end;
 end;
 
 procedure TEvtInfoComplPer.GerarinfoPercTransf11096;

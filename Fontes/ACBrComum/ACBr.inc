@@ -58,9 +58,17 @@
 {.$DEFINE DFE_SEM_MSXML}
 // Descomente a linha abaixo, se você não deseja adicionar a Dependência da INDY nos seus Projetos
 {.$DEFINE DFE_SEM_INDY}
+// Descomente a linha abaixo, se você deseja que sejam utilizadas as classes baseadas na ACBrXMLDocument
+{.$DEFINE USE_ACBr_XMLDOCUMENT}
 
 // Descomente essa linha, para usar a carga de DLL tardia, nas Units do OpenSSL  (Apenas Delphi)
 {$DEFINE USE_DELAYED}
+
+// Descomente essa linha, para usar a exportação de Fast Reports com suporte a SVG
+{.$DEFINE USE_REPORT_FR_SVG}
+
+// Descomente essa linha, para usar a exportação de Fast Reports com suporte a PNG
+{.$DEFINE USE_REPORT_FR_PNG}
 
 // Descomente essa linha, para usar ZLibExGZ de \ACBr\Fontes\Terceiros\ZLibExGZ
 // ZLib de D7 contém bugs e está incompleta. Caso contrário usará compactação nativa, unit "ZLib"
@@ -152,6 +160,10 @@
 
 {$IFDEF DFE_SEM_LIBXML2}
   {$UNDEF DFE_ACBR_LIBXML2}
+{$ENDIF}
+
+{$IFDEF USE_ACBr_XMLDOCUMENT}
+  {$UNDEF DFE_SEM_LIBXML2} 
 {$ENDIF}
 
 {$IFNDEF SUPPORTS_DELAYED_LOADING}

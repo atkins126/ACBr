@@ -323,7 +323,8 @@ uses
   ACBrUtil.Strings, 
   ACBrUtil.FilesIO, 
   ACBrUtil.DateTime,
-  ACBrDFeDANFeReport, 
+  pcnConversaoNFe,
+  ACBrDFeDANFeReport,
   ACBrDFeReportFortes,
   ACBrValidador, 
   ACBrImage, 
@@ -549,7 +550,7 @@ begin
     PintarQRCode(qrcode, imgQRCode.Picture.Bitmap, qrUTF8NoBOM);
 
     lProtocolo.Caption := ACBrStr('Protocolo de Autorização: '+procNFe.nProt+
-                           ' '+ifthen(procNFe.dhRecbto<>0,DateTimeToStr(procNFe.dhRecbto),''));
+                           ' '+ifthen(procNFe.dhRecbto<>0,FormatDateTimeBr(procNFe.dhRecbto),''));
   end;
 end;
 
@@ -669,8 +670,13 @@ end;
 
 procedure TfrmACBrDANFCeFortesFrA4.RLLabel33BeforePrint(Sender: TObject;
   var Text: string; var PrintIt: Boolean);
+var LNNF : string;
 begin
-  Text := ACBrStr('Número ')   + FormatFloat(',0', FACBrNFeDANFCeFortesA4.FpNFe.Ide.nNF) +
+  if FACBrNFeDANFCeFortesA4.FormatarNumeroDocumento then
+    LNNF := IntToStrZero(FACBrNFeDANFCeFortesA4.FpNFe.Ide.nNF, 9)
+  else
+    LNNF := IntToStr(FACBrNFeDANFCeFortesA4.FpNFe.Ide.nNF);
+  Text := ACBrStr('Número ')   + LNNF +
           ACBrStr(' Série ')   + FormatFloat('000', FACBrNFeDANFCeFortesA4.FpNFe.Ide.serie) +
           ACBrStr(' Emissão ') + FormatDateTime('dd/MM/yyyy hh:mm:ss', FACBrNFeDANFCeFortesA4.FpNFe.Ide.dEmi);
 end;
@@ -764,8 +770,13 @@ end;
 
 procedure TfrmACBrDANFCeFortesFrA4.rllNumNF0BeforePrint(Sender: TObject;
   var AText: string; var PrintIt: Boolean);
+var LNNF : string;
 begin
-  AText := ACBrStr('Nº ')   + FormatFloat(',0', FACBrNFeDANFCeFortesA4.FpNFe.Ide.nNF)
+  if FACBrNFeDANFCeFortesA4.FormatarNumeroDocumento then
+    LNNF := IntToStrZero(FACBrNFeDANFCeFortesA4.FpNFe.Ide.nNF, 9)
+  else
+    LNNF := IntToStr(FACBrNFeDANFCeFortesA4.FpNFe.Ide.nNF);
+  AText := ACBrStr('Nº ')   + LNNF;
 end;
 
 procedure TfrmACBrDANFCeFortesFrA4.rllRecebemosDeBeforePrint(Sender: TObject;
@@ -996,16 +1007,8 @@ begin
       RLLayout := rlReportA4;
       Resumido := DanfeResumido;
 
-      if (NumCopias > 0) and (RLPrinter.Copies <> NumCopias) then
-      begin
-        RLPrinter.Copies := NumCopias;
-      end;
+      TDFeReportFortes.AjustarReport(RLLayout, FACBrNFeDANFCeFortesA4);
 
-      if FACBrNFeDANFCeFortesA4.Impressora <> '' then
-        RLPrinter.PrinterName := FACBrNFeDANFCeFortesA4.Impressora;
-
-      RLLayout.PrintDialog := FACBrNFeDANFCeFortesA4.MostraPreview;
-      RLLayout.ShowProgress:= False ;
 
       if Filtro = fiNenhum then
       begin

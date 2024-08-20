@@ -1,9 +1,9 @@
-{*******************************************************************************}
+﻿{*******************************************************************************}
 { Projeto: Componentes ACBr                                                     }
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa-  }
 { mentos de Automação Comercial utilizados no Brasil                            }
 {                                                                               }
-{ Direitos Autorais Reservados (c) 2018 Daniel Simoes de Almeida                }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida                }
 {                                                                               }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                 }
 {                                                                               }
@@ -39,8 +39,11 @@ interface
 
 uses
   SysUtils, Classes, contnrs,
-  pcnEventoNFe, pcnRetEnvEventoNFe, pcnRetConsSitNFe,
-  ACBrLibResposta, ACBrLibConsReciDFe, ACBrNFe;
+  ACBrNFe.EventoClass,
+  ACBrNFe.RetEnvEvento,
+  ACBrNFe.RetConsSit,
+  ACBrLibResposta, ACBrLibConfig,
+  ACBrLibConsReciDFe, ACBrNFe;
 
 type
 
@@ -511,7 +514,7 @@ type
 implementation
 
 uses
-  pcnAuxiliar, pcnConversao,
+  pcnAuxiliar, pcnConversao, pcnConversaoNFe,
   ACBrLibNFeConsts, ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings;
 
 { TPathNFeResposta }
@@ -539,7 +542,7 @@ constructor TEnvioRetornoResposta.Create(const ATipo: TACBrLibRespostaTipo;
   const AFormato: TACBrLibCodificacao);
 begin
   inherited Create(CSessaoResposta, ATipo, AFormato);
-  FEnvioResposta := TEnvioResposta.Create( Tipo, Formato);
+  FEnvioResposta := TEnvioResposta.Create( Tipo, Codificacao);
   FNFe_Arq := TObjectList.Create;
 
 end;
@@ -565,7 +568,7 @@ begin
 
     if Assigned(ACBrNFe.WebServices.Retorno) and (ACBrNFe.WebServices.Enviar.Recibo <> '') then //Assincrono
     begin
-      RetornoResposta := TRetornoResposta.Create('NFe', Tipo, Formato);
+      RetornoResposta := TRetornoResposta.Create('NFe', Tipo, Codificacao);
 
       RetornoResposta.Processar(ACBrNFe.WebServices.Retorno.NFeRetorno,
                                 ACBrNFe.WebServices.Retorno.Recibo,
@@ -582,7 +585,7 @@ begin
           begin
             lPathNFe := TPathNFeResposta.Create(
                          ExtrairNumeroChaveAcesso(ACBrNFe.WebServices.Retorno.NFeRetorno.ProtDFe.Items[I].chDFe),
-                         Tipo, Formato);
+                         Tipo, Codificacao);
               lPathNFe.Processar( ACBrNFe.NotasFiscais.Items[J].NomeArq );
 
               if Assigned(FNFe_Arq) then
@@ -669,7 +672,7 @@ begin
 
   for i := 0 to ARetInfEvento.chNFePend.Count - 1  do
    begin
-     Item := TConsultaNFeChNFePendResposta.Create(FAId, FAIndex, i+1, Tipo, Formato);
+     Item := TConsultaNFeChNFePendResposta.Create(FAId, FAIndex, i+1, Tipo, Codificacao);
      Item.Processar(ARetInfEvento.chNFePend.Items[i]);
      FItems.Add(Item);
    end;
@@ -733,7 +736,7 @@ begin
 
    for i := 0 to AEvento.itemPedido.Count - 1  do
    begin
-     Item := TConsultaNFeItemPedidoResposta.Create(FId, i+1, Tipo, Formato);
+     Item := TConsultaNFeItemPedidoResposta.Create(FId, i+1, Tipo, Codificacao);
      Item.Processar(AEvento.itemPedido.Items[i]);
      FItems.Add(Item);
    end;
@@ -745,7 +748,7 @@ constructor TConsultaNFeProcEventoResposta.Create(const AId: Integer;
   const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
 begin
   inherited Create('ProcEventoNFe' + Trim(IntToStrZero(AId, 3)), ATipo, AFormato);
-  FDetEvento := TConsultaNFeDetEventoResposta.Create(AId, ATipo, Formato);
+  FDetEvento := TConsultaNFeDetEventoResposta.Create(AId, ATipo, Codificacao);
   FRetEventos := TObjectList.Create;
   FID := AId;
 end;
@@ -779,7 +782,7 @@ begin
 
    for i := 0 to AEvento.RetEventoNFe.retEvento.Count - 1  do
    begin
-     RetEvento := TConsultaNFeRetEventoResposta.Create(FId, i+1, Tipo, Formato);
+     RetEvento := TConsultaNFeRetEventoResposta.Create(FId, i+1, Tipo, Codificacao);
      RetEvento.Processar(AEvento.RetEventoNFe.retEvento.Items[i].RetInfEvento);
      FRetEventos.Add(RetEvento);
    end;
@@ -865,7 +868,7 @@ begin
 
     for I := 0 to EventoRetorno.retEvento.Count - 1 do
     begin
-      Item := TEventoItemResposta.Create('Evento' + Trim(IntToStrZero(I +1, 3)), Tipo, Formato);
+      Item := TEventoItemResposta.Create('Evento' + Trim(IntToStrZero(I +1, 3)), Tipo, Codificacao);
       Item.Processar(EventoRetorno.retEvento.Items[i].RetInfEvento);
       FItems.Add(Item);
     end;
@@ -940,7 +943,7 @@ begin
     if Trim(NumeroNota) = '' then Exit;
     if Trim(ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.nProt) = '' then Exit;
 
-    FItemRetorno := TRetornoItemResposta.Create('NFe' + NumeroNota, Tipo, Formato);
+    FItemRetorno := TRetornoItemResposta.Create('NFe' + NumeroNota, Tipo, Codificacao);
     FItemRetorno.Id := 'ID' + ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.nProt;
     FItemRetorno.tpAmb := TpAmbToStr(ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.tpAmb);
     FItemRetorno.verAplic := ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.verAplic;
@@ -951,6 +954,7 @@ begin
     FItemRetorno.cStat := ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.cStat;
     FItemRetorno.xMotivo := ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.xMotivo;
     FItemRetorno.XML := ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.XML_prot;
+    FItemRetorno.NomeArq := ACBrNFe.NotasFiscais.Items[0].NomeArq;
   end;
 end;
 
@@ -1046,7 +1050,7 @@ begin
 
   if NaoEstaVazio(Trim(ACBrNFe.WebServices.Consulta.retCancNFe.nProt)) then
   begin
-    InfCan := TConsultaNFeInfCanResposta.Create(Tipo, Formato);
+    InfCan := TConsultaNFeInfCanResposta.Create(Tipo, Codificacao);
     InfCan.Processar(ACBrNFe);
   end;
 
@@ -1054,7 +1058,7 @@ begin
   begin
     for I:= 0 to Consulta.procEventoNFe.Count-1 do
     begin
-      ProcEvento := TConsultaNFeProcEventoResposta.Create(I + 1, Tipo, Formato);
+      ProcEvento := TConsultaNFeProcEventoResposta.Create(I + 1, Tipo, Codificacao);
       ProcEvento.Processar(Consulta.procEventoNFe.Items[I]);
       FEventos.Add(ProcEvento);
     end;

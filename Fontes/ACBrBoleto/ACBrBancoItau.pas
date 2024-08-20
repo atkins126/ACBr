@@ -58,6 +58,7 @@ type
     function DefineEspecieDoc(const ACBrTitulo: TACBrTitulo): String; override;
     function DefineTipoBeneficiario(const ACBrTitulo: TACBrTitulo): String;
     function DefinePosicaoNossoNumeroRetorno: Integer; override;
+    function DefineTipoSacado(const ACBrTitulo: TACBrTitulo): String; override;
     function DefinePosicaoCarteiraRetorno:Integer; override;
     function InstrucoesProtesto(const ACBrTitulo: TACBrTitulo): String;override;
     function MontaInstrucoesCNAB400(const ACBrTitulo :TACBrTitulo; const nRegistro: Integer ): String; override;
@@ -121,7 +122,8 @@ begin
    fpModuloMultiplicadorInicial:= 1;
    fpModuloMultiplicadorFinal:= 2;
    fpModuloMultiplicadorAtual:= 2;
-   fpCodigosMoraAceitos    := '1235';
+
+   fpCodigosMoraAceitos    := '123590919305';
 end;
 
 function TACBrBancoItau.DefineNumeroDocumentoModulo(
@@ -289,6 +291,20 @@ begin
     else
       Result := '9';
     end;
+  end;
+end;
+
+function TACBrBancoItau.DefineTipoSacado(const ACBrTitulo: TACBrTitulo): String;
+begin
+  with ACBrTitulo do
+  begin
+    case Sacado.Pessoa of
+        pFisica   : Result := '1';
+        pJuridica : Result := '2';
+     else
+        Result := '9';
+     end;
+
   end;
 end;
 
@@ -846,6 +862,18 @@ begin
                      aRemessa.Add(UpperCase(wLinhaMulta));
                    end;
 
+                  {Registro Híbrido - Bolecode}
+                  if (NaoEstaVazio(ACBrBoleto.Cedente.PIX.Chave)) then
+                  begin
+                    wLinha := '3'                                              + // 001 a 001 - Identificação do registro bolecode (3)
+                              PadRight(IfThen(QrCode.txId = '', ACBrBoleto.Cedente.PIX.Chave, ''), 77, ' ') + // 002 a 078 - Chave Pix (opicional)
+                              PadRight(QrCode.txId,  64, ' ')                  + // 079 a 142 - ID DA URL DO QR CODE PIX (opcional)
+                              PadRight('', 252, ' ')                                                          + // 143 a 394 - Brancos
+                              IntToStrZero(ARemessa.Count + 1, 6);
+                    iSequencia := aRemessa.Count + 1;                                                                        // 395 a 400 - Número sequencial do registro
+                    ARemessa.Text:= ARemessa.Text + UpperCase(wLinha);
+                  end;
+
                    //OPCIONAL – COBRANÇA E-MAIL E/OU DADOS DO SACADOR AVALISTA
                    if (Sacado.Email <> '') or (Sacado.SacadoAvalista.CNPJCPF <> '') then
                    begin
@@ -882,21 +910,7 @@ begin
 
                      aRemessa.Add(UpperCase(wLinhaMulta));
                    end;
-
         end;
-
-        {Registro Híbrido - Bolecode}
-        if (NaoEstaVazio(ACBrBoleto.Cedente.PIX.Chave)) then
-        begin
-          wLinha := '3'                                              + // 001 a 001 - Identificação do registro bolecode (3)
-                    PadRight(ACBrBoleto.Cedente.PIX.Chave, 77, ' ')  + // 002 a 078 - Chave Pix (opicional)
-                    PadRight(QrCode.txId,  64, ' ')                  + // 079 a 142 - ID DA URL DO QR CODE PIX (opcional)
-                    PadRight('', 252, ' ')                           + // 143 a 394 - Brancos
-                    IntToStrZero( ARemessa.Count + 1, 6);              // 395 a 400 - Número sequencial do registro
-          ARemessa.Text:= ARemessa.Text + UpperCase(wLinha);
-        end;
-
-
     end;
   end;
 end;

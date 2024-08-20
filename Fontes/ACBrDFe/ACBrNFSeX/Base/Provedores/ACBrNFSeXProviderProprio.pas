@@ -145,8 +145,8 @@ type
     procedure GerarMsgDadosConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
     procedure TratarRetornoConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
 
-    function AplicarXMLtoUTF8(AXMLRps: String): String; virtual;
-    function AplicarLineBreak(AXMLRps: String; const ABreak: String): String; virtual;
+    function AplicarXMLtoUTF8(const AXMLRps: String): String; virtual;
+    function AplicarLineBreak(const AXMLRps: String; const ABreak: String): String; virtual;
 
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
@@ -177,10 +177,17 @@ var
   AErro: TNFSeEventoCollectionItem;
   aParams: TNFSeParamsResponse;
   Nota: TNotaFiscal;
-  Versao, IdAttr, NameSpace, NameSpaceLote, ListaRps, xRps,
+  Versao, IdAttr, NameSpace, NameSpaceLote, ListaRps, xRps, IdAttrSig,
   TagEnvio, Prefixo, PrefixoTS: string;
   I: Integer;
 begin
+  if EstaVazio(Response.NumeroLote) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod111;
+    AErro.Descricao := ACBrStr(Desc111);
+  end;
+
   if TACBrNFSeX(FAOwner).NotasFiscais.Count <= 0 then
   begin
     AErro := Response.Erros.New;
@@ -214,6 +221,17 @@ begin
   ListaRps := '';
   Prefixo := '';
   PrefixoTS := '';
+
+  {
+    Alimenta o campo NumeroLote na Lista de notas com o numero do lote informado
+    no primeiro parâmetro do método Emitir. O provedor AssessorPublico necessida
+    dessa informação.
+  }
+  for i := 0 to TACBrNFSeX(FAOwner).NotasFiscais.Count -1 do
+  begin
+    if TACBrNFSeX(FAOwner).NotasFiscais[i].NFSe.NumeroLote = '' then
+      TACBrNFSeX(FAOwner).NotasFiscais[i].NFSe.NumeroLote := Response.NumeroLote;
+  end;
 
   case Response.ModoEnvio of
     meLoteSincrono:
@@ -308,12 +326,16 @@ begin
     Nota.XmlRps := AplicarXMLtoUTF8(Nota.XmlRps);
     Nota.XmlRps := AplicarLineBreak(Nota.XmlRps, '');
 
-    if (ConfigAssinar.Rps and (Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono])) or
+    if (ConfigAssinar.Rps and (Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono, meTeste])) or
        (ConfigAssinar.RpsGerarNFSe and (Response.ModoEnvio = meUnitario)) then
     begin
+      IdAttrSig := SetIdSignatureValue(Nota.XmlRps,
+                                     ConfigMsgDados.XmlRps.DocElemento, IdAttr);
+
       Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
                                          PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
-                                         ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
+                                         ConfigMsgDados.XmlRps.InfElemento, '', '', '',
+                                         IdAttr, IdAttrSig);
     end;
 
     SalvarXmlRps(Nota);
@@ -513,7 +535,7 @@ end;
 procedure TACBrNFSeProviderProprio.AssinarConsultaNFSeporChave(
   Response: TNFSeConsultaNFSeResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.ConsultarNFSePorChave then Exit;
@@ -529,9 +551,13 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                      ConfigMsgDados.ConsultarNFSePorChave.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.ConsultarNFSePorChave.DocElemento,
-      ConfigMsgDados.ConsultarNFSePorChave.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.ConsultarNFSePorChave.InfElemento, '', '', '', IdAttr,
+      IdAttrSig);
   except
     on E:Exception do
     begin
@@ -669,7 +695,8 @@ var
   AErro: TNFSeEventoCollectionItem;
   aParams: TNFSeParamsResponse;
   Nota: TNotaFiscal;
-  IdAttr, xRps, NameSpace, NumRps, TagEnvio, Prefixo, PrefixoTS: string;
+  IdAttr, xRps, NameSpace, NumRps, TagEnvio, Prefixo, PrefixoTS,
+  IdAttrSig: string;
 begin
   if EstaVazio(Response.PedCanc) then
   begin
@@ -748,9 +775,13 @@ begin
 
   if ConfigAssinar.RpsSubstituirNFSe then
   begin
+    IdAttrSig := SetIdSignatureValue(Nota.XmlRps,
+                      ConfigMsgDados.XmlRps.DocElemento, IdAttr);
+
     Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
                                        PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
-                                       ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
+                                       ConfigMsgDados.XmlRps.InfElemento, '', '', '',
+                                       IdAttr, IdAttrSig);
   end;
 
   SalvarXmlRps(Nota);
@@ -811,12 +842,12 @@ begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;
 
-function TACBrNFSeProviderProprio.AplicarXMLtoUTF8(AXMLRps: String): String;
+function TACBrNFSeProviderProprio.AplicarXMLtoUTF8(const AXMLRps: String): String;
 begin
   Result := ConverteXMLtoUTF8(AXMLRps);
 end;
 
-function TACBrNFSeProviderProprio.AplicarLineBreak(AXMLRps: String; const ABreak: String): String;
+function TACBrNFSeProviderProprio.AplicarLineBreak(const AXMLRps: String; const ABreak: String): String;
 begin
   Result := ChangeLineBreak(AXMLRps, ABreak);
 end;

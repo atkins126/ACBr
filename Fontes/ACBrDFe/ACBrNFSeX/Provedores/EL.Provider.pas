@@ -47,14 +47,14 @@ type
 
   TACBrNFSeXWebserviceEL = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function AbrirSessao(ACabecalho, AMSG: String): string; override;
-    function FecharSessao(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function AbrirSessao(const ACabecalho, AMSG: String): string; override;
+    function FecharSessao(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -125,16 +125,16 @@ type
 
   TACBrNFSeXWebserviceEL204 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -215,7 +215,7 @@ end;
 
 { TACBrNFSeXWebserviceEL204 }
 
-function TACBrNFSeXWebserviceEL204.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceEL204.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -234,7 +234,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceEL204.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceEL204.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -253,7 +253,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceEL204.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceEL204.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -272,7 +272,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceEL204.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceEL204.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -291,7 +291,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceEL204.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceEL204.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -310,7 +310,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceEL204.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceEL204.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -329,7 +329,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceEL204.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceEL204.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -348,7 +348,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceEL204.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceEL204.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -367,7 +367,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceEL204.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceEL204.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -385,7 +385,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceEL204.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceEL204.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -409,7 +409,7 @@ function TACBrNFSeXWebserviceEL204.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 
@@ -579,10 +579,10 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := '';
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('mensagens'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('mensagens'), tcStr);
 
     if AErro.Descricao = '' then
-      AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+      AErro.Descricao := ANodeArray[I].AsString;
 
     AErro.Correcao := '';
   end;
@@ -677,7 +677,23 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.ArquivoEnvio := '<el:autenticarContribuinte>' +
+  if EstaVazio(Emitente.CNPJ) then
+  begin
+    AErro := EmiteResponse.Erros.New;
+    AErro.Codigo := Cod130;
+    AErro.Descricao := ACBrStr(Desc130);
+    Exit;
+  end;
+
+  if EstaVazio(Emitente.WSSenha) then
+  begin
+    AErro := EmiteResponse.Erros.New;
+    AErro.Codigo := Cod120;
+    AErro.Descricao := ACBrStr(Desc120);
+    Exit;
+  end;
+
+  Response.ArquivoEnvio := '<el:autenticarContribuinte xmlns:el="http://des36.el.com.br:8080/el-issonline/">' +
                              '<identificacaoPrestador>' +
                                 OnlyNumber(Emitente.CNPJ) +
                              '</identificacaoPrestador>' +
@@ -728,7 +744,7 @@ end;
 procedure TACBrNFSeProviderEL.PrepararFecharSessao(
   Response: TNFSeFechaSessaoResponse);
 begin
-  Response.ArquivoEnvio := '<el:finalizarSessao>' +
+  Response.ArquivoEnvio := '<el:finalizarSessao xmlns:el="http://des36.el.com.br:8080/el-issonline/">' +
                              '<hashIdentificador>' +
                                 FPHash +
                              '</hashIdentificador>' +
@@ -819,7 +835,7 @@ begin
                  '</ListaRps>' +
                '</LoteRps>';
 
-    Response.ArquivoEnvio := '<el:EnviarLoteRpsEnvio>' +
+    Response.ArquivoEnvio := '<el:EnviarLoteRpsEnvio xmlns:el="http://des36.el.com.br:8080/el-issonline/">' +
                                '<identificacaoPrestador>' +
                                   OnlyNumber(Emitente.CNPJ) +
                                '</identificacaoPrestador>' +
@@ -900,7 +916,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.ArquivoEnvio := '<el:ConsultarSituacaoLoteRpsEnvio>' +
+  Response.ArquivoEnvio := '<el:ConsultarSituacaoLoteRpsEnvio xmlns:el="http://des36.el.com.br:8080/el-issonline/">' +
                              '<identificacaoPrestador>' +
                                 OnlyNumber(Emitente.CNPJ) +
                              '</identificacaoPrestador>' +
@@ -982,7 +998,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.ArquivoEnvio := '<el:ConsultarLoteRpsEnvio>' +
+  Response.ArquivoEnvio := '<el:ConsultarLoteRpsEnvio xmlns:el="http://des36.el.com.br:8080/el-issonline/">' +
                              '<identificacaoPrestador>' +
                                 OnlyNumber(Emitente.CNPJ) +
                              '</identificacaoPrestador>' +
@@ -1002,7 +1018,7 @@ var
   ANodeArray: TACBrXmlNodeArray;
   AResumo: TNFSeResumoCollectionItem;
   i, j, k: Integer;
-  ANumRps, ANumNfse, ASituacao, AidNota, aXmlNota, aXmlRetorno: string;
+  ANumRps, ANumNfse, ASituacao, AidNota, AidRps, aXmlNota, aXmlRetorno: string;
   ADataHora: TDateTime;
   ANota: TNotaFiscal;
 begin
@@ -1039,6 +1055,7 @@ begin
         begin
           Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dataProcessamento'), tcDatHor);
           idNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('idNota'), tcStr);
+          idRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('idRps'), tcStr);
           NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
           Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('situacao'), tcStr);
           NumeroRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('rpsNumero'), tcStr);
@@ -1058,6 +1075,7 @@ begin
               begin
                 AResumo := Response.Resumos.New;
                 AResumo.idNota := Response.idNota;
+                AResumo.idRps := Response.idRps;
                 AResumo.NumeroNota := Response.NumeroNota;
                 AResumo.Data := Response.Data;
                 AResumo.Situacao :=  Response.Situacao;
@@ -1079,6 +1097,7 @@ begin
               if j > 0 then
               begin
                 AidNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('idNota'), tcStr);
+                AidRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('idRps'), tcStr);
                 ANumNfse := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
                 ADataHora := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dataProcessamento'), tcDatHor);
                 ASituacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('situacao'), tcStr);
@@ -1086,6 +1105,7 @@ begin
 
                 AResumo := Response.Resumos.New;
                 AResumo.idNota := AidNota;
+                AResumo.idRps := AidRps;
                 AResumo.NumeroNota := ANumNfse;
                 AResumo.Data := ADataHora;
                 AResumo.Situacao := ASituacao;
@@ -1144,7 +1164,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.ArquivoEnvio := '<el:ConsultarNfseRpsEnvio>' +
+  Response.ArquivoEnvio := '<el:ConsultarNfseRpsEnvio xmlns:el="http://des36.el.com.br:8080/el-issonline/">' +
                              '<identificacaoRps>' +
                                 Response.NumeroRps +
                              '</identificacaoRps>' +
@@ -1161,6 +1181,9 @@ var
   AErro: TNFSeEventoCollectionItem;
   ANode: TACBrXmlNode;
   AuxNode: TACBrXmlNode;
+  j, k: Integer;
+  aXmlRetorno, aXmlNota: string;
+  ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -1196,6 +1219,32 @@ begin
           idNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('idNota'), tcStr);
           NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
           Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('situacao'), tcStr);
+          NumeroRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('rpsNumero'), tcStr);
+
+          j := TACBrNFSeX(FAOwner).NotasFiscais.Count;
+
+          if j > 0 then
+          begin
+            aXmlRetorno := AuxNode.OuterXml;
+
+            for k := 0 to j-1 do
+            begin
+              ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[k];
+
+              if ANota.NFSe.IdentificacaoRps.Numero = NumeroRps  then
+              begin
+                if ANota.XmlRps = '' then
+                  aXmlNota := GerarXmlNota(ANota.XmlNfse, aXmlRetorno)
+                else
+                  aXmlNota := GerarXmlNota(ANota.XmlRps, aXmlRetorno);
+
+                ANota.XmlNfse := aXmlNota;
+
+                SalvarXmlNfse(ANota);
+                Exit;
+              end;
+            end;
+          end;
         end;
       end;
     except
@@ -1229,7 +1278,7 @@ begin
 
   Response.Metodo := tmConsultarNFSe;
 
-  Response.ArquivoEnvio := '<el:ConsultarNfseEnvio>' +
+  Response.ArquivoEnvio := '<el:ConsultarNfseEnvio xmlns:el="http://des36.el.com.br:8080/el-issonline/">' +
                              '<identificacaoPrestador>' +
                                 OnlyNumber(Emitente.CNPJ) +
                              '</identificacaoPrestador>' +
@@ -1246,6 +1295,9 @@ var
   AErro: TNFSeEventoCollectionItem;
   ANode: TACBrXmlNode;
   AuxNode: TACBrXmlNode;
+  j, k: Integer;
+  aXmlRetorno, aXmlNota: string;
+  ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -1278,6 +1330,32 @@ begin
           idNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('idNota'), tcStr);
           NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
           Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('situacao'), tcStr);
+          NumeroRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('rpsNumero'), tcStr);
+
+          j := TACBrNFSeX(FAOwner).NotasFiscais.Count;
+
+          if j > 0 then
+          begin
+            aXmlRetorno := AuxNode.OuterXml;
+
+            for k := 0 to j-1 do
+            begin
+              ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[k];
+
+              if ANota.NFSe.IdentificacaoRps.Numero = NumeroRps  then
+              begin
+                if ANota.XmlRps = '' then
+                  aXmlNota := GerarXmlNota(ANota.XmlNfse, aXmlRetorno)
+                else
+                  aXmlNota := GerarXmlNota(ANota.XmlRps, aXmlRetorno);
+
+                ANota.XmlNfse := aXmlNota;
+
+                SalvarXmlNfse(ANota);
+                Exit;
+              end;
+            end;
+          end;
         end;
       end;
     except
@@ -1309,7 +1387,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.ArquivoEnvio := '<el:CancelarNfseEnvio>' +
+  Response.ArquivoEnvio := '<el:CancelarNfseEnvio xmlns:el="http://des36.el.com.br:8080/el-issonline/">' +
                              '<identificacaoPrestador>' +
                                 OnlyNumber(Emitente.CNPJ) +
                              '</identificacaoPrestador>' +
@@ -1386,6 +1464,19 @@ begin
     ModoEnvio := meLoteAssincrono;
     NumMaxRpsEnviar := 5;
     DetalharServico := True;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerLogin := True;
+
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarSituacao := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.ConsultarNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+
+    Particularidades.PermiteTagOutrasInformacoes := True;
+    Particularidades.PermiteMaisDeUmServico := True;
   end;
 
   SetXmlNameSpace('http://www.el.com.br/nfse/xsd/el-nfse.xsd');
@@ -1472,74 +1563,66 @@ function TACBrNFSeXWebserviceEL.TratarXmlRetornado(const aXML: string): string;
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 
-function TACBrNFSeXWebserviceEL.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceEL.Recepcionar(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [],
-                     ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
+  Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceEL.AbrirSessao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceEL.AbrirSessao(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [],
-                     ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
+  Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceEL.FecharSessao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceEL.FecharSessao(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [],
-                     ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
+  Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceEL.ConsultarSituacao(ACabecalho,
+function TACBrNFSeXWebserviceEL.ConsultarSituacao(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [],
-                     ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
+  Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceEL.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceEL.ConsultarLote(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [],
-                     ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
+  Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceEL.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceEL.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [],
-                     ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
+  Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceEL.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceEL.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [],
-                     ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
+  Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceEL.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceEL.Cancelar(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [],
-                     ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
+  Result := Executar('', AMSG, [], []);
 end;
 
 end.

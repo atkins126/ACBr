@@ -43,7 +43,12 @@ uses
 resourcestring
   sPerVenctoCartao = 'VENCIMENTO CARTAO';
   sInfoRemovaCartao = 'REMOVER O CARTAO';
+  sInfoPGWebLibAtualizaTrue = 'Atualização disponível para PGWebLib';
+  sInfoPGWebLibAtualizaFalse = 'PGWebLib sem atualização';
   sErrLibJaInicializda = 'Biblioteca PGWebLib já foi inicializada';
+  sErrLibNaoEncontrada = 'Biblioteca não encontrada: %s';
+  sErrVarDef = 'Erro Definindo a valor: %s para variável %s ';
+  sErrLibNaoPermiteMudarPath = 'Path da PGWebLib deve ser %s';
   sErrEventoNaoAtribuido = 'Evento %s não atribuido';
   sErrLibVersaoInvalida = 'Biblioteca %s tem versão %s, inferior a %s';
   sErrPWRET_WRITERR = 'Falha de gravação no diretório %s';
@@ -67,6 +72,8 @@ resourcestring
 const
   CACBrTEFPGWebAPIName = 'ACBrTEFPGWebAPI';
   CACBrTEFPGWebAPIVersao = '1.0.1';
+  CACBrTEFPGWebDir = 'PGWebLib';
+  CACBrTEFPGWebDirDebug = 'DEBUG';
 
   {$IFDEF MSWINDOWS}
    CACBrTEFPGWebLib = 'PGWebLib.dll';
@@ -403,8 +410,8 @@ type
   // Record que descreve cada membro da estrutura PW_GetData:
   //========================================================
   TPW_GetData = record
-    wIdentificador : Word;
-    bTipoDeDado : Byte;
+    wIdentificador: Word;
+    bTipoDeDado: Byte;
     szPrompt: Array[0..83] of AnsiChar;
     bNumOpcoesMenu: Byte;
     vszTextoMenu: Array[0..PWMENU_MAXINTENS-1] of Array[0..40] of AnsiChar;
@@ -434,7 +441,6 @@ type
     bIniciaPelaEsquerda: Byte;
     bNotificarCancelamento: Byte;
     bAlinhaPelaDireita: Byte;
-    bIndice: Byte;
   end;
 
   TArrPW_GetData = Array[0..10] of TPW_GetData;
@@ -476,7 +482,8 @@ type
      pgvDDMMAA = 5,
      pgvDuplaDigitacao = 6,
      pgvSenhaLojista = 100,
-     pgvSenhaTecnica = 101);
+     pgvSenhaTecnica = 101,
+     pgvQuantidadeParcelas = 102);
 
   TACBrTEFPGWebAPITipoBarras =
     (pgbDigitado = 1,
@@ -545,6 +552,7 @@ type
 
   TACBrTEFPGWebAPI = class
   private
+    fAtualizaPGWebLibAutomaticamente: Boolean;
     fCNPJEstabelecimento: String;
     fConfirmarTransacoesPendentesNoHost: Boolean;
     fDadosTransacao: TACBrTEFParametros;
@@ -556,6 +564,7 @@ type
     fInicializada: Boolean;
     fCarregada: Boolean;
     fEmTransacao: Boolean;
+    fIsDebug: Boolean;
     fPerguntarCartaoDigitadoAposCancelarLeitura: Boolean;
     fUsouPinPad: Boolean;
     fNomeAplicacao: String;
@@ -650,11 +659,13 @@ type
     xPW_iTransactionInquiry: function(const pszXmlRequest: PAnsiChar;
               pszXmlResponse: PAnsiChar; ulXmlResponseLen: Word): SmallInt;
               {$IfDef MSWINDOWS}stdcall{$Else}cdecl{$EndIf};
+    xPW_End: procedure {$IfDef MSWINDOWS}stdcall{$Else}cdecl{$EndIf};
 
     procedure SetCNPJEstabelecimento(const AValue: String);
     procedure SetDiretorioTrabalho(const AValue: String);
     procedure SetEnderecoIP(const AValue: String);
     procedure SetInicializada(AValue: Boolean);
+    procedure SetIsDebug(AValue: Boolean);
     procedure SetNomeAplicacao(const AValue: String);
     procedure SetNomeEstabelecimento(const AValue: String);
     procedure SetPathLib(const AValue: String);
@@ -685,17 +696,18 @@ type
     function ObterDadoDigitado(AGetData: TPW_GetData): SmallInt;
     function ObterDadoDigitadoGenerico(AGetData: TPW_GetData; var AResposta: String): Boolean;
     function ObterDadoCodBarra(AGetData: TPW_GetData): SmallInt;
-    function ObterDadoCartao(AGetData: TPW_GetData): SmallInt;
+    function ObterDadoCartao(AGetData: TPW_GetData; uiIndex: Word): SmallInt;
     function ObterDadoCartaoDigitado(AGetData: TPW_GetData): SmallInt;
 
-    function RealizarOperacaoPinPad(AGetData: TPW_GetData; OperacaoPinPad: TACBrTEFPGWebAPIOperacaoPinPad): SmallInt;
+    function RealizarOperacaoPinPad(AGetData: TPW_GetData; uiIndex: Word;
+      OperacaoPinPad: TACBrTEFPGWebAPIOperacaoPinPad): SmallInt;
     function AguardarOperacaoPinPad(OperacaoPinPad: TACBrTEFPGWebAPIOperacaoPinPad): SmallInt;
     procedure ExibirMensagem(const AMsg: String; Terminal: TACBrTEFPGWebAPITerminalMensagem = tmTodas; TempoEspera: Integer = -1);
     procedure ExibirQRCode(const Dados: String);
     procedure ChamarOnAguardaPinPad(OperacaoPinPad: TACBrTEFPGWebAPIOperacaoPinPad; var Cancelado: Boolean);
 
     function PW_GetDataToDefinicaoCampo(AGetData: TPW_GetData): TACBrTEFPGWebAPIDefinicaoCampo;
-    procedure LogPWGetData(AGetData: TPW_GetData);
+    procedure LogPWGetData(AGetData: TPW_GetData; uiIndex: Word);
 
     function ValidarMMAA(const AString: String): Boolean;
     function ValidarDDMMAA(const AString: String): Boolean;
@@ -731,7 +743,15 @@ type
     function ValidarRespostaCampo(var AResposta: String;
       ADefinicaoCampo: TACBrTEFPGWebAPIDefinicaoCampo): String;
 
+    function GetVarPathPGWebLib: String;
+    function GetPathPGWebLib: String;
+    function SetPathPGWebLib(const APathLib: String): Boolean;
+    function GetPGWebLibAtualiza: Boolean;
+    function SetPGWebLibPermiteAtualiza(PermiteAtualizacao: Boolean): Boolean;
+
     property PathLib: String read fPathLib write SetPathLib;
+    property IsDebug: Boolean read fIsDebug write SetIsDebug;
+    property AtualizaPGWebLibAutomaticamente: Boolean read fAtualizaPGWebLibAutomaticamente write fAtualizaPGWebLibAutomaticamente default True;
     property DiretorioTrabalho: String read fDiretorioTrabalho write SetDiretorioTrabalho;
     property Carregada: Boolean read fCarregada;
     property Inicializada: Boolean read fInicializada write SetInicializada;
@@ -1101,11 +1121,19 @@ begin
   fInicializada := False;
   fCarregada := False;
   fDiretorioTrabalho := '';
+  fAtualizaPGWebLibAutomaticamente := True;
   fEmTransacao := False;
   fUsouPinPad := False;
   fTempoTarefasAutomaticas := '';
   fUltimoQRCode := '';
 
+  {$IfDef DEBUG}
+   IsDebug := True;
+  {$Else}
+   IsDebug := False;
+  {$EndIf}
+
+  fPathLib := '';
   fSoftwareHouse := '';
   fNomeAplicacao := '';
   fVersaoAplicacao := '';
@@ -1138,11 +1166,12 @@ end;
 destructor TACBrTEFPGWebAPI.Destroy;
 begin
   //GravarLog('TACBrTEFPGWebAPI.Destroy');
+  fOnGravarLog := nil;
+  DesInicializar;
   fDadosTransacao.Free;
   fParametrosAdicionais.Free;
   fTimerOcioso.Enabled := False;
   fTimerOcioso.Free;
-  UnLoadLibFunctions;
   inherited Destroy;
 end;
 
@@ -1183,7 +1212,20 @@ begin
    end;
   {$EndIf}
 
+  SetPGWebLibPermiteAtualiza(False);
+
+  if (PontoCaptura <> '') then
+    ACBrUtil.FilesIO.SetGlobalEnvironment('PontoDeCaptura', PontoCaptura);
+
+  if (CNPJEstabelecimento <> '') then
+    ACBrUtil.FilesIO.SetGlobalEnvironment('CPFCNPJ', CNPJEstabelecimento);
+
   LoadLibFunctions;
+
+  if GetPGWebLibAtualiza then
+    GravarLog(ACBrStr(sInfoPGWebLibAtualizaTrue))
+  else
+    GravarLog(ACBrStr(sInfoPGWebLibAtualizaFalse));
 
   GravarLog('PW_iInit( '+fDiretorioTrabalho+' )');
   iRet := xPW_iInit(PAnsiChar(AnsiString(fDiretorioTrabalho)));
@@ -1210,8 +1252,15 @@ end;
 
 procedure TACBrTEFPGWebAPI.DesInicializar;
 begin
+  if not fInicializada then
+    Exit;
+
   GravarLog('TACBrTEFPGWebAPI.DesInicializar');
+  if Assigned(xPW_End) then
+    xPW_End;
+
   UnLoadLibFunctions;
+  SetPGWebLibPermiteAtualiza(fAtualizaPGWebLibAutomaticamente);
   fInicializada := False;
 end;
 
@@ -1245,6 +1294,7 @@ begin
   xPW_iPPGetPINBlock := Nil;
   xPW_iPPCommTest := Nil;
   xPW_iTransactionInquiry := Nil;
+  xPW_End := Nil;
 end;
 
 procedure TACBrTEFPGWebAPI.DoException(const AErrorMsg: String);
@@ -1254,6 +1304,7 @@ begin
 
   GravarLog('EACBrTEFPayGoWeb: '+AErrorMsg);
   raise EACBrTEFPayGoWeb.Create(AErrorMsg);
+
 end;
 
 procedure TACBrTEFPGWebAPI.VerificarOK(iRET: SmallInt);
@@ -1316,9 +1367,10 @@ end;
 procedure TACBrTEFPGWebAPI.AjustarTempoOcioso(const IdleTimeStr: String);
 var
   AStr, AnoStr: String;
-  IdleProcTime: TDateTime;
+  IdleProcTime, Agora: TDateTime;
 begin
-  if (IdleTimeStr = '') and (fTempoOcioso > Now) then
+  Agora := Now;
+  if (IdleTimeStr = '') and (fTempoOcioso > Agora) then
     Exit;
 
   if (IdleTimeStr = '') then
@@ -1328,23 +1380,28 @@ begin
 
   if (AStr <> '') then
   begin
-    AnoStr := IntToStr(YearOf(Today));
-    IdleProcTime := EncodeDateTime( StrToIntDef(Copy(AnoStr,1,2)+copy(AStr,1,2),0),  // YYYY
-                                    StrToIntDef(copy(AStr, 3,2),0),  // MM
-                                    StrToIntDef(copy(AStr, 5,2),0),  // DD
-                                    StrToIntDef(copy(AStr, 7,2),0),  // hh
-                                    StrToIntDef(copy(AStr, 9,2),0),  // nn
-                                    StrToIntDef(copy(AStr,11,2),0),  // ss
-                                    0 );
+    AnoStr := IntToStr(YearOf(Agora));
+    try
+      IdleProcTime := EncodeDateTime( StrToIntDef(Copy(AnoStr,1,2)+copy(AStr,1,2),0),  // YYYY
+                                      StrToIntDef(copy(AStr, 3,2),0),  // MM
+                                      StrToIntDef(copy(AStr, 5,2),0),  // DD
+                                      StrToIntDef(copy(AStr, 7,2),0),  // hh
+                                      StrToIntDef(copy(AStr, 9,2),0),  // nn
+                                      StrToIntDef(copy(AStr,11,2),0),  // ss
+                                      0 );
+    except
+      IdleProcTime := 0;
+    end;
+
     if (IdleProcTime <> 0) then
     begin
-      if (IdleProcTime < Now) then
+      if (IdleProcTime <= Agora) then
         OnTimerOcioso(nil)
 
       else if (IdleProcTime <> fTempoOcioso) then
       begin
         fTimerOcioso.Enabled := False;
-        fTimerOcioso.Interval := MilliSecondsBetween(now, IdleProcTime);
+        fTimerOcioso.Interval := min(MilliSecondsBetween(Agora, IdleProcTime), CMilissegundosOcioso);
         fTimerOcioso.Enabled := True;
       end;
 
@@ -1468,7 +1525,7 @@ begin
   iRet := PWRET_CANCEL;
   try
     try
-      MsgProcess := Trim(ObterInfo(PWINFO_PROCESSMSG));
+      MsgProcess := AnsiToNativeString(Trim(ObterInfo(PWINFO_PROCESSMSG)));
       if (MsgProcess <> '') then
         ExibirMensagem(MsgProcess, tmCliente);
 
@@ -1501,7 +1558,7 @@ begin
 
       case iRet of
         PWRET_OK: MsgError := '';
-        PWRET_CANCEL: MsgError := ObterInfo(PWINFO_CNCDSPMSG);
+        PWRET_CANCEL: MsgError := AnsiToNativeString(ObterInfo(PWINFO_CNCDSPMSG));
         PWRET_NOMANDATORY: MsgError := sErrPWRET_NOMANDATORY;
         PWRET_DLLNOTINIT: MsgError := sErrPWRET_DLLNOTINIT;
         PWRET_NOTINST: MsgError := sErrPWRET_NOTINST;
@@ -1898,12 +1955,11 @@ begin
   while (iRet = PWRET_OK) and (i < ArrLen) do
   begin
     AGetData := ArrGetData[i];
-    AGetData.bIndice := i;
-    LogPWGetData(AGetData);
+    LogPWGetData(AGetData, i);
 
     if not ObterDadosDeParametrosAdicionais(AGetData) then
     begin
-      AMsg := Trim(AGetData.szMsgPrevia);
+      AMsg := AnsiToNativeString(Trim(AGetData.szMsgPrevia));
       if (AMsg <> '') then
         ExibirMensagem(AMsg, tmOperador, CMilissegundosMensagem);
 
@@ -1918,17 +1974,17 @@ begin
           PWDAT_TYPED, PWDAT_USERAUTH:
             iRet := ObterDadoDigitado(AGetData);
           PWDAT_CARDINF:
-            iRet := ObterDadoCartao(AGetData);
+            iRet := ObterDadoCartao(AGetData, i);
           PWDAT_PPENTRY:
-            iRet := RealizarOperacaoPinPad(AGetData, ppGetData);
+            iRet := RealizarOperacaoPinPad(AGetData, i, ppGetData);
           PWDAT_PPENCPIN:
-            iRet := RealizarOperacaoPinPad(AGetData, ppGetPIN);
+            iRet := RealizarOperacaoPinPad(AGetData, i, ppGetPIN);
           PWDAT_CARDOFF:
-            iRet := RealizarOperacaoPinPad(AGetData, ppGoOnChip);
+            iRet := RealizarOperacaoPinPad(AGetData, i, ppGoOnChip);
           PWDAT_CARDONL:
-            iRet := RealizarOperacaoPinPad(AGetData, ppFinishChip);
+            iRet := RealizarOperacaoPinPad(AGetData, i, ppFinishChip);
           PWDAT_PPCONF:
-            iRet := RealizarOperacaoPinPad(AGetData, ppConfirmData);
+            iRet := RealizarOperacaoPinPad(AGetData, i, ppConfirmData);
           PWDAT_BARCODE:
             iRet := ObterDadoCodBarra(AGetData);
           PWDAT_PPREMCRD:
@@ -1938,18 +1994,18 @@ begin
               ExibirMensagem(sInfoRemovaCartao);
               fUsouPinPad := False;
             end;
-            iRet := RealizarOperacaoPinPad(AGetData, ppRemoveCard);
+            iRet := RealizarOperacaoPinPad(AGetData, i, ppRemoveCard);
           end;
 
           PWDAT_PPGENCMD:
-            iRet := RealizarOperacaoPinPad(AGetData, ppGenericCMD);
+            iRet := RealizarOperacaoPinPad(AGetData, i, ppGenericCMD);
           PWDAT_PPDATAPOSCNF:
-            iRet := RealizarOperacaoPinPad(AGetData, ppDataConfirmation);
+            iRet := RealizarOperacaoPinPad(AGetData, i, ppDataConfirmation);
           PWDAT_TSTKEY:
-            iRet := RealizarOperacaoPinPad(AGetData, ppTestKey);
+            iRet := RealizarOperacaoPinPad(AGetData, i, ppTestKey);
           PWDAT_DSPCHECKOUT:
           begin
-            AMsg := Trim(AGetData.szPrompt);
+            AMsg := AnsiToNativeString(Trim(AGetData.szPrompt));
             if (AMsg <> '') then
               ExibirMensagem(AMsg, tmCliente);
 
@@ -1970,7 +2026,7 @@ begin
               ExibirQRCode(DadosQRCode);
             end;
 
-            AMsg := Trim(AGetData.szPrompt);
+            AMsg := AnsiToNativeString(Trim(AGetData.szPrompt));
             if (AMsg <> '') then
               ExibirMensagem(AMsg, tmCliente);
 
@@ -2069,7 +2125,7 @@ begin
   try
     for i := 0 to AGetData.bNumOpcoesMenu-1 do
     begin
-      AOpcao := Trim(AGetData.vszTextoMenu[i]);
+      AOpcao := AnsiToNativeString(Trim(AGetData.vszTextoMenu[i]));
       if (AGetData.bTeclasDeAtalho = 1) then
         AOpcao := IntToStr(i+1)+' - '+AOpcao;
 
@@ -2078,7 +2134,7 @@ begin
 
     ItemSelecionado := AGetData.bItemInicial;
     GravarLog('  OnExibeMenu( '+AGetData.szPrompt+' )', True);
-    fOnExibeMenu(Trim(AGetData.szPrompt), SL, ItemSelecionado, Cancelado);
+    fOnExibeMenu(AnsiToNativeString(Trim(AGetData.szPrompt)), SL, ItemSelecionado, Cancelado);
     GravarLog('    Resposta: '+IntToStr(ItemSelecionado)+', Cancelado: '+BoolToStr(Cancelado, True));
 
     Cancelado := Cancelado or (ItemSelecionado < 0) or (ItemSelecionado >= AGetData.bNumOpcoesMenu);
@@ -2138,7 +2194,7 @@ begin
         if (ARespostaAnterior = '') then
         begin
           ARespostaAnterior := AResposta;
-          ADefinicaoCampo.Titulo := Trim(AGetData.szMsgConfirmacao);
+          ADefinicaoCampo.Titulo := AnsiToNativeString(Trim(AGetData.szMsgConfirmacao));
           AResposta := ADefinicaoCampo.ValorInicial;
           Continue;
         end
@@ -2176,7 +2232,7 @@ begin
     Result := PWRET_CANCEL;
 end;
 
-function TACBrTEFPGWebAPI.ObterDadoCartao(AGetData: TPW_GetData): SmallInt;
+function TACBrTEFPGWebAPI.ObterDadoCartao(AGetData: TPW_GetData; uiIndex: Word): SmallInt;
 var
   ObterDigitado: Boolean;
   iRet: SmallInt;
@@ -2189,13 +2245,13 @@ begin
 
     2:
     begin
-      iRet := RealizarOperacaoPinPad(AGetData, ppGetCard);
+      iRet := RealizarOperacaoPinPad(AGetData, uiIndex, ppGetCard);
       ObterDigitado := (iRet = PWRET_FALLBACK);
     end;
 
   else  // 0 ou 3
     begin
-      iRet := RealizarOperacaoPinPad(AGetData, ppGetCard);
+      iRet := RealizarOperacaoPinPad(AGetData, uiIndex, ppGetCard);
       ObterDigitado := (iRet = PWRET_FALLBACK) or
                        (fPerguntarCartaoDigitadoAposCancelarLeitura and (iRet = PWRET_CANCEL));
     end;
@@ -2207,7 +2263,7 @@ begin
     Result := iRet;
 end;
 
-function TACBrTEFPGWebAPI.RealizarOperacaoPinPad(AGetData: TPW_GetData;
+function TACBrTEFPGWebAPI.RealizarOperacaoPinPad(AGetData: TPW_GetData; uiIndex: Word;
   OperacaoPinPad: TACBrTEFPGWebAPIOperacaoPinPad): SmallInt;
 var
   iRet: SmallInt;
@@ -2218,33 +2274,33 @@ begin
   case OperacaoPinPad of
     ppGetCard:
     begin
-      GravarLog('PW_iPPGetCard( '+IntToStr(AGetData.bIndice)+' )');
-      iRet := xPW_iPPGetCard(AGetData.bIndice);
+      GravarLog('PW_iPPGetCard( '+IntToStr(uiIndex)+' )');
+      iRet := xPW_iPPGetCard(uiIndex);
     end;
     ppGetData:
     begin
-      GravarLog('PW_iPPGetData( '+IntToStr(AGetData.bIndice)+' )');
-      iRet := xPW_iPPGetData(AGetData.bIndice);
+      GravarLog('PW_iPPGetData( '+IntToStr(uiIndex)+' )');
+      iRet := xPW_iPPGetData(uiIndex);
     end;
     ppGetPIN:
     begin
-      GravarLog('PW_iPPGetPIN( '+IntToStr(AGetData.bIndice)+' )');
-      iRet := xPW_iPPGetPIN(AGetData.bIndice);
+      GravarLog('PW_iPPGetPIN( '+IntToStr(uiIndex)+' )');
+      iRet := xPW_iPPGetPIN(uiIndex);
     end;
     ppGoOnChip:
     begin
-      GravarLog('PW_iPPGoOnChip( '+IntToStr(AGetData.bIndice)+' )');
-      iRet := xPW_iPPGoOnChip(AGetData.bIndice);
+      GravarLog('PW_iPPGoOnChip( '+IntToStr(uiIndex)+' )');
+      iRet := xPW_iPPGoOnChip(uiIndex);
     end;
     ppFinishChip:
     begin
-      GravarLog('PW_iPPFinishChip( '+IntToStr(AGetData.bIndice)+' )');
-      iRet := xPW_iPPFinishChip(AGetData.bIndice);
+      GravarLog('PW_iPPFinishChip( '+IntToStr(uiIndex)+' )');
+      iRet := xPW_iPPFinishChip(uiIndex);
     end;
     ppConfirmData:
     begin
-      GravarLog('PW_iPPConfirmData( '+IntToStr(AGetData.bIndice)+' )');
-      iRet := xPW_iPPConfirmData(AGetData.bIndice);
+      GravarLog('PW_iPPConfirmData( '+IntToStr(uiIndex)+' )');
+      iRet := xPW_iPPConfirmData(uiIndex);
     end;
     ppRemoveCard:
     begin
@@ -2253,23 +2309,23 @@ begin
     end;
     ppGenericCMD:
     begin
-      GravarLog('PW_iPPGenericCMD( '+IntToStr(AGetData.bIndice)+' )');
-      iRet := xPW_iPPGenericCMD(AGetData.bIndice);
+      GravarLog('PW_iPPGenericCMD( '+IntToStr(uiIndex)+' )');
+      iRet := xPW_iPPGenericCMD(uiIndex);
     end;
     ppDataConfirmation:
     begin
       if Assigned(xPW_iPPDataConfirmation) then
       begin
-        GravarLog('PW_iPPDataConfirmation( '+IntToStr(AGetData.bIndice)+' )');
-        iRet := xPW_iPPDataConfirmation(AGetData.bIndice);
+        GravarLog('PW_iPPDataConfirmation( '+IntToStr(uiIndex)+' )');
+        iRet := xPW_iPPDataConfirmation(uiIndex);
       end;
     end;
     ppTestKey:
     begin
       if Assigned(xPW_iPPTestKey) then
       begin
-        GravarLog('PW_iPPTestKey( '+IntToStr(AGetData.bIndice)+' )');
-        iRet := xPW_iPPTestKey(AGetData.bIndice);
+        GravarLog('PW_iPPTestKey( '+IntToStr(uiIndex)+' )');
+        iRet := xPW_iPPTestKey(uiIndex);
       end;
     end
   else
@@ -2422,7 +2478,7 @@ end;
 function TACBrTEFPGWebAPI.PW_GetDataToDefinicaoCampo(AGetData: TPW_GetData
   ): TACBrTEFPGWebAPIDefinicaoCampo;
 begin
-  Result.Titulo := Trim(AGetData.szPrompt);
+  Result.Titulo := AnsiToNativeString(Trim(AGetData.szPrompt));
   Result.MascaraDeCaptura := Trim(AGetData.szMascaraDeCaptura);
   Result.TiposEntradaPermitidos := TACBrTEFPGWebAPITiposEntrada(AGetData.bTiposEntradaPermitidos);
   Result.TamanhoMinimo := AGetData.bTamanhoMinimo;
@@ -2434,10 +2490,10 @@ begin
   Result.AceitaNulo := (AGetData.bAceitaNulo = 1);
   Result.ValorInicial := Trim(AGetData.szValorInicial);
   Result.bTeclasDeAtalho := (AGetData.bTeclasDeAtalho = 1);
-  Result.MsgValidacao := Trim(AGetData.szMsgValidacao);
-  Result.MsgConfirmacao := Trim(AGetData.szMsgConfirmacao);
-  Result.MsgDadoMaior := Trim(AGetData.szMsgDadoMaior);
-  Result.MsgDadoMenor := Trim(AGetData.szMsgDadoMenor);
+  Result.MsgValidacao := AnsiToNativeString(Trim(AGetData.szMsgValidacao));
+  Result.MsgConfirmacao := AnsiToNativeString(Trim(AGetData.szMsgConfirmacao));
+  Result.MsgDadoMaior := AnsiToNativeString(Trim(AGetData.szMsgDadoMaior));
+  Result.MsgDadoMenor := AnsiToNativeString(Trim(AGetData.szMsgDadoMenor));
   Result.TipoEntradaCodigoBarras := TACBrTEFPGWebAPITipoBarras(AGetData.bTipoEntradaCodigoBarras);
   Result.OmiteMsgAlerta := (AGetData.bOmiteMsgAlerta = 1);
 
@@ -2467,17 +2523,21 @@ begin
       if (Result.Titulo = '') then
         Result.Titulo := ACBrStr('INFORME A SENHA TÉCNICA');
     end;
+    PWINFO_INSTALLMENTS:
+    begin
+      Result.ValidacaoDado := pgvQuantidadeParcelas;
+    end;
   end;
 end;
 
-procedure TACBrTEFPGWebAPI.LogPWGetData(AGetData: TPW_GetData);
+procedure TACBrTEFPGWebAPI.LogPWGetData(AGetData: TPW_GetData; uiIndex: Word);
 var
   SL: TStringList;
   i: Integer;
 begin
   SL := TStringList.Create;
   try
-    SL.Add(' PW_GetData: '+IntToStr(AGetData.bIndice));
+    SL.Add(' PW_GetData: '+IntToStr(uiIndex));
     SL.Add('  wIdentificador: ' + PWINFOToString(AGetData.wIdentificador));
     SL.Add('  bTipoDeDado: ' + PWDATToString(AGetData.bTipoDeDado));
     SL.Add('  szPrompt: ' + TranslateUnprintable(AGetData.szPrompt));
@@ -2613,9 +2673,46 @@ begin
     DesInicializar;
 end;
 
+procedure TACBrTEFPGWebAPI.SetIsDebug(AValue: Boolean);
+var
+  PathAtual, PathNovo: String;
+begin
+  if fIsDebug = AValue then
+    Exit;
+
+  PathNovo := '';
+  PathAtual := GetPathPGWebLib;
+  if (PathAtual = '') or (not FileExists(PathAtual)) then
+    Exit;
+
+  if AValue then
+  begin
+    if (pos(CACBrTEFPGWebDirDebug, PathAtual) = 0) then
+      PathNovo := StringReplace(PathAtual, CACBrTEFPGWebDir + PathDelim,
+                                           CACBrTEFPGWebDir + PathDelim + CACBrTEFPGWebDirDebug + PathDelim, []);
+  end
+  else
+  begin
+    if (pos(CACBrTEFPGWebDirDebug, PathAtual) > 0) then
+      PathNovo := StringReplace(PathAtual, CACBrTEFPGWebDir + PathDelim + CACBrTEFPGWebDirDebug + PathDelim,
+                                           CACBrTEFPGWebDir + PathDelim, []);
+  end;
+
+  if (PathNovo <> '') then
+  begin
+    if not FileExists(PathNovo) then
+      raise EACBrTEFPayGoWeb.CreateFmt(sErrLibNaoEncontrada, [PathNovo]);
+
+    if not SetPathPGWebLib(PathNovo) then
+      raise EACBrTEFPayGoWeb.CreateFmt(sErrVarDef, [PathNovo, GetVarPathPGWebLib]);
+  end;
+
+  fIsDebug := AValue;
+end;
+
 procedure TACBrTEFPGWebAPI.SetPathLib(const AValue: String);
 begin
-  if fPathLib = AValue then
+  if (fPathLib = AValue) then
     Exit;
 
   GravarLog('TACBrTEFPGWebAPI.SetPathLib( '+AValue+' )');
@@ -2623,7 +2720,7 @@ begin
   if fInicializada then
     DoException(ACBrStr(sErrLibJaInicializda));
 
-  fPathLib := AValue;
+  fPathLib := PathWithDelim(ExtractFilePath(AValue));
 end;
 
 procedure TACBrTEFPGWebAPI.SetPontoCaptura(const AValue: String);
@@ -2697,11 +2794,20 @@ begin
 end;
 
 function TACBrTEFPGWebAPI.LibFullName: String;
-var
-  APath: String;
 begin
-  APath := PathWithDelim(PathLib);
-  Result := APath + CACBrTEFPGWebLib;
+  if (PathLib <> '') then
+  begin
+    GravarLog(ACBrStr('LibFullName: Usando "PathLib" informado pela aplicação: ')+PathLib);
+    Result := PathLib + CACBrTEFPGWebLib
+  end
+  else
+  begin
+    Result := GetPathPGWebLib;
+    if (Result = '') or (not FileExists(Result)) then
+      Result := CACBrTEFPGWebLib
+    else
+      GravarLog(ACBrStr('LibFullName: Usando Path da Váriável de Ambiente "'+GetVarPathPGWebLib+'": ')+Result);
+  end;
 end;
 
 procedure TACBrTEFPGWebAPI.SetDiretorioTrabalho(const AValue: String);
@@ -2741,64 +2847,110 @@ begin
   fCNPJEstabelecimento := ACNPJ;
 end;
 
+function TACBrTEFPGWebAPI.GetVarPathPGWebLib: String;
+begin
+  {$IfDef MSWINDOWS}
+   {$IfDef CPU64}
+    Result := 'PathPGWebLib_x64';
+   {$Else}
+    Result := 'PathPGWebLib';
+   {$EndIf}
+  {$Else}
+   Result := '';
+  {$EndIf}
+end;
+
+function TACBrTEFPGWebAPI.GetPathPGWebLib: String;
+var
+  s: String;
+begin
+  s := GetVarPathPGWebLib;
+  if (s <> '') then
+    Result := Trim(SysUtils.GetEnvironmentVariable(s))
+  else
+    Result := '';
+end;
+
+function TACBrTEFPGWebAPI.SetPathPGWebLib(const APathLib: String): Boolean;
+var
+  s: String;
+begin
+  Result := False;
+  s := GetVarPathPGWebLib;
+  if (s <> '') then
+    Result := ACBrUtil.FilesIO.SetGlobalEnvironment(s, APathLib);
+end;
+
+function TACBrTEFPGWebAPI.GetPGWebLibAtualiza: Boolean;
+var
+  s: String;
+begin
+  s := LowerCase(Trim(SysUtils.GetEnvironmentVariable('PGWebLibAtualiza')));
+  Result := (s = 'true');
+end;
+
+function TACBrTEFPGWebAPI.SetPGWebLibPermiteAtualiza(PermiteAtualizacao: Boolean): Boolean;
+begin
+  Result := ACBrUtil.FilesIO.SetGlobalEnvironment('PGWebLibPermiteAtualiza', IfThen(PermiteAtualizacao, 'True', 'False') );
+end;
+
 procedure TACBrTEFPGWebAPI.LoadLibFunctions;
 
-  procedure PGWebFunctionDetect( FuncName: AnsiString; var LibPointer: Pointer;
+  procedure PGWebFunctionDetect(LibName, FuncName: AnsiString; var LibPointer: Pointer;
     FuncIsRequired: Boolean = True) ;
-  var
-    sLibName: string;
   begin
     if not Assigned( LibPointer )  then
     begin
       GravarLog('   '+FuncName);
-
-      sLibName := LibFullName;
-      if not FunctionDetect(sLibName, FuncName, LibPointer) then
+      if not FunctionDetect(LibName, FuncName, LibPointer) then
       begin
         LibPointer := NIL ;
         if FuncIsRequired then
-          DoException(Format(ACBrStr('Erro ao carregar a função: %s de: %s'),[FuncName, sLibName]))
+          DoException(Format(ACBrStr('Erro ao carregar a função: %s de: %s'),[FuncName, LibName]))
         else
-          GravarLog(Format(ACBrStr('     Função não requerida: %s não encontrada em: %s'),[FuncName, sLibName]));
+          GravarLog(Format(ACBrStr('     Função não requerida: %s não encontrada em: %s'),[FuncName, LibName]));
         end ;
     end ;
   end;
 
+ var
+  sLibName: string;
  begin
    if fCarregada then
      Exit;
 
-   GravarLog('TACBrTEFPGWebAPI.LoadDLLFunctions');
+   sLibName := LibFullName;
+   GravarLog('TACBrTEFPGWebAPI.LoadDLLFunctions - '+sLibName);
 
-   PGWebFunctionDetect('PW_iInit', @xPW_iInit);
-   PGWebFunctionDetect('PW_iGetResult', @xPW_iGetResult);
-   PGWebFunctionDetect('PW_iNewTransac', @xPW_iNewTransac);
-   PGWebFunctionDetect('PW_iAddParam', @xPW_iAddParam);
-   PGWebFunctionDetect('PW_iExecTransac', @xPW_iExecTransac);
-   PGWebFunctionDetect('PW_iConfirmation', @xPW_iConfirmation);
-   PGWebFunctionDetect('PW_iIdleProc', @xPW_iIdleProc);
-   PGWebFunctionDetect('PW_iGetOperations', @xPW_iGetOperations);
-   PGWebFunctionDetect('PW_iPPEventLoop', @xPW_iPPEventLoop);
-   PGWebFunctionDetect('PW_iPPAbort', @xPW_iPPAbort);
-   PGWebFunctionDetect('PW_iPPGetCard', @xPW_iPPGetCard);
-   PGWebFunctionDetect('PW_iPPGetPIN', @xPW_iPPGetPIN);
-   PGWebFunctionDetect('PW_iPPGetData', @xPW_iPPGetData);
-   PGWebFunctionDetect('PW_iPPGoOnChip', @xPW_iPPGoOnChip);
-   PGWebFunctionDetect('PW_iPPFinishChip', @xPW_iPPFinishChip);
-   PGWebFunctionDetect('PW_iPPConfirmData', @xPW_iPPConfirmData);
-   PGWebFunctionDetect('PW_iPPGenericCMD', @xPW_iPPGenericCMD);
-   PGWebFunctionDetect('PW_iPPDisplay', @xPW_iPPDisplay);
-   PGWebFunctionDetect('PW_iPPGetUserData', @xPW_iPPGetUserData);
-   PGWebFunctionDetect('PW_iPPWaitEvent', @xPW_iPPWaitEvent);
-   PGWebFunctionDetect('PW_iPPRemoveCard', @xPW_iPPRemoveCard);
-   PGWebFunctionDetect('PW_iPPGetPINBlock', @xPW_iPPGetPINBlock, False);
-   PGWebFunctionDetect('PW_iPPCommTest', @xPW_iPPCommTest, False);
-   PGWebFunctionDetect('PW_iTransactionInquiry', @xPW_iTransactionInquiry);
-   PGWebFunctionDetect('PW_iPPDataConfirmation', @xPW_iPPDataConfirmation, False);
-   PGWebFunctionDetect('PW_iPPTestKey', @xPW_iPPTestKey, False);
-   PGWebFunctionDetect('PW_iWaitConfirmation', @xPW_iWaitConfirmation, False);
-   PGWebFunctionDetect('PW_iGetOperationsEx', @xPW_iGetOperationsEx, False);
-
+   PGWebFunctionDetect(sLibName, 'PW_iInit', @xPW_iInit);
+   PGWebFunctionDetect(sLibName, 'PW_iGetResult', @xPW_iGetResult);
+   PGWebFunctionDetect(sLibName, 'PW_iNewTransac', @xPW_iNewTransac);
+   PGWebFunctionDetect(sLibName, 'PW_iAddParam', @xPW_iAddParam);
+   PGWebFunctionDetect(sLibName, 'PW_iExecTransac', @xPW_iExecTransac);
+   PGWebFunctionDetect(sLibName, 'PW_iConfirmation', @xPW_iConfirmation);
+   PGWebFunctionDetect(sLibName, 'PW_iIdleProc', @xPW_iIdleProc);
+   PGWebFunctionDetect(sLibName, 'PW_iGetOperations', @xPW_iGetOperations);
+   PGWebFunctionDetect(sLibName, 'PW_iPPEventLoop', @xPW_iPPEventLoop);
+   PGWebFunctionDetect(sLibName, 'PW_iPPAbort', @xPW_iPPAbort);
+   PGWebFunctionDetect(sLibName, 'PW_iPPGetCard', @xPW_iPPGetCard);
+   PGWebFunctionDetect(sLibName, 'PW_iPPGetPIN', @xPW_iPPGetPIN);
+   PGWebFunctionDetect(sLibName, 'PW_iPPGetData', @xPW_iPPGetData);
+   PGWebFunctionDetect(sLibName, 'PW_iPPGoOnChip', @xPW_iPPGoOnChip);
+   PGWebFunctionDetect(sLibName, 'PW_iPPFinishChip', @xPW_iPPFinishChip);
+   PGWebFunctionDetect(sLibName, 'PW_iPPConfirmData', @xPW_iPPConfirmData);
+   PGWebFunctionDetect(sLibName, 'PW_iPPGenericCMD', @xPW_iPPGenericCMD);
+   PGWebFunctionDetect(sLibName, 'PW_iPPDisplay', @xPW_iPPDisplay);
+   PGWebFunctionDetect(sLibName, 'PW_iPPGetUserData', @xPW_iPPGetUserData);
+   PGWebFunctionDetect(sLibName, 'PW_iPPWaitEvent', @xPW_iPPWaitEvent);
+   PGWebFunctionDetect(sLibName, 'PW_iPPRemoveCard', @xPW_iPPRemoveCard);
+   PGWebFunctionDetect(sLibName, 'PW_iPPGetPINBlock', @xPW_iPPGetPINBlock, False);
+   PGWebFunctionDetect(sLibName, 'PW_iPPCommTest', @xPW_iPPCommTest, False);
+   PGWebFunctionDetect(sLibName, 'PW_iTransactionInquiry', @xPW_iTransactionInquiry);
+   PGWebFunctionDetect(sLibName, 'PW_iPPDataConfirmation', @xPW_iPPDataConfirmation, False);
+   PGWebFunctionDetect(sLibName, 'PW_iPPTestKey', @xPW_iPPTestKey, False);
+   PGWebFunctionDetect(sLibName, 'PW_iWaitConfirmation', @xPW_iWaitConfirmation, False);
+   PGWebFunctionDetect(sLibName, 'PW_iGetOperationsEx', @xPW_iGetOperationsEx, False);
+   PGWebFunctionDetect(sLibName, 'PW_End', @xPW_End, False);
    fCarregada := True;
 end;
 

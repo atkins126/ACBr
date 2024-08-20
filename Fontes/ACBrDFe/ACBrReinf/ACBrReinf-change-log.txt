@@ -42,6 +42,55 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+17/07/2024
+-- Frm_ACBrReinf --
+[*] TK-5706 - Correção na codificação do xml temporário gerado para exibição no TWebBrowser de retorno
+  Por: Renato Rubinho
+
+25/03/2024
+-- ACBrReinfWebServices --
+[*] Adiciona chamada a UTF8ToNativeString quando usa ParseText para corrigir problemas de conversão de acentuação
+  Por: Diego Folieni
+
+09/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnAuxiliar.
+  Por: Italo Giurizzato Junior
+
+03/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnConsts.
+  Por: Italo Giurizzato Junior
+
+31/01/2024
+-- pcnReinfConsulta.pas --
+[-] Corrigida consulta de recibo dos eventos R-2055 e R-4020
+  Por: Renato Rubinho
+
+23/11/2023
+-- ACBrReinfWebServices --
+[*] Levantada exceção, no tratamento de retornos, quando for utilizada versão de leiaute descontinuada ou ainda não implementada
+  Por: Renato Rubinho
+
+20/11/2023
+-- Frm_ACBrReinf --
+[*] Melhorias no programa de exemplo visualizando os xmls de envio e retorno
+  Por: Renato Rubinho
+
+06/11/2023
+-- Frm_ACBrReinf --
+[*] Melhorias no programa de exemplo para geração das retificadoras dos eventos sem mexer no fonte e removido o Registro R2070
+  Por: Renato Rubinho
+
+01/11/2023
+-- pcnGeradorReinf --
+[*] Correção para leitura do id do evento ao importar xml assinado
+-- Frm_ACBrReinf --
+[*] Melhorias no programa de exemplo para geração de todos os eventos sem precisar alterar no fonte
+-- Arquivos ini --
+[*] Ajustados todos os arquivos ini de exemplo, validada leitura e envio na versão 2.1.2
+  Por: Renato Rubinho
+
 06/10/2023
 -- ACBrReinfLoteEventos --
 [*] Correção no envio de eventos por pessoa física ou órgão público

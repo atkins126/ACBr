@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa-  }
 { mentos de Automação Comercial utilizados no Brasil                            }
 {                                                                               }
-{ Direitos Autorais Reservados (c) 2018 Daniel Simoes de Almeida                }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida                }
 {                                                                               }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                 }
 {                                                                               }
@@ -53,6 +53,7 @@ exports
   SAT_Finalizar,
   SAT_Nome,
   SAT_Versao,
+  SAT_OpenSSLInfo,
   SAT_UltimoRetorno,
   SAT_ConfigImportar,
   SAT_ConfigExportar,
@@ -83,12 +84,15 @@ exports
   SAT_CriarCFe,
   SAT_CriarEnviarCFe,
   SAT_ValidarCFe,
+  SAT_CarregarXML,
+  SAT_ObterIni,
   SAT_EnviarCFe,
   SAT_CancelarCFe,
 
   SAT_ImprimirExtratoVenda,
   SAT_ImprimirExtratoResumido,
   SAT_ImprimirExtratoCancelamento,
+  SAT_SalvarPDF,
   SAT_GerarPDFExtratoVenda,
   SAT_GerarPDFCancelamento,
   SAT_GerarImpressaoFiscalMFe,

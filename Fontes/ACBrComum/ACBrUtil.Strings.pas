@@ -86,6 +86,7 @@ type
   TSplitResult = array of string;
 
 function Split(const ADelimiter: Char; const AString: string): TSplitResult;
+function SplitToString(ASplit: TSplitResult; aDelimiter: string = ''):String;
 function DecodeToString( const ABinaryString : AnsiString; const StrIsUTF8: Boolean ) : String ;
 function RetornarConteudoEntre(const Frase, Inicio, Fim: String; IncluiInicioFim: Boolean = False): string;
 
@@ -187,8 +188,7 @@ function AddDelimitedTextToList( const AText: String; const ADelimiter: Char;
    AStringList: TStrings; const AQuoteChar: Char = '"'): Integer;
 
 function ChangeLineBreak(const AText: String; const NewLineBreak: String = ';'): String;
-
-//function UTF8Decode(const S: String): String;
+function SubStrEmSubStr(const SubStr1: string; SubStr2: string): boolean;
 
 implementation
 
@@ -211,6 +211,29 @@ begin
       Result[i] := vRows.Strings[i];
   finally
     FreeAndNil(vRows);
+  end;
+end;
+
+function SplitToString(ASplit: TSplitResult; aDelimiter: string): String;
+var
+  i, k: integer;
+begin
+  result := '';
+
+  if aDelimiter = '' then
+  begin
+    for i := low(ASplit) to high(ASplit) do
+      result := result + ASplit[i];
+  end
+  else
+  begin
+    k := high(ASplit);
+    for i := low(ASplit) to k do
+    begin
+      result := result + ASplit[i];
+      if k <> i then
+        result := result + aDelimiter;
+    end;
   end;
 end;
 
@@ -1597,14 +1620,22 @@ begin
   end
 end;
 
-//function UTF8Decode(const S: String): String;
-//begin
-//  {$IfDef COMPILER6_UP}
-//    Result := System.UTF8ToString(S);
-//  {$Else}
-//   Result := System.UTF8Decode(S);
-//  {$EndIf}
-//end;
+function SubStrEmSubStr(const SubStr1: string; SubStr2: string): boolean;
+var
+  s: string;
+  i: integer;
+begin
+  i := 0;
+  while (i = 0) and (length(SubStr2) > 0) do
+  begin
+    SubStr2 := copy(SubStr2, 2, maxInt);
+    s := copy(SubStr2, 1, pos('|', SubStr2) - 1);
+    SubStr2 := copy(SubStr2, pos('|', SubStr2), maxInt);
+    if s <> '' then
+      i := i + pos('|' + s, '|' + SubStr1);
+  end;
+  result := i > 0;
+end;
 
 initialization
 {$IfDef FPC}

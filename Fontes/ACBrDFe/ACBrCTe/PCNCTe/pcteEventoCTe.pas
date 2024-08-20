@@ -49,7 +49,7 @@ uses
    Contnrs,
   {$IFEND}
   ACBrBase,
-  pcnAuxiliar, pcnConversao, pcteConversaoCTe;
+  pcnConversao, pcteConversaoCTe;
 
 type
   EventoException = class(Exception);
@@ -387,9 +387,9 @@ function TInfEvento.getcOrgao: Integer;
 //  (AC,AL,AP,AM,BA,CE,DF,ES,GO,MA,MT,MS,MG,PA,PB,PR,PE,PI,RJ,RN,RS,RO,RR,SC,SP,SE,TO);
 //  (12,27,16,13,29,23,53,32,52,21,51,50,31,15,25,41,26,22,33,24,43,11,14,42,35,28,17);
 begin
-  Result := 0;
+//  Result := 0;
 
-  if FTpEvento = teEPEC then
+{  if FTpEvento = teEPEC then
   begin
     case StrToIntDef(copy(FChave, 1, 2), 0) of
       0,
@@ -424,12 +424,12 @@ begin
         Result := 43;
     end;
   end
-  else begin
+  else begin }
    if FcOrgao <> 0 then
      Result := FcOrgao
    else
      Result := StrToIntDef(copy(FChave, 1, 2), 0);
-  end;
+//  end;
 end;
 
 function TInfEvento.getDescEvento: String;

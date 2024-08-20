@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8;net452;netstandard2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Company>Projeto ACBr</Company>
     <Product>ACBrLib.Sat</Product>
@@ -15,9 +15,10 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <AssemblyVersion>0.2.4.130</AssemblyVersion>
-    <FileVersion>0.2.4.130</FileVersion>
-    <Version>0.2.4.130</Version>
+    <AssemblyVersion>1.0.6.0</AssemblyVersion>
+    <FileVersion>1.0.6.0</FileVersion>
+    <Version>1.0.6.0</Version>
+    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
@@ -33,7 +34,17 @@
     <DocumentationFile>..\..\bin\Debug\net452\ACBrLib.Sat.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net452|x86'">
+    <OutputPath>..\..\bin\Debug\</OutputPath>
+    <DocumentationFile>..\..\bin\Debug\net452\ACBrLib.Sat.xml</DocumentationFile>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net452|AnyCPU'">
+    <OutputPath>..\..\bin\Release\</OutputPath>
+    <DocumentationFile>..\..\bin\Release\net452\ACBrLib.Sat.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net452|x86'">
     <OutputPath>..\..\bin\Release\</OutputPath>
     <DocumentationFile>..\..\bin\Release\net452\ACBrLib.Sat.xml</DocumentationFile>
   </PropertyGroup>
@@ -43,7 +54,17 @@
     <DocumentationFile>..\..\bin\Debug\netstandard2.0\ACBrLib.Sat.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|x86'">
+    <OutputPath>..\..\bin\Debug\</OutputPath>
+    <DocumentationFile>..\..\bin\Debug\netstandard2.0\ACBrLib.Sat.xml</DocumentationFile>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <OutputPath>..\..\bin\Release\</OutputPath>
+    <DocumentationFile>..\..\bin\Release\netstandard2.0\ACBrLib.Sat.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|x86'">
     <OutputPath>..\..\bin\Release\</OutputPath>
     <DocumentationFile>..\..\bin\Release\netstandard2.0\ACBrLib.Sat.xml</DocumentationFile>
   </PropertyGroup>
@@ -69,7 +90,8 @@
     <Compile Include="..\Shared\Cupom\PISSTSat.cs" Link="Cupom\PISSTSat.cs" />
     <Compile Include="..\Shared\Cupom\ProdutoSat.cs" Link="Cupom\ProdutoSat.cs" />
     <Compile Include="..\Shared\Cupom\TotalSat.cs" Link="Cupom\TotalSat.cs" />
-    <Compile Include="..\Shared\ExtratoConfig.cs" Link="ExtratoConfig.cs" />
+	<Compile Include="..\Shared\Cupom\TotalISSQN.cs" Link="Cupom\TotalISSQN.cs" />
+	<Compile Include="..\Shared\ExtratoConfig.cs" Link="ExtratoConfig.cs" />
     <Compile Include="..\Shared\Respostas\AssociarAssinaturaResposta.cs" Link="Respostas\AssociarAssinaturaResposta.cs" />
     <Compile Include="..\Shared\Respostas\AtivarSatResposta.cs" Link="Respostas\AtivarSatResposta.cs" />
     <Compile Include="..\Shared\Respostas\AtualizarSoftwareSatResposta.cs" Link="Respostas\AtualizarSoftwareSatResposta.cs" />

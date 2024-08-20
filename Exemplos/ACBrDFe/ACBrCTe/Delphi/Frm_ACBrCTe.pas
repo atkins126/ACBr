@@ -236,7 +236,6 @@ type
     btnStatusServ: TButton;
     ACBrCTe1: TACBrCTe;
     ACBrCTeDACTeRL1: TACBrCTeDACTeRL;
-    btnCriarEnviar: TButton;
     btnCriarEnviarSincrono: TButton;
     btnCompEntr: TButton;
     btnCancEntr: TButton;
@@ -247,6 +246,7 @@ type
     btnDistrDFePorNSU: TButton;
     btnDistrDFePorChave: TButton;
     btnInsucessoEntrega: TButton;
+    btnCancInsuc: TButton;
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
     procedure sbPathCTeClick(Sender: TObject);
@@ -302,7 +302,6 @@ type
     procedure btnDistrDFePorUltNSUClick(Sender: TObject);
     procedure ACBrCTe1GerarLog(const ALogLine: string; var Tratado: Boolean);
     procedure ACBrCTe1StatusChange(Sender: TObject);
-    procedure btnCriarEnviarClick(Sender: TObject);
     procedure btnCriarEnviarSincronoClick(Sender: TObject);
     procedure btnCompEntrClick(Sender: TObject);
     procedure btnCancEntrClick(Sender: TObject);
@@ -313,6 +312,7 @@ type
     procedure btnDistrDFePorNSUClick(Sender: TObject);
     procedure btnDistrDFePorChaveClick(Sender: TObject);
     procedure btnInsucessoEntregaClick(Sender: TObject);
+    procedure btnCancInsucClick(Sender: TObject);
   private
     { Private declarations }
     procedure GravarConfiguracao;
@@ -515,6 +515,7 @@ begin
     Ide.cCT    := GerarCodigoDFe(Ide.nCT);
     Ide.dhEmi  := Now;
     Ide.tpImp  := tiRetrato;
+
     Ide.tpEmis := teNormal;
 
     if rgTipoAmb.ItemIndex = 0 then
@@ -762,6 +763,7 @@ begin
     Ide.cCT    := GerarCodigoDFe(Ide.nCT);
     Ide.dhEmi  := Now;
     Ide.tpImp  := tiRetrato;
+
     Ide.tpEmis := teNormal;
 
     if rgTipoAmb.ItemIndex = 0 then
@@ -798,25 +800,26 @@ begin
     Ide.Toma03.Toma := tmRemetente; // tmRemetente, tmExpedidor, tmRecebedor, tmDestinatario, tmRemetente
 
     {Dados do Tomador: Outros}
+    {
     Ide.Toma4.Toma    := tmOutros;
-    Ide.Toma4.CNPJCPF := '10242141000174';
-    Ide.Toma4.IE      := '0010834420031';
-    Ide.Toma4.xNome   := 'ACOUGUE E SUPERMERCADO SOUZA LTDA';
+    Ide.Toma4.CNPJCPF := '12345678000112';
+    Ide.Toma4.IE      := '1234567890123';
+    Ide.Toma4.xNome   := 'RAZAO SOCIAL';
     Ide.Toma4.xFant   := '';
     Ide.Toma4.fone    := '';
 
-    Ide.Toma4.enderToma.xLgr    := 'RUA BELO HORIZONTE';
+    Ide.Toma4.enderToma.xLgr    := 'RUA CENTRAL';
     Ide.Toma4.enderToma.nro     := '614';
-    Ide.Toma4.enderToma.xCpl    := 'N D';
-    Ide.Toma4.enderToma.xBairro := 'CALADINA';
-    Ide.Toma4.enderToma.cMun    := 3119401;
-    Ide.Toma4.enderToma.xMun    := 'CORONEL FABRICIANO';
-    Ide.Toma4.enderToma.CEP     := 35171167;
-    Ide.Toma4.enderToma.UF      := 'MG';
+    Ide.Toma4.enderToma.xCpl    := '';
+    Ide.Toma4.enderToma.xBairro := 'CENTRO';
+    Ide.Toma4.enderToma.cMun    := 0;
+    Ide.Toma4.enderToma.xMun    := 'NOME DO MUNICIPIO';
+    Ide.Toma4.enderToma.CEP     := 0;
+    Ide.Toma4.enderToma.UF      := 'SP';
     Ide.Toma4.enderToma.cPais   := 1058;
     Ide.Toma4.enderToma.xPais   := 'BRASIL';
     Ide.Toma4.email             := '';
-
+    }
     {Informações Complementares do CTe}
     compl.xCaracAd  := 'Carac Adic';
     compl.xCaracSer := 'Carac Adicionais do Serviço';
@@ -876,6 +879,8 @@ begin
     end;
 
     {Dados do Emitente}
+    // crtNenhum, crtSimplesNacional, crtSimplesExcessoReceita, crtRegimeNormal,
+    // crtSimplesNacionalMEI
     Emit.CRT               := crtRegimeNormal; {Obrigatório na versão 4.00}
     Emit.CNPJ              := Trim(edtEmitCNPJ.Text);
     Emit.IE                := Trim(edtEmitIE.Text);
@@ -1234,6 +1239,7 @@ begin
     //autXML.New.CNPJCPF := '';
 
     {Informações do Responsável Técnico pela emissão do DF-e}
+    infRespTec.CNPJ := '';
     infRespTec.xContato := '';
     infRespTec.email    := '';
     infRespTec.fone     := '';
@@ -1245,17 +1251,18 @@ begin
   //GTVe
   with ACBrCTe1.Conhecimentos.Add.CTe do
   begin
+    {
     case cbVersaoDF.ItemIndex of
       0: infCTe.versao := 2.0;
       1: infCTe.versao := 3.0;
       2: infCTe.versao := 4.0;
     end;
-
+    }
     Ide.cUF    := UFtoCUF(edtEmitUF.Text);
     Ide.CFOP   := 5353;
     Ide.natOp  := 'PRESTACAO SERVICO';
     ide.forPag := fpAPagar; // fpAPagar ou fpPago
-    Ide.modelo := 64;
+//    Ide.modelo := 64;
     Ide.serie  := 1;
     Ide.nCT    := StrToInt(NumDFe);
     // Atenção o valor de cCT tem que ser um numero aleatório conforme recomendação
@@ -1263,13 +1270,14 @@ begin
     Ide.cCT    := GerarCodigoDFe(Ide.nCT);
     Ide.dhEmi  := Now;
     Ide.tpImp  := tiRetrato;
+    {
     Ide.tpEmis := teNormal;
 
     if rgTipoAmb.ItemIndex = 0 then
       Ide.tpAmb := taProducao
     else
       Ide.tpAmb := taHomologacao;
-
+    }
     Ide.tpCTe      := tcGTVe;
     Ide.verProc    := '3.0';
     Ide.cMunEnv    := StrToInt(edtEmitCodCidade.Text);
@@ -1595,6 +1603,53 @@ begin
   end;
 end;
 
+procedure TfrmACBrCTe.btnCancInsucClick(Sender: TObject);
+var
+  vProt: String;
+  iLote: Integer;
+begin
+  OpenDialog1.Title := 'Selecione o CTe para Cancelar o Insucesso de Entrega';
+  OpenDialog1.DefaultExt := '*-cte.xml';
+  OpenDialog1.Filter := 'Arquivos CTe (*-cte.xml)|*-cte.xml|Arquivos XML (*.xml)|*.xml|Todos os Arquivos (*.*)|*.*';
+  OpenDialog1.InitialDir := ACBrCTe1.Configuracoes.Arquivos.PathSalvar;
+
+  if OpenDialog1.Execute then
+  begin
+    ACBrCTe1.Conhecimentos.Clear;
+    ACBrCTe1.Conhecimentos.LoadFromFile(OpenDialog1.FileName);
+
+    if not(InputQuery('Insucesso de Entrega:', 'Numero do Protocolo', vProt)) then
+      exit;
+
+    ACBrCTe1.EventoCTe.Evento.Clear;
+
+    with ACBrCTe1.EventoCTe.Evento.New do
+    begin
+      // Para o Evento de Cancelamento de Insucesso de Entrega:
+      // nSeqEvento sempre = 1
+      infEvento.nSeqEvento := 1;
+      infEvento.chCTe      := Copy(ACBrCTe1.Conhecimentos.Items[0].CTe.infCTe.Id, 4, 44);
+      infEvento.CNPJ       := edtEmitCNPJ.Text;
+      infEvento.dhEvento   := now;
+      infEvento.tpEvento   := teCancInsucessoEntregaCTe;
+
+      infEvento.detEvento.nProt   := ACBrCTe1.Conhecimentos.Items[0].CTe.procCTe.nProt;
+      infEvento.detEvento.nProtIE := vProt;
+    end;
+
+    iLote := 1; // Numero do Lote do Evento
+    ACBrCTe1.EnviarEvento(iLote);
+
+    MemoResp.Lines.Text   := ACBrCTe1.WebServices.EnvEvento.RetWS;
+    memoRespWS.Lines.Text := ACBrCTe1.WebServices.EnvEvento.RetornoWS;
+
+    LoadXML(ACBrCTe1.WebServices.EnvEvento.RetWS, WBResposta);
+
+    ShowMessage(IntToStr(ACBrCTe1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0].RetInfEvento.cStat));
+    ShowMessage(ACBrCTe1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0].RetInfEvento.nProt);
+  end;
+end;
+
 procedure TfrmACBrCTe.btnCarregarXMLEnviarClick(Sender: TObject);
 begin
   OpenDialog1.Title := 'Selecione a CTe';
@@ -1628,27 +1683,28 @@ begin
       Emit.IEST              := '';
     end;
 
-    if ACBrCTe1.Conhecimentos.Items[0].CTe.Ide.modelo = 65 then
-      ACBrCTe1.Enviar(1)
-    else
-      ACBrCTe1.Enviar(1, True, True);
+    ACBrCTe1.Enviar(1, True, True);
 
-    MemoResp.Lines.Text   := ACBrCTe1.WebServices.Retorno.RetWS;
-    memoRespWS.Lines.Text := ACBrCTe1.WebServices.Retorno.RetornoWS;
+    MemoResp.Lines.Text   := ACBrCTe1.WebServices.Enviar.RetWS;
+    memoRespWS.Lines.Text := ACBrCTe1.WebServices.Enviar.RetornoWS;
 
-    LoadXML(ACBrCTe1.WebServices.Retorno.RetWS, WBResposta);
+    LoadXML(ACBrCTe1.WebServices.Enviar.RetWS, WBResposta);
 
-    MemoDados.Lines.Add('');
-    MemoDados.Lines.Add('Envio CTe');
-    MemoDados.Lines.Add('tpAmb: '+ TpAmbToStr(ACBrCTe1.WebServices.Retorno.TpAmb));
-    MemoDados.Lines.Add('verAplic: '+ ACBrCTe1.WebServices.Retorno.verAplic);
-    MemoDados.Lines.Add('cStat: '+ IntToStr(ACBrCTe1.WebServices.Retorno.cStat));
-    MemoDados.Lines.Add('cUF: '+ IntToStr(ACBrCTe1.WebServices.Retorno.cUF));
-    MemoDados.Lines.Add('xMotivo: '+ ACBrCTe1.WebServices.Retorno.xMotivo);
-    MemoDados.Lines.Add('cMsg: '+ IntToStr(ACBrCTe1.WebServices.Retorno.cMsg));
-    MemoDados.Lines.Add('xMsg: '+ ACBrCTe1.WebServices.Retorno.xMsg);
-    MemoDados.Lines.Add('Recibo: '+ ACBrCTe1.WebServices.Retorno.Recibo);
-    MemoDados.Lines.Add('Protocolo: '+ ACBrCTe1.WebServices.Retorno.Protocolo);
+    pgRespostas.ActivePageIndex := 1;
+
+    with MemoDados do
+    begin
+      Lines.Add('');
+      Lines.Add('Envio CTe');
+      Lines.Add('tpAmb: '     + TpAmbToStr(ACBrCTe1.WebServices.Enviar.tpAmb));
+      Lines.Add('verAplic: '  + ACBrCTe1.WebServices.Enviar.verAplic);
+      Lines.Add('cStat: '     + IntToStr(ACBrCTe1.WebServices.Enviar.cStat));
+      Lines.Add('xMotivo: '   + ACBrCTe1.WebServices.Enviar.xMotivo);
+      Lines.Add('cUF: '       + IntToStr(ACBrCTe1.WebServices.Enviar.cUF));
+      Lines.Add('xMsg: '      + ACBrCTe1.WebServices.Enviar.Msg);
+      Lines.Add('Recibo: '    + ACBrCTe1.WebServices.Enviar.Recibo);
+      Lines.Add('Protocolo: ' + ACBrCTe1.WebServices.Enviar.Protocolo);
+    end;
   end;
 end;
 
@@ -1804,6 +1860,7 @@ end;
 procedure TfrmACBrCTe.btnConsCadClick(Sender: TObject);
 var
   UF, Documento: String;
+  i: Integer;
 begin
  if not(InputQuery('WebServices Consulta Cadastro ', 'UF do Documento a ser Consultado:',    UF)) then
     exit;
@@ -1836,6 +1893,34 @@ begin
   MemoDados.Lines.Add('cStat: ' + IntToStr(ACBrCTe1.WebServices.ConsultaCadastro.cStat));
   MemoDados.Lines.Add('xMotivo: ' + ACBrCTe1.WebServices.ConsultaCadastro.xMotivo);
   MemoDados.Lines.Add('DhCons: ' + DateTimeToStr(ACBrCTe1.WebServices.ConsultaCadastro.DhCons));
+  MemoDados.Lines.Add('Dados da Empresa:');
+
+  for i := 0 to ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad.Count -1 do
+  begin
+    MemoDados.Lines.Add('IE: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].IE);
+    MemoDados.Lines.Add('CNPJ: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].CNPJ);
+    MemoDados.Lines.Add('CPF: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].CPF);
+    MemoDados.Lines.Add('cSit: ' + IntToStr(ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].cSit));
+    MemoDados.Lines.Add('indCredNFe: ' + IntToStr(ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].indCredNFe));
+    MemoDados.Lines.Add('indCredCTe: ' + IntToStr(ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].indCredCTe));
+    MemoDados.Lines.Add('Nome: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xNome);
+    MemoDados.Lines.Add('Fantasia: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xFant);
+    MemoDados.Lines.Add('Reg. Apuração: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xRegApur);
+    MemoDados.Lines.Add('CNAE: ' + IntToStr(ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].CNAE));
+    MemoDados.Lines.Add('dIniAtiv: ' + DateToStr(ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].dIniAtiv));
+    MemoDados.Lines.Add('dUltSit: ' + DateToStr(ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].dUltSit));
+    MemoDados.Lines.Add('dBaixa: ' + DateToStr(ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].dBaixa));
+    MemoDados.Lines.Add('IEUnica: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].IEUnica);
+    MemoDados.Lines.Add('IEAtual: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].IEAtual);
+
+    MemoDados.Lines.Add('xLgr: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xLgr);
+    MemoDados.Lines.Add('nro: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].nro);
+    MemoDados.Lines.Add('xCpl: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xCpl);
+    MemoDados.Lines.Add('xBairro: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xBairro);
+    MemoDados.Lines.Add('cMun: ' + IntToStr(ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].cMun));
+    MemoDados.Lines.Add('xMun: ' + ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xMun);
+    MemoDados.Lines.Add('CEP: ' + IntToStr(ACBrCTe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].CEP));
+  end;
 end;
 
 procedure TfrmACBrCTe.btnConsultarChaveClick(Sender: TObject);
@@ -1906,60 +1991,6 @@ begin
   MemoDados.Lines.Add('xMsg: ' + ACBrCTe1.WebServices.Recibo.xMsg);
   MemoDados.Lines.Add('cMsg: ' + IntToStr(ACBrCTe1.WebServices.Recibo.cMsg));
   MemoDados.Lines.Add('Recibo: ' + ACBrCTe1.WebServices.Recibo.Recibo);
-end;
-
-procedure TfrmACBrCTe.btnCriarEnviarClick(Sender: TObject);
-var
-  vAux, vNumLote: String;
-begin
-  if not(InputQuery('WebServices Enviar', 'Numero do Conhecimento', vAux)) then
-    exit;
-
-  if not(InputQuery('WebServices Enviar', 'Numero do Lote', vNumLote)) then
-    exit;
-
-  vNumLote := OnlyNumber(vNumLote);
-
-  if Trim(vNumLote) = '' then
-  begin
-    MessageDlg('Número do Lote inválido.', mtError,[mbok], 0);
-    exit;
-  end;
-
-  AlimentarComponente(vAux);
-
-  ACBrCTe1.Enviar(StrToInt(vNumLote));
-
-  MemoResp.Lines.Text   := ACBrCTe1.WebServices.Retorno.RetWS;
-  memoRespWS.Lines.Text := ACBrCTe1.WebServices.Retorno.RetornoWS;
-
-  LoadXML(ACBrCTe1.WebServices.Retorno.RetWS, WBResposta);
-
-  pgRespostas.ActivePageIndex := 1;
-
-  with MemoDados do
-  begin
-    Lines.Add('');
-    Lines.Add('Envio CTe');
-    Lines.Add('tpAmb: '     + TpAmbToStr(ACBrCTe1.WebServices.Retorno.tpAmb));
-    Lines.Add('verAplic: '  + ACBrCTe1.WebServices.Retorno.verAplic);
-    Lines.Add('cStat: '     + IntToStr(ACBrCTe1.WebServices.Retorno.cStat));
-    Lines.Add('xMotivo: '   + ACBrCTe1.WebServices.Retorno.xMotivo);
-    Lines.Add('cUF: '       + IntToStr(ACBrCTe1.WebServices.Retorno.cUF));
-    Lines.Add('xMsg: '      + ACBrCTe1.WebServices.Retorno.Msg);
-    Lines.Add('Recibo: '    + ACBrCTe1.WebServices.Retorno.Recibo);
-    Lines.Add('Protocolo: ' + ACBrCTe1.WebServices.Retorno.Protocolo);
-  end;
-  (*
-  ACBrCTe1.WebServices.Retorno.CTeRetorno.ProtCTe.Items[0].tpAmb
-  ACBrCTe1.WebServices.Retorno.CTeRetorno.ProtCTe.Items[0].verAplic
-  ACBrCTe1.WebServices.Retorno.CTeRetorno.ProtCTe.Items[0].chCTe
-  ACBrCTe1.WebServices.Retorno.CTeRetorno.ProtCTe.Items[0].dhRecbto
-  ACBrCTe1.WebServices.Retorno.CTeRetorno.ProtCTe.Items[0].nProt
-  ACBrCTe1.WebServices.Retorno.CTeRetorno.ProtCTe.Items[0].digVal
-  ACBrCTe1.WebServices.Retorno.CTeRetorno.ProtCTe.Items[0].cStat
-  ACBrCTe1.WebServices.Retorno.CTeRetorno.ProtCTe.Items[0].xMotivo
-  *)
 end;
 
 procedure TfrmACBrCTe.btnCriarEnviarSincronoClick(Sender: TObject);
@@ -2211,7 +2242,7 @@ begin
       infEvento.dhEvento        := now;
       infEvento.tpEvento        := teEPEC;
 
-      infEvento.detEvento.xJust   := ACBrCTe1.Conhecimentos.Items[0].CTe.ide.xJust;
+      infEvento.detEvento.xJust   := vAux; //ACBrCTe1.Conhecimentos.Items[0].CTe.ide.xJust;
 
       // Exemplo com CST = 00 (vICMS, vICMSRet ou vICMSOutraUF)
       infEvento.detEvento.vICMS   := ACBrCTe1.Conhecimentos.Items[0].CTe.imp.ICMS.ICMS00.vICMS;
@@ -3298,8 +3329,12 @@ begin
     ACBrCTe1.DACTe.MargemSuperior := 5;
     ACBrCTe1.DACTe.MargemInferior := 5;
 
+    {
+     Canhoto na posição Cabeçalho, layout Padrão e Barra funcionando perfeitamente
+     Canhoto na posição Rodape, Layout Padrão e Barra não esta funcionando
+    }
     // (prCabecalho, prRodape);
-    ACBrCTe1.DACTE.PosCanhoto := prRodape;
+    ACBrCTe1.DACTE.PosCanhoto := prCabecalho;
     // (prlPadrao, prlBarra);
     ACBrCTe1.DACTE.PosCanhotoLayout := prlPadrao;
   end;
@@ -3322,7 +3357,7 @@ end;
 procedure TfrmACBrCTe.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser);
 begin
   WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
-                      ConverteXMLtoUTF8(RetWS), False, False);
+                      RetWS, False, False);
 
   MyWebBrowser.Navigate(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml');
 

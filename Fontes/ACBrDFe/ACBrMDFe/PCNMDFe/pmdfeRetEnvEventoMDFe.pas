@@ -47,7 +47,7 @@ uses
    System.Contnrs,
   {$IFEND}
   ACBrBase,
-  pcnAuxiliar, pcnConversao, pcnLeitor, pmdfeEventoMDFe, pcnSignature;
+  pcnConversao, pcnLeitor, pmdfeEventoMDFe, pcnSignature;
 
 type
   TRetInfEventoCollectionItem = class;
@@ -108,6 +108,7 @@ type
 implementation
 
 uses
+  pmdfeMDFe,
   pmdfeConversaoMDFe;
 
 { TRetInfEventoCollection }
@@ -173,6 +174,9 @@ function TRetEventoMDFe.LerXml: boolean;
 var
   ok: boolean;
   i, j: Integer;
+  sAux: string;
+  ItemComp: TCompCollectionItem;
+  ItemInfPrazo: TInfPrazoCollectionItem;
 begin
   Result := False;
 
@@ -201,6 +205,11 @@ begin
           infEvento.detEvento.xJust      := Leitor.rCampo(tcStr, 'xJust');
           infEvento.detEvento.xNome      := Leitor.rCampo(tcStr, 'xNome');
           infEvento.detEvento.CPF        := Leitor.rCampo(tcStr, 'CPF');
+
+          sAux := Leitor.rCampo(tcStr, 'indEncPorTerceiro');
+
+          if sAux = '1' then
+            infEvento.detEvento.indEncPorTerceiro := tiSim;
 
           infEvento.detEvento.cMunCarrega := Leitor.rCampo(tcInt, 'cMunCarrega');
           infEvento.detEvento.xMunCarrega := Leitor.rCampo(tcStr, 'xMunCarrega');
@@ -250,12 +259,11 @@ begin
               j := 0;
               while Leitor.rExtrai(5, 'Comp', '', j + 1) <> '' do
               begin
-                with infEvento.detEvento.infPag[i].Comp.New do
-                begin
-                  tpComp := StrToTComp(Ok, Leitor.rCampo(tcStr, 'tpComp'));
-                  vComp  := Leitor.rCampo(tcDe2, 'vComp');
-                  xComp  := Leitor.rCampo(tcStr, 'xComp');
-                end;
+                ItemComp := infEvento.detEvento.infPag[i].Comp.New;
+
+                ItemComp.tpComp := StrToTComp(Ok, Leitor.rCampo(tcStr, 'tpComp'));
+                ItemComp.vComp  := Leitor.rCampo(tcDe2, 'vComp');
+                ItemComp.xComp  := Leitor.rCampo(tcStr, 'xComp');
 
                 inc(j);
               end;
@@ -267,12 +275,11 @@ begin
                 j := 0;
                 while Leitor.rExtrai(5, 'infPrazo', '', j + 1) <> '' do
                 begin
-                  with infEvento.detEvento.infPag[i].infPrazo.New do
-                  begin
-                    nParcela := Leitor.rCampo(tcInt, 'nParcela');
-                    dVenc    := Leitor.rCampo(tcDat, 'dVenc');
-                    vParcela := Leitor.rCampo(tcDe2, 'vParcela');
-                  end;
+                  ItemInfPrazo := infEvento.detEvento.infPag[i].infPrazo.New;
+
+                  ItemInfPrazo.nParcela := Leitor.rCampo(tcInt, 'nParcela');
+                  ItemInfPrazo.dVenc    := Leitor.rCampo(tcDat, 'dVenc');
+                  ItemInfPrazo.vParcela := Leitor.rCampo(tcDe2, 'vParcela');
 
                   inc(j);
                 end;

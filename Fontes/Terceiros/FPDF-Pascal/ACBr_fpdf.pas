@@ -95,7 +95,7 @@ type
 {$EndIf}
 
 type
-  EFPDFError = Exception;
+  EFPDFError = class(Exception);
 
   TFPDFColor = (cBlack, cSilver, cGray, cWhite, cMaroon, cRed, cPurple, cFuchsia,
     cGreen, cLime, cOlive, cYellow, cNavy, cBlue, cTeal, cAqua, cLightGrey);
@@ -2453,7 +2453,7 @@ begin
     Result := StringReplace( Result, '(', '\(', [rfReplaceAll]);
 
   if (pos(CR, sText) > 0) then
-    Result := StringReplace( Result, CR, '\'+CR, [rfReplaceAll]);
+    Result := StringReplace( Result, CR, '\r', [rfReplaceAll]);
 end;
 
 function TFPDF._textstring(const AString: String): String;

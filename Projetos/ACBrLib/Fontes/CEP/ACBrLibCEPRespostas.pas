@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 {                                                                              }
@@ -38,7 +38,8 @@ interface
 
 uses
   SysUtils, Classes, contnrs,
-  ACBrLibResposta, ACBrCEP;
+  ACBrLibResposta, ACBrLibConfig,
+  ACBrCEP;
 
 type
 
@@ -144,7 +145,7 @@ begin
   FQtd := ACBrCEP.Enderecos.Count;
   for I := 0 to ACBrCEP.Enderecos.Count - 1 do
   begin
-    Item := TEnderecoResposta.Create(I + 1, Tipo, Formato);
+    Item := TEnderecoResposta.Create(I + 1, Tipo, Codificacao);
     Item.Processar(ACBrCEP.Enderecos[I]);
     FItems.Add(Item);
   end;

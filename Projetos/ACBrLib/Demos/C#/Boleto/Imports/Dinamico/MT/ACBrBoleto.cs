@@ -151,8 +151,8 @@ namespace ACBrLib.Boleto
             var iniFile = new ACBrIniFile();
             for (var i = 0; i < titulos.Length; i++)
             {
-				titulos[i].WriteToIni(iniFile);
                 titulos[i].Index = i + 1;
+                titulos[i].WriteToIni(iniFile);
             }
 
             IncluirTitulos(iniFile.ToString());
@@ -163,8 +163,8 @@ namespace ACBrLib.Boleto
             var iniFile = new ACBrIniFile();
             for (var i = 0; i < titulos.Length; i++)
             {
-				titulos[i].WriteToIni(iniFile);
                 titulos[i].Index = i + 1;
+                titulos[i].WriteToIni(iniFile);
             }
 
             IncluirTitulos(iniFile.ToString(), eTpSaida);
@@ -272,6 +272,22 @@ namespace ACBrLib.Boleto
             CheckResult(ret);
         }
 
+        public void GerarRemessaStream(int eNumArquivo, Stream aStream)
+        {
+            if (aStream == null) throw new ArgumentNullException(nameof(aStream));
+
+            var bufferLen = BUFFER_LEN;
+            var buffer = new StringBuilder(bufferLen);
+
+            var method = GetMethod<Boleto_GerarRemessaStream>();
+            var ret = ExecuteMethod(() => method(libHandle, eNumArquivo, buffer, ref bufferLen));
+
+            CheckResult(ret);
+
+            var rem = ProcessResult(buffer, bufferLen);
+            Base64ToStream(rem, aStream);
+        }
+
         public RetornoBoleto ObterRetorno(string eDir, string eNomeArq)
         {
             var bufferLen = BUFFER_LEN;
@@ -291,6 +307,19 @@ namespace ACBrLib.Boleto
             var ret = ExecuteMethod(() => method(libHandle, ToUTF8(eDir), ToUTF8(eNomeArq)));
 
             CheckResult(ret);
+        }
+
+        public string LerRetornoStream(string ARetornoBase64)
+        {
+            var bufferLen = BUFFER_LEN;
+            var buffer = new StringBuilder(bufferLen);
+
+            var method = GetMethod<Boleto_LerRetornoStream>();
+            var ret = ExecuteMethod(() => method(libHandle, ToUTF8(ARetornoBase64), buffer, ref bufferLen));
+
+            CheckResult(ret);
+
+            return ProcessResult(buffer, bufferLen);
         }
 
         public void EnviarEmail(string ePara, string eAssunto, string eMensagem, string eCC)

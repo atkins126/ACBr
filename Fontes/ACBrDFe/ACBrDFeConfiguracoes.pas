@@ -39,7 +39,8 @@ interface
 
 uses
   Classes, SysUtils, types, IniFiles, blcksock,
-  pcnConversao, pcnAuxiliar,
+  pcnConversao,
+  ACBrUtil.DateTime,
   ACBrDFeSSL;
 
 const
@@ -1045,6 +1046,7 @@ begin
   NumeroSerie := DeCertificadosConf.NumeroSerie;
   ArquivoPFX := DeCertificadosConf.ArquivoPFX;
   URLPFX := DeCertificadosConf.URLPFX;
+  VerificarValidade := DeCertificadosConf.VerificarValidade;
 end;
 
 procedure TCertificadosConf.GravarIni(const AIni: TCustomIniFile);

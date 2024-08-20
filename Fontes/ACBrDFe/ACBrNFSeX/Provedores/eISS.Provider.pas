@@ -55,8 +55,8 @@ type
     procedure SetHeaders(aHeaderReq: THTTPHeader); override;
 
   public
-    function GerarToken(ACabecalho, AMSG: String): string; override;
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
+    function GerarToken(const ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -83,8 +83,7 @@ type
     procedure TratarRetornoEmitir(Response: TNFSeEmiteResponse); override;
 
     procedure ProcessarMensagemDeErros(LJson: TACBrJSONObject;
-                                     Response: TNFSeWebserviceResponse;
-                                     const AListTag: string = 'erros');
+                                       Response: TNFSeWebserviceResponse);
   end;
 
 implementation
@@ -113,6 +112,12 @@ begin
     FormatoArqRetornoSoap := tfaJson;
     FormatoArqRecibo := tfaJson;
     FormatoArqNota := tfaJson;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerChaveAcesso := True;
+
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.GerarToken := True;
   end;
 
   SetXmlNameSpace('');
@@ -157,8 +162,7 @@ begin
 end;
 
 procedure TACBrNFSeProvidereISS.ProcessarMensagemDeErros(
-  LJson: TACBrJSONObject; Response: TNFSeWebserviceResponse;
-  const AListTag: string);
+  LJson: TACBrJSONObject; Response: TNFSeWebserviceResponse);
 var
   JSonErro: TACBrJSONObject;
   AErro: TNFSeEventoCollectionItem;
@@ -174,11 +178,11 @@ begin
 
   AErro := Response.Erros.New;
   AErro.Codigo := Trim(Copy(JSonErro.AsString['Code'], 6, 3));
-  AErro.Descricao := ACBrStr(TrimRight(JSonErro.AsString['Message'] + #13 +
-                               JSonErro.AsString['MessageDev']));
-  AErro.Correcao :=  ACBrStr(TrimRight(JSonErro.AsString['Detail'] + #13 +
+  AErro.Descricao := TrimRight(JSonErro.AsString['Message'] + #13 +
+                               JSonErro.AsString['MessageDev']);
+  AErro.Correcao :=  TrimRight(JSonErro.AsString['Detail'] + #13 +
                                JSonErro.AsString['DetailDev'] + #13 +
-                               xDetailError));
+                               xDetailError);
 end;
 
 procedure TACBrNFSeProvidereISS.PrepararGerarToken(
@@ -398,7 +402,7 @@ begin
   end;
 end;
 
-function TACBrNFSeXWebserviceeISS.GerarToken(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceeISS.GerarToken(const ACabecalho, AMSG: String): string;
 begin
   FpMetodo := tmGerarToken;
   FPMsgOrig := AMSG;
@@ -406,7 +410,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceeISS.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceeISS.Recepcionar(const ACabecalho, AMSG: String): string;
 begin
   FpMetodo := tmRecepcionar;
   FPMsgOrig := AMSG;

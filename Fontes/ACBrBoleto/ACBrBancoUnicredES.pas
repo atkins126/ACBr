@@ -53,6 +53,8 @@ type
     function DefinePosicaoNossoNumeroRetorno: Integer; override;
     function DefineSeuNumeroRetorno(const ALinha: String): String; override;
     function DefineNumeroDocumentoRetorno(const ALinha: String): String; override;
+    function DefineCodigoProtesto(const ACBrTitulo: TACBrTitulo): String; override;   //Utilizado para definir Código Protesto do título na remessa
+
   public
     Constructor create(AOwner: TACBrBanco);
 
@@ -74,7 +76,7 @@ type
     function DefinerCnpjCPFRetorno240(const ALinha: String): String; override;         //Define retorno rCnpjCPF
     procedure DefineCanalLiquidacaoRetorno240(const ALinha: String; out ATitulo : TACBrTitulo); override;
     function CodigoLiquidacaoDescricao( CodLiquidacao : Integer) : String;
-
+    function DefineCaucionada(const ACBrTitulo: TACBrTitulo): String;
   end;
 
 implementation
@@ -111,7 +113,7 @@ procedure TACBrBancoUnicredES.GerarRegistroTransacao400(ACBrTitulo :TACBrTitulo;
 var
   sDigitoNossoNumero, sAgencia : String;
   sTipoSacado, sConta, sProtesto    : String;
-  sCarteira, sLinha, sNossoNumero, sTipoMulta,sValorMulta : String;
+  sCarteira, sLinha, sNossoNumero, sTipoMulta,sValorMulta, LCaucionada : String;
 begin
 
   with ACBrTitulo do
@@ -125,7 +127,8 @@ begin
     sTipoSacado := DefineTipoSacado(ACBrTitulo);
 
     {Pegando campo Intruções}
-    sProtesto:= DefineTipoDiasProtesto(ACBrTitulo); //InstrucoesProtesto(ACBrTitulo);
+    sProtesto:= DefineCodigoProtesto(ACBrTitulo);
+
     {Verifica o Tipo da Multa}
     if MultaValorFixo then
       CodigoMulta := cmValorFixo;
@@ -142,6 +145,10 @@ begin
           sValorMulta  := PadRight('', 10, '0');
       end;
     end;
+
+    {Define caucionada}
+    LCaucionada := DefineCaucionada(ACBrTitulo);
+
     with ACBrBoleto do
     begin
        sLinha:= '1'                                                           +{ 001 a 001  	Identificação do Registro }
@@ -161,7 +168,8 @@ begin
                 PadLeft(sValorMulta, 10, '0')                                 +{ 095 a 104	  Valor/Percentual da Multa	010 }
                 CodJurosToStr(CodigoMoraJuros,ValorMoraJuros)                 +{ 105 a 105	  Tipo de Valor Mora	001}
                 'N'                                                           +{ 106 a 106	  Filler	001 }
-                Space(2)                                                      +{ 107 a 108	  Branco	002	Branco }
+                LCaucionada                                                   +{ 107 a 107	  Caucionada }
+                Space(1)                                                      +{ 108 a 108	  108 - Brancos}
                 TipoOcorrenciaToCodRemessa(OcorrenciaOriginal.Tipo)           +{ 109 a 110	  Identificação da Ocorrência	002 }
                 PadRight(ACBrTitulo.SeuNumero, 10)                            +{ 111 a 120	  Nº do Documento (Seu número)	010 }
                 FormatDateTime( 'ddmmyy', Vencimento)                         +{ 121 a 126	  Data de vencimento do Título	006 }
@@ -298,7 +306,7 @@ begin
           SeuNumero                   := copy(Linha,280,26);
           NumeroDocumento             := copy(Linha,117,10);
           LCodigoOrigem               := StrToIntDef(copy(Linha,327,2),0);
-          if LCodigoOrigem in [0,1] then
+          if LCodigoOrigem in [0,1,6,7,9,13,14] then
           begin
             LCodigoOrigem := StrToIntDef(copy(Linha,109,2),0);
             LTipoOcorrencia := CodOcorrenciaToTipo(LCodigoOrigem);
@@ -308,7 +316,7 @@ begin
           OcorrenciaOriginal.Tipo     := LTipoOcorrencia;
           
           MotivoLinha := 319;
-          for i := 0 to 4 do
+          for i := 1 to 4 do
           begin
             codInstrucao := IfThen(copy(Linha,MotivoLinha,2) = '  ','00',copy(Linha,MotivoLinha,2));
             MotivoRejeicaoComando.Add(codInstrucao);
@@ -624,6 +632,43 @@ begin
   ATitulo.ValorOutrasDespesas := 0;
 end;
 
+function TACBrBancoUnicredES.DefineCaucionada(
+  const ACBrTitulo: TACBrTitulo): String;
+begin
+   if (fpNumero = 136) and (fpLayoutVersaoArquivo = 085) then
+   begin
+     if (ACBrTitulo.EspecieDoc = Trim('31')) or (ACBrTitulo.EspecieDoc = trim('CC')) then
+       Result := 'N'
+     else
+       case ACBrTitulo.CaracTitulo of
+         tcCaucionada: result := 'S';
+       else
+         result := 'N';
+       end;
+   end
+   else
+     result := Space(1);
+end;
+
+function TACBrBancoUnicredES.DefineCodigoProtesto(
+  const ACBrTitulo: TACBrTitulo): String;
+begin
+  with ACBrTitulo do
+  begin
+    case CodigoNegativacao of
+        cnNenhum           :  Result := '0';
+        cnProtestarCorrido :  Result := '1';
+        cnProtestarUteis   :  Result := '2';
+        cnNaoProtestar     :  Result := '3';
+        cnNegativar        :  Result := '4'; // negativar dias corridos
+        cnNegativarUteis   :  Result := '5';
+        cnNaoNegativar     :  Result := '6';
+       else
+        Result := '0';
+      end;
+  end;
+end;
+
 function TACBrBancoUnicredES.DefineNumeroDocumentoModulo(
   const ACBrTitulo: TACBrTitulo): String;
 begin
@@ -717,7 +762,9 @@ var
   sNossoNumero, sDigitoNossoNumero, ATipoAceite : String;
   ACodJuros, ACodDesc, ACodProtesto : String;
   ACodMulta, AValorMulta : String;
+  ADias, LCaucionada : String;
   ListTransacao: TStringList;
+
 begin
   with ACBrTitulo do
   begin
@@ -744,6 +791,9 @@ begin
     {Define Codigo Multa}
     ACodMulta := DefineCodigoMulta(ACBrTitulo);
 
+    {Define caucionada}
+    LCaucionada := DefineCaucionada(ACBrTitulo);
+
     {Calculo de Multa}
     if PercentualMulta > 0 then
     begin
@@ -758,6 +808,25 @@ begin
     if (ACBrBoleto.Cedente.UF = 'SC') then
       NumeroDocumento := PadLeft(Copy(NumeroDocumento,0,10), 15, ' ');
 
+    { Dias para protesto / Negativação }
+    ADias := '00';
+    if Length(ACodProtesto) > 0 then
+    begin
+      case StrToInt(ACodProtesto) of
+        1,2 : begin
+          ADias := PadLeft(IntToStr(DiasDeProtesto), 2, '0');
+          if DiasDeProtesto <= 0 then
+             Raise Exception.Create(ACBrStr('Informar a propriedade DiasDeProtesto !'));
+        end;
+        4,5 : begin
+          ADias := PadLeft(IntToStr(DiasDeNegativacao), 2, '0');
+          if DiasDeNegativacao <= 0 then
+             Raise Exception.Create(ACBrStr('Informar a propriedade DiasDeNegativacao !'));
+        end;
+
+      end;
+
+    end;
 
     ListTransacao:= TStringList.Create;
 
@@ -786,7 +855,7 @@ begin
                IntToStrZero( round( ValorDocumento * 100), 15)                         + // 86 a 100 - Valor nominal do título
                Space(6)                                                                + // 101 a 106 - Agência cobradora + dv
                'N'                                                                     + // 107 - Título Participa de operação de desconto
-               Space(1)                                                                + // 108 - Brancos
+               LCaucionada                                                             + // 108 - Brancos
                ATipoAceite                                                             + // 109 - Identificação de título Aceito / Não aceito
                FormatDateTime('ddmmyyyy', DataDocumento)                               + // 110 a 117 - Data da emissão do documento
                aCodJuros                                                               + // 118 - Código de juros de mora: Valor por dia   ('1' = Valor por Dia  '2' = Taxa Mensal  '4' = Taxa Diaria '5' = Isento)
@@ -804,7 +873,7 @@ begin
                IntToStrZero( round(ValorAbatimento * 100), 15)                         + // 181 a 195 - Valor do abatimento
                PadRight(SeuNumero, 25, ' ')                                            + // 196 a 220 - Identificação do título na empresa
                aCodProtesto                                                            + // 221 - Código para protesto.  '1’ = ProtestarDias Corridos '2’ = ProtestarDias Úteis '3’ = NãoProtestar
-               IfThen(aCodProtesto<>'3', PadLeft(IntToStr(DiasDeProtesto),2,'0'),'00') + // 222 a 223 - Prazo para negativar (em dias corridos)
+               ADias                                                                   + // 222 a 223 - Prazo para negativar (em dias corridos)
                Space(4)                                                                + // 224 a 227 - Brancos
                '09'                                                                    + // 228 a 229 - Código da moeda: 09-Real
                StringOfChar('0', 10)                                                   + // 230 a 239 - Numero do contrato da op. de credito

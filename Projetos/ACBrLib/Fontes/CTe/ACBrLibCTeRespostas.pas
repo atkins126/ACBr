@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 {                                                                              }
@@ -38,8 +38,8 @@ interface
 
 uses
   SysUtils, Classes, contnrs,
-  pcteRetEnvEventoCTe, pcteEventoCTe,
-  ACBrLibConsReciDFe, ACBrLibResposta, ACBrCTe;
+  pcteRetEnvEventoCTe, ACBrCTe.EventoClass,
+  ACBrLibConsReciDFe, ACBrLibResposta, ACBrLibConfig, ACBrCTe;
 
 type
 
@@ -238,7 +238,7 @@ type
 implementation
 
 uses
-  pcnConversao, pcteConversaoCTe,
+  pcnConversao, pcteConversaoCTe, ACBrXMLBase,
   ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings,
   ACBrLibCTeConsts;
 
@@ -302,7 +302,7 @@ begin
     begin
       for i := 0 to retEvento.Count - 1 do
       begin
-        Item := TEventoItemResposta.Create('EVENTO' + Trim(IntToStrZero(i +1, 3)), Tipo, Formato);
+        Item := TEventoItemResposta.Create('EVENTO' + Trim(IntToStrZero(i +1, 3)), Tipo, Codificacao);
         Item.Processar(retEvento.Items[i].RetInfevento);
         FItems.Add(Item);
       end;
@@ -376,7 +376,7 @@ begin
   begin
     Self.Xml := ACBrCTe.Conhecimentos.Items[0].XMLOriginal;
 
-    FItem := TRetornoItemResposta.Create('CTe' + Trim(ACBrCTe.Conhecimentos.Items[0].CTe.procCTe.chCTe), Tipo, Formato);
+    FItem := TRetornoItemResposta.Create('CTe' + Trim(ACBrCTe.Conhecimentos.Items[0].CTe.procCTe.chCTe), Tipo, Codificacao);
     FItem.Id := ACBrCTe.Conhecimentos.Items[0].CTe.procCTe.Id;
     FItem.tpAmb := TpAmbToStr(ACBrCTe.Conhecimentos.Items[0].CTe.procCTe.tpAmb);
     FItem.verAplic := ACBrCTe.Conhecimentos.Items[0].CTe.procCTe.verAplic;
@@ -390,11 +390,11 @@ begin
   end
   else if (ACBrCTe.Configuracoes.Geral.ModeloDF = moCTeOS) and (ACBrCTe.Conhecimentos.Count > 0) then
   begin
-    FItem := TRetornoItemResposta.Create('CTeOS' + Trim(ACBrCTe.WebServices.Enviar.CTeRetornoSincrono.protCTe.chCTe), Tipo, Formato);
+    FItem := TRetornoItemResposta.Create('CTeOS' + Trim(ACBrCTe.WebServices.Enviar.CTeRetornoSincrono.protCTe.chDFe), Tipo, Codificacao);
     FItem.Id := ACBrCTe.WebServices.Enviar.CTeRetornoSincrono.protCTe.Id;
-    FItem.tpAmb := TpAmbToStr(ACBrCTe.WebServices.Enviar.CTeRetornoSincrono.protCTe.tpAmb);
+    FItem.tpAmb := TipoAmbienteToStr(ACBrCTe.WebServices.Enviar.CTeRetornoSincrono.protCTe.tpAmb);
     FItem.verAplic := ACBrCTe.WebServices.Enviar.CTeRetornoSincrono.protCTe.verAplic;
-    FItem.chDFe := ACBrCTe.WebServices.Enviar.CTeRetornoSincrono.protCTe.chCTe;
+    FItem.chDFe := ACBrCTe.WebServices.Enviar.CTeRetornoSincrono.protCTe.chDFe;
     FItem.dhRecbto := ACBrCTe.WebServices.Enviar.CTeRetornoSincrono.protCTe.dhRecbto;
     FItem.nProt := ACBrCTe.WebServices.Enviar.CTeRetornoSincrono.protCTe.nProt;
     FItem.digVal := ACBrCTe.WebServices.Enviar.CTeRetornoSincrono.protCTe.digVal;

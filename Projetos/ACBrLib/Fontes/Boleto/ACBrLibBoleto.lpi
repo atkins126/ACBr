@@ -18,8 +18,10 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
+      <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="2"/>
-      <BuildNr Value="257"/>
+      <RevisionNr Value="1"/>
+      <BuildNr Value="308"/>
       <Language Value="0416"/>
       <Attributes pvaPreRelease="True"/>
       <StringTable CompanyName="Projeto ACBr" FileDescription="ACBrLibBoleto - Biblioteca para geração de Arquivos de Remessa e Retorno, e impressão de Boletos" InternalName="ACBrLibBoleto" LegalTrademarks="Projeto ACBr" ProductVersion="0.0.0.0"/>
@@ -240,7 +242,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="..\..\Testes\Boleto\bin\ACBrBoleto64"/>
+            <Filename Value="..\..\Testes\Boleto\bin\ACBrBoleto32"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);..\Comum"/>
@@ -253,8 +255,7 @@
             </SyntaxOptions>
           </Parsing>
           <CodeGeneration>
-            <TargetCPU Value="x86_64"/>
-            <TargetOS Value="win64"/>
+            <TargetCPU Value="i386"/>
           </CodeGeneration>
           <Linking>
             <Debugging>
@@ -525,13 +526,15 @@
     </PublishOptions>
     <RunParams>
       <local>
-        <HostApplicationFilename Value="C:\Pascal\Comp\ACBr\trunk2\Projetos\ACBrLib\Testes\Boleto\bin\ACBrLibBoletoTest.exe"/>
+        <HostApplicationFilename Value="C:\ProjetoACBr\ACBr\Projetos\ACBrLib\Testes\Boleto\bin\ACBrLibBoletoTest.exe"/>
+        <LaunchingApplication PathPlusParams=""/>
       </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
         <Mode0 Name="default">
           <local>
-            <HostApplicationFilename Value="C:\Pascal\Comp\ACBr\trunk2\Projetos\ACBrLib\Testes\Boleto\bin\ACBrLibBoletoTest.exe"/>
+            <HostApplicationFilename Value="C:\ProjetoACBr\ACBr\Projetos\ACBrLib\Testes\Boleto\bin\ACBrLibBoletoTest.exe"/>
+            <LaunchingApplication PathPlusParams=""/>
           </local>
         </Mode0>
       </Modes>
@@ -547,7 +550,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="14">
+    <Units Count="12">
       <Unit0>
         <Filename Value="ACBrLibBoleto.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -596,20 +599,9 @@
         <IsPartOfProject Value="True"/>
       </Unit10>
       <Unit11>
-        <Filename Value="..\Comum\ACBrLibHelpers.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit11>
-      <Unit12>
         <Filename Value="ACBrLibBoletoRespostas.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit12>
-      <Unit13>
-        <Filename Value="..\Comum\ACBrLibDataModule.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="LibDataModule"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="DataModule"/>
-      </Unit13>
+      </Unit11>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

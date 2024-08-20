@@ -37,6 +37,7 @@ eGoverneISS          1.00  06/09/2022
 eISS                 1.00
 EL                   1.00
 EL                   2.04
+Elmar                2.02
 EloTech              2.03  10/08/2022
 Equiplano            1.00  22/11/2022
 eReceita             2.02
@@ -70,9 +71,12 @@ Intertec             1.00
 IPM                  1.00
 IPM                  1.01  24/08/2022
 IPM                  2.04
+Isaneto              2.03
 ISSBarueri           1.00  19/09/2022
 ISSCamacari          2.01
 ISSCambe             1.00
+ISSCampinas          1.00
+ISSCampinas          2.03
 ISSCuritiba          1.00
 ISSDigital           2.00
 ISSDSF               1.00
@@ -81,6 +85,7 @@ ISSFortaleza         1.00
 ISSGoiania           2.00  02/08/2022
 ISSIntel             1.00
 ISSJoinville         2.04  10/08/2022
+ISSLegal             2.03
 ISSLencois           1.00
 ISSNatal             1.00
 ISSNet               1.00  04/08/2022
@@ -106,6 +111,7 @@ PadraoNacional       1.00
 Prescon              1.00  14/03/2023
 PriMax               1.00
 Prodata              2.01
+PRODAUB              2.04
 Pronim               1.00
 Pronim               2.02  17/08/2022
 Pronim               2.03
@@ -116,6 +122,7 @@ RLZ                  2.03
 Saatri               2.01
 Saatri               2.03
 SafeWeb              2.00
+Sam                  1.00
 SH3                  2.00
 Siam                 2.00
 SiapNet              2.00

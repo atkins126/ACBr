@@ -39,8 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao;
+  ACBrNFSeXParametros, ACBrNFSeXGravarXml;
 
 type
   { Provedor com layout próprio }
@@ -56,7 +55,8 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings;
+  ACBrUtil.Strings,
+  ACBrNFSeXConversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -159,8 +159,8 @@ begin
   NFSeNode.AppendChild(AddNode(tcDatVcto, '#1', 'data_emissao', 10, 10, 1,
                                                          NFSe.DataEmissao, ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'forma_de_pagamento', 1, 2, 1,
-                                                                       '', ''));
+  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'forma_de_pagamento', 1, 100, 1,
+                                             NFSe.Servico.xFormaPagamento, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'descricao', 1, 100, 1,
                                                NFSe.Servico.Discriminacao, ''));
@@ -172,6 +172,10 @@ begin
 
   if NFSe.Servico.Valores.IssRetido = stRetencao then
     NFSeNode.AppendChild(AddNode(tcStr, '#1', 'iss_retido', 1, 1, 1, 'S', ''))
+  else if NFSe.Servico.Valores.IssRetido = stRetidoForaMunicipio then
+    NFSeNode.AppendChild(AddNode(tcStr, '#1', 'iss_retido', 1, 1, 1, 'F', ''))
+  else if NFSe.Servico.Valores.IssRetido = stDevidoForaMunicipioNaoRetido then
+    NFSeNode.AppendChild(AddNode(tcStr, '#1', 'iss_retido', 1, 1, 1, 'D', ''))
   else
     NFSeNode.AppendChild(AddNode(tcStr, '#1', 'iss_retido', 1, 1, 1, 'N', ''));
 

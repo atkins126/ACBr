@@ -38,6 +38,23 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+25/03/2024
+[*] Alteração para importar corretamente arquivos de Chave Privada que possuem o 
+    cabeçalho: "-----BEGIN PRIVATE KEY-----"
+    por: Elias César
+
+07/12/2023
+-- OpenSSLExt --
+[+] Adicionado novos métodos do OpenSSL3, para permitir carregar Bibliotecas
+    legadas do OpenSSL3
+[*] "InitSSLInterface" modificada para tentar ler Bibliotecas legadas
+    quando for OpenSSL3
+[+] Função "OpenSSLFullVersion" migrada de "ACBrOpenSSLUtils"
+
+-- ACBrOpenSSLUtils --
+[+] Função "OpenSSLFullVersion" migrada para "OpenSSLExt"
+    (por: DSA)
+
 23/10/2023
 -- OpenSSLExt --
 [*] Ajustes para suportar OpenSSL 3.x, dando prioridade a essa versão, se

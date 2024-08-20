@@ -38,9 +38,13 @@ interface
 
 uses
   Classes, SysUtils, synautil,
-  ACBrDFe, ACBrDFeException, ACBrDFeConfiguracoes, ACBrBase, 
+  ACBrXmlBase,
+  ACBrBase,
+  ACBrDFe, ACBrDFeException, ACBrDFeConfiguracoes,
   ACBrBPeConfiguracoes, ACBrBPeWebServices, ACBrBPeBilhetes, ACBrBPeDABPEClass,
-  pcnBPe, pcnConversao, pcnConversaoBPe, pcnEnvEventoBPe;
+  ACBrBPeClass,
+  pcnConversao,
+  ACBrBPeConversao, ACBrBPeEnvEvento;
 
 const
   ACBRBPE_NAMESPACE = 'http://www.portalfiscal.inf.br/bpe';
@@ -63,8 +67,8 @@ type
     FWebServices: TWebServices;
 
     function GetConfiguracoes: TConfiguracoesBPe;
-    function Distribuicao(AcUFAutor: Integer; const ACNPJCPF, AultNSU, ANSU,
-      chBPe: String): Boolean;
+//    function Distribuicao(AcUFAutor: Integer; const ACNPJCPF, AultNSU, ANSU,
+//      chBPe: String): Boolean;
 
     procedure SetConfiguracoes(AValue: TConfiguracoesBPe);
     procedure SetDABPE(const Value: TACBrBPeDABPEClass);
@@ -87,7 +91,7 @@ type
 
     function GetNomeModeloDFe: String; override;
     function GetNameSpaceURI: String; override;
-    function EhAutorizacao(AVersao: TVersaoBPe; AUFCodigo: Integer): Boolean;
+//    function EhAutorizacao(AVersao: TVersaoBPe; AUFCodigo: Integer): Boolean;
 
     function CstatConfirmada(AValue: Integer): Boolean;
     function CstatProcessado(AValue: Integer): Boolean;
@@ -102,8 +106,8 @@ type
     function LerVersaoDeParams(LayOutServico: TLayOutBPe): String; reintroduce; overload;
 
     function GetURLConsultaBPe(const CUF: Integer;
-      const TipoAmbiente: TpcnTipoAmbiente): String;
-    function GetURLQRCode(const CUF: Integer; const TipoAmbiente: TpcnTipoAmbiente;
+      const TipoAmbiente: TACBrTipoAmbiente): String;
+    function GetURLQRCode(const CUF: Integer; const TipoAmbiente: TACBrTipoAmbiente;
       const AChaveBPe: String): String;
 
     function IdentificaSchema(const AXML: String): TSchemaBPe;
@@ -118,7 +122,7 @@ type
     procedure SetStatus(const stNewStatus: TStatusACBrBPe);
     procedure ImprimirEvento;
     procedure ImprimirEventoPDF;
-
+    {
     function DistribuicaoDFe(AcUFAutor: Integer; const ACNPJCPF, AultNSU,
       ANSU: String; const AchBPe: String = ''): Boolean;
     function DistribuicaoDFePorUltNSU(AcUFAutor: Integer; const ACNPJCPF,
@@ -127,7 +131,7 @@ type
       ANSU: String): Boolean;
     function DistribuicaoDFePorChaveBPe(AcUFAutor: Integer; const ACNPJCPF,
       AchBPe: String): Boolean;
-
+    }
     function GravarStream(AStream: TStream): Boolean;
 
     procedure EnviarEmailEvento(const sPara, sAssunto: String;
@@ -147,7 +151,7 @@ uses
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.FilesIO,
-  pcnAuxiliar, ACBrDFeSSL;
+  ACBrDFeSSL;
 
 {$IFDEF FPC}
  {$R ACBrBPeServicos.rc}
@@ -161,7 +165,7 @@ constructor TACBrBPe.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  FBilhetes := TBilhetes.Create(Self, Bilhete);
+  FBilhetes := TBilhetes.Create(Self, TBilhete);
   FEventoBPe := TEventoBPe.Create;
   FWebServices := TWebServices.Create(Self);
 end;
@@ -185,7 +189,7 @@ begin
     inherited EnviarEmail(sPara, sAssunto, sMensagem, sCC, Anexos, StreamBPe, NomeArq,
       sReplyTo, sBCC);
   finally
-    SetStatus( stIdleBPe );
+    SetStatus( stBPeIdle );
   end;
 end;
 
@@ -264,12 +268,12 @@ begin
       Result := False;
   end;
 end;
-
+{
 function TACBrBPe.EhAutorizacao( AVersao: TVersaoBPe; AUFCodigo: Integer ): Boolean;
 begin
   Result := True;
 end;
-
+}
 function TACBrBPe.IdentificaSchema(const AXML: String): TSchemaBPe;
 var
   lTipoEvento: String;
@@ -312,6 +316,7 @@ begin
   NomeServico := LayOutBPeToServico(ALayOut);
   NomeSchema := NomeServicoToNomeSchema(NomeServico);
   ArqSchema := '';
+
   if NaoEstaVazio(NomeSchema) then
   begin
     Versao := VersaoServico;
@@ -324,7 +329,7 @@ end;
 function TACBrBPe.GerarNomeArqSchemaEvento(ASchemaEventoBPe: TSchemaBPe;
   VersaoServico: Double): String;
 begin
-  if VersaoServico = 0.0 then
+  if VersaoServico = 0 then
     Result := ''
   else
     Result := PathWithDelim( Configuracoes.Arquivos.PathSchemas ) +
@@ -374,17 +379,18 @@ begin
 end;
 
 function TACBrBPe.GetURLConsultaBPe(const CUF: Integer;
-  const TipoAmbiente: TpcnTipoAmbiente): String;
+  const TipoAmbiente: TACBrTipoAmbiente): String;
 begin
-  Result := LerURLDeParams('BPe', CUFtoUF(CUF), TipoAmbiente, 'URL-ConsultaBPe', 0);
+  Result := LerURLDeParams('BPe', CUFtoUF(CUF), TpcnTipoAmbiente(TipoAmbiente),
+    'URL-ConsultaBPe', 0);
 end;
 
 function TACBrBPe.GetURLQRCode(const CUF: Integer;
-  const TipoAmbiente: TpcnTipoAmbiente; const AChaveBPe: String): String;
+  const TipoAmbiente: TACBrTipoAmbiente; const AChaveBPe: String): String;
 var
   Passo1, Passo2, urlUF, idBPe, tpEmis, sign: String;
 begin
-  urlUF := LerURLDeParams('BPe', CUFtoUF(CUF), TipoAmbiente, 'URL-QRCode', 0);
+  urlUF := LerURLDeParams('BPe', CUFtoUF(CUF), TpcnTipoAmbiente(TipoAmbiente), 'URL-QRCode', 0);
   idBPe := OnlyNumber(AChaveBPe);
   tpEmis := Copy(idBPe, 35, 1);
 
@@ -392,7 +398,7 @@ begin
   if Pos('?', urlUF) = 0 then
     Passo1 := Passo1 + '?';
 
-  Passo1 := Passo1 + 'chBPe=' + idBPe + '&tpAmb=' + TpAmbToStr(TipoAmbiente);
+  Passo1 := Passo1 + 'chBPe=' + idBPe + '&tpAmb=' + TipoAmbienteToStr(TipoAmbiente);
   Result := Passo1;
 
   if tpEmis <> '1' then
@@ -408,11 +414,11 @@ end;
 
 function TACBrBPe.GravarStream(AStream: TStream): Boolean;
 begin
-  if EstaVazio(FEventoBPe.Gerador.ArquivoFormatoXML) then
+  if EstaVazio(FEventoBPe.Xml) then
     FEventoBPe.GerarXML;
 
   AStream.Size := 0;
-  WriteStrToStream(AStream, AnsiString(FEventoBPe.Gerador.ArquivoFormatoXML));
+  WriteStrToStream(AStream, AnsiString(FEventoBPe.Xml));
   Result := True;
 end;
 
@@ -455,7 +461,7 @@ begin
     try
       EnviarEvento(ALote);
     except
-      GerarException(WebServices.EnvEvento.EventoRetorno.xMotivo);
+      GerarException(WebServices.EnvEvento.EventoRetorno.retInfEvento.xMotivo);
     end;
   end;
   Result := True;
@@ -541,7 +547,7 @@ begin
     if EventoBPe.Evento.Items[i].infEvento.nSeqEvento = 0 then
       EventoBPe.Evento.Items[i].infEvento.nSeqEvento := 1;
 
-    FEventoBPe.Evento.Items[i].infEvento.tpAmb := Configuracoes.WebServices.Ambiente;
+    FEventoBPe.Evento.Items[i].infEvento.tpAmb := TACBrTipoAmbiente(Configuracoes.WebServices.Ambiente);
 
     if Bilhetes.Count > 0 then
     begin
@@ -595,12 +601,12 @@ begin
 end;
 
 function TACBrBPe.NomeServicoToNomeSchema(const NomeServico: String): String;
-Var
-  ok: Boolean;
+var
   ALayout: TLayOutBPe;
+  Ok: Boolean;
 begin
-  ALayout := ServicoToLayOutBPe(ok, NomeServico);
-  if ok then
+  ALayout := ServicoToLayOutBPe(Ok, NomeServico);
+  if Ok then
     Result := SchemaBPeToStr( LayOutToSchema( ALayout ) )
   else
     Result := '';
@@ -621,7 +627,7 @@ begin
   else
     DABPE.ImprimirEVENTOPDF(nil);
 end;
-
+{
 function TACBrBPe.Distribuicao(AcUFAutor: Integer; const ACNPJCPF, AultNSU, ANSU,
   chBPe: String): Boolean;
 begin
@@ -660,7 +666,7 @@ function TACBrBPe.DistribuicaoDFePorChaveBPe(AcUFAutor: Integer; const ACNPJCPF,
 begin
   Result := Distribuicao(AcUFAutor, ACNPJCPF, '', '', AchBPe);
 end;
-
+}
 procedure TACBrBPe.EnviarEmailEvento(const sPara, sAssunto: String;
   sMensagem: TStrings; sCC: TStrings; Anexos: TStrings;
   sReplyTo: TStrings);

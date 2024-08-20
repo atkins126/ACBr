@@ -38,14 +38,10 @@ interface
 
 uses
   Classes, SysUtils,
+  pcnSignature,
   ACBrXmlDocument;
 
 type
-  TACBrTipoAmbiente = (taProducao, taHomologacao);
-
-  TACBrTipoEmissao = (teNormal, teContingencia, teSCAN, teDPEC, teFSDA, teSVCAN,
-                      teSVCRS, teSVCSP, teOffLine);
-
   TACBrTagAssinatura = (taSempre, taNunca, taSomenteSeAssinada,
                         taSomenteParaNaoAssinada);
 
@@ -53,6 +49,19 @@ type
                     tcDe4, tcDe5, tcDe6, tcDe7, tcDe8, tcDe10, tcHor, tcDatCFe,
                     tcHorCFe, tcDatVcto, tcDatHorCFe, tcBool, tcStrOrig,
                     tcNumStr, tcDatUSA);
+
+  TACBrTipoAmbiente = (taProducao, taHomologacao);
+
+const
+  TACBrTipoAmbienteArrayStrings: array[TACBrTipoAmbiente] of string = ('1', '2');
+
+type
+  TACBrTipoEmissao = (teNormal, teContingencia, teSCAN, teDPEC, teFSDA, teSVCAN,
+                      teSVCRS, teSVCSP, teOffLine);
+
+const
+  TACBrTipoEmissaoArrayStrings: array[TACBrTipoEmissao] of string = ('1', '2',
+    '3', '4', '5', '6', '7', '8', '9');
 
 const
   LineBreak = #13#10;
@@ -69,6 +78,7 @@ function EnumeradoToStr(const t: variant; const AString:
 
 function RemoverIdentacao(const AXML: string): string;
 function XmlToStr(const AXML: string): string;
+function XmlToStrEx(const AXML: string): string;
 function StrToXml(const AXML: string): string;
 function IncluirCDATA(const aXML: string): string;
 function RemoverCDATA(const aXML: string): string;
@@ -79,6 +89,7 @@ function NormatizarBoolean(const aBool: string): string;
 
 function ObterConteudoTag(const AAtt: TACBrXmlAttribute): string; overload;
 function ObterConteudoTag(const ANode: TACBrXmlNode; const Tipo: TACBrTipoCampo): variant; overload;
+function ObterConteudoTagCNPJCPF(const ANode: TACBrXmlNode): string;
 
 function TipoEmissaoToStr(const t: TACBrTipoEmissao): string;
 function StrToTipoEmissao(out ok: boolean; const s: string): TACBrTipoEmissao;
@@ -86,10 +97,20 @@ function StrToTipoEmissao(out ok: boolean; const s: string): TACBrTipoEmissao;
 function TipoAmbienteToStr(const t: TACBrTipoAmbiente): string;
 function StrToTipoAmbiente(out ok: boolean; const s: string): TACBrTipoAmbiente;
 
+procedure LerSignature(ASignatureNode: TACBrXmlNode; Signature: TSignature);
+
+type
+  TObterConteudoTagProc = procedure(const ANode: TACBrXmlNode; const Tipo: TACBrTipoCampo;
+    const ConteudoTag: string; var Valor: Variant; var Processado: Boolean);
+
+var
+  OnObterConteudoTag: TObterConteudoTagProc;
+
 implementation
 
 uses
   StrUtilsEx,
+  ACBrBase,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.XMLHTML,
@@ -145,7 +166,8 @@ function RemoverIdentacao(const AXML: string): string;
 var
   XMLe, XMLs: string;
 begin
-  XMLe := AXML;
+  XMLe := ChangeLineBreak(AXML, '');
+
   XMLs := '';
 
   while XMLe <> XMLs do
@@ -154,12 +176,7 @@ begin
       XMLe := XMLs;
 
     XMLs := FaststringReplace(XMLe, ' <', '<', [rfReplaceAll]);
-    XMLs := FaststringReplace(XMLs, #10 + '<', '<', [rfReplaceAll]);
-    XMLs := FaststringReplace(XMLs, #13 + '<', '<', [rfReplaceAll]);
     XMLs := FaststringReplace(XMLs, '> ', '>', [rfReplaceAll]);
-    XMLs := FaststringReplace(XMLs, '>' + #10, '>', [rfReplaceAll]);
-    XMLs := FaststringReplace(XMLs, '>' + #13, '>', [rfReplaceAll]);
-    XMLs := FaststringReplace(XMLs, #$D, '', [rfReplaceAll]);
   end;
 
   Result := XMLs;
@@ -171,6 +188,11 @@ begin
   Result := FaststringReplace(Result, '>', '&gt;', [rfReplaceAll]);
 end;
 
+function XmlToStrEx(const AXML: string): string;
+begin
+  Result := XmlToStr(AXML);
+  Result := FaststringReplace(Result, '&amp;', '&amp;amp;', [rfReplaceAll]);
+end;
 
 function StrToXml(const AXML: string): string;
 begin
@@ -251,6 +273,7 @@ var
   ConteudoTag: string;
   iDecimais: Integer;
   aFloatIsIntString: Boolean;
+  Processado: Boolean;
 begin
   if not Assigned(ANode) or (ANode = nil) then
   begin
@@ -262,6 +285,13 @@ begin
     ConteudoTag := Trim(ANode.Content);
     aFloatIsIntString := ANode.FloatIsIntString;
   end;
+
+  Processado := False;
+  if Assigned(OnObterConteudoTag) then
+    OnObterConteudoTag(ANode, Tipo, ConteudoTag, Result, Processado);
+
+  if Processado then
+    Exit;
 
   case Tipo of
     tcStr,
@@ -367,20 +397,26 @@ begin
 
     tcStrOrig:
       begin
-        // Falta implementar
-        Result := '';
+        result := ConteudoTag;
       end;
 
     tcNumStr:
       begin
-        // Falta implementar
-        Result := '';
+        result := ConteudoTag;
       end
 
   else
     raise Exception.Create('Node <' + ANode.Name + '> com conteúdo inválido. ' +
                            ConteudoTag);
   end;
+end;
+
+function ObterConteudoTagCNPJCPF(const ANode: TACBrXmlNode): string;
+begin
+  Result := ObterConteudoTag(ANode.Childrens.Find('CNPJ'), tcStr);
+
+  if Trim(Result) = '' then
+    Result := ObterConteudoTag(ANode.Childrens.Find('CPF'), tcStr);
 end;
 
 function TipoEmissaoToStr(const t: TACBrTipoEmissao): string;
@@ -406,5 +442,25 @@ function StrToTipoAmbiente(out ok: boolean; const s: string): TACBrTipoAmbiente;
 begin
   result := StrToEnumerado(ok, s, ['1', '2'], [taProducao, taHomologacao]);
 end;
+
+procedure LerSignature(ASignatureNode: TACBrXmlNode; Signature: TSignature);
+var
+  ReferenceNode, X509DataNode: TACBrXmlNode;
+begin
+  if not Assigned(ASignatureNode) or (ASignatureNode = nil) then Exit;
+
+  ReferenceNode := ASignatureNode.Childrens.FindAnyNs('SignedInfo')
+                                .Childrens.FindAnyNs('Reference');
+  X509DataNode :=  ASignatureNode.Childrens.FindAnyNs('KeyInfo')
+                                .Childrens.FindAnyNs('X509Data');
+
+  Signature.URI := ObterConteudoTag(ReferenceNode.Attributes.Items['URI']);
+  Signature.DigestValue := ObterConteudoTag(ReferenceNode.Childrens.FindAnyNs('DigestValue'), tcStr);
+  Signature.SignatureValue := ObterConteudoTag(ASignatureNode.Childrens.FindAnyNs('SignatureValue'), tcStr);
+  Signature.X509Certificate := ObterConteudoTag(X509DataNode.Childrens.FindAnyNs('X509Certificate'), tcStr);
+end;
+
+initialization
+  OnObterConteudoTag := nil;
 
 end.

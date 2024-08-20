@@ -48,7 +48,8 @@ interface
 uses
   Classes, SysUtils,
   ACBrDFe, ACBrDFeWebService,
-  pcnLeitor, pcnConsts,
+  pcnLeitor,
+  ACBrDFeConsts,
   ACBreSocialLoteEventos, ACBreSocialConfiguracoes,
   pcesConversaoeSocial, pcesCommon, pcesRetEnvioLote, pcesRetConsultaLote,
   pcesConsultaIdentEvt, pcesRetConsultaIdentEvt, pcesRetDownloadEvt;
@@ -61,6 +62,7 @@ type
   private
     FPStatus: TStatusACBreSocial;
     FPLayout: TLayOut;
+    FPathNome: String;
     FPConfiguracoeseSocial: TConfiguracoeseSocial;
 
   protected
@@ -76,6 +78,7 @@ type
 
     property Status: TStatusACBreSocial read FPStatus;
     property Layout: TLayOut read FPLayout;
+    property PathNome: String read FPathNome write FPathNome;
   end;
 
   { TEnvioLote }
@@ -94,7 +97,6 @@ type
 
     function TratarResposta: Boolean; override;
     function GerarMsgLog: String; override;
-    function GerarPrefixoArquivo: String; override;
     function GerarMsgErro(E: Exception): String; override;
     function GerarVersaoDadosSoap: String; override;
   public
@@ -122,7 +124,7 @@ type
 
     function TratarResposta: Boolean; override;
     function GerarMsgLog: String; override;
-
+    function GerarPrefixoArquivo: String; override;
   public
     constructor Create(AOwner: TACBrDFe); override;
 
@@ -194,7 +196,6 @@ type
 
     function TratarResposta: Boolean; override;
     function GerarMsgLog: String; override;
-    function GerarPrefixoArquivo: String; override;
 
   public
     constructor Create(AOwner: TACBrDFe); override;
@@ -286,7 +287,12 @@ end;
 
 function TeSocialWebService.GerarPrefixoArquivo: String;
 begin
-  Result := FormatDateTime('yyyymmddhhnnss', Now);
+  if FPathNome = '' then
+    Result := FormatDateTime('yyyymmddhhnnss', Now)
+  else
+    Result := Copy(FPathNome, 1, 14);
+
+  FPathNome := Result + '-' + ArqResp + '.xml';
 end;
 
 function TeSocialWebService.GerarVersaoDadosSoap: String;
@@ -304,6 +310,7 @@ procedure TeSocialWebService.Clear;
 begin
   inherited Clear;
 
+  FPathNome := '';
   FPStatus := stIdle;
   if Assigned(FPDFeOwner) and Assigned(FPDFeOwner.SSL) then
     FPDFeOwner.SSL.UseCertificateHTTP := True;
@@ -444,7 +451,8 @@ function TEnvioLote.TratarResposta: Boolean;
 begin
   FPRetWS := SeparaDados(FPRetornoWS, 'EnviarLoteEventosResult');
 
-  FRetEnvioLote.Leitor.Arquivo := ParseText(FPRetWS);
+  //A função UTF8ToNativeString deve ser removida quando refatorada para usar ACBrXmlDocument
+  FRetEnvioLote.Leitor.Arquivo := UTF8ToNativeString(ParseText(FPRetWS));
   FRetEnvioLote.LerXml;
 
   if Assigned(TACBreSocial(FPDFeOwner).OnTransmissaoEventos) then
@@ -479,11 +487,6 @@ begin
                FormatDateTimeBr(FRetEnvioLote.dadosRecLote.dhRecepcao))]);
 
   Result := aMsg;
-end;
-
-function TEnvioLote.GerarPrefixoArquivo: String;
-begin
-  Result := FormatDateTime('yymmddhhnnss', Now);
 end;
 
 function TEnvioLote.GerarVersaoDadosSoap: String;
@@ -603,6 +606,16 @@ begin
   Result := aMsg;
 end;
 
+function TConsultaLote.GerarPrefixoArquivo: String;
+begin
+  if FProtocolo <> '' then
+    Result := FProtocolo
+  else
+    Result := FormatDateTime('yyyymmddhhnnss', Now);
+
+  FPathNome := Result + '-' + ArqResp + '.xml';
+end;
+
 function TConsultaLote.TratarResposta: Boolean;
 var
   I, J: Integer;
@@ -610,7 +623,8 @@ var
 begin
   FPRetWS := SeparaDados(FPRetornoWS, 'ConsultarLoteEventosResult');
 
-  FRetConsultaLote.Leitor.Arquivo := ParseText(FPRetWS);
+  //A função UTF8ToNativeString deve ser removida quando refatorado para usar ACBrXmlDocument
+  FRetConsultaLote.Leitor.Arquivo := UTF8ToNativeString(ParseText(FPRetWS));
   FRetConsultaLote.LerXml;
 
   for I := 0 to FRetConsultaLote.RetEventos.Count - 1 do
@@ -847,10 +861,20 @@ begin
 end;
 
 function TConsultaIdentEventos.GerarPrefixoArquivo: String;
+var
+  i: Integer;
 begin
-  Result := TipoEventoToStr(FEvento) + '-' +
-            fCnpj + '-' + FormatDateTime('mm-yyyy', FPerApur) + '-' +
-            FormatDateTime('yyyymmddhhnnss', Now);
+  if FPathNome = '' then
+    Result := TipoEventoToStr(FEvento) + '-' +
+                 fCnpj + '-' + FormatDateTime('mm-yyyy', FPerApur) + '-' +
+                 FormatDateTime('yyyymmddhhnnss', Now)
+  else
+  begin
+    i := Length(FPathNome) - Length('-' + ArqResp + '.xml');
+    Result := Copy(FPathNome, 1, i);
+  end;
+
+  FPathNome := Result + '-' + ArqResp + '.xml';
 end;
 
 function TConsultaIdentEventos.TratarResposta: Boolean;
@@ -860,7 +884,8 @@ var
 begin
   FPRetWS := SeparaDados(FPRetornoWS, 'ConsultarIdentificadoresEventos' + FmetodoConsulta + 'Result');
 
-  FRetConsultaIdentEvt.Leitor.Arquivo := ParseText(FPRetWS);
+  //A função UTF8ToNativeString deve ser removida quando refatorado para usar ACBrXmlDocument
+  FRetConsultaIdentEvt.Leitor.Arquivo := UTF8ToNativeString(ParseText(FPRetWS));
   FRetConsultaIdentEvt.LerXml;
 
   for i := 0 to FRetConsultaIdentEvt.RetIdentEvts.Count - 1 do
@@ -1042,19 +1067,14 @@ begin
   Result := aMsg;
 end;
 
-function TDownloadEventos.GerarPrefixoArquivo: String;
-begin
-  Result := FormatDateTime('yyyymmddhhnnss', Now);
-end;
-
 function TDownloadEventos.TratarResposta: Boolean;
 var
   i: Integer;
   AXML, NomeArq: String;
 begin
   FPRetWS := SeparaDados(FPRetornoWS, 'SolicitarDownloadEventos' +FTipoDownload + 'Result');
-
-  FRetDownloadEvt.Leitor.Arquivo := ParseText(FPRetWS);
+  //A função UTF8ToNativeString deve ser removida quando refatorado para usar ACBrXmlDocument
+  FRetDownloadEvt.Leitor.Arquivo := UTF8ToNativeString(ParseText(FPRetWS));
   FRetDownloadEvt.LerXml;
 
   for i := 0 to FRetDownloadEvt.Arquivo.Count - 1 do

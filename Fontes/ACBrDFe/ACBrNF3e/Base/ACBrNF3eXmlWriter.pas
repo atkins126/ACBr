@@ -39,7 +39,8 @@ interface
 uses
   Classes, SysUtils,
   ACBrXmlBase, ACBrXmlDocument, ACBrXmlWriter,
-  ACBrNF3eClass, ACBrNF3eConsts;
+  ACBrNF3eClass,
+  ACBrNF3eConversao;
 
 type
   TNF3eXmlWriterOptions = class(TACBrXmlWriterOptions)
@@ -69,8 +70,12 @@ type
   private
     FNF3e: TNF3e;
 
-    Versao: string;
-    ChaveNF3e: string;
+    FChaveNF3e: string;
+
+    FVersaoDF: TVersaoNF3e;
+    FModeloDF: Integer;
+    FtpAmb: TACBrTipoAmbiente;
+    FtpEmis: TACBrTipoEmissao;
     FIdCSRT: integer;
     FCSRT: string;
 
@@ -93,6 +98,7 @@ type
     function Gerar_gSCEE: TACBrXmlNode;
     function Gerar_gSCEE_gConsumidor: TACBrXmlNodeArray;
     function Gerar_gSCEE_gSaldoCred: TACBrXmlNodeArray;
+    function Gerar_gSCEE_gTipoSaldo: TACBrXmlNodeArray;
 
     function Gerar_NFdet: TACBrXmlNodeArray;
     function Gerar_NFdet_det(aNFdet: Integer): TACBrXmlNodeArray;
@@ -130,7 +136,6 @@ type
     function Gerar_gANEEL_gHistFat: TACBrXmlNodeArray;
     function Gerar_gANEEL_gHistFat_gGrandFat(agHistFat: Integer): TACBrXmlNodeArray;
 
-
     function Gerar_autXML: TACBrXmlNodeArray;
     function Gerar_InfAdic: TACBrXmlNode;
     function Gerar_gRespTec: TACBrXmlNode;
@@ -149,10 +154,15 @@ type
     destructor Destroy; override;
 
     function GerarXml: boolean; override;
-    function ObterNomeArquivo: string; override;
+    function ObterNomeArquivo: string; overload;
 
     property Opcoes: TNF3eXmlWriterOptions read GetOpcoes write SetOpcoes;
     property NF3e: TNF3e read FNF3e write FNF3e;
+
+    property VersaoDF: TVersaoNF3e read FVersaoDF write FVersaoDF;
+    property ModeloDF: Integer read FModeloDF write FModeloDF;
+    property tpAmb: TACBrTipoAmbiente read FtpAmb write FtpAmb;
+    property tpEmis: TACBrTipoEmissao read FtpEmis write FtpEmis;
     property IdCSRT: integer read FIdCSRT write FIdCSRT;
     property CSRT: string read FCSRT write FCSRT;
 
@@ -161,13 +171,17 @@ type
 implementation
 
 uses
-  variants, dateutils,
-  ACBrNF3eConversao,
+  variants,
+  dateutils,
+  StrUtils,
+  Math,
+  ACBrDFeConsts,
+  ACBrNF3eConsts,
   ACBrValidador,
-  pcnAuxiliar,
   ACBrDFeUtil,
-  pcnConsts,
-  ACBrUtil.Base, ACBrUtil.Strings;
+  ACBrUtil.Base,
+  ACBrUtil.DateTime,
+  ACBrUtil.Strings;
 
 constructor TNF3eXmlWriter.Create(AOwner: TNF3e);
 begin
@@ -211,9 +225,9 @@ var
   PaisBrasil: boolean;
 begin
   PaisBrasil := cPais = CODIGO_BRASIL;
-  cMun := IIf(PaisBrasil, vcMun, CMUN_EXTERIOR);
-  xMun := IIf(PaisBrasil, vxMun, XMUN_EXTERIOR);
-  xUF := IIf(PaisBrasil, vxUF, UF_EXTERIOR);
+  cMun := IfThen(PaisBrasil, vcMun, CMUN_EXTERIOR);
+  xMun := IfThen(PaisBrasil, vxMun, XMUN_EXTERIOR);
+  xUF := IfThen(PaisBrasil, vxUF, UF_EXTERIOR);
 
   if Opcoes.NormatizarMunicipios then
     if ((EstaZerado(cMun)) and (xMun <> XMUN_EXTERIOR)) then
@@ -231,23 +245,27 @@ end;
 function TNF3eXmlWriter.GerarXml: boolean;
 var
   Gerar: boolean;
-  xCNPJCPF: string;
   NF3eNode, xmlNode: TACBrXmlNode;
 begin
   Result := False;
 
   ListaDeAlertas.Clear;
 
-  Versao := Copy(NF3e.infNF3e.VersaoStr, 9, 4);
-
-  xCNPJCPF := NF3e.emit.CNPJ;
-
-  ChaveNF3e := GerarChaveAcesso(NF3e.ide.cUF, NF3e.ide.dhEmi, xCNPJCPF,
+  {
+    Os campos abaixo tem que ser os mesmos da configuração
+  }
+{
+  NF3e.infNF3e.Versao := VersaoNF3eToDbl(VersaoDF);
+  NF3e.Ide.modelo := ModeloDF;
+  NF3e.Ide.tpAmb := tpAmb;
+  NF3e.ide.tpEmis := tpEmis;
+}
+  FChaveNF3e := GerarChaveAcesso(NF3e.ide.cUF, NF3e.ide.dhEmi, NF3e.emit.CNPJ,
       NF3e.ide.serie, NF3e.ide.nNF, StrToInt(TipoEmissaoToStr(NF3e.ide.tpEmis)),
       NF3e.ide.cNF, NF3e.ide.modelo,
       StrToInt(SiteAutorizadorToStr(NF3e.Ide.nSiteAutoriz)));
 
-  NF3e.infNF3e.ID := 'NF3e' + ChaveNF3e;
+  NF3e.infNF3e.ID := 'NF3e' + FChaveNF3e;
   NF3e.ide.cDV := ExtrairDigitoChaveAcesso(NF3e.infNF3e.ID);
   NF3e.Ide.cNF := ExtrairCodigoChaveAcesso(NF3e.infNF3e.ID);
 
@@ -272,8 +290,8 @@ begin
   if NF3e.infNF3eSupl.qrCodNF3e <> '' then
   begin
     xmlNode := NF3eNode.AddChild('infNF3eSupl');
-    xmlNode.AppendChild(AddNode(tcStr, '#318', 'qrCodNF3e', 50, 1000,
-                                1, '<![CDATA[' + NF3e.infNF3eSupl.qrCodNF3e + ']]>', DSC_INFQRCODE, False));
+    xmlNode.AppendChild(AddNode(tcStr, '#318', 'qrCodNF3e', 50, 1000, 1,
+       '<![CDATA[' + NF3e.infNF3eSupl.qrCodNF3e + ']]>', DSC_INFQRCODE, False));
   end;
 
   if Opcoes.GerarTagAssinatura <> taNunca then
@@ -370,15 +388,15 @@ begin
   Result.AppendChild(AddNode(tcInt, '#8', 'serie', 1, 3, 1,
     NF3e.ide.serie, DSC_SERIE));
 
-  Result.AppendChild(AddNode(tcInt, '#9', 'nNF', 1, 9, 1, NF3e.ide.nNF, DSC_NNF));
+  Result.AppendChild(AddNode(tcInt, '#9', 'nNF', 1, 9, 1, NF3e.ide.nNF, DSC_NDF));
 
-  Result.AppendChild(AddNode(tcStr, '#10', 'cNF', 7, 7, 1,
-    IntToStrZero(ExtrairCodigoChaveAcesso(NF3e.infNF3e.ID), 7), DSC_CNF));
+  Result.AppendChild(AddNode(tcInt, '#10', 'cNF', 7, 7, 1,
+                                                        NF3e.Ide.cNF, DSC_CDF));
 
   Result.AppendChild(AddNode(tcInt, '#11', 'cDV', 1, 1, 1, NF3e.Ide.cDV, DSC_CDV));
 
   Result.AppendChild(AddNode(tcStr, '#12', 'dhEmi', 25, 25, 1,
-    DateTimeTodh(NF3e.ide.dhEmi) + GetUTC(CodigoParaUF(NF3e.ide.cUF), NF3e.ide.dhEmi),
+    DateTimeTodh(NF3e.ide.dhEmi) + GetUTC(CodigoUFparaUF(NF3e.ide.cUF), NF3e.ide.dhEmi),
     DSC_DEMI));
 
   Result.AppendChild(AddNode(tcStr, '#13', 'tpEmis', 1, 1, 1,
@@ -402,7 +420,7 @@ begin
   if (NF3e.Ide.dhCont > 0) or (NF3e.Ide.xJust <> '') then
   begin
     Result.AppendChild(AddNode(tcStr, '#17', 'dhCont', 25, 25,
-      1, DateTimeTodh(NF3e.ide.dhCont) + GetUTC(CodigoParaUF(NF3e.ide.cUF),
+      1, DateTimeTodh(NF3e.ide.dhCont) + GetUTC(CodigoUFparaUF(NF3e.ide.cUF),
       NF3e.ide.dhCont), DSC_DHCONT));
 
     Result.AppendChild(AddNode(tcStr, '#18', 'xJust', 15, 256, 1,
@@ -429,7 +447,7 @@ begin
       wAlerta('#21', 'IE', DSC_IE, ERR_MSG_VAZIO)
     else
     begin
-      if not pcnAuxiliar.ValidarIE(NF3e.Emit.IE, CodigoParaUF(NF3e.Ide.cUF)) then
+      if not ValidarIE(NF3e.Emit.IE, CodigoUFparaUF(NF3e.Ide.cUF)) then
         wAlerta('#21', 'IE', DSC_IE, ERR_MSG_INVALIDO);
     end;
   end;
@@ -446,8 +464,7 @@ end;
 function TNF3eXmlWriter.Gerar_EmitEnderEmit: TACBrXmlNode;
 var
   cMun: integer;
-  xMun: string;
-  xUF: string;
+  xMun, xUF: string;
 begin
   AjustarMunicipioUF(xUF, xMun, cMun, CODIGO_BRASIL, NF3e.Emit.enderEmit.UF,
     NF3e.Emit.enderEmit.xMun, NF3e.Emit.EnderEmit.cMun);
@@ -478,7 +495,7 @@ begin
 
   Result.AppendChild(AddNode(tcStr, '#32', 'UF', 2, 2, 1, xUF, DSC_UF));
 
-  if not pcnAuxiliar.ValidarUF(xUF) then
+  if not ValidarUF(xUF) then
     wAlerta('#32', 'UF', DSC_UF, ERR_MSG_INVALIDO);
 
   Result.AppendChild(AddNode(tcStr, '#33', 'fone', 7, 12, 0,
@@ -531,7 +548,7 @@ begin
 
       if (Opcoes.ValidarInscricoes) and (NF3e.Dest.IE <> '') and
          (NF3e.Dest.IE <> 'ISENTO') then
-        if not pcnAuxiliar.ValidarIE(NF3e.Dest.IE, UF) then
+        if not ValidarIE(NF3e.Dest.IE, UF) then
           wAlerta('#41', 'IE', DSC_IE, ERR_MSG_INVALIDO);
     end;
   end;
@@ -542,6 +559,7 @@ begin
     Result.AppendChild(AddNode(tcStr, '#43', 'cNIS', 15, 15, 1,
       NF3e.Dest.cNIS, DSC_CNIS))
   else
+  if NF3e.Dest.NB <> '' then
     Result.AppendChild(AddNode(tcStr, '#43b', 'NB', 10, 10, 1,
       NF3e.Dest.NB, DSC_NB));
 
@@ -554,8 +572,7 @@ end;
 function TNF3eXmlWriter.Gerar_DestEnderDest(var UF: string): TACBrXmlNode;
 var
   cMun: integer;
-  xMun: string;
-  xUF: string;
+  xMun, xUF: string;
 begin
   AjustarMunicipioUF(xUF, xMun, cMun, CODIGO_BRASIL, NF3e.Dest.enderDest.UF,
     NF3e.Dest.enderDest.xMun, NF3e.Dest.enderDest.cMun);
@@ -587,7 +604,7 @@ begin
 
   Result.AppendChild(AddNode(tcStr, '#53', 'UF', 2, 2, 1, xUF, DSC_UF));
 
-  if not pcnAuxiliar.ValidarUF(xUF) then
+  if not ValidarUF(xUF) then
     wAlerta('#53', 'UF', DSC_UF, ERR_MSG_INVALIDO);
 
   Result.AppendChild(AddNode(tcStr, '#54', 'fone', 7, 12, 0,
@@ -628,10 +645,10 @@ begin
   Result.AppendChild(AddNode(tcStr, '#65', 'tpModTar', 2, 2, 1,
     tpModTarToStr(NF3e.acessante.tpModTar), DSC_TPMODTAR));
 
-  Result.AppendChild(AddNode(tcStr, '#66', 'latGPS', 2, 6, 1,
+  Result.AppendChild(AddNode(tcStr, '#66', 'latGPS', 2, 10, 1,
     NF3e.acessante.latGPS, DSC_LATGPS));
 
-  Result.AppendChild(AddNode(tcStr, '#67', 'longGPS', 2, 6, 1,
+  Result.AppendChild(AddNode(tcStr, '#67', 'longGPS', 2, 10, 1,
     NF3e.acessante.longGPS, DSC_LONGGPS));
 
   Result.AppendChild(AddNode(tcStr, '#68', 'codRoteiroLeitura', 2, 100, 0,
@@ -673,7 +690,7 @@ begin
     NF3e.gSub.serie, DSC_SERIE));
 
   Result.AppendChild(AddNode(tcStr, '#74', 'nNF', 1, 9, 1,
-    NF3e.gSub.nNF, DSC_NNF));
+    NF3e.gSub.nNF, DSC_NDF));
 
   Result.AppendChild(AddNode(tcStr, '#75', 'CompetEmis', 6, 6, 1,
     FormatDateTime('yyyymm', NF3e.gSub.CompetEmis), DSC_COMPETEMIS));
@@ -774,7 +791,7 @@ var
 begin
   Result := nil;
 
-  if (NF3e.gSCEE.gSaldoCred.Count > 0) then
+  if (NF3e.gSCEE.gConsumidor.Count > 0) then
   begin
     Result := FDocument.CreateElement('gSCEE');
 
@@ -787,10 +804,21 @@ begin
       Result.AppendChild(nodeArray[i]);
     end;
 
-    nodeArray := Gerar_gSCEE_gSaldoCred;
-    for i := 0 to NF3e.gSCEE.gSaldoCred.Count - 1 do
+    if (NF3e.gSCEE.gSaldoCred.Count > 0) then
     begin
-      Result.AppendChild(nodeArray[i]);
+      nodeArray := Gerar_gSCEE_gSaldoCred;
+      for i := 0 to NF3e.gSCEE.gSaldoCred.Count - 1 do
+      begin
+        Result.AppendChild(nodeArray[i]);
+      end;
+    end
+    else
+    begin
+      nodeArray := Gerar_gSCEE_gTipoSaldo;
+      for i := 0 to NF3e.gSCEE.gTipoSaldo.Count - 1 do
+      begin
+        Result.AppendChild(nodeArray[i]);
+      end;
     end;
   end;
 end;
@@ -861,23 +889,79 @@ begin
       Result[i].AppendChild(AddNode(tcInt, '#102', 'vSaldAtual', 1, 15, 1,
        NF3e.gSCEE.gSaldoCred[i].vSaldAtual, DSC_VSALDATUAL));
 
-      if (NF3e.gSCEE.gSaldoCred[i].vCredExpirar > 0) or
-         (NF3e.gSCEE.gSaldoCred[i].CompetExpirar > 0) then
-      begin
-        if Frac(NF3e.gSCEE.gSaldoCred[i].vCredExpirar) > 0 then
-          Result[i].AppendChild(AddNode(tcDe4, '#103', 'vCredExpirar', 1, 15, 1,
-           NF3e.gSCEE.gSaldoCred[i].vCredExpirar, DSC_VCREDEXPIRAR))
-        else
-          Result[i].AppendChild(AddNode(tcInt, '#103', 'vCredExpirar', 1, 15, 1,
-           NF3e.gSCEE.gSaldoCred[i].vCredExpirar, DSC_VCREDEXPIRAR));
+    if (NF3e.gSCEE.gSaldoCred[i].vCredExpirar > 0) or
+       (NF3e.gSCEE.gSaldoCred[i].CompetExpirar > 0) then
+    begin
+      if Frac(NF3e.gSCEE.gSaldoCred[i].vCredExpirar) > 0 then
+        Result[i].AppendChild(AddNode(tcDe4, '#103', 'vCredExpirar', 1, 15, 1,
+         NF3e.gSCEE.gSaldoCred[i].vCredExpirar, DSC_VCREDEXPIRAR))
+      else
+        Result[i].AppendChild(AddNode(tcInt, '#103', 'vCredExpirar', 1, 15, 1,
+         NF3e.gSCEE.gSaldoCred[i].vCredExpirar, DSC_VCREDEXPIRAR));
 
-        Result[i].AppendChild(AddNode(tcStr, '#104', 'CompetExpirar', 6, 6, 1,
-         FormatDateTime('yyyymm', NF3e.gSCEE.gSaldoCred[i].CompetExpirar), DSC_COMPETEXPIRAR));
-      end;
+      Result[i].AppendChild(AddNode(tcStr, '#104', 'CompetExpirar', 6, 6, 1,
+       FormatDateTime('yyyymm', NF3e.gSCEE.gSaldoCred[i].CompetExpirar), DSC_COMPETEXPIRAR));
+    end;
   end;
 
   if NF3e.gSCEE.gSaldoCred.Count > 3 then
     wAlerta('#098', 'gSaldoCred', '', ERR_MSG_MAIOR_MAXIMO + '3');
+end;
+
+function TNF3eXmlWriter.Gerar_gSCEE_gTipoSaldo: TACBrXmlNodeArray;
+var
+  i: integer;
+begin
+  Result := nil;
+  SetLength(Result, NF3e.gSCEE.gTipoSaldo.Count);
+
+  for i := 0 to NF3e.gSCEE.gTipoSaldo.Count - 1 do
+  begin
+    Result[i] := FDocument.CreateElement('gTipoSaldo');
+
+    Result[i].SetAttribute('nTipoSaldo', FormatFloat('00', i + 1));
+
+    Result[i].AppendChild(AddNode(tcStr, '#99', 'tpPosTar', 1, 1, 1,
+     tpPosTarToStr(NF3e.gSCEE.gTipoSaldo[i].tpPosTar), DSC_TPPOSTAR));
+
+    if Frac(NF3e.gSCEE.gTipoSaldo[i].vSaldAnt) > 0 then
+      Result[i].AppendChild(AddNode(tcDe4, '#100', 'vSaldAnt', 1, 15, 1,
+       NF3e.gSCEE.gTipoSaldo[i].vSaldAnt, DSC_VSALDANT))
+    else
+      Result[i].AppendChild(AddNode(tcInt, '#100', 'vSaldAnt', 1, 15, 1,
+       NF3e.gSCEE.gTipoSaldo[i].vSaldAnt, DSC_VSALDANT));
+
+    if Frac(NF3e.gSCEE.gTipoSaldo[i].vCredExpirado) > 0 then
+      Result[i].AppendChild(AddNode(tcDe4, '#101', 'vCredExpirado', 1, 15, 1,
+       NF3e.gSCEE.gTipoSaldo[i].vCredExpirado, DSC_VCREDEXPIRADO))
+    else
+      Result[i].AppendChild(AddNode(tcInt, '#101', 'vCredExpirado', 1, 15, 1,
+       NF3e.gSCEE.gTipoSaldo[i].vCredExpirado, DSC_VCREDEXPIRADO));
+
+    if Frac(NF3e.gSCEE.gTipoSaldo[i].vSaldAtual) > 0 then
+      Result[i].AppendChild(AddNode(tcDe4, '#102', 'vSaldAtual', 1, 15, 1,
+       NF3e.gSCEE.gTipoSaldo[i].vSaldAtual, DSC_VSALDATUAL))
+    else
+      Result[i].AppendChild(AddNode(tcInt, '#102', 'vSaldAtual', 1, 15, 1,
+       NF3e.gSCEE.gTipoSaldo[i].vSaldAtual, DSC_VSALDATUAL));
+
+    if (NF3e.gSCEE.gTipoSaldo[i].vCredExpirar > 0) or
+       (NF3e.gSCEE.gTipoSaldo[i].CompetExpirar > 0) then
+    begin
+      if Frac(NF3e.gSCEE.gTipoSaldo[i].vCredExpirar) > 0 then
+        Result[i].AppendChild(AddNode(tcDe4, '#103', 'vCredExpirar', 1, 15, 1,
+         NF3e.gSCEE.gTipoSaldo[i].vCredExpirar, DSC_VCREDEXPIRAR))
+      else
+        Result[i].AppendChild(AddNode(tcInt, '#103', 'vCredExpirar', 1, 15, 1,
+         NF3e.gSCEE.gTipoSaldo[i].vCredExpirar, DSC_VCREDEXPIRAR));
+
+      Result[i].AppendChild(AddNode(tcStr, '#104', 'CompetExpirar', 6, 6, 1,
+       FormatDateTime('yyyymm', NF3e.gSCEE.gTipoSaldo[i].CompetExpirar), DSC_COMPETEXPIRAR));
+    end;
+  end;
+
+  if NF3e.gSCEE.gTipoSaldo.Count > 10 then
+    wAlerta('#098', 'gTipoSaldo', '', ERR_MSG_MAIOR_MAXIMO + '10');
 end;
 
 function TNF3eXmlWriter.Gerar_NFdet: TACBrXmlNodeArray;
@@ -969,7 +1053,7 @@ begin
   Result.AppendChild(AddNode(tcDe2, '#117', 'vProd', 1, 15, 1,
     NF3e.NFDet[aNFdet].Det[aDet].detItemAnt.vProd, DSC_VPROD));
 
-  Result.AppendChild(AddNode(tcStr, '#118', 'cClass', 7, 7, 1,
+  Result.AppendChild(AddNode(tcInt, '#118', 'cClass', 7, 7, 1,
     NF3e.NFDet[aNFdet].Det[aDet].detItemAnt.cClass, DSC_CCLASS));
 
   Result.AppendChild(AddNode(tcDe2, '#119', 'vBC', 1, 5, 0,
@@ -1010,7 +1094,10 @@ begin
      (NF3e.NFDet[aNFDet].Det[aDet].detItemAnt.retTrib.vRetCSLL > 0) or
      (NF3e.NFDet[aNFDet].Det[aDet].detItemAnt.retTrib.vBCIRRF > 0) or
      (NF3e.NFDet[aNFDet].Det[aDet].detItemAnt.retTrib.vIRRF > 0) then
-    Result.AppendChild(Gerar_NFdet_det_DetItemAnt_retTrib(aNFdet, aDet))
+    Result.AppendChild(Gerar_NFdet_det_DetItemAnt_retTrib(aNFdet, aDet));
+
+  if NF3e.NFDet[aNFdet].Det[aDet].detItemAnt.indDevolucao = tiSim then
+    Result.AppendChild(AddNode(tcStr, '#153', 'indDevolucao', 1, 1, 1, '1', ''));
 end;
 
 function TNF3eXmlWriter.Gerar_NFdet_det_DetItemAnt_retTrib(aNFdet,
@@ -1052,7 +1139,7 @@ begin
   end;
 
   nodeArray := Gerar_NFdet_det_DetItem_gAdBand(aNFdet, aDet);
-  for i := 0 to NF3e.NFDet[aNFdet].Det[aDet].detItem.gTarif.Count - 1 do
+  for i := 0 to NF3e.NFDet[aNFdet].Det[aDet].detItem.gAdBand.Count - 1 do
   begin
     Result.AppendChild(nodeArray[i]);
   end;
@@ -1064,7 +1151,7 @@ begin
   Result.AppendChild(Gerar_NFdet_det_DetItem_gProcRef(aNFdet, aDet));
 
   nodeArray := Gerar_NFdet_det_DetItem_gContab(aNFdet, aDet);
-  for i := 0 to NF3e.NFDet[aNFdet].Det[aDet].detItem.gTarif.Count - 1 do
+  for i := 0 to NF3e.NFDet[aNFdet].Det[aDet].detItem.gContab.Count - 1 do
   begin
     Result.AppendChild(nodeArray[i]);
   end;
@@ -1181,7 +1268,7 @@ begin
   Result.AppendChild(AddNode(tcStr, '#163', 'xProd', 1, 120, 1,
     NF3e.NFDet[aNFdet].Det[aDet].detItem.Prod.xProd, DSC_XPROD));
 
-  Result.AppendChild(AddNode(tcStr, '#164', 'cClass', 7, 7, 1,
+  Result.AppendChild(AddNode(tcInt, '#164', 'cClass', 7, 7, 1,
     NF3e.NFDet[aNFdet].Det[aDet].detItem.Prod.cClass, DSC_CCLASS));
 
   Result.AppendChild(AddNode(tcInt, '#165', 'CFOP', 4, 4, 0,
@@ -1223,7 +1310,8 @@ begin
   Result.AppendChild(AddNode(tcInt, '#149', 'nContrat', 2, 2, 0,
     NF3e.NFDet[aNFdet].Det[aDet].detItem.Prod.gMedicao.nContrat, DSC_NCONTRAT));
 
-  if NF3e.NFDet[aNFdet].Det[aDet].detItem.Prod.gMedicao.tpMotNaoLeitura = tmNenhum then
+  if (NF3e.NFDet[aNFdet].Det[aDet].detItem.Prod.gMedicao.vMedAnt > 0) or
+     (NF3e.NFDet[aNFdet].Det[aDet].detItem.Prod.gMedicao.vMedAtu > 0) then
     Result.AppendChild(Gerar_NFdet_det_DetItem_Prod_gMedicao_gMedida(aNFdet, aDet))
   else
     Result.AppendChild(AddNode(tcInt, '#161', 'tpMotNaoLeitura', 1, 1, 1,
@@ -1274,7 +1362,11 @@ function TNF3eXmlWriter.Gerar_NFdet_det_DetItem_Imposto(aNFdet,
 begin
   Result := FDocument.CreateElement('imposto');
 
-  Result.AppendChild(Gerar_NFdet_det_DetItem_Imposto_ICMS(aNFdet, aDet));
+  if NF3e.NFDet[aNFdet].Det[aDet].detItem.Imposto.ICMS.indSemCST = tiSim then
+    Result.AppendChild(AddNode(tcStr, '#175', 'indSemCST', 1, 1, 1, '1', ''))
+  else
+    Result.AppendChild(Gerar_NFdet_det_DetItem_Imposto_ICMS(aNFdet, aDet));
+
   Result.AppendChild(Gerar_NFdet_det_DetItem_Imposto_PIS(aNFdet, aDet));
   Result.AppendChild(Gerar_NFdet_det_DetItem_Imposto_PISEfet(aNFdet, aDet));
   Result.AppendChild(Gerar_NFdet_det_DetItem_Imposto_COFINS(aNFdet, aDet));
@@ -1294,6 +1386,7 @@ function TNF3eXmlWriter.Gerar_NFdet_det_DetItem_Imposto_ICMS(aNFdet,
       cst40,
       cst41: result := '40';
       cst51: result := '51';
+      cst60: result := '60';
       cst90: result := '90';
     end;
   end;
@@ -1309,64 +1402,81 @@ begin
     Result := FDocument.CreateElement('ICMS' + sTagTemp);
 
     Result.AppendChild(AddNode(tcStr, '#174', 'CST', 2, 2, 1,
-      CSTICMSTOStr(CST), DSC_CST));
+                                                   CSTICMSTOStr(CST), DSC_CST));
 
     case CST of
       cst00:
         begin
-          Result.AppendChild(AddNode(tcDe2, '#175', 'vBC', 1, 15, 1, vBC, DSC_VBC));
+          Result.AppendChild(AddNode(tcDe2, '#175', 'vBC', 1, 15, 1,
+                                                                 vBC, DSC_VBC));
 
-          Result.AppendChild(AddNode(tcDe2, '#176', 'pICMS', 1, 5, 1, pICMS, DSC_PICMS));
+          Result.AppendChild(AddNode(tcDe2, '#176', 'pICMS', 1, 5, 1,
+                                                             pICMS, DSC_PICMS));
 
-          Result.AppendChild(AddNode(tcDe2, '#177', 'vICMS', 1, 15, 1, vICMS, DSC_VICMS));
+          Result.AppendChild(AddNode(tcDe2, '#177', 'vICMS', 1, 15, 1,
+                                                             vICMS, DSC_VICMS));
 
           if (pFCP > 0) or (vFCP > 0) then
           begin
-            Result.AppendChild(AddNode(tcDe2, '#178', 'pFCP', 1, 5, 1, pFCP, DSC_PFCP));
+            Result.AppendChild(AddNode(tcDe2, '#178', 'pFCP', 1, 5, 1,
+                                                               pFCP, DSC_PFCP));
 
-            Result.AppendChild(AddNode(tcDe2, '#179', 'vFCP', 1, 15, 1, vFCP, DSC_VFCP));
+            Result.AppendChild(AddNode(tcDe2, '#179', 'vFCP', 1, 15, 1,
+                                                               vFCP, DSC_VFCP));
           end;
         end;
 
       cst10:
         begin
-          Result.AppendChild(AddNode(tcDe2, '#182', 'vBCST', 1, 15, 1, vBCST, DSC_VBCST));
+          Result.AppendChild(AddNode(tcDe2, '#182', 'vBCST', 1, 15, 1,
+                                                             vBCST, DSC_VBCST));
 
-          Result.AppendChild(AddNode(tcDe2, '#183', 'pICMSST', 1, 5, 1, pICMSST, DSC_PICMSST));
+          Result.AppendChild(AddNode(tcDe2, '#183', 'pICMSST', 1, 5, 1,
+                                                         pICMSST, DSC_PICMSST));
 
-          Result.AppendChild(AddNode(tcDe2, '#184', 'vICMSST', 1, 15, 1, vICMSST, DSC_VICMSST));
+          Result.AppendChild(AddNode(tcDe2, '#184', 'vICMSST', 1, 15, 1,
+                                                         vICMSST, DSC_VICMSST));
 
           if (pFCP > 0) or (vFCP > 0) then
           begin
-            Result.AppendChild(AddNode(tcDe2, '#185', 'pFCPST', 1, 5, 1, pFCPST, DSC_PFCPST));
+            Result.AppendChild(AddNode(tcDe2, '#185', 'pFCPST', 1, 5, 1,
+                                                           pFCPST, DSC_PFCPST));
 
-            Result.AppendChild(AddNode(tcDe2, '#186', 'vFCPST', 1, 15, 1, vFCPST, DSC_VFCPST));
+            Result.AppendChild(AddNode(tcDe2, '#186', 'vFCPST', 1, 15, 1,
+                                                           vFCPST, DSC_VFCPST));
           end;
         end;
 
       cst20:
         begin
-          Result.AppendChild(AddNode(tcDe2, '#189', 'pRedBC', 1, 5, 1, pRedBC, DSC_PREDBC));
+          Result.AppendChild(AddNode(tcDe2, '#189', 'pRedBC', 1, 5, 1,
+                                                           pRedBC, DSC_PREDBC));
 
-          Result.AppendChild(AddNode(tcDe2, '#190', 'vBC', 1, 15, 1, vBC, DSC_VBC));
+          Result.AppendChild(AddNode(tcDe2, '#190', 'vBC', 1, 15, 1,
+                                                                 vBC, DSC_VBC));
 
-          Result.AppendChild(AddNode(tcDe2, '#191', 'pICMS ', 1, 5, 1, pICMS, DSC_PICMS));
+          Result.AppendChild(AddNode(tcDe2, '#191', 'pICMS', 1, 5, 1,
+                                                             pICMS, DSC_PICMS));
 
-          Result.AppendChild(AddNode(tcDe2, '#192', 'vICMS ', 1, 15, 1, vICMS, DSC_VICMS));
+          Result.AppendChild(AddNode(tcDe2, '#192', 'vICMS', 1, 15, 1,
+                                                             vICMS, DSC_VICMS));
 
           if vICMSDeson > 0 then
           begin
             Result.AppendChild(AddNode(tcDe2, '#193', 'vICMSDeson', 1, 15, 1,
-              vICMSDeson, DSC_VICMSDESON));
+                                                   vICMSDeson, DSC_VICMSDESON));
 
-            Result.AppendChild(AddNode(tcStr, '#194', 'cBenef', 10, 10, 1, cBenef, DSC_CBENEF));
+            Result.AppendChild(AddNode(tcStr, '#194', 'cBenef', 10, 10, 1,
+                                                           cBenef, DSC_CBENEF));
           end;
 
           if (pFCP > 0) or (vFCP > 0) then
           begin
-            Result.AppendChild(AddNode(tcDe2, '#195', 'pFCP', 1, 5, 1, pFCP, DSC_PFCP));
+            Result.AppendChild(AddNode(tcDe2, '#195', 'pFCP', 1, 5, 1,
+                                                               pFCP, DSC_PFCP));
 
-            Result.AppendChild(AddNode(tcDe2, '#196', 'vFCP', 1, 15, 1, vFCP, DSC_VFCP));
+            Result.AppendChild(AddNode(tcDe2, '#196', 'vFCP', 1, 15, 1,
+                                                               vFCP, DSC_VFCP));
           end;
         end;
 
@@ -1376,9 +1486,10 @@ begin
           if vICMSDeson > 0 then
           begin
             Result.AppendChild(AddNode(tcDe2, '#199', 'vICMSDeson', 1, 15, 1,
-              vICMSDeson, DSC_VICMSDESON));
+                                                   vICMSDeson, DSC_VICMSDESON));
 
-            Result.AppendChild(AddNode(tcStr, '#200', 'cBenef', 10, 10, 1, cBenef, DSC_CBENEF));
+            Result.AppendChild(AddNode(tcStr, '#200', 'cBenef', 10, 10, 1,
+                                                           cBenef, DSC_CBENEF));
           end;
         end;
 
@@ -1387,19 +1498,99 @@ begin
           if vICMSDeson > 0 then
           begin
             Result.AppendChild(AddNode(tcDe2, '#203', 'vICMSDeson', 1, 15, 1,
-              vICMSDeson, DSC_VICMSDESON));
+                                                   vICMSDeson, DSC_VICMSDESON));
 
-            Result.AppendChild(AddNode(tcStr, '#204', 'cBenef', 10, 10, 1, cBenef, DSC_CBENEF));
+            Result.AppendChild(AddNode(tcStr, '#204', 'cBenef', 10, 10, 1,
+                                                           cBenef, DSC_CBENEF));
+          end;
+        end;
+
+      cst60:
+        begin
+          if (vBCSTRET > 0) or (vICMSSTRET > 0) then
+          begin
+            Result.AppendChild(AddNode(tcDe2, '246', 'vBCSTRet', 1, 15, 1,
+                                                       vBCSTRET, DSC_VBCSTRET));
+
+            Result.AppendChild(AddNode(tcDe2, '247', 'pICMSSTRet', 1, 5, 1,
+                                                   vICMSSTRET, DSC_PICMSSTRET));
+
+            Result.AppendChild(AddNode(tcDe2, '248', 'vICMSSubstituto', 1, 15, 0,
+                                                         vICMSST, DSC_VICMSST));
+
+            Result.AppendChild(AddNode(tcDe2, '249', 'vICMSSTRet', 1, 15, 1,
+                                                   vICMSSTRET, DSC_VICMSSTRET));
+          end;
+
+          if (vBCFCPSTRet > 0) or (pFCPSTRet > 0) or (vFCPSTRet > 0) then
+          begin
+            Result.AppendChild(AddNode(tcDe2, '251', 'vBCFCPSTRet', 1, 15, 1,
+                                                    vBCFCPSTRet, DSC_VBCFCPST));
+
+            Result.AppendChild(AddNode(tcDe2, '252', 'pFCPSTRet', 1, 5, 1,
+                                                     pFCPSTRet, DSC_PFCPSTRET));
+
+            Result.AppendChild(AddNode(tcDe2, '253', 'vFCPSTRet', 1, 15, 1,
+                                                     vFCPSTRet, DSC_VFCPSTRET));
+          end;
+
+          if (pRedBCEfet > 0) or (vBCEfet > 0) or (pICMSEfet > 0) or
+             (vICMSEfet > 0) then
+          begin
+            Result.AppendChild(AddNode(tcDe2, '254', 'pRedBCEfet', 1, 5, 1,
+                                                   pRedBCEfet, DSC_PREDBCEFET));
+
+            Result.AppendChild(AddNode(tcDe2, '255', 'vBCEfet', 1, 15, 1,
+                                                         vBCEfet, DSC_VBCEFET));
+
+            Result.AppendChild(AddNode(tcDe2, '256', 'pICMSEfet', 1, 5, 1,
+                                                     pICMSEfet, DSC_PICMSEFET));
+
+            Result.AppendChild(AddNode(tcDe2, '257', 'vICMSEfet', 1, 15, 1,
+                                                     vICMSEfet, DSC_VICMSEFET));
+          end;
+
+          if vICMSDeson > 0 then
+          begin
+            Result.AppendChild(AddNode(tcDe2, '#258', 'vICMSDeson', 1, 15, 1,
+                                                   vICMSDeson, DSC_VICMSDESON));
+
+            Result.AppendChild(AddNode(tcStr, '#259', 'cBenef', 10, 10, 1,
+                                                           cBenef, DSC_CBENEF));
           end;
         end;
 
       cst90:
         begin
-          Result.AppendChild(AddNode(tcDe2, '#207', 'vBC', 1, 15, 1, vBC, DSC_VBC));
+          if vBC > 0 then
+          begin
+            Result.AppendChild(AddNode(tcDe2, '#207', 'vBC', 1, 15, 1,
+                                                                 vBC, DSC_VBC));
 
-          Result.AppendChild(AddNode(tcDe2, '#208', 'pICMS', 1, 5, 1, pICMS, DSC_PICMS));
+            Result.AppendChild(AddNode(tcDe2, '#208', 'pICMS', 1, 5, 1,
+                                                             pICMS, DSC_PICMS));
 
-          Result.AppendChild(AddNode(tcDe2, '#209', 'vICMS', 1, 15, 1, vICMS, DSC_VICMS));
+            Result.AppendChild(AddNode(tcDe2, '#209', 'vICMS', 1, 15, 1,
+                                                             vICMS, DSC_VICMS));
+          end;
+
+          if vICMSDeson > 0 then
+          begin
+            Result.AppendChild(AddNode(tcDe2, '#210', 'vICMSDeson', 1, 15, 1,
+                                                   vICMSDeson, DSC_VICMSDESON));
+
+            Result.AppendChild(AddNode(tcStr, '#211', 'cBenef', 10, 10, 1,
+                                                           cBenef, DSC_CBENEF));
+          end;
+
+          if (pFCP > 0) or (vFCP > 0) then
+          begin
+            Result.AppendChild(AddNode(tcDe2, '#195', 'pFCP', 1, 5, 1,
+                                                               pFCP, DSC_PFCP));
+
+            Result.AppendChild(AddNode(tcDe2, '#196', 'vFCP', 1, 15, 1,
+                                                               vFCP, DSC_VFCP));
+          end;
         end;
     end;
   end;
@@ -1678,7 +1869,7 @@ begin
     NF3e.Total.vPISEfet, DSC_VPISEfet));
 
   Result.AppendChild(AddNode(tcDe2, '#271', 'vNF', 1, 15, 1,
-    NF3e.Total.vNF, DSC_VNF));
+    NF3e.Total.vNF, DSC_VDF));
 end;
 
 function TNF3eXmlWriter.Gerar_TotalICMSTotal: TACBrXmlNode;
@@ -1800,7 +1991,7 @@ begin
 
   Result.AppendChild(AddNode(tcStr, '#291', 'UF', 2, 2, 1, xUF, DSC_UF));
 
-  if not pcnAuxiliar.ValidarUF(xUF) then
+  if not ValidarUF(xUF) then
     wAlerta('#291', 'UF', DSC_UF, ERR_MSG_INVALIDO);
 
   Result.AppendChild(AddNode(tcStr, '#292', 'fone', 7, 12, 0,
@@ -1946,7 +2137,7 @@ begin
          idCSRT, DSC_IDCSRT));
 
       Result.AppendChild(AddNode(tcStr, '#316', 'hashCSRT', 28, 28, 1,
-        CalcularHashCSRT(CSRT, ChaveNF3e), DSC_HASHCSRT));
+        CalcularHashCSRT(CSRT, FChaveNF3e), DSC_HASHCSRT));
     end;
   end;
 end;
@@ -1965,11 +2156,11 @@ begin
 
   xmlNode.AddChild('verAplic').Content := NF3e.procNF3e.verAplic;
 
-  xmlNode.AddChild('chNF3e').Content := NF3e.procNF3e.chNF3e;
+  xmlNode.AddChild('chNF3e').Content := NF3e.procNF3e.chDFe;
 
   xmlNode.AddChild('dhRecbto').Content :=
     FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', NF3e.procNF3e.dhRecbto) +
-    GetUTC(CodigoParaUF(FNF3e.Ide.cUF), NF3e.procNF3e.dhRecbto);
+    GetUTC(CodigoUFparaUF(FNF3e.Ide.cUF), NF3e.procNF3e.dhRecbto);
 
   xmlNode.AddChild('nProt').Content := NF3e.procNF3e.nProt;
 

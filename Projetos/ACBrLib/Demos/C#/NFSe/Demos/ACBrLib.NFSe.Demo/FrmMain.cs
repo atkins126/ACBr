@@ -40,9 +40,7 @@ namespace ACBrLibNFSe.Demo
         private void FrmMain_Shown(object sender, EventArgs e)
         {
             SplashScreenManager.Show<FrmWait>();
-            SplashScreenManager.ShowInfo(SplashInfo.Message, "Carregando...");
-
-            
+            SplashScreenManager.ShowInfo(SplashInfo.Message, "Carregando...");           
 
             try
             {
@@ -378,6 +376,11 @@ namespace ACBrLibNFSe.Demo
                 MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        private void btnOpenSSLInfo_Click(object sender, EventArgs e)
+        {
+            var ret = ACBrNFSe.OpenSSLInfo();
+            rtbRespostas.AppendText(ret);
+        }
 
         private void btnEmitirNota_Click(object sender, EventArgs e)
         {
@@ -406,7 +409,7 @@ namespace ACBrLibNFSe.Demo
                 var aLote = "1";
                 if (InputBox.Show("Enviar Assíncrono", "Número do Lote", ref aLote) != DialogResult.OK) return;
 
-                var ret = ACBrNFSe.Emitir(aLote, 2, false);
+                var ret = ACBrNFSe.Emitir(aLote, 1, false);
                 rtbRespostas.AppendText(ret);
             }
             catch (Exception exception)
@@ -424,7 +427,7 @@ namespace ACBrLibNFSe.Demo
                 var aLote = "1";
                 if (InputBox.Show("Enviar Síncrono", "Número do Lote", ref aLote) != DialogResult.OK) return;
 
-                var ret = ACBrNFSe.Emitir(aLote, 3, false);
+                var ret = ACBrNFSe.Emitir(aLote, 2, false);
                 rtbRespostas.AppendText(ret);
             }
             catch (Exception exception)
@@ -442,7 +445,7 @@ namespace ACBrLibNFSe.Demo
                 var aLote = "1";
                 if (InputBox.Show("WebServices Enviar", "Número do Lote", ref aLote) != DialogResult.OK) return;
 
-                var ret = ACBrNFSe.Emitir(aLote, 4, false);
+                var ret = ACBrNFSe.Emitir(aLote, 3, false);
                 rtbRespostas.AppendText(ret);
             }
             catch (Exception exception)
@@ -1203,6 +1206,62 @@ namespace ACBrLibNFSe.Demo
             {
                 MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private async void btnSalvarPDFStream_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var arquivoXml = Helpers.OpenFile("Arquivo Xml NFSe (*.xml)|*.xml|Todos os Arquivos (*.*)|*.*");
+                if (string.IsNullOrEmpty(arquivoXml)) return;
+
+                ACBrNFSe.LimparLista();
+                ACBrNFSe.CarregarXML(arquivoXml);
+
+                var nomeArquivo = Helpers.SaveFile("Salvar em PDF (*.pdf)|*.pdf|Todos os Arquivos (*.*)|*.*");
+
+                using (FileStream aStream = File.Create(nomeArquivo))
+                {
+                    ACBrNFSe.ImprimirPDF(aStream);
+                    byte[] buffer = new Byte[aStream.Length];
+                    await aStream.ReadAsync(buffer, 0, buffer.Length);
+                    await aStream.FlushAsync();
+                    aStream.Seek(0, SeekOrigin.End);
+                    await aStream.WriteAsync(buffer, 0, buffer.Length);
+                }
+                rtbRespostas.AppendLine($"PDF Salvo em: {nomeArquivo}");
+
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnConsultarLinkNFSe_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ACBrNFSe.LimparLista();
+
+                var arquivoINI = Helpers.OpenFile("Arquivo Ini NFSe (*.ini)|*.ini|Todos os Arquivos (*.*)|*.*");
+                if (string.IsNullOrEmpty(arquivoINI)) return;
+
+                ACBrNFSe.CarregarINI(arquivoINI);
+
+                var ret = ACBrNFSe.ConsultarLinkNFSe(arquivoINI);
+                rtbRespostas.AppendText(ret);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnInformacoesProvedor_Click(object sender, EventArgs e)
+        {
+            var infoProvedor = ACBrNFSe.ObterInformacoesProvedor();
+            rtbRespostas.AppendText(infoProvedor);
         }
     }
 }

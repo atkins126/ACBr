@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 
@@ -62,68 +62,68 @@ const
 {$I ACBrLibErros.inc}
 
 {%region Constructor/Destructor}
-function GNRE_Inicializar(const eArqConfig, eChaveCrypt: PChar): longint;
+function GNRE_Inicializar(const eArqConfig, eChaveCrypt: PAnsiChar): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_Finalizar: longint;
+function GNRE_Finalizar: Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_Nome(const sNome: PChar; var esTamanho: longint): longint;
+function GNRE_Nome(const sNome: PAnsiChar; var esTamanho: Integer): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_Versao(const sVersao: PChar; var esTamanho: longint): longint;
+function GNRE_Versao(const sVersao: PAnsiChar; var esTamanho: Integer): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_UltimoRetorno(const sMensagem: PChar; var esTamanho: longint): longint;
+function GNRE_UltimoRetorno(const sMensagem: PAnsiChar; var esTamanho: Integer): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_ConfigLer(const eArqConfig: PChar): longint;
+function GNRE_ConfigLer(const eArqConfig: PAnsiChar): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_ConfigGravar(const eArqConfig: PChar): longint;
+function GNRE_ConfigGravar(const eArqConfig: PAnsiChar): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_ConfigLerValor(const eSessao, eChave: PChar; sValor: PChar;
-  var esTamanho: longint): longint;
+function GNRE_ConfigLerValor(const eSessao, eChave: PAnsiChar; sValor: PAnsiChar;
+  var esTamanho: Integer): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_ConfigGravarValor(const eSessao, eChave, eValor: PChar): longint;
+function GNRE_ConfigGravarValor(const eSessao, eChave, eValor: PAnsiChar): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
 {%endregion}
 
 {%region GNRe}
-function GNRE_LimparLista: longint;
+function GNRE_LimparLista: Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_CarregarXML(const eArquivoOuXML: PChar): longint;
+function GNRE_CarregarXML(const eArquivoOuXML: PAnsiChar): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_CarregarINI(const eArquivoOuINI: PChar): longint;
+function GNRE_CarregarINI(const eArquivoOuINI: PAnsiChar): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_ObterXml(AIndex: longint; const sResposta: PChar;
-  var esTamanho: longint): longint;
+function GNRE_ObterXml(AIndex: Integer; const sResposta: PAnsiChar;
+  var esTamanho: Integer): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_GravarXml(AIndex: longint;
-  const eNomeArquivo, ePathArquivo: PChar): longint;
+function GNRE_GravarXml(AIndex: Integer;
+  const eNomeArquivo, ePathArquivo: PAnsiChar): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_LimparListaGuiaRetorno: longint;
+function GNRE_LimparListaGuiaRetorno: Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_CarregarGuiaRetorno(const eArquivoOuXml: PChar): longint;
+function GNRE_CarregarGuiaRetorno(const eArquivoOuXml: PAnsiChar): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_Assinar: longint; {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
+function GNRE_Assinar: Integer; {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
   external CACBrGNReLIBName;
-function GNRE_Validar: longint; {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
+function GNRE_Validar: Integer; {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};
   external CACBrGNReLIBName;
-function GNRE_VerificarAssinatura(const sResposta: PChar;
-  var esTamanho: longint): longint;
+function GNRE_VerificarAssinatura(const sResposta: PAnsiChar;
+  var esTamanho: Integer): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_ObterCertificados(const sResposta: PChar;
-  var esTamanho: longint): longint;
+function GNRE_ObterCertificados(const sResposta: PAnsiChar;
+  var esTamanho: Integer): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
 {%endregion}
 
 {%region Servicos}
-function GNRE_Enviar(const sResposta: PChar; var esTamanho: longint): longint;
+function GNRE_Enviar(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_Consultar(const eUF: PChar; const AReceita: integer;
-  const sResposta: PChar; var esTamanho: longint): longint;
+function GNRE_Consultar(const eUF: PAnsiChar; const AReceita: integer;
+  const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_EnviarEmail(const ePara, eArquivoOuXml: PChar;
-  const AEnviaPDF: boolean; const eAssunto, eCC, eAnexos, eMensagem: PChar): longint;
+function GNRE_EnviarEmail(const ePara, eArquivoOuXml: PAnsiChar;
+  const AEnviaPDF: boolean; const eAssunto, eCC, eAnexos, eMensagem: PAnsiChar): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_Imprimir(const eNomeImpressora, eMostrarPreview: PChar): longint;
+function GNRE_Imprimir(const eNomeImpressora, eMostrarPreview: PAnsiChar): Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
-function GNRE_ImprimirPDF: longint;
+function GNRE_ImprimirPDF: Integer;
     {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrGNReLIBName;
 {%endregion}
 

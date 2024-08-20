@@ -82,6 +82,7 @@ ResourceString
   SErroSSLDesabilitado = 'Será utilizado a configuração padrão SSL: %s !';
 
   SErroVersaoInvalida = 'Versão Inválida.';
+  SErroTipoContribuinteInvalido = 'Tipo de Contribuinte Inválido.';
 
 const
   CMonitorIni = 'ACBrMonitor.ini';
@@ -143,6 +144,7 @@ const
   CMetodoEnviarEmailCFe =              'enviaremailcfe';
   CMetodoConsultarModeloSAT =          'consultarmodelosat';
   CMetodoConsultarUltimaSessaoFiscal=  'consultarultimasessaofiscal';
+  CMetodoObterIniCFe = 'obterinicfe';
 
   CMetodoECFachar =                                      'achar';
   CMetodoECFativar =                                     'ativar';
@@ -387,6 +389,7 @@ const
   CMetodoSetformaemissao =             'setformaemissao';
   CMetodoSetTipoImpressao =            'settipoimpressao';
   CMetodoSetversaodf =                 'setversaodf';
+  CMetodoSetTipoContribuinte =         'settipocontribuinte';
   CMetodoLermdfe =                     'lermdfe';
   CMetodoMdfetotxt =                   'mdfetotxt';
   CMetodoFileexist =                   'fileexists';
@@ -484,6 +487,7 @@ const
   CMetodoConsultarNFSeporPeriodo =     'ConsultarNFSeporPeriodo';
   CMetodoConsultarNFSeporFaixa =       'ConsultarNFSeporFaixa';
   CMetodoConsultarNFSeGenerico =       'ConsultarNFSeGenerico';
+  CMetodoConsultarLinkNFSe =           'ConsultarLinkNFSe';
   CMetodoConsultarNFSeServicoPrestadoPorNumero = 'ConsultarNFSeServicoPrestadoPorNumero';
   CMetodoConsultarNFSeServicoPrestadoPorTomador = 'ConsultarNFSeServicoPrestadoPorTomador';
   CMetodoConsultarNFSeServicoPrestadoPorIntermediario = 'ConsultarNFSeServicoPrestadoPorIntermediario';
@@ -510,6 +514,11 @@ const
   CMetodoConsultarDFeNFSePorNSU =      'ConsultarDFeNFSePorNSU';
   CMetodoConsultarDFeNFSePorChave =    'ConsultarDFeNFSePorChave';
   CMetodoConsultarParametrosNFSe =     'ConsultarParametrosNFSe';
+  CMetodoObterInformacoesProvedor =    'ObterInformacoesProvedor';
+  CMetodoSetLayoutNFSe = 'SetLayoutNFSe';
+  CMetodoSetCodigoMunicipio = 'SetCodigoMunicipio';
+  CMetodoSetEmitente = 'SetEmitente';
+  CMetodoSetAutenticacaoNFSe = 'SetAutenticacaoNFSe';
 
   CMetodoValidarCTe =                  'validarcte';
   CMetodoAssinarCTe =                  'assinarcte';
@@ -711,6 +720,7 @@ const
   CMetodoConsultar = 'consultar';
   CMetodoRastrear  = 'rastrear';
   CMetodoConsultarCaptcha = 'consultarcaptcha';
+  CMetodoSetProvedor       = 'setprovedor';
 
   CMetodoSetPorta          = 'setporta';
   CMetodoTemperatura       = 'temperatura';
@@ -739,6 +749,7 @@ const
   CMetodoLimparMemoria     = 'limparmemoria';
   CMetodoSetLimparMemoria  = 'setlimparmemoria';
   CMetodoImprimirQRCode    = 'imprimirqrcode';
+  CMetodoGerarStreamBase64 = 'GerarStreamBase64';
 
   CMetodoConsultaConfig  = 'consultaconfig';
   CMetodoImprimirGNRe    = 'imprimirgnre';
@@ -772,6 +783,7 @@ const
   CMetodoAcharPortasSeriais     = 'acharportasseriais';
   CMetodoAcharPortasUSB         = 'acharportasusb';
   CMetodoAcharPortasRAW         = 'acharportasraw';
+  CMetodoLerStatusImpressoraFormatado    = 'lerstatusimpressoraformatado';
 
   CExtensaoXML =                     '.xml';
 
@@ -905,7 +917,11 @@ const
   CKeyCEPProxy_User =                'Proxy_User';
   CKeyCEPProxy_Pass =                'Proxy_Pass';
   CKeyCEPIBGEAcentos =               'IBGEAcentos';
-  CKeyCEPIBGEUTF8 =                  'IBGEUTF8';
+
+  CSecConsultaCNPJ =                 'ConsultaCNPJ';
+  CKeyConsultaCNPJProvedor =         'Provedor';
+  CKeyConsultaCNPJUsuario =          'Usuario';
+  CKeyConsultaCNPJSenha =            'Senha';
 
   CSecTC =                           'TC';
   CKeyTCModelo =                     'Modelo';
@@ -1098,6 +1114,7 @@ const
   CKeyDANFEExibirBandInforAdicProduto =    'ExibirBandInforAdicProduto';
   CKeyDANFELogoEmCima =                    'LogoEmCima';
   CKeyDANFEImprimeInscSuframa =            'ImprimeInscSuframa';
+  CKeyDANFEImprimeNNFFormatadoNFe =        'ImprimeNNFFormatadoNFe';
   CKeyDANFEExpandirDadosAdicionaisAuto =   'ExpandirDadosAdicionaisAuto';
   CKeyDANFEImprimeContinuacaoDadosAdicionaisPrimeiraPagina = 'ImprimeContinuacaoDadosAdicionaisPrimeiraPagina';
   CKeyDANFEImprimeDescAcrescItemNFe =      'ImprimeDescAcrescItemNFe';
@@ -1116,7 +1133,7 @@ const
   CKeyDANFCeTipoPagtoTipo =            'Tipo';
   CKeyDANFCeTipoPagtoBandeira =        'Bandeira';
   CKeyDANFCeTipoPagtoAutorizacao =     'Autorizacao';
-
+  CKeyDANFCeImprimeNNFFormatadoNFCe =  'ImprimeNNFFormatadoNFCe';
   CSecFonte =                          'FonteLinhaItem';
   CKeyFonteName =                      'Name';
   CKeyFonteColor =                     'Color';
@@ -1382,8 +1399,9 @@ const
   CKeyBOLETOKeyUser =                       'KeyUser';
   CKeyBOLETOScope =                         'Scope';
   CKeyBOLETOIndicadorPix =                  'IndicadorPix';
-  CKeyBOLETOLogRegistro =                   'LogRegistro';
+  CKeyBOLETOLogNivel =                      'LogNivel';
   CKeyBOLETOPathGravarRegistro =            'PathGravarRegistro';
+  CKeyBOLETONomeArquivoLog =                'NomeArquivoLog';
   CKeyBOLETOAmbiente =                      'Ambiente';
   CKeyBOLETOOperacao =                      'Operacao';
   CKeyBOLETOProxyHost =                     'ProxyHost';
@@ -1428,6 +1446,8 @@ const
   CKeyNFSeConsultarAposCancelar =           'ConsultarAposCancelar';
   CKeyNFSeNomePrefeitura =                  'NomePrefeitura';
   CKeyNFSeCNPJPrefeitura =                  'CNPJPrefeitura';
+  CKeyNFSeNomeLongoNFSe =                   'NomeLongoNFSe';
+
 
 implementation
 

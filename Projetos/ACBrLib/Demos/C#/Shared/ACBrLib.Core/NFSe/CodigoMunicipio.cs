@@ -1473,6 +1473,10 @@ namespace ACBrLib.Core.NFSe
         [Description("Sao Vicente de Minas - MG")]
         SaoVicentedeMinas = 3165305,
 
+        [EnumValue("3165701")]
+        [Description("Senador Firmino - MG")]
+        SenadorFirmino = 3165701,
+
         [EnumValue("3167202")]
         [Description("Sete Lagoas - MG")]
         SeteLagoas = 3167202,
@@ -3465,6 +3469,10 @@ namespace ACBrLib.Core.NFSe
         [Description("Vitorino - PR")]
         Vitorino = 4128708,
 
+        [EnumValue("4128005")]
+        [Description("Ubirata - PR")]
+        Ubirata = 4128005,
+
         //Santa Catarina
         [EnumValue("4200051")]
         [Description("Abdon Batista - SC")]
@@ -5355,6 +5363,10 @@ namespace ACBrLib.Core.NFSe
         [EnumValue("5008305")]
         [Description("Tres Lagoas - MS")]
         TresLagoas = 5008305,
+
+        [EnumValue("5002951")]
+        [Description("Chapadao do Sul - MS")]
+        ChapadaoDoSul = 5002951,
 
         //Mato Grosso
         [EnumValue("5100201")]

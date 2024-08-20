@@ -123,12 +123,9 @@ begin
       IdentificacaoTomador.CpfCnpj := ObterConteudo(AuxNode.Childrens.FindAnyNs('sCPFTomador'), tcStr);
       RazaoSocial := ObterConteudo(AuxNode.Childrens.FindAnyNs('sNomeTomador'), tcStr);
 
-      with Endereco do
-      begin
-        xMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('sCidadeTomador'), tcStr);
-        Endereco := ObterConteudo(AuxNode.Childrens.FindAnyNs('sEnderecoTomador'), tcStr);
-        UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('sUfTomador'), tcStr);
-      end;
+      Endereco.xMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('sCidadeTomador'), tcStr);
+      Endereco.Endereco := ObterConteudo(AuxNode.Childrens.FindAnyNs('sEnderecoTomador'), tcStr);
+      Endereco.UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('sUfTomador'), tcStr);
 
       Contato.Email := ObterConteudo(AuxNode.Childrens.FindAnyNs('sEmailTomador'), tcStr);
     end;
@@ -180,7 +177,7 @@ var
 begin
   Result := True;
 
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   with NFSe do
   begin
@@ -240,6 +237,9 @@ function TNFSeR_Simple.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
 //  aValor: string;
 begin
   Result := True;
+
+  if not Assigned(ANode) then Exit;
+
   (*
   with NFSe do
   begin

@@ -49,15 +49,15 @@ uses
 type
   TACBrNFSeXWebserviceISSSaoPaulo = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: string): string; override;
-    function GerarNFSe(ACabecalho, AMSG: string): string; override;
-    function TesteEnvio(ACabecalho, AMSG: string): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: string): string; override;
-    function ConsultarLote(ACabecalho, AMSG: string): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: string): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: string): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: string): string; override;
-    function Cancelar(ACabecalho, AMSG: string): string; override;
+    function Recepcionar(const ACabecalho, AMSG: string): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: string): string; override;
+    function TesteEnvio(const ACabecalho, AMSG: string): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: string): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: string): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: string): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: string): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: string): string; override;
+    function Cancelar(const ACabecalho, AMSG: string): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -172,8 +172,7 @@ begin
                    sTomador +
                    sInter;
 
-    with TACBrNFSeX(FAOwner) do
-      NFSe.Assinatura := string(SSL.CalcHash(AnsiString(sAssinatura), dgstSHA1, outBase64, True));
+    NFSe.Assinatura := string(TACBrNFSeX(FAOwner).SSL.CalcHash(AnsiString(sAssinatura), dgstSHA1, outBase64, True));
   end;
 end;
 
@@ -186,6 +185,16 @@ begin
     Identificador := '';
     QuebradeLinha := '|';
     ModoEnvio := meLoteAssincrono;
+
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.EnviarUnitario := True;
+    ServicosDisponibilizados.TestarEnvio := True;
+    ServicosDisponibilizados.ConsultarSituacao := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.ConsultarServicoTomado := True;
+    ServicosDisponibilizados.ConsultarNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
   end;
 
   with ConfigAssinar do
@@ -210,54 +219,30 @@ begin
   begin
     UsarNumLoteConsLote := True;
 
-    with LoteRps do
-    begin
-      GerarNSLoteRps := True;
-      InfElemento := 'RPS';
-      DocElemento := 'PedidoEnvioLoteRPS';
-    end;
+    GerarNSLoteRps := True;
+    LoteRps.InfElemento := 'RPS';
+    LoteRps.DocElemento := 'PedidoEnvioLoteRPS';
 
-    with ConsultarSituacao do
-    begin
-      InfElemento := '';
-      DocElemento := 'PedidoInformacoesLote';
-    end;
+    ConsultarSituacao.InfElemento := '';
+    ConsultarSituacao.DocElemento := 'PedidoInformacoesLote';
 
-    with ConsultarLote do
-    begin
-      InfElemento := '';
-      DocElemento := 'PedidoConsultaLote';
-    end;
+    ConsultarLote.InfElemento := '';
+    ConsultarLote.DocElemento := 'PedidoConsultaLote';
 
-    with ConsultarNFSeRps do
-    begin
-      InfElemento := '';
-      DocElemento := 'PedidoConsultaNFe';
-    end;
+    ConsultarNFSeRps.InfElemento := '';
+    ConsultarNFSeRps.DocElemento := 'PedidoConsultaNFe';
 
-    with ConsultarNFSe do
-    begin
-      InfElemento := '';
-      DocElemento := 'PedidoConsultaNFe';
-    end;
+    ConsultarNFSe.InfElemento := '';
+    ConsultarNFSe.DocElemento := 'PedidoConsultaNFe';
 
-    with CancelarNFSe do
-    begin
-      InfElemento := '';
-      DocElemento := 'PedidoCancelamentoNFe';
-    end;
+    CancelarNFSe.InfElemento := '';
+    CancelarNFSe.DocElemento := 'PedidoCancelamentoNFe';
 
-    with GerarNFSe do
-    begin
-      InfElemento := '';
-      DocElemento := 'PedidoEnvioRPS';
-    end;
+    GerarNFSe.InfElemento := '';
+    GerarNFSe.DocElemento := 'PedidoEnvioRPS';
 
-    with ConsultarNFSeServicoTomado do
-    begin
-      InfElemento := '';
-      DocElemento := 'ConsultarNFSeServicoTomado';
-    end;
+    ConsultarNFSeServicoTomado.InfElemento := '';
+    ConsultarNFSeServicoTomado.DocElemento := 'ConsultarNFSeServicoTomado';
 
     DadosCabecalho := '1';
   end;
@@ -314,6 +299,7 @@ function TACBrNFSeProviderISSSaoPaulo.LerChaveNFe(ANode: TACBrXmlNode): string;
 var
   AuxNode: TACBrXmlNode;
 begin
+  Result := '';
   if ANode = nil then
     Exit;
 
@@ -327,6 +313,7 @@ function TACBrNFSeProviderISSSaoPaulo.LerChaveRPS(ANode: TACBrXmlNode): string;
 var
   AuxNode: TACBrXmlNode;
 begin
+  Result := '';
   if ANode = nil then
     Exit;
 
@@ -355,14 +342,14 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr));
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr);
 
       ANode := ANodeArray[I].Childrens.FindAnyNs('ChaveRPS');
 
       if ANode <> nil then
-        AErro.Correcao := ACBrStr('Numero/Série Rps: ' +
+        AErro.Correcao := 'Numero/Série Rps: ' +
           ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroRPS'), tcStr) + '/' +
-          ObterConteudoTag(ANode.Childrens.FindAnyNs('SerieRPS'), tcStr));
+          ObterConteudoTag(ANode.Childrens.FindAnyNs('SerieRPS'), tcStr);
     end;
   end;
 
@@ -378,14 +365,14 @@ begin
       begin
         AAlerta := Response.Alertas.New;
         AAlerta.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-        AAlerta.Descricao := ACBrStr(Mensagem);
+        AAlerta.Descricao := Mensagem;
 
         ANode := ANodeArray[I].Childrens.FindAnyNs('ChaveRPS');
 
         if ANode <> nil then
-          AAlerta.Correcao := ACBrStr('Numero/Série Rps: ' +
+          AAlerta.Correcao := 'Numero/Série Rps: ' +
             ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroRPS'), tcStr) + '/' +
-            ObterConteudoTag(ANode.Childrens.FindAnyNs('SerieRPS'), tcStr));
+            ObterConteudoTag(ANode.Childrens.FindAnyNs('SerieRPS'), tcStr);
       end;
     end;
   end
@@ -1075,7 +1062,7 @@ begin
                               '</Cabecalho>' +
                            '</PedidoConsultaNFePeriodo>';
 
-  ConfigMsgDados.ConsultarNFSe.DocElemento  := 'PedidoConsultaNFePeriodo';
+  ConfigMsgDados.ConsultarNFSeServicoTomado.DocElemento  := 'PedidoConsultaNFePeriodo';
 end;
 
 procedure TACBrNFSeProviderISSSaoPaulo.TratarRetornoConsultaNFSeporRps(
@@ -1276,7 +1263,9 @@ begin
         NumRps := LerChaveRPS(ANode);
         NumNFSe := LerChaveNFe(ANode);
 
-        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+        ANota := nil;
+        if (NumRPS <> '') then
+          ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
         if ANota = nil then
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
@@ -1418,7 +1407,7 @@ end;
 
 { TACBrNFSeXWebserviceISSSaoPaulo }
 
-function TACBrNFSeXWebserviceISSSaoPaulo.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceISSSaoPaulo.Recepcionar(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1435,7 +1424,7 @@ begin
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSSaoPaulo.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceISSSaoPaulo.GerarNFSe(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1452,7 +1441,7 @@ begin
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSSaoPaulo.TesteEnvio(ACabecalho,
+function TACBrNFSeXWebserviceISSSaoPaulo.TesteEnvio(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1469,7 +1458,7 @@ begin
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarSituacao(ACabecalho,
+function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarSituacao(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1486,7 +1475,7 @@ begin
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarLote(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1503,7 +1492,7 @@ begin
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarNFSePorRps(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1520,7 +1509,7 @@ begin
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1537,7 +1526,7 @@ begin
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarNFSe(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1554,7 +1543,7 @@ begin
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSSaoPaulo.Cancelar(ACabecalho,
+function TACBrNFSeXWebserviceISSSaoPaulo.Cancelar(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1576,7 +1565,7 @@ function TACBrNFSeXWebserviceISSSaoPaulo.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 

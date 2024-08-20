@@ -1,9 +1,9 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 { Projeto: Componentes ACBr                                                    }
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 {                                                                              }
@@ -66,12 +66,15 @@ const
   CChavePorta = 'Porta';
   CChaveDevice = 'Device';
 
+  CSessaoConsultaCNPJ = 'ConsultaCNPJ';
+
   CSessaoSistema = 'Sistema';
   CChaveVersao = 'Versao';
   CChaveDescricao = 'Descricao';
   CChaveData = 'Data';
 
   CSessaoProxy = 'Proxy';
+  CSessaoSocket = 'Socket';
   CSessaoEmail = 'Email';
   CChaveEmailConta = 'Conta';
   CChaveEmailCodificacao = 'Codificacao';
@@ -95,6 +98,9 @@ const
   CChaveEmail = 'Email';
   CChaveTelefone = 'Telefone';
   CChaveResponsavel = 'Responsavel';
+
+  CChaveArqLog = 'ArqLog';
+  CChaveNivelLog = 'NivelLog';
 
   CChavePathLogo = 'PathLogo';
   CChavePathPDF = 'PathPDF';
@@ -127,9 +133,10 @@ const
   CChaveCasasDecimaisMaskvUnCom = 'CasasDecimais.MaskvUnCom';
   CChaveCasasDecimaisqCom = 'CasasDecimais.qCom';
   CChaveCasasDecimaisvUnCom = 'CasasDecimais.vUnCom';
+  CChaveCasasDecimaisMaskAliquota = 'CasasDecimais.MaskAliquota';
+  CChaveCasasDecimaisAliquota = 'CasasDecimais.Aliquota';
 
   CSessaoIntegrador = 'Integrador';
-  CChaveArqLog = 'ArqLog';
   CChavePastaInput = 'PastaInput';
   CChavePastaOutput = 'PastaOutput';
 
@@ -212,14 +219,17 @@ resourcestring
   SErrLibNaoCarregada = 'Biblioteca %s não pode ser carregada';
 
   SErrDiretorioInvalido = 'Diretório Invalido: %s';
+  SErrDiretorioNaoInformado = 'Diretório não Informado: %s';
   SErrConfSessaoNaoExiste = 'Sessão não [%s] existe no arquivo de configuração';
   SErrConfChaveNaoExiste = 'Chave [%s] não existe na Sessão [%s] no arquivo de configuração';
+  SErrArquivoConfigSemPathNoInicializar = 'Essa versão da ACBrLib requer que o Diretório seja informado em LIB_Inicializar';
 
   SErrArquivoNaoExiste = 'Arquivo % não encontrado';
   SErrIndex = 'Indice informado % não encontrado';
 
   SErrRetornoHttpWebService = 'WebService %s, retorno http: %d';
   SErroDemoExpirado = 'O Demo da %s expirou';
+  SErrNaoDisponivelEmModoConsole = 'Recurso não disponível em modo CONSOLE';
 
 const
 {$I ACBrLibErros.inc}

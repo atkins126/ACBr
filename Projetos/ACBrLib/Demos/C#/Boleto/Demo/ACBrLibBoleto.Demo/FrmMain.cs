@@ -1,6 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing.Printing;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
+using System.Text;
 using System.Windows.Forms;
 using ACBrLib;
 using ACBrLib.Boleto;
@@ -58,6 +61,8 @@ namespace ACBrLibBoleto.Demo
                 cmbImpressora.SelectedIndex = 0;
 
             // Altera as config de log
+            boleto.Config.Webservice.LogNivel = NivelLog.logParanoico;
+
             boleto.Config.Principal.LogNivel = NivelLog.logParanoico;
 
             var logPath = Path.Combine(Application.StartupPath, "Logs");
@@ -132,9 +137,8 @@ namespace ACBrLibBoleto.Demo
             txtScope.Text = boleto.Config.CedenteWebservice.Scope;
             chkIndicadorPix.Checked = boleto.Config.CedenteWebservice.IndicadorPix;
 
-            chkGravarLog.Checked = boleto.Config.Webservice.LogRegistro;
             txtPathLog.Text = boleto.Config.Webservice.PathGravarRegistro;
-
+            txtNomeArquivoLog.Text = boleto.Config.Webservice.NomeArquivoLog;
             var ambiente = boleto.Config.Webservice.Ambiente;
             rdbProducao.Checked = ambiente == AmbienteWebservice.Homologaçao;
             rdbHomologacao.Checked = ambiente == AmbienteWebservice.Producao;
@@ -151,6 +155,11 @@ namespace ACBrLibBoleto.Demo
 
         private void SaveConfig()
         {
+            //Salvar primeiro Tipo de Inscrição depois CNPJ ou CPF.
+            boleto.Config.Cedente.TipoInscricao = cmbTipoInscricao.GetSelectedValue<ACBrPessoa>();
+            boleto.Config.Cedente.CNPJCPF = txtCNPJCPF.Text;
+            //
+
             boleto.Config.Impressao.MostrarPreview = chkPreview.Checked;
             boleto.Config.Impressao.MostrarProgresso = chkProgresso.Checked;
             boleto.Config.Impressao.MostrarSetup = chkSetup.Checked;
@@ -161,7 +170,6 @@ namespace ACBrLibBoleto.Demo
             boleto.Config.Banco.TipoCobranca = cmbBanco.GetSelectedValue<ACBrTipoCobranca>();
             boleto.Config.Cedente.TipoCarteira = cmbTipoCarteira.GetSelectedValue<ACBrTipoCarteira>();
             boleto.Config.Cedente.TipoDocumento = cmbTipoDocumento.GetSelectedValue<ACBrTipoDocumento>();
-            boleto.Config.Cedente.TipoInscricao = cmbTipoInscricao.GetSelectedValue<ACBrPessoa>();
             boleto.Config.Cedente.Agencia = txtAgencia.Text;
             boleto.Config.Cedente.AgenciaDigito = txtDigAgencia.Text;
             boleto.Config.Cedente.Conta = txtConta.Text;
@@ -174,7 +182,6 @@ namespace ACBrLibBoleto.Demo
             boleto.Config.Cedente.Bairro = txtBairro.Text;
             boleto.Config.Cedente.CEP = txtCEP.Text;
             boleto.Config.Cedente.Cidade = txtCidade.Text;
-            boleto.Config.Cedente.CNPJCPF = txtCNPJCPF.Text;
             boleto.Config.Cedente.Complemento = txtComplemento.Text;
             boleto.Config.Cedente.Logradouro = txtLogradouro.Text;
             boleto.Config.Cedente.Nome = txtNomeRes.Text;
@@ -202,8 +209,8 @@ namespace ACBrLibBoleto.Demo
             boleto.Config.CedenteWebservice.Scope = txtScope.Text;
             boleto.Config.CedenteWebservice.IndicadorPix = chkIndicadorPix.Checked;
 
-            boleto.Config.Webservice.LogRegistro = chkGravarLog.Checked;
             boleto.Config.Webservice.PathGravarRegistro = txtPathLog.Text;
+            boleto.Config.Webservice.NomeArquivoLog = txtNomeArquivoLog.Text;
             boleto.Config.Webservice.Ambiente = rdbProducao.Checked ? AmbienteWebservice.Homologaçao : AmbienteWebservice.Producao;
             boleto.Config.Webservice.Operacao = cmbOperacao.GetSelectedValue<OperacaoBoleto>();
             boleto.Config.Webservice.SSLType = cmbSSlType.GetSelectedValue<SSLType>();
@@ -254,6 +261,8 @@ namespace ACBrLibBoleto.Demo
             cedente.Modalidade = "17";
             //cedente.CodigoTransmissao = "";
             cedente.Convenio = "123456";
+            cedente.ChavePIX = "ABCD1234";
+            cedente.TipoChavePIX = TipoChavePIX.tchAleatoria;
 
             BoletoInfo[] boletoInfo = new BoletoInfo[3];
             boletoInfo[0] = banco;
@@ -364,6 +373,58 @@ namespace ACBrLibBoleto.Demo
 
         }
 
+        private void GerarTituloArray()
+        {
+            Titulo[] titulos = CriarArrayTitulo(5);
+        }
+
+        public Titulo[] CriarArrayTitulo(int quantidade)
+        {
+            Titulo[] titulos = new Titulo[quantidade];
+
+            for (int i = 0; i <= (quantidade - 1); i++)
+            {
+                titulos[i] = new Titulo();
+
+
+                // Preencha as propriedades do objeto Titulo aqui
+                titulos[i].NumeroDocumento = "TIT00" + i;
+                titulos[i].NossoNumero = "1234" + i;
+                titulos[i].Carteira = "17";
+                titulos[i].ValorDocumento = 100.00M;
+                titulos[i].Vencimento = DateTime.Now.AddDays(30);
+                titulos[i].DataDocumento = DateTime.Now;
+                titulos[i].DataProcessamento = DateTime.Now;
+                titulos[i].DataDesconto = DateTime.Now.AddDays(20);
+                titulos[i].TipoDesconto = TipoDesconto.tdNaoConcederDesconto;
+                titulos[i].ValorDesconto = 0.5M;
+                titulos[i].CodigoMora = "1";
+                titulos[i].ValorMoraJuros = 0.2M;
+                titulos[i].DataMoraJuros = DateTime.Now.AddDays(30);
+                titulos[i].ValorIOF = 0;
+                titulos[i].ValorOutrasDespesas = 2.50M;
+                titulos[i].DataMulta = DateTime.Now.AddDays(30);
+                titulos[i].MultaValorFixo = true;
+                titulos[i].PercentualMulta = 5.00M;
+                titulos[i].DiasDeProtesto = 0;
+                titulos[i].DataProtesto = DateTime.Now.AddDays(60);
+                titulos[i].TipoDiasProtesto = TipoDiasIntrucao.diCorridos;
+                titulos[i].CodigoNegativacao = CodigoNegativacao.cnNenhum;
+                titulos[i].TipoDiasNegativacao = TipoDiasIntrucao.diCorridos;
+                titulos[i].Especie = "DM";
+                titulos[i].EspecieMod = "R$";
+                titulos[i].QrCode.emv = "00020101021226870014br.gov.bcb.pix2565qrcodepix-h.bb.com.br/pix/v2/22657e83-ecac-4631-a767-65e16fc56bff5204000053039865802BR5925EMPRORT AMBIENTAL        6008BRASILIA62070503***6304BD3D";
+
+                // ...
+                // Continue preenchendo as propriedades do objeto Titulo aqui
+                // ...
+            }
+            boleto.IncluirTitulos(titulos);
+
+            return titulos;
+        }
+
+
         #endregion Methods
 
         #region EventHandlers
@@ -398,8 +459,15 @@ namespace ACBrLibBoleto.Demo
 
         private void BtnImprimir_Click(object sender, EventArgs e)
         {
-            boleto.Imprimir();
-            rtbRespostas.AppendLine("Boletos impressos.");
+            try
+            {
+                boleto.Imprimir();
+                rtbRespostas.AppendLine("Boletos impressos.");
+            }
+            catch (Exception ex)
+            {
+                rtbRespostas.AppendLine(ex.Message);
+            }  
         }
 
         private void BtnGerarRemessa_Click(object sender, EventArgs e)
@@ -411,6 +479,26 @@ namespace ACBrLibBoleto.Demo
                 ret = txtDirRemessa.Text;
             boleto.GerarRemessa(ret, 1, txtNomeRemessa.Text);
             rtbRespostas.AppendLine("Remessa Gerada.");
+        }
+
+        private async void btnGerarRemessaStream_Click(object sender, EventArgs e)
+        {
+            MemoryStream aStream = new MemoryStream();
+            boleto.GerarRemessaStream(1, aStream);
+
+            aStream.Position = 0;
+            string base64String = Convert.ToBase64String(aStream.ToArray());
+
+            rtbRespostas.AppendLine("Remessa Gerada Base64:");
+            rtbRespostas.AppendLine(base64String);
+
+            byte[] convBase64 = Convert.FromBase64String(base64String);
+
+            // Converter o array de bytes para uma string comum (UTF-8)
+            string remessa = Encoding.UTF8.GetString(convBase64);
+
+            rtbRespostas.AppendLine("Remessa Gerada Texto:");
+            rtbRespostas.AppendLine(remessa);
         }
 
         private void BtnTotalTitulo_Click(object sender, EventArgs e)
@@ -483,6 +571,43 @@ namespace ACBrLibBoleto.Demo
             rtbRespostas.AppendLine(ret.Retorno);
         }
 
+        private void btnLerRetornoStream_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "Arquivos RET (*.ret)|*.ret|Todos os Arquivos (*.*)|*.*",
+                Title = "Selecione um arquivo de retorno"
+            };
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                string file = ofd.FileName;
+
+                try
+                {
+                    using (FileStream fileStream = new FileStream(file, FileMode.Open, FileAccess.Read))
+                    {
+                        using (StreamReader reader = new StreamReader(fileStream))
+                        {
+                            string retString = reader.ReadToEnd();
+                            byte[] retByte = Encoding.UTF8.GetBytes(retString);
+                            var retBase64 = System.Convert.ToBase64String(retByte);
+                            var ret = boleto.LerRetornoStream(retBase64);
+                            rtbRespostas.AppendLine(ret);
+                        }
+                    }
+                }
+                catch (Exception ex) 
+                {
+                    MessageBox.Show($"Ocorreu um erro ao ler o arquivo: {ex.Message}");
+                }
+            }  
+            else
+            {
+                MessageBox.Show("Nenhum arquivo foi selecionado.");
+            }
+        }
+
         private void BtnListarOcorrencias_Click(object sender, EventArgs e)
         {
             var ret = boleto.ListaOcorrencias();
@@ -497,8 +622,16 @@ namespace ACBrLibBoleto.Demo
 
         private void BtnImprimirBoleto_Click(object sender, EventArgs e)
         {
-            boleto.Imprimir(0);
-            rtbRespostas.AppendLine("Boletos impressos.");
+            try
+            {
+                boleto.Imprimir(0);
+                rtbRespostas.AppendLine("Boletos impressos.");
+
+            }
+            catch (Exception ex)
+            {
+                rtbRespostas.AppendLine(ex.Message);
+            }
         }
 
         private void BtnSelecionaBanco_Click(object sender, EventArgs e)
@@ -601,10 +734,17 @@ namespace ACBrLibBoleto.Demo
 
         private void btnClasseTitulo_Click(object sender, EventArgs e)
         {
+            try
+            {
+                ConfigBoleto();
+                GerarTitulo();
+                rtbRespostas.AppendLine("Título(s) adicionado(s).");
 
-            ConfigBoleto();            
-            GerarTitulo();
-            rtbRespostas.AppendLine("Título(s) adicionado(s)." );
+            }
+            catch (Exception ex)
+            {
+                rtbRespostas.AppendLine(ex.Message);
+            }
         }
 
         private void btnEnviarBoletoWebService_Click(object sender, EventArgs e)
@@ -677,5 +817,22 @@ namespace ACBrLibBoleto.Demo
             }
 
         }
+
+        private void btnArray_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ConfigBoleto();
+                GerarTituloArray();
+                rtbRespostas.AppendLine("Título(s) adicionado(s).");
+
+            }
+            catch (Exception ex)
+            {
+                rtbRespostas.AppendLine(ex.Message);
+            }
+        }
+
+        
     }
 }

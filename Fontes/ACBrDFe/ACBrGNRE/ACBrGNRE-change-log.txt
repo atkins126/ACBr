@@ -45,6 +45,60 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+08/08/2024
+-- pgnreConsResLoteGNRE --
+[*] #TK-5791: Altera os parâmetros de tamanho min e max do numeroRecibo na geração do XML de consulta para coincidir com versão 2.11 do manual e schemas.
+Por: Diego Folieni
+
+05/08/2024
+-- ACBrGNReGuiaRLRetrato, ACBrGNREGuiaFRDM --
+[*] Altera a rotina para somar o valor de MultaFCP a Multa e JurosFCP e Juros.
+Por: FabioTellini / Diego Folieni #TK-4864
+
+24/05/2024
+-- Diversos --
+[+] Adiciona suporte ao PIX, conforme versão 2.10 do Manual do GNRe
+Por: Diego Folieni
+-- ACBrGNREGuias --
+[*] Correção para a validação não alterar o xml quando não for de lote
+Por: Renato Rubinho
+
+21/03/2024
+-- ACBrGNReWebServices --
+[*] Adiciona chamada a UTF8ToNativeString quando usa ParseText para corrigir problemas de conversão de acentuação
+Por: Diego Folieni
+
+09/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnAuxiliar.
+  Por: Italo Giurizzato Junior
+
+01/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnConsts.
+  Por: Italo Giurizzato Junior
+
+22/01/2024
+-- ACBrGNREWebServices/pgnreConsResLoteGNRE/pgnreRetConsResLoteGNRE --
+[*] Incluído na consulta do lote a tag opcional: incluirPDFGuias para que no
+    retorno consta as guias no formato PDF.
+  Por: Jacke Venson/Italo Giurizzato Junior
+
+03/01/2024
+-- ACBrGNReGuiasRetorno, pgnreRetConsResLoteGNRe --
+[*] Otimização na leitura dos valores.
+  Por: Diego Folieni
+-- pgnreRetConsResLoteGNRE --
+[*] Adiciona na leitura do retorno as propriedades ValorFCP, AtualizacaoMonetariaFCP, JurosFCP e MultaFCP.
+  Por: Diego Folieni
+
+07/11/2023
+-- ACBrGNReGuias --
+[*] Ajuste para que não quebre para quem usa CampoExtra sem identificação.
+ Por: Diego Folieni
+[*] Melhoria nas rotinas de leitura e geração do ini para atender número de ocorrências do elemento CampoExtra
+ Por: Diego Folieni
+
 21/90/2023
 -- ACBrGNReGuias --
 [*] Adiciona uma rotina para gerar o INI do GNRe, visando compatibilidade com outros DFes e facilidade em testes.

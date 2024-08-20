@@ -54,10 +54,10 @@ type
   private
     function GetSoapAction: string;
   public
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     property SoapActionURL: string read GetSoapActionURL;
     property SoapAction: string read GetSoapAction;
@@ -113,6 +113,15 @@ begin
     ModoEnvio := meUnitario;
     UseCertificateHTTP := False;
     DetalharServico := True;
+
+    Autenticacao.RequerLogin := True;
+
+    ServicosDisponibilizados.EnviarUnitario := True;
+    ServicosDisponibilizados.ConsultarNfse := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+
+    Particularidades.PermiteMaisDeUmServico := True;
   end;
 
   SetXmlNameSpace('');
@@ -174,11 +183,11 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr);
     AErro.Correcao := '';
 
     if AErro.Descricao = '' then
-      AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+      AErro.Descricao := ANodeArray[I].AsString;
   end;
 end;
 
@@ -217,10 +226,6 @@ begin
       Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
-
-      //ProcessarMensagemErros(ANode, Response, '', 'okk');
-
-      //Response.Sucesso := (Response.Erros.Count = 0);
 
       with Response do
       begin
@@ -496,8 +501,6 @@ begin
 
       ANode := Document.Root;
 
-//      ProcessarMensagemErros(ANode, Response, '', 'okk');
-
       with Response do
       begin
         Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('okk'), tcStr);
@@ -544,12 +547,14 @@ procedure TACBrNFSeProviderWebFisco.PrepararCancelaNFSe(
 var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
+  aNumero, aTipo: string;
 begin
-  if EstaVazio(Response.InfCancelamento.NumeroNFSe) then
+  if EstaVazio(Response.InfCancelamento.NumeroNFSe) and
+     (Response.InfCancelamento.NumeroRps = 0) then
   begin
     AErro := Response.Erros.New;
-    AErro.Codigo := Cod108;
-    AErro.Descricao := ACBrStr(Desc108);
+    AErro.Codigo := Cod134;
+    AErro.Descricao := ACBrStr(Desc134);
     Exit;
   end;
 
@@ -595,6 +600,17 @@ begin
     Exit;
   end;
 
+  if Response.InfCancelamento.NumeroRps <> 0 then
+  begin
+    aNumero := IntToStr(Response.InfCancelamento.NumeroRps);
+    aTipo := '2';
+  end
+  else
+  begin
+    aNumero := Response.InfCancelamento.NumeroNFSe;
+    aTipo := '1';
+  end;
+
   Response.ArquivoEnvio := '<CancelaNfe>' +
                              '<usuario xsi:type="xsd:string">' +
                                Trim(Emitente.WSUser) +
@@ -609,10 +625,10 @@ begin
                                Trim(Emitente.CNPJ) +
                              '</usr>' +
                              '<ctr xsi:type="xsd:string">' +
-                               Response.InfCancelamento.NumeroNFSe +
+                               aNumero +
                              '</ctr>' +
                              '<tipo xsi:type="xsd:string">' +
-                               '1' +
+                               aTipo +
                              '</tipo>' +
                              '<obs xsi:type="xsd:string">' +
                                Response.InfCancelamento.MotCancelamento +
@@ -642,10 +658,6 @@ begin
       Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
-
-      //ProcessarMensagemErros(ANode, Response, '', 'okk');
-
-      //Response.Sucesso := (Response.Erros.Count = 0);
 
       Response.RetCancelamento.MsgCanc := ObterConteudoTag(ANode.Childrens.FindAnyNs('okk'), tcStr);
       Response.RetCancelamento.Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('okk'), tcStr);
@@ -704,7 +716,7 @@ begin
     Result := 'wsnfe_teste_homologacao.php/EnvNfe';
 end;
 
-function TACBrNFSeXWebserviceWebFisco.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceWebFisco.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -720,7 +732,7 @@ begin
                       'xmlns:xsd="http://www.w3.org/2001/XMLSchema"']);
 end;
 
-function TACBrNFSeXWebserviceWebFisco.ConsultarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceWebFisco.ConsultarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -736,7 +748,7 @@ begin
                       'xmlns:xsd="http://www.w3.org/2001/XMLSchema"']);
 end;
 
-function TACBrNFSeXWebserviceWebFisco.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceWebFisco.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -752,7 +764,7 @@ begin
                       'xmlns:xsd="http://www.w3.org/2001/XMLSchema"']);
 end;
 
-function TACBrNFSeXWebserviceWebFisco.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceWebFisco.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin

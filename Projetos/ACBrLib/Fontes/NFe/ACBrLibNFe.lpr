@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa-  }
 { mentos de Automação Comercial utilizados no Brasil                            }
 {                                                                               }
-{ Direitos Autorais Reservados (c) 2018 Daniel Simoes de Almeida                }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida                }
 {                                                                               }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                 }
 {                                                                               }
@@ -36,8 +36,13 @@
 library ACBrLibNFe;
 
 uses
-  Interfaces, sysutils, Classes, Forms, ACBrLibConfig,
-  ACBrLibComum, ACBrLibConsts, ACBrLibNFeConfig, ACBrLibResposta,
+  {$IFDEF MT}
+   {$IFDEF UNIX}
+    cthreads,
+   {$ENDIF}
+  {$ENDIF}
+  Interfaces, sysutils, Classes, Forms,
+  ACBrLibConfig, ACBrLibComum, ACBrLibConsts, ACBrLibNFeConfig, ACBrLibResposta,
   {$IFDEF MT}ACBrLibNFeMT{$ELSE}ACBrLibNFeST{$ENDIF},
   DFeReportConfig, ACBrLibNFeRespostas;
 
@@ -54,6 +59,7 @@ exports
   NFE_Finalizar,
   NFE_Nome,
   NFE_Versao,
+  NFE_OpenSSLInfo,
   NFE_UltimoRetorno,
   NFE_ConfigImportar,
   NFE_ConfigExportar,

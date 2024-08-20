@@ -328,7 +328,7 @@ begin
   ListaDeMetodos.Add(CMetodoGerarPDFBoletoComSenha);
   ListaDeMetodos.Add(CMetodoSetMotorBoletoRelatorio);
   ListaDeMetodos.Add(CMetodoSetMargem);
-
+  fBoletoPersonalizandoArquivo := True;
 end;
 
 procedure TACBrObjetoBoleto.Executar(ACmd: TACBrCmd);
@@ -635,7 +635,6 @@ begin
   begin
     ACBrBoleto.GerarPDF;
   end;
-
 end;
 
 { TMetodoGerarPDFComSenha }
@@ -897,7 +896,7 @@ begin
 
         fBoletoPersonalizandoArquivo := (AArq = '');
 
-        fpCmd.Resposta := ACBrBoleto.ACBrBoletoFC.NomeArquivo;
+        //fpCmd.Resposta := ACBrBoleto.ACBrBoletoFC.NomeArquivo;
 
       end;
 
@@ -1115,7 +1114,7 @@ begin
     LState:=ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual;
     try
       ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual := fBoletoPersonalizandoArquivo;
-      ACBrBoleto.ListadeBoletos[AIndice].GerarPDF();
+      fpCmd.Resposta := sLineBreak + 'Arquivo Gerado = ' + ACBrBoleto.ListadeBoletos[AIndice].GerarPDF();
     Except
       raise Exception.Create('Título de Indice '+IntToStr(AIndice)+' não identificado na Lista!');
     end;
@@ -1159,6 +1158,7 @@ begin
 
     try
       ACBrBoleto.ListadeBoletos[AIndice].GerarPDF();
+      fpCmd.Resposta := sLineBreak + 'Arquivo Gerado = ' + ACBrBoleto.ACBrBoletoFC.NomeArquivo;
     Except
       raise Exception.Create('Título de Indice '+IntToStr(AIndice)+' não identificado na Lista!');
     end;
@@ -1174,34 +1174,58 @@ end;
 
 { Params: 0 - Indice do Título a ser enviado
           1 - Dest : email do destinatário
+          2 - Assunto : Assunto do email
+          3 - Mensagem: Mensagem ao Destinatario
+          4 - Senha
 }
 procedure TMetodoEnviarEmailBoleto.Executar;
 var
-  AIndice: Integer;
-  ADest: String;
-  Mensagem: TStringList;
+  AParamIndice: Integer;
+  ASenha, AParamDest, AParamAssunto ,AParamMensagem : String;
+  LMensagem: TStringList;
+  LCalcularNomeIndividual : boolean;
+  FACBrBoletoFPDF   : TACBrBoletoFPDF;
 begin
-  AIndice := StrToIntDef(fpCmd.Params(0),0);
-  ADest := Trim(fpCmd.Params(1));
+  AParamIndice  := StrToIntDef(fpCmd.Params(0),0);
+  AParamDest    := Trim(fpCmd.Params(1));
+  AParamAssunto := Trim(fpCmd.Params(2));
+  AParamMensagem:= Trim(fpCmd.Params(3));
+  ASenha        := Trim(fpCmd.Params(4));
 
   with TACBrObjetoBoleto(fpObjetoDono) do
   begin
-    if AIndice > (ACBrBoleto.ListadeBoletos.Count -1) then
-      raise Exception.Create('Título de Indice '+IntToStr(AIndice)+' não identificado na Lista!');
+    if AParamIndice > Pred(ACBrBoleto.ListadeBoletos.Count) then
+      raise Exception.Create('Título de Indice '+IntToStr(AParamIndice)+' não identificado na Lista!');
 
-    if (ADest = '') and (ACBrBoleto.ListadeBoletos.Count > 0) then
-      ADest := ACBrBoleto.ListadeBoletos[AIndice].Sacado.Email;
+    if EstaVazio(AParamDest) and (ACBrBoleto.ListadeBoletos.Count > 0) then
+      AParamDest := ACBrBoleto.ListadeBoletos[AParamIndice].Sacado.Email
+    else
+      AParamDest := AParamDest;
+
+    if ASenha <> '' then
+       begin
+         FACBrBoletoFPDF   := TACBrBoletoFPDF.Create(ACBrBoleto);
+         if ACBrBoleto.ACBrBoletoFC.ClassName <> FACBrBoletoFPDF.ClassName then
+            raise Exception.Create('O Metodo EnviarEmailBoleto Com Senha não funciona com o motor selecionado !');
+       end;
+
 
     with MonitorConfig.BOLETO.Email do
     begin
-        Mensagem := TStringList.Create;
+      LMensagem := TStringList.Create;
+      LCalcularNomeIndividual:=ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual;
+      AParamAssunto := IfThen(NaoEstaVazio(AParamAssunto), AParamAssunto, EmailAssuntoBoleto);
       try
-        Mensagem.Text:= StringToBinaryString(EmailMensagemBoleto);
+        ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual:=true;
+        LMensagem.Text:= StringToBinaryString(IfThen(NaoEstaVazio(AParamMensagem), AParamMensagem, EmailMensagemBoleto));
+
         try
+          ACBrBoleto.ACBrBoletoFC.PdfSenha := ASenha;
           ACBrBoleto.MAIL.IsHTML := EmailFormatoHTML;
-          ACBrBoleto.ListadeBoletos[AIndice].EnviarEmail( ADest,
-                 EmailAssuntoBoleto,
-                 Mensagem,
+          ACBrBoleto.ListadeBoletos[AParamIndice].EnviarEmail(
+                 AParamDest,
+                 AParamAssunto,
+                 LMensagem,
                  True);
           if not(MonitorConfig.Email.SegundoPlano) then
             fpCmd.Resposta := 'E-mail enviado com sucesso!'
@@ -1212,9 +1236,9 @@ begin
           on E: Exception do
             raise Exception.Create('Erro ao enviar email' + sLineBreak + E.Message);
         end;
-
       finally
-        Mensagem.Free;
+        ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual:=LCalcularNomeIndividual;
+        LMensagem.Free;
       end;
     end;
 

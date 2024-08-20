@@ -20,11 +20,11 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
+      <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="4"/>
-      <RevisionNr Value="6"/>
-      <BuildNr Value="253"/>
+      <RevisionNr Value="7"/>
+      <BuildNr Value="300"/>
       <Language Value="0416"/>
-      <Attributes pvaPreRelease="True"/>
       <StringTable CompanyName="Projeto ACBr" FileDescription="ACBrNFe - BIblioteca para emissão e impressão de nota fiscal eletrônica" InternalName="ACBrLibNFE" LegalCopyright="Projeto ACBr" LegalTrademarks="Projeto ACBr" ProductName="ACBrNFe " ProductVersion="0.4.6.0"/>
     </VersionInfo>
     <BuildModes Count="13">
@@ -513,9 +513,7 @@
             </Options>
           </Linking>
           <Other>
-            <CustomOptions Value="-dMT 
--dNOGUI
--dMT"/>
+            <CustomOptions Value="-dMT -dDEBUG -dNOGUI"/>
           </Other>
         </CompilerOptions>
       </Item13>
@@ -525,42 +523,45 @@
     </PublishOptions>
     <RunParams>
       <local>
-        <HostApplicationFilename Value="C:\Pascal\Comp\ACBr\trunk2\Projetos\ACBrLib\Testes\NFe\bin\ACBrLibNFeTest.exe"/>
+        <HostApplicationFilename Value="C:\ProjetoACBr\ACBr\Projetos\ACBrLib\Testes\NFe\bin\ACBrLibNFeTest.exe"/>
       </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
         <Mode0 Name="default">
           <local>
-            <HostApplicationFilename Value="C:\Pascal\Comp\ACBr\trunk2\Projetos\ACBrLib\Testes\NFe\bin\ACBrLibNFeTest.exe"/>
+            <HostApplicationFilename Value="C:\ProjetoACBr\ACBr\Projetos\ACBrLib\Testes\NFe\bin\ACBrLibNFeTest.exe"/>
           </local>
         </Mode0>
       </Modes>
     </RunParams>
-    <RequiredPackages Count="8">
+    <RequiredPackages Count="9">
       <Item1>
-        <PackageName Value="ACBr_Integrador"/>
+        <PackageName Value="ACBr_NFe_DanfeFPDF"/>
       </Item1>
       <Item2>
-        <PackageName Value="ACBr_NFe_DanfeRL"/>
+        <PackageName Value="ACBr_Integrador"/>
       </Item2>
       <Item3>
-        <PackageName Value="ACBrSerial"/>
+        <PackageName Value="ACBr_NFe_DanfeRL"/>
       </Item3>
       <Item4>
-        <PackageName Value="ACBrTCP"/>
+        <PackageName Value="ACBrSerial"/>
       </Item4>
       <Item5>
-        <PackageName Value="ACBr_NFe_DanfeESCPOS"/>
+        <PackageName Value="ACBrTCP"/>
       </Item5>
       <Item6>
-        <PackageName Value="ACBr_NFe"/>
+        <PackageName Value="ACBr_NFe_DanfeESCPOS"/>
       </Item6>
       <Item7>
-        <PackageName Value="LCL"/>
+        <PackageName Value="ACBr_NFe"/>
       </Item7>
       <Item8>
-        <PackageName Value="FCL"/>
+        <PackageName Value="LCL"/>
       </Item8>
+      <Item9>
+        <PackageName Value="FCL"/>
+      </Item9>
     </RequiredPackages>
     <Units Count="21">
       <Unit0>
@@ -680,6 +681,7 @@
     <Linking>
       <Debugging>
         <GenerateDebugInfo Value="False"/>
+        <DebugInfoType Value="dsDwarf3"/>
         <UseLineInfoUnit Value="False"/>
         <StripSymbols Value="True"/>
       </Debugging>

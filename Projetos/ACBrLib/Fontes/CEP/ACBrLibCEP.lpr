@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Jurisato Junior                           }
 {                                                                              }
@@ -52,6 +52,7 @@ exports
   CEP_Finalizar,
   CEP_Nome,
   CEP_Versao,
+  CEP_OpenSSLInfo,
   CEP_UltimoRetorno,
   CEP_ConfigImportar,
   CEP_ConfigExportar,

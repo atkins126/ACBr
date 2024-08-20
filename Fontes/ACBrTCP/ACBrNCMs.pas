@@ -136,6 +136,10 @@ type
     procedure GravarCache(const aJsonStr: String);
     procedure CarregarJson(const aJsonStr: String);
     procedure CarregarListaNCMs;
+
+    function TratarCampoData(aCampo: string): string;
+  protected
+    function GetRespIsUTF8: Boolean; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -406,6 +410,28 @@ begin
   Result := fCacheArquivo;
 end;
 
+function TACBrNCMs.GetRespIsUTF8: Boolean;
+begin
+  Result := True;
+end;
+
+function TACBrNCMs.TratarCampoData(aCampo: string): string;
+var
+  xData: string;
+begin
+  if Length(Trim(aCampo)) > 10 then
+  begin
+    xData := OnlyNumber(aCampo);
+
+    if Length(xData) = 8 then
+      Result := Copy(xData, 1, 2) + '/' + Copy(xData, 3, 2) + '/' + Copy(xData, 5, 4)
+    else
+      Result := xData;
+  end
+  else
+   Result := Trim(aCampo);
+end;
+
 function TACBrNCMs.LimparDescricao(const aStr: String): String;
 begin
   if EstaVazio(aStr) then
@@ -435,22 +461,18 @@ end;
 
 function TACBrNCMs.UnZipHttpDoc: String;
 var
-  //CT: String;
   Resp: AnsiString;
-  RespIsUTF8: Boolean;
   zt: TCompressType;
 begin
-  zt := DetectCompressType(HTTPSend.Document);
-  if zt = ctUnknown then
+  zt := DetectCompressType(HTTPSend.OutputStream);
+  if (zt = ctUnknown) then
   begin
-    HTTPSend.Document.Position := 0;
-    Resp := ReadStrFromStream(HTTPSend.Document, HTTPSend.Document.Size);
+    HTTPSend.OutputStream.Position := 0;
+    Resp := ReadStrFromStream(HTTPSend.OutputStream, HTTPSend.OutputStream.Size);
   end
   else
-    Resp := ACBrUtil.FilesIO.UnZip(HTTPSend.Document);
+    Resp := ACBrUtil.FilesIO.UnZip(HTTPSend.OutputStream);
 
-  //CT := LowerCase( GetHeaderValue('Content-Type:') );
-  RespIsUTF8 := True; //(pos('utf-8', CT) > 0);
   if RespIsUTF8 then
     Result := UTF8ToNativeString(Resp)
   else
@@ -462,6 +484,7 @@ var
   I: Integer;
   wJSonArr: TACBrJSONArray;
   wJSon, wJsonNCM: TACBrJSONObject;
+  xData: string;
 begin
   if (aJsonStr = EmptyStr) then
     Exit;
@@ -470,7 +493,9 @@ begin
 
   wJSon := CriarEValidarJson(aJsonStr);
   try
-    fUltimaAtualizacao := StringToDateTimeDef(wJson.AsString['Data_Ultima_Atualizacao_NCM'], 0, 'dd/mm/yyyy');
+    xData := TratarCampoData(wJson.AsString['Data_Ultima_Atualizacao_NCM']);
+    fUltimaAtualizacao := StringToDateTimeDef(xData, 0, 'dd/mm/yyyy');
+
     wJSonArr := wJSon.AsJSONArray['Nomenclaturas'];
 
     for I := 0 to wJSonArr.Count - 1 do
@@ -480,8 +505,13 @@ begin
       begin
         CodigoNcm := OnlyNumber(wJsonNCM.AsString['Codigo']);
         DescricaoNcm := LimparDescricao(wJsonNCM.AsString['Descricao']);
-        DataInicio := StringToDateTimeDef(wJsonNCM.AsString['Data_Inicio'], 0, 'dd/mm/yyyy');
-        DataFim := StringToDateTimeDef(wJsonNCM.AsString['Data_Fim'], 0, 'dd/mm/yyyy');
+
+        xData := TratarCampoData(wJsonNCM.AsString['Data_Inicio']);
+        DataInicio := StringToDateTimeDef(xData, 0, 'dd/mm/yyyy');
+
+        xData := TratarCampoData(wJsonNCM.AsString['Data_Fim']);
+        DataFim := StringToDateTimeDef(xData, 0, 'dd/mm/yyyy');
+
         TipoAto := wJsonNCM.AsString['Tipo_Ato'];
         NumeroAto := wJsonNCM.AsString['Numero_Ato'];
         AnoAto := wJsonNCM.AsInteger['Ano_Ato'];
@@ -530,6 +560,7 @@ var
   wSL: TStringList;
   wJson: TACBrJSONObject;
   wDataCache: TDateTime;
+  xData: string;
 begin
   Clear;
   wJson := Nil;
@@ -545,7 +576,8 @@ begin
       wSL.LoadFromFile(wArq); 
       wJson := CriarEValidarJson(wSL.Text);
 			try
-				wDataCache := StringToDateTimeDef(wJson.AsString['DataCache'], 0, 'dd/mm/yyyy');
+        xData := TratarCampoData(wJson.AsString['DataCache']);
+				wDataCache := StringToDateTimeDef(xData, 0, 'dd/mm/yyyy');
 
 				if (CacheDiasValidade > 0) and (DaysBetween(Now, wDataCache) > CacheDiasValidade) then
 				begin

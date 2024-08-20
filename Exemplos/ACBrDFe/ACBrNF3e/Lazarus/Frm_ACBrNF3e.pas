@@ -35,17 +35,18 @@ unit Frm_ACBrNF3e;
 interface
 
 uses
-  LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, Dialogs, ExtCtrls, StdCtrls, Spin, Buttons, ComCtrls,
-  SynEdit, SynHighlighterXML, ACBrXmlBase,ACBrNF3eConversao,
-  ACBrDFe, ACBrDFeReport, ACBrBase, ACBrUtil,
-  ACBrPosPrinter, ACBrNF3eDANF3eClass, ACBrNF3eDANF3eESCPOS, ACBrNF3e, ACBrMail;
+  LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls, StdCtrls, Spin, Buttons, ComCtrls, SynEdit,
+  SynHighlighterXML, ACBrBase, ACBrDFe, ACBrDFeReport, ACBrXmlBase, ACBrNF3e,
+  ACBrNF3eConversao, ACBrNF3eDANF3eClass, ACBrNF3e.DANF3ERLClass,
+  ACBrNF3eDANF3eESCPOS, ACBrPosPrinter, ACBrMail;
 
 type
 
   { TfrmACBrNF3e }
 
   TfrmACBrNF3e = class(TForm)
+    ACBrNF3eDANF3eRL1: TACBrNF3eDANF3eRL;
     pnlMenus: TPanel;
     pnlCentral: TPanel;
     PageControl1: TPageControl;
@@ -331,6 +332,10 @@ implementation
 uses
   strutils, math, TypInfo, DateUtils, blcksock, Grids,
   IniFiles, Printers,
+  ACBrUtil.DateTime,
+  ACBrUtil.Strings,
+  ACBrUtil.FilesIO,
+  ACBrUtil.Base,
   pcnAuxiliar, pcnConversao,
   ACBrDFeUtil, ACBrDFeSSL,
   Frm_Status, Frm_SelecionarCertificado, Frm_ConfiguraSerial;
@@ -705,7 +710,7 @@ begin
     memoRespWS.Lines.Text := ACBrNF3e1.WebServices.EnvEvento.RetornoWS;
     LoadXML(MemoResp, WBResposta);
     ShowMessage(IntToStr(ACBrNF3e1.WebServices.EnvEvento.cStat));
-    ShowMessage(ACBrNF3e1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0].RetInfEvento.nProt);
+    ShowMessage(ACBrNF3e1.WebServices.EnvEvento.EventoRetorno.RetInfEvento.nProt);
   end;
 end;
 
@@ -748,7 +753,7 @@ begin
 
     MemoDados.Lines.Add('');
     MemoDados.Lines.Add('Envio NF3e');
-    MemoDados.Lines.Add('tpAmb: '+ TpAmbToStr(ACBrNF3e1.WebServices.Retorno.TpAmb));
+    MemoDados.Lines.Add('tpAmb: '+ TipoAmbienteToStr(ACBrNF3e1.WebServices.Retorno.TpAmb));
     MemoDados.Lines.Add('verAplic: '+ ACBrNF3e1.WebServices.Retorno.verAplic);
     MemoDados.Lines.Add('cStat: '+ IntToStr(ACBrNF3e1.WebServices.Retorno.cStat));
     MemoDados.Lines.Add('cUF: '+ IntToStr(ACBrNF3e1.WebServices.Retorno.cUF));
@@ -918,7 +923,7 @@ begin
 
     MemoDados.Lines.Add('');
     MemoDados.Lines.Add('Envio NF3e');
-    MemoDados.Lines.Add('tpAmb: ' + TpAmbToStr(ACBrNF3e1.WebServices.Retorno.TpAmb));
+    MemoDados.Lines.Add('tpAmb: ' + TipoAmbienteToStr(ACBrNF3e1.WebServices.Retorno.TpAmb));
     MemoDados.Lines.Add('verAplic: ' + ACBrNF3e1.WebServices.Retorno.verAplic);
     MemoDados.Lines.Add('cStat: ' + IntToStr(ACBrNF3e1.WebServices.Retorno.cStat));
     MemoDados.Lines.Add('cUF: ' + IntToStr(ACBrNF3e1.WebServices.Retorno.cUF));
@@ -1169,7 +1174,8 @@ begin
 
   if OpenDialog1.Execute then
   begin
-    PrepararImpressao;
+    if ACBrNF3e1.DANF3E = ACBrNF3eDANF3eESCPOS1 then
+      PrepararImpressao;
 
     ACBrNF3e1.NotasFiscais.Clear;
     ACBrNF3e1.NotasFiscais.LoadFromFile(OpenDialog1.FileName,False);
@@ -1187,7 +1193,8 @@ begin
 
   if OpenDialog1.Execute then
   begin
-    PrepararImpressao;
+    if ACBrNF3e1.DANF3E = ACBrNF3eDANF3eESCPOS1 then
+      PrepararImpressao;
 
     ACBrNF3e1.NotasFiscais.Clear;
     ACBrNF3e1.NotasFiscais.LoadFromFile(OpenDialog1.FileName,False);
@@ -1282,7 +1289,7 @@ begin
 
   ACBrNF3e1.EnviarEvento(StrToInt(IDLote));
 
-  with ACBrNF3e1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0].RetInfEvento do
+  with ACBrNF3e1.WebServices.EnvEvento.EventoRetorno.RetInfEvento do
   begin
     lMsg:=
     'Id: ' + Id + #13 +
@@ -1835,17 +1842,12 @@ begin
   ACBrNF3e1.Configuracoes.Certificados.ArquivoPFX  := edtCaminho.Text;
   ACBrNF3e1.Configuracoes.Certificados.Senha       := edtSenha.Text;
   ACBrNF3e1.Configuracoes.Certificados.NumeroSerie := edtNumSerie.Text;
-  {
-  if cbModeloDF.ItemIndex = 0 then
-    ACBrNF3e1.DANF3e := ACBrNF3eDANF3eRL1
-  else
-  begin
-    if rgDANFCE.ItemIndex = 0 then
-      ACBrNF3e1.DANF3e := ACBrNF3eDANFCeFortes1
-    else
-      ACBrNF3e1.DANF3e := ACBrNF3eDANF3eESCPOS1;
+
+  case rgDANF3E.ItemIndex of
+    0: ACBrNF3e1.DANF3E := ACBrNF3eDANF3eRL1;
+    1: ACBrNF3e1.DANF3E := ACBrNF3eDANF3eESCPOS1;
   end;
-  }
+
   ACBrNF3e1.SSL.DescarregarCertificado;
 
   with ACBrNF3e1.Configuracoes.Geral do

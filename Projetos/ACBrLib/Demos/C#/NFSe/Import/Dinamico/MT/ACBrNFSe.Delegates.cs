@@ -22,6 +22,9 @@ namespace ACBrLib.NFSe
         public delegate int NFSE_Versao(IntPtr handle, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int NFSE_OpenSSLInfo(IntPtr handle, StringBuilder buffer, ref int bufferSize);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int NFSE_UltimoRetorno(IntPtr handle, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -44,6 +47,9 @@ namespace ACBrLib.NFSe
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int NFSE_CarregarXML(IntPtr handle, string eArquivoOuXml);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int NFSE_CarregarLoteXML(IntPtr handle, string eArquivoOuXml);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int NFSE_CarregarINI(IntPtr handle, string eArquivoOuIni);
@@ -106,6 +112,9 @@ namespace ACBrLib.NFSe
         public delegate int NFSE_ConsultarNFSeGenerico(IntPtr handle, string aInfConsultaNFSe, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int NFSE_ConsultarLinkNFSe(IntPtr handle, string aInfConsultaLinkNFSe, StringBuilder buffer, ref int bufferSize);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int NFSE_EnviarEmail(IntPtr handle, string ePara, string eXmlNFSe, bool aEnviaPDF, string eAssunto, string eCc, string eAnexos, string eMensagem);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -113,6 +122,9 @@ namespace ACBrLib.NFSe
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int NFSE_ImprimirPDF(IntPtr handle);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int NFSE_SalvarPDF(IntPtr handle, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int NFSE_ConsultarNFSeServicoPrestadoPorNumero(IntPtr handle, string aNumero, int aPagina, DateTime aDataInicial, DateTime aDataFinal, int aTipoPeriodo, StringBuilder buffer, ref int bufferSize);
@@ -162,12 +174,16 @@ namespace ACBrLib.NFSe
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int NFSE_ConsultarParametros(IntPtr handle, int aTipoParametroMunicipio, string aCodigoServico, DateTime aCompetencia, string aNumeroBeneficio, StringBuilder buffer, ref int bufferSize);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int NFSE_ObterInformacoesProvedor(IntPtr handle, StringBuilder buffer, ref int bufferSize);
+
         protected override void InitializeMethods()
         {
             AddMethod<NFSE_Inicializar>("NFSE_Inicializar");
             AddMethod<NFSE_Finalizar>("NFSE_Finalizar");
             AddMethod<NFSE_Nome>("NFSE_Nome");
             AddMethod<NFSE_Versao>("NFSE_Versao");
+            AddMethod<NFSE_OpenSSLInfo>("NFSE_OpenSSLInfo");
             AddMethod<NFSE_UltimoRetorno>("NFSE_UltimoRetorno");
             AddMethod<NFSE_ConfigImportar>("NFSE_ConfigImportar");
             AddMethod<NFSE_ConfigExportar>("NFSE_ConfigExportar");
@@ -176,6 +192,7 @@ namespace ACBrLib.NFSe
             AddMethod<NFSE_ConfigLerValor>("NFSE_ConfigLerValor");
             AddMethod<NFSE_ConfigGravarValor>("NFSE_ConfigGravarValor");
             AddMethod<NFSE_CarregarXML>("NFSE_CarregarXML");
+            AddMethod<NFSE_CarregarLoteXML>("NFSE_CarregarLoteXML");
             AddMethod<NFSE_CarregarINI>("NFSE_CarregarINI");
             AddMethod<NFSE_ObterXml>("NFSE_ObterXml");
             AddMethod<NFSE_GravarXml>("NFSE_GravarXml");
@@ -196,9 +213,11 @@ namespace ACBrLib.NFSe
             AddMethod<NFSE_ConsultarNFSePorPeriodo>("NFSE_ConsultarNFSePorPeriodo");
             AddMethod<NFSE_ConsultarNFSePorFaixa>("NFSE_ConsultarNFSePorFaixa");
             AddMethod<NFSE_ConsultarNFSeGenerico>("NFSE_ConsultarNFSeGenerico");
+            AddMethod<NFSE_ConsultarLinkNFSe>("NFSE_ConsultarLinkNFSe");
             AddMethod<NFSE_EnviarEmail>("NFSE_EnviarEmail");
             AddMethod<NFSE_Imprimir>("NFSE_Imprimir");
             AddMethod<NFSE_ImprimirPDF>("NFSE_ImprimirPDF");
+            AddMethod<NFSE_SalvarPDF>("NFSE_SalvarPDF");
             AddMethod<NFSE_ConsultarNFSeServicoPrestadoPorNumero>("NFSE_ConsultarNFSeServicoPrestadoPorNumero");
             AddMethod<NFSE_ConsultarNFSeServicoPrestadoPorPeriodo>("NFSE_ConsultarNFSeServicoPrestadoPorPeriodo");
             AddMethod<NFSE_ConsultarNFSeServicoPrestadoPorTomador>("NFSE_ConsultarNFSeServicoPrestadoPorTomador");
@@ -215,6 +234,7 @@ namespace ACBrLib.NFSe
             AddMethod<NFSE_ConsultarDFe>("NFSE_ConsultarDFe");
             AddMethod<NFSE_ObterDANFSE>("NFSE_ObterDANFSE");
             AddMethod<NFSE_ConsultarParametros>("NFSE_ConsultarParametros");
+            AddMethod<NFSE_ObterInformacoesProvedor>("NFSE_ObterInformacoesProvedor");
         }
     }
 }

@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 {                                                                              }
@@ -61,59 +61,60 @@ type
 
     property CTeDM: TLibCTeDM read FCTeDM;
 
-    function CarregarXML(const eArquivoOuXML: PChar): longint;
-    function CarregarINI(const eArquivoOuINI: PChar): longint;
-    function ObterXml(AIndex: longint; const sResposta: PChar; var esTamanho: longint): longint;
-    function GravarXml(AIndex: longint; const eNomeArquivo, ePathArquivo: PChar): longint;
-    function ObterIni(AIndex: longint; const sResposta: PChar; var esTamanho: longint): longint;
-    function GravarIni(AIndex: longint; const eNomeArquivo, ePathArquivo: PChar): longint;
-    function CarregarEventoXML(const eArquivoOuXML: PChar): longint;
-    function CarregarEventoINI(const eArquivoOuINI: PChar): longint;
-    function LimparLista: longint;
-    function LimparListaEventos: longint;
-    function Assinar: longint;
-    function Validar: longint;
-    function ValidarRegrasdeNegocios(const sResposta: PChar; var esTamanho: longint): longint;
-    function VerificarAssinatura(const sResposta: PChar; var esTamanho: longint): longint;
-    function GerarChave(ACodigoUF, ACodigoNumerico, AModelo, ASerie, ANumero, ATpEmi: longint;
-                        AEmissao, ACNPJCPF: PChar; const sResposta: PChar; var esTamanho: longint): longint;
-    function ObterCertificados(const sResposta: PChar; var esTamanho: longint): longint;
-    function GetPath(ATipo: longint; const sResposta: PChar; var esTamanho: longint): longint;
-    function GetPathEvento(ACodEvento: PChar; const sResposta: PChar; var esTamanho: longint): longint;
-    function StatusServico(const sResposta: PChar; var esTamanho: longint): longint;
-    function Consultar(const eChaveOuCTe: PChar; AExtrairEventos: Boolean;
-                       const sResposta: PChar; var esTamanho: longint): longint;
-    function Inutilizar(const ACNPJ, AJustificativa: PChar; Ano, Modelo, Serie, NumeroInicial, NumeroFinal: integer;
-                        const sResposta: PChar; var esTamanho: longint): longint;
+    function CarregarXML(const eArquivoOuXML: PAnsiChar): Integer;
+    function CarregarINI(const eArquivoOuINI: PAnsiChar): Integer;
+    function ObterXml(AIndex: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function GravarXml(AIndex: Integer; const eNomeArquivo, ePathArquivo: PAnsiChar): Integer;
+    function ObterIni(AIndex: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function GravarIni(AIndex: Integer; const eNomeArquivo, ePathArquivo: PAnsiChar): Integer;
+    function CarregarEventoXML(const eArquivoOuXML: PAnsiChar): Integer;
+    function CarregarEventoINI(const eArquivoOuINI: PAnsiChar): Integer;
+    function LimparLista: Integer;
+    function LimparListaEventos: Integer;
+    function Assinar: Integer;
+    function Validar: Integer;
+    function ValidarRegrasdeNegocios(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function VerificarAssinatura(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function GerarChave(ACodigoUF, ACodigoNumerico, AModelo, ASerie, ANumero, ATpEmi: Integer;
+                        AEmissao, ACNPJCPF: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function ObterCertificados(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function GetPath(ATipo: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function GetPathEvento(ACodEvento: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function StatusServico(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function Consultar(const eChaveOuCTe: PAnsiChar; AExtrairEventos: Boolean;
+                       const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function Inutilizar(const ACNPJ, AJustificativa: PAnsiChar; Ano, Modelo, Serie, NumeroInicial, NumeroFinal: integer;
+                        const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
     function Enviar(ALote: Integer; AImprimir, ASincrono: Boolean;
-                    const sResposta: PChar; var esTamanho: longint): longint;
-    function ConsultarRecibo(ARecibo: PChar; const sResposta: PChar; var esTamanho: longint): longint;
-    function Cancelar(const eChave, eJustificativa, eCNPJ: PChar; ALote: Integer;
-                      const sResposta: PChar; var esTamanho: longint): longint;
-    function EnviarEvento(idLote: Integer; const sResposta: PChar; var esTamanho: longint): longint;
-    function ConsultaCadastro(cUF, nDocumento: PChar; nIE: boolean;
-                              const sResposta: PChar; var esTamanho: longint): longint;
-    function DistribuicaoDFePorUltNSU(const AcUFAutor: integer; eCNPJCPF, eultNSU: PChar;
-                                      const sResposta: PChar; var esTamanho: longint): longint;
+                    const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function ConsultarRecibo(ARecibo: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function Cancelar(const eChave, eJustificativa, eCNPJ: PAnsiChar; ALote: Integer;
+                      const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function EnviarEvento(idLote: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function ConsultaCadastro(cUF, nDocumento: PAnsiChar; nIE: boolean;
+                              const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function DistribuicaoDFePorUltNSU(const AcUFAutor: integer; eCNPJCPF, eultNSU: PAnsiChar;
+                                      const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
     function DistribuicaoDFe(const AcUFAutor: integer;
-                             eCNPJCPF, eultNSU, eArquivoOuXML: PChar;
-                             const sResposta: PChar;
-                             var esTamanho: longint): longint;
-    function DistribuicaoDFePorNSU(const AcUFAutor: integer; eCNPJCPF, eNSU: PChar;
-                                   const sResposta: PChar; var esTamanho: longint): longint;
-    function DistribuicaoDFePorChave(const AcUFAutor: integer; eCNPJCPF, echCTe: PChar;
-                                     const sResposta: PChar; var esTamanho: longint): longint;
-    function EnviarEmail(const ePara, eChaveCTe: PChar; const AEnviaPDF: Boolean;
-                         const eAssunto, eCC, eAnexos, eMensagem: PChar): longint;
-    function EnviarEmailEvento(const ePara, eChaveEvento, eChaveCTe: PChar;
-                               const AEnviaPDF: Boolean; const eAssunto, eCC, eAnexos, eMensagem: PChar): longint;
-    function Imprimir(const cImpressora: PChar; nNumCopias: Integer; const cProtocolo, bMostrarPreview: PChar): longint;
-    function ImprimirPDF: longint;
-    function ImprimirEvento(const eArquivoXmlCTe, eArquivoXmlEvento: PChar): longint;
-    function ImprimirEventoPDF(const eArquivoXmlCTe, eArquivoXmlEvento: PChar): longint;
-    function ImprimirInutilizacao(const eArquivoXml: PChar): longint;
-    function ImprimirInutilizacaoPDF(const eArquivoXml: PChar): longint;
-
+                             eCNPJCPF, eultNSU, eArquivoOuXML: PAnsiChar;
+                             const sResposta: PAnsiChar;
+                             var esTamanho: Integer): Integer;
+    function DistribuicaoDFePorNSU(const AcUFAutor: integer; eCNPJCPF, eNSU: PAnsiChar;
+                                   const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function DistribuicaoDFePorChave(const AcUFAutor: integer; eCNPJCPF, echCTe: PAnsiChar;
+                                     const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function EnviarEmail(const ePara, eChaveCTe: PAnsiChar; const AEnviaPDF: Boolean;
+                         const eAssunto, eCC, eAnexos, eMensagem: PAnsiChar): Integer;
+    function EnviarEmailEvento(const ePara, eChaveEvento, eChaveCTe: PAnsiChar;
+                               const AEnviaPDF: Boolean; const eAssunto, eCC, eAnexos, eMensagem: PAnsiChar): Integer;
+    function Imprimir(const cImpressora: PAnsiChar; nNumCopias: Integer; const cProtocolo, bMostrarPreview: PAnsiChar): Integer;
+    function ImprimirPDF: Integer;
+    function SalvarPDF(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function ImprimirEvento(const eArquivoXmlCTe, eArquivoXmlEvento: PAnsiChar): Integer;
+    function ImprimirEventoPDF(const eArquivoXmlCTe, eArquivoXmlEvento: PAnsiChar): Integer;
+    function SalvarEventoPDF(const eArquivoXmlCTe, eArquivoXmlEvento: PAnsiChar;  sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function ImprimirInutilizacao(const eArquivoXml: PAnsiChar): Integer;
+    function ImprimirInutilizacaoPDF(const eArquivoXml: PAnsiChar): Integer;
   end;
   
 
@@ -131,7 +132,7 @@ uses
 constructor TACBrLibCTe.Create(ArqConfig: string; ChaveCrypt: ansistring);
 begin
   inherited Create(ArqConfig, ChaveCrypt);
-
+  TraduzirUltimoRetorno := False;
   FCTeDM := TLibCTeDM.Create(nil);
   FCTeDM.Lib := Self;
 end;
@@ -154,13 +155,13 @@ begin
   FCTeDM.AplicarConfiguracoes;
 end;
 
-function TACBrLibCTe.CarregarXML(const eArquivoOuXML: PChar): longint;  
+function TACBrLibCTe.CarregarXML(const eArquivoOuXML: PAnsiChar): Integer;
 var
   EhArquivo: boolean;
   ArquivoOuXml: Ansistring;
 begin
   try
-    ArquivoOuXml := ConverterAnsiParaUTF8(eArquivoOuXML);
+    ArquivoOuXml := ConverterStringEntrada(eArquivoOuXML);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_CarregarXML(' + ArquivoOuXml + ' )', logCompleto, True)
@@ -184,19 +185,19 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.CarregarINI(const eArquivoOuINI: PChar): longint;  
+function TACBrLibCTe.CarregarINI(const eArquivoOuINI: PAnsiChar): Integer;
 var
   ArquivoOuINI: Ansistring;
 begin
   try
-    ArquivoOuINI := ConverterAnsiParaUTF8(eArquivoOuINI);
+    ArquivoOuINI := ConverterStringEntrada(eArquivoOuINI);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_CarregarINI(' + ArquivoOuINI + ' )', logCompleto, True)
@@ -215,14 +216,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.ObterXml(AIndex: longint; const sResposta: PChar; var esTamanho: longint): longint;    
+function TACBrLibCTe.ObterXml(AIndex: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 Var
   Resposta: String;
 begin
@@ -248,20 +249,20 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.GravarXml(AIndex: longint; const eNomeArquivo, ePathArquivo: PChar): longint;    
+function TACBrLibCTe.GravarXml(AIndex: Integer; const eNomeArquivo, ePathArquivo: PAnsiChar): Integer;
 Var
   ANomeArquivo, APathArquivo: AnsiString;
 begin
   try
-    ANomeArquivo := ConverterAnsiParaUTF8(eNomeArquivo);
-    APathArquivo := ConverterAnsiParaUTF8(ePathArquivo);
+    ANomeArquivo := ConverterStringEntrada(eNomeArquivo);
+    APathArquivo := ConverterStringEntrada(ePathArquivo);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_GravarXml(' + IntToStr(AIndex) + ',' + ANomeArquivo + ',' + APathArquivo + ' )', logCompleto, True)
@@ -282,14 +283,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.ObterIni(AIndex: longint; const sResposta: PChar; var esTamanho: longint): longint;    
+function TACBrLibCTe.ObterIni(AIndex: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 Var
   Resposta: Ansistring;
 begin
@@ -316,20 +317,20 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.GravarIni(AIndex: longint; const eNomeArquivo, ePathArquivo: PChar): longint;    
+function TACBrLibCTe.GravarIni(AIndex: Integer; const eNomeArquivo, ePathArquivo: PAnsiChar): Integer;
 Var
   ACTeIni, ANomeArquivo, APathArquivo: AnsiString;
 begin
   try
-    ANomeArquivo := ConverterAnsiParaUTF8(eNomeArquivo);
-    APathArquivo := ConverterAnsiParaUTF8(ePathArquivo);
+    ANomeArquivo := ConverterStringEntrada(eNomeArquivo);
+    APathArquivo := ConverterStringEntrada(ePathArquivo);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_GravarIni(' + IntToStr(AIndex) + ',' + ANomeArquivo + ',' + APathArquivo + ' )', logCompleto, True)
@@ -367,20 +368,20 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.CarregarEventoXML(const eArquivoOuXML: PChar): longint;  
+function TACBrLibCTe.CarregarEventoXML(const eArquivoOuXML: PAnsiChar): Integer;
 var
   EhArquivo: boolean;
   ArquivoOuXml: Ansistring;
 begin
   try
-    ArquivoOuXml := ConverterAnsiParaUTF8(eArquivoOuXML);
+    ArquivoOuXml := ConverterStringEntrada(eArquivoOuXML);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_CarregarEventoXML(' + ArquivoOuXml + ' )', logCompleto, True)
@@ -404,19 +405,19 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.CarregarEventoINI(const eArquivoOuINI: PChar): longint;  
+function TACBrLibCTe.CarregarEventoINI(const eArquivoOuINI: PAnsiChar): Integer;
 var
   ArquivoOuINI: Ansistring;
 begin
   try
-    ArquivoOuINI := ConverterAnsiParaUTF8(eArquivoOuINI);
+    ArquivoOuINI := ConverterStringEntrada(eArquivoOuINI);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_CarregarEventoINI(' + ArquivoOuINI + ' )', logCompleto, True)
@@ -435,14 +436,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.LimparLista: longint;  
+function TACBrLibCTe.LimparLista: Integer;
 begin
   try
     GravarLog('CTE_LimparLista', logNormal);
@@ -456,14 +457,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.LimparListaEventos: longint;  
+function TACBrLibCTe.LimparListaEventos: Integer;
 begin
   try
     GravarLog('CTE_LimparListaEventos', logNormal);
@@ -477,14 +478,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.Assinar: longint;  
+function TACBrLibCTe.Assinar: Integer;
 begin
   try
     GravarLog('CTE_Assinar', logNormal);
@@ -504,14 +505,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.Validar: longint;  
+function TACBrLibCTe.Validar: Integer;
 begin
   try
     GravarLog('CTE_Validar', logNormal);
@@ -530,14 +531,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.ValidarRegrasdeNegocios(const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibCTe.ValidarRegrasdeNegocios(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 Var
   Erros: Ansistring;
 begin
@@ -556,14 +557,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.VerificarAssinatura(const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibCTe.VerificarAssinatura(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 Var
   Erros: Ansistring;
 begin
@@ -582,22 +583,22 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.GerarChave(ACodigoUF, ACodigoNumerico, AModelo, ASerie, ANumero, ATpEmi: longint;
-  AEmissao, ACNPJCPF: PChar; const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibCTe.GerarChave(ACodigoUF, ACodigoNumerico, AModelo, ASerie, ANumero, ATpEmi: Integer;
+  AEmissao, ACNPJCPF: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 Var
   Resposta, CNPJCPF: Ansistring;
   Emissao: TDateTime;
 begin
   try
     Emissao := StrToDate(AEmissao);
-    CNPJCPF := ConverterAnsiParaUTF8(ACNPJCPF);
+    CNPJCPF := ConverterStringEntrada(ACNPJCPF);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_GerarChave(' + IntToStr(ACodigoUF) + ',' + IntToStr(ACodigoNumerico) + ',' +
@@ -619,14 +620,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.ObterCertificados(const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibCTe.ObterCertificados(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 Var
   Resposta: string;
 begin
@@ -646,14 +647,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.GetPath(ATipo: longint; const sResposta: PChar; var esTamanho: longint): longint;    
+function TACBrLibCTe.GetPath(ATipo: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 Var
   Resposta: Ansistring;
 begin
@@ -686,20 +687,20 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.GetPathEvento(ACodEvento: PChar; const sResposta: PChar; var esTamanho: longint): longint;    
+function TACBrLibCTe.GetPathEvento(ACodEvento: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 Var
   Resposta, CodEvento: Ansistring;
   ok: Boolean;
 begin
   try
-    CodEvento := ConverterAnsiParaUTF8(ACodEvento);
+    CodEvento := ConverterStringEntrada(ACodEvento);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_GetPathEvento(' + CodEvento +' )', logCompleto, True)
@@ -722,14 +723,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.StatusServico(const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibCTe.StatusServico(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   Resp: TStatusServicoResposta;
   Resposta: String;
@@ -754,21 +755,21 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.Consultar(const eChaveOuCTe: PChar; AExtrairEventos: Boolean; const sResposta: PChar; var esTamanho: longint): longint;    
+function TACBrLibCTe.Consultar(const eChaveOuCTe: PAnsiChar; AExtrairEventos: Boolean; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   EhArquivo: boolean;
   Resposta, ChaveOuCTe: Ansistring;
   Resp: TConsultaCTeResposta;
 begin
   try
-    ChaveOuCTe := ConverterAnsiParaUTF8(eChaveOuCTe);
+    ChaveOuCTe := ConverterStringEntrada(eChaveOuCTe);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_Consultar(' + ChaveOuCTe + ', ' + BoolToStr(AExtrairEventos, True) + ' )', logCompleto, True)
@@ -815,23 +816,23 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.Inutilizar(const ACNPJ, AJustificativa: PChar;
+function TACBrLibCTe.Inutilizar(const ACNPJ, AJustificativa: PAnsiChar;
   Ano, Modelo, Serie, NumeroInicial, NumeroFinal: integer;
-  const sResposta: PChar; var esTamanho: longint): longint;    
+  const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   Resp: TInutilizarCTeResposta;
   Resposta, CNPJ, Justificativa: Ansistring;
 begin
   try
-    Justificativa := ConverterAnsiParaUTF8(AJustificativa);
-    CNPJ := ConverterAnsiParaUTF8(ACNPJ);
+    Justificativa := ConverterStringEntrada(AJustificativa);
+    CNPJ := ConverterStringEntrada(ACNPJ);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_Inutilizar(' + CNPJ + ',' + Justificativa + ',' + IntToStr(Ano) + ',' +
@@ -871,14 +872,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
 function TACBrLibCTe.Enviar(ALote: Integer; AImprimir, ASincrono: Boolean;
-  const sResposta: PChar; var esTamanho: longint): longint;  
+  const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   RespEnvio: TEnvioResposta;
   RespRetorno: TRetornoResposta;
@@ -917,7 +918,7 @@ begin
         except
           on E: EACBrCTeException do
           begin
-            Result := SetRetorno(ErrValidacaoCTe, ConverterUTF8ParaAnsi(E.Message));
+            Result := SetRetorno(ErrValidacaoCTe, ConverterStringSaida(E.Message));
             Exit;
           end;
         end;
@@ -993,19 +994,19 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.ConsultarRecibo(ARecibo: PChar; const sResposta: PChar; var esTamanho: longint): longint;
+function TACBrLibCTe.ConsultarRecibo(ARecibo: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   Resp: TReciboResposta;
   sRecibo, Resposta: Ansistring;
 begin
   try
-    sRecibo := ConverterAnsiParaUTF8(ARecibo);
+    sRecibo := ConverterStringEntrada(ARecibo);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_ConsultarRecibo(' + sRecibo + ' )', logCompleto, True)
@@ -1037,23 +1038,23 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.Cancelar(const eChave, eJustificativa, eCNPJ: PChar; ALote: Integer;
-  const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibCTe.Cancelar(const eChave, eJustificativa, eCNPJ: PAnsiChar; ALote: Integer;
+  const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   Resp: TCancelamentoResposta;
   AChave, AJustificativa, ACNPJ: Ansistring;
   Resposta: string;
 begin
   try
-    AChave := ConverterAnsiParaUTF8(eChave);
-    AJustificativa := ConverterAnsiParaUTF8(eJustificativa);
-    ACNPJ := ConverterAnsiParaUTF8(eCNPJ);
+    AChave := ConverterStringEntrada(eChave);
+    AJustificativa := ConverterStringEntrada(eJustificativa);
+    ACNPJ := ConverterStringEntrada(eCNPJ);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_Cancelar(' + AChave + ',' + AJustificativa + ',' +
@@ -1116,15 +1117,15 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
 function TACBrLibCTe.EnviarEvento(idLote: Integer;
-  const sResposta: PChar; var esTamanho: longint): longint;  
+  const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   i, j: Integer;
   chCTe, Resposta: Ansistring;
@@ -1219,22 +1220,22 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.ConsultaCadastro(cUF, nDocumento: PChar; nIE: boolean;
-    const sResposta: PChar; var esTamanho: longint): longint;    
+function TACBrLibCTe.ConsultaCadastro(cUF, nDocumento: PAnsiChar; nIE: boolean;
+    const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   Resp: TConsultaCadastroResposta;
   AUF, ADocumento: Ansistring;
   Resposta: string;
 begin
   try
-    AUF := ConverterAnsiParaUTF8(cUF);
-    ADocumento := ConverterAnsiParaUTF8(nDocumento);
+    AUF := ConverterStringEntrada(cUF);
+    ADocumento := ConverterStringEntrada(nDocumento);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_ConsultaCadastro(' + AUF + ',' + ADocumento + ',' + BoolToStr(nIE, True) + ' )', logCompleto, True)
@@ -1270,22 +1271,22 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.DistribuicaoDFePorUltNSU(const AcUFAutor: integer; eCNPJCPF, eultNSU: PChar;
-  const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibCTe.DistribuicaoDFePorUltNSU(const AcUFAutor: integer; eCNPJCPF, eultNSU: PAnsiChar;
+  const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 begin
   result := DistribuicaoDFe(AcUFAutor, eCNPJCPF, eultNSU, '',
                             sResposta, esTamanho);
 end;
 
-function TACBrLibCTe.DistribuicaoDFe(const AcUFAutor: integer;  eCNPJCPF, eultNSU, eArquivoOuXML: PChar;
-                                     const sResposta: PChar; var esTamanho: longint): longint;
+function TACBrLibCTe.DistribuicaoDFe(const AcUFAutor: integer;  eCNPJCPF, eultNSU, eArquivoOuXML: PAnsiChar;
+                                     const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   EhArquivo: boolean;
   ArquivoOuXml: string;
@@ -1295,9 +1296,9 @@ var
   Resp: TDistribuicaoDFeResposta;
 begin
   try
-    ACNPJCPF := ConverterAnsiParaUTF8(eCNPJCPF);
-    AultNSU := ConverterAnsiParaUTF8(eultNSU);
-    ArquivoOuXml := ConverterAnsiParaUTF8(eArquivoOuXML);
+    ACNPJCPF := ConverterStringEntrada(eCNPJCPF);
+    AultNSU := ConverterStringEntrada(eultNSU);
+    ArquivoOuXml := ConverterStringEntrada(eArquivoOuXML);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_DistribuicaoDFePorUltNSU(' + IntToStr(AcUFAutor) + ',' +
@@ -1384,23 +1385,23 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.DistribuicaoDFePorNSU(const AcUFAutor: integer; eCNPJCPF, eNSU: PChar;
-  const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibCTe.DistribuicaoDFePorNSU(const AcUFAutor: integer; eCNPJCPF, eNSU: PAnsiChar;
+  const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   ANSU, ACNPJCPF: Ansistring;
   Resposta: string;
   Resp: TDistribuicaoDFeResposta;
 begin
   try
-    ACNPJCPF := ConverterAnsiParaUTF8(eCNPJCPF);
-    ANSU := ConverterAnsiParaUTF8(eNSU);
+    ACNPJCPF := ConverterStringEntrada(eCNPJCPF);
+    ANSU := ConverterStringEntrada(eNSU);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_DistribuicaoDFePorNSU(' + IntToStr(AcUFAutor) + ',' +
@@ -1449,23 +1450,23 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.DistribuicaoDFePorChave(const AcUFAutor: integer; eCNPJCPF, echCTe: PChar;
-  const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibCTe.DistribuicaoDFePorChave(const AcUFAutor: integer; eCNPJCPF, echCTe: PAnsiChar;
+  const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   AchCTe, ACNPJCPF: Ansistring;
   Resposta: string;
   Resp: TDistribuicaoDFeResposta;
 begin
   try
-    ACNPJCPF := ConverterAnsiParaUTF8(eCNPJCPF);
-    AchCTe := ConverterAnsiParaUTF8(echCTe);
+    ACNPJCPF := ConverterStringEntrada(eCNPJCPF);
+    AchCTe := ConverterStringEntrada(echCTe);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_DistribuicaoDFePorChave(' + IntToStr(AcUFAutor) + ',' +
@@ -1515,27 +1516,27 @@ begin
       end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.EnviarEmail(const ePara, eChaveCTe: PChar; const AEnviaPDF: Boolean;
-  const eAssunto, eCC, eAnexos, eMensagem: PChar): longint;  
+function TACBrLibCTe.EnviarEmail(const ePara, eChaveCTe: PAnsiChar; const AEnviaPDF: Boolean;
+  const eAssunto, eCC, eAnexos, eMensagem: PAnsiChar): Integer;
 var
   APara, AChaveCTe, AAssunto, ACC, AAnexos, AMensagem: Ansistring;
   slMensagemEmail, slCC, slAnexos: TStringList;
   EhArquivo: boolean;
 begin
   try
-    APara := ConverterAnsiParaUTF8(ePara);
-    AChaveCTe := ConverterAnsiParaUTF8(eChaveCTe);
-    AAssunto := ConverterAnsiParaUTF8(eAssunto);
-    ACC := ConverterAnsiParaUTF8(eCC);
-    AAnexos := ConverterAnsiParaUTF8(eAnexos);
-    AMensagem := ConverterAnsiParaUTF8(eMensagem);
+    APara := ConverterStringEntrada(ePara);
+    AChaveCTe := ConverterStringEntrada(eChaveCTe);
+    AAssunto := ConverterStringEntrada(eAssunto);
+    ACC := ConverterStringEntrada(eCC);
+    AAnexos := ConverterStringEntrada(eAnexos);
+    AMensagem := ConverterStringEntrada(eMensagem);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_EnviarEmail(' + APara + ',' + AChaveCTe + ',' +
@@ -1611,15 +1612,15 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.EnviarEmailEvento(const ePara, eChaveEvento, eChaveCTe: PChar;
-  const AEnviaPDF: Boolean; const eAssunto, eCC, eAnexos, eMensagem: PChar): longint;  
+function TACBrLibCTe.EnviarEmailEvento(const ePara, eChaveEvento, eChaveCTe: PAnsiChar;
+  const AEnviaPDF: Boolean; const eAssunto, eCC, eAnexos, eMensagem: PAnsiChar): Integer;
 var
   APara, AChaveEvento, AChaveCTe, AAssunto, ACC, AAnexos, AMensagem,
   ArqPDF: Ansistring;
@@ -1627,13 +1628,13 @@ var
   EhArquivo: boolean;
 begin
   try
-    APara := ConverterAnsiParaUTF8(ePara);
-    AChaveEvento := ConverterAnsiParaUTF8(eChaveEvento);
-    AChaveCTe := ConverterAnsiParaUTF8(eChaveCTe);
-    AAssunto := ConverterAnsiParaUTF8(eAssunto);
-    ACC := ConverterAnsiParaUTF8(eCC);
-    AAnexos := ConverterAnsiParaUTF8(eAnexos);
-    AMensagem := ConverterAnsiParaUTF8(eMensagem);
+    APara := ConverterStringEntrada(ePara);
+    AChaveEvento := ConverterStringEntrada(eChaveEvento);
+    AChaveCTe := ConverterStringEntrada(eChaveCTe);
+    AAssunto := ConverterStringEntrada(eAssunto);
+    ACC := ConverterStringEntrada(eCC);
+    AAnexos := ConverterStringEntrada(eAnexos);
+    AMensagem := ConverterStringEntrada(eMensagem);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_EnviarEmailEvento(' + APara + ',' + AChaveEvento + ',' +
@@ -1735,24 +1736,24 @@ begin
       end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.Imprimir(const cImpressora: PChar; nNumCopias: Integer; const cProtocolo,
-  bMostrarPreview: PChar): longint; 
+function TACBrLibCTe.Imprimir(const cImpressora: PAnsiChar; nNumCopias: Integer; const cProtocolo,
+  bMostrarPreview: PAnsiChar): Integer;
 Var
   Resposta: TLibImpressaoResposta;
   Impressora, Protocolo,
   MostrarPreview: Ansistring;
 begin
   try
-    Impressora := ConverterAnsiParaUTF8(cImpressora);
-    Protocolo := ConverterAnsiParaUTF8(cProtocolo);
-    MostrarPreview := ConverterAnsiParaUTF8(bMostrarPreview);
+    Impressora := ConverterStringEntrada(cImpressora);
+    Protocolo := ConverterStringEntrada(cProtocolo);
+    MostrarPreview := ConverterStringEntrada(bMostrarPreview);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_Imprimir(' + Impressora + ',' + IntToStr(nNumCopias) + ','
@@ -1778,14 +1779,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.ImprimirPDF: longint;  
+function TACBrLibCTe.ImprimirPDF: Integer;
 begin
   try
     GravarLog('CTE_ImprimirPDF', logNormal);
@@ -1801,21 +1802,55 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.ImprimirEvento(const eArquivoXmlCTe, eArquivoXmlEvento: PChar): longint;  
+function TACBrLibCTe.SalvarPDF(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+var
+  AStream: TMemoryStream;
+  Resposta: AnsiString;
+begin
+  try
+    GravarLog('CTE_SalvarPDF', logNormal);
+
+    CTeDM.Travar;
+
+    AStream := TMemoryStream.Create;
+
+    try
+      CTeDM.ConfigurarImpressao('', True);
+
+      CTeDM.ACBrCTe1.Conhecimentos.ImprimirPDF(AStream);
+      Resposta := StreamToBase64(AStream);
+
+      MoverStringParaPChar(Resposta, sResposta, esTamanho);
+      Result := SetRetorno(ErrOK, Resposta);
+    finally
+      CTeDM.FinalizarImpressao;
+      AStream.Free;
+      CTeDM.Destravar;
+    end;
+  except
+    on E: EACBrLibException do
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
+
+    on E: Exception do
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
+  end;
+end;
+
+function TACBrLibCTe.ImprimirEvento(const eArquivoXmlCTe, eArquivoXmlEvento: PAnsiChar): Integer;
 var
   EhArquivo: boolean;
   AArquivoXmlCTe, AArquivoXmlEvento: Ansistring;
 begin
   try
-    AArquivoXmlCTe := ConverterAnsiParaUTF8(eArquivoXmlCTe);
-    AArquivoXmlEvento := ConverterAnsiParaUTF8(eArquivoXmlEvento);
+    AArquivoXmlCTe := ConverterStringEntrada(eArquivoXmlCTe);
+    AArquivoXmlEvento := ConverterStringEntrada(eArquivoXmlEvento);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_ImprimirEvento(' + AArquivoXmlCTe + ',' + AArquivoXmlEvento + ' )', logCompleto, True)
@@ -1855,21 +1890,21 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.ImprimirEventoPDF(const eArquivoXmlCTe, eArquivoXmlEvento: PChar): longint;  
+function TACBrLibCTe.ImprimirEventoPDF(const eArquivoXmlCTe, eArquivoXmlEvento: PAnsiChar): Integer;
 var
   EhArquivo: boolean;
   AArquivoXmlCTe, AArquivoXmlEvento: Ansistring;
 begin
   try
-    AArquivoXmlCTe := ConverterAnsiParaUTF8(eArquivoXmlCTe);
-    AArquivoXmlEvento := ConverterAnsiParaUTF8(eArquivoXmlEvento);
+    AArquivoXmlCTe := ConverterStringEntrada(eArquivoXmlCTe);
+    AArquivoXmlEvento := ConverterStringEntrada(eArquivoXmlEvento);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_ImprimirEventoPDF(' + AArquivoXmlCTe + ',' + AArquivoXmlEvento + ' )', logCompleto, True)
@@ -1909,20 +1944,82 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.ImprimirInutilizacao(const eArquivoXml: PChar): longint;  
+function TACBrLibCTe.SalvarEventoPDF(const eArquivoXmlCTe, eArquivoXmlEvento: PAnsiChar;  sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+var
+  EhArquivo: boolean;
+  AArquivoXmlCTe: string;
+  AArquivoXmlEvento: string;
+  AStream: TMemoryStream;
+  Resposta: Ansistring;
+begin
+  try
+    AArquivoXmlCTe := ConverterStringEntrada(eArquivoXmlCTe);
+    AArquivoXmlEvento := ConverterStringEntrada(eArquivoXmlEvento);
+
+    if Config.Log.Nivel > logNormal then
+       GravarLog('CTE_SalvarEventoPDF(' + AArquivoXmlCTe + ',' + AArquivoXmlEvento + ' )', logCompleto, True)
+    else
+      GravarLog('CTE_SalvarEventoPDF', logNormal);
+
+    CTeDM.Travar;
+    AStream := TMemoryStream.Create;
+
+    try
+      EhArquivo := StringEhArquivo(AArquivoXmlCTe);
+
+      if EhArquivo then
+      VerificarArquivoExiste(AArquivoXmlCTe);
+
+      if EhArquivo then
+         CTeDM.ACBrCTe1.Conhecimentos.LoadFromFile(AArquivoXmlCTe)
+      else
+         CTeDM.ACBrCTe1.Conhecimentos.LoadFromString(AArquivoXmlCTe);
+
+      EhArquivo := StringEhArquivo(AArquivoXmlEvento);
+
+      if EhArquivo then
+      VerificarArquivoExiste(AArquivoXmlEvento);
+
+      if EhArquivo then
+         CTeDM.ACBrCTe1.EventoCTe.LerXML(AArquivoXmlEvento)
+      else
+         CTeDM.ACBrCTe1.EventoCTe.LerXMLFromString(AArquivoXmlEvento);
+
+      CTeDM.ConfigurarImpressao('', True);
+      CTeDM.ACBrCTe1.DACTE.ImprimirEventoPDF(AStream);
+
+      Resposta := StreamToBase64(AStream);
+
+      MoverStringParaPChar(Resposta, sResposta, esTamanho);
+      Result := SetRetorno(ErrOK, Resposta);
+    finally
+      CTeDM.FinalizarImpressao;
+      AStream.Free;
+      CTeDM.Destravar;
+    end;
+  except
+    on E: EACBrLibException do
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
+
+    on E: Exception do
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
+  end;
+end;
+
+function TACBrLibCTe.ImprimirInutilizacao(const eArquivoXml: PAnsiChar): Integer;
 var
   EhArquivo: boolean;
   AArquivoXml: Ansistring;
 begin
   try
-    AArquivoXml := ConverterAnsiParaUTF8(eArquivoXml);
+    AArquivoXml := ConverterStringEntrada(eArquivoXml);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_ImprimirInutilizacao(' + AArquivoXml + ' )', logCompleto, True)
@@ -1952,20 +2049,20 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibCTe.ImprimirInutilizacaoPDF(const eArquivoXml: PChar): longint;  
+function TACBrLibCTe.ImprimirInutilizacaoPDF(const eArquivoXml: PAnsiChar): Integer;
 var
   EhArquivo: boolean;
   AArquivoXml: Ansistring;
 begin
   try
-    AArquivoXml := ConverterAnsiParaUTF8(eArquivoXml);
+    AArquivoXml := ConverterStringEntrada(eArquivoXml);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('CTE_ImprimirInutilizacaoPDF(' + AArquivoXml + ' )', logCompleto, True)
@@ -1994,10 +2091,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 

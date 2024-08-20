@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 {                                                                              }
@@ -41,7 +41,7 @@ uses
 
 const
   CLibReinfNome = 'ACBrLibReinf';
-  CLibReinfVersao = '0.0.1';
+  CLibReinfVersao = '1.0.0.8';
 
   CSessaoRespEnvio = 'retornoLoteEventos';
   CSessaoRespEnvioideTransmissor = 'ideTransmissor';
@@ -61,6 +61,7 @@ const
   CSessaoRespEnvioevtRetCons = 'evtRetCons';
 
   CSessaoRetornoideEvento = 'ideEvento';
+  CSessaoRetornoideContribuinte = 'ideContribuinte';
   CSessaoRetornoideContri = 'ideContri';
   CSessaoRetornoideStatus = 'ideStatus';
   CSessaoRetornoregOcorrs = 'regOcorrs';
@@ -92,6 +93,15 @@ const
   CSessaoRespinfoTotalCR = 'infoTotalCR';
 
   CSessaoReinf = 'Reinf';
+
+  ErrValidacaoReinf = -11;
+
+Resourcestring
+  SErroReinfAbrir = 'Erro ao abrir o arquivo do Reinf: %s';
+  SMsgReinfEventoAdicionado = 'Evento Adicionado: %s';
+  SErroReinfConsulta = 'Erro ao Consultar Evento - Parâmetro não Preenchido';
+  SInfEventosCarregados = '%d Evento(s) Carregado(s)';
+  SInfReinfCarregadas = '%d Reinf(s) Carregada(s)';
 
 implementation
 

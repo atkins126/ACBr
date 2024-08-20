@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa-  }
 { mentos de Automação Comercial utilizados no Brasil                            }
 {                                                                               }
-{ Direitos Autorais Reservados (c) 2018 Daniel Simoes de Almeida                }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida                }
 {                                                                               }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                 }
 {                                                                               }
@@ -40,22 +40,10 @@ unit ACBrLibHelpers;
 interface
 
 uses
-  Classes, SysUtils, IniFiles,
+  Classes, SysUtils,
   rttiutils, ACBrRtti;
  
 type
-  TACBrMemIniFileHelper = class helper for TMemIniFile
-    procedure LoadFromString(const IniString: string);
-    procedure LoadFromFile(const FileName: string); overload;
-    procedure LoadFromStream(Stream: TStream); overload;
-    function AsString: string;
-  end;
-
-  TACBrCustomIniFileHelper = class helper for TCustomIniFile
-    procedure WriteStringLine(const Section, Ident, Value: String);
-    procedure ClearEmptySections;
-  end;
-
   TACBrPropInfoListHelper = class helper for TPropInfoList
     function GetProperties: TArray<TRttiProperty>;
   end;
@@ -70,97 +58,10 @@ type
 implementation
 
 uses
-  TypInfo, ACBrLibComum, ACBrUtil.Strings;
-
-{ TACBrMemIniFileHelper }
-procedure TACBrMemIniFileHelper.LoadFromString(const IniString: string);
-Var
-  FIniFile: TStringList;
-begin
-  if not StringEhIni(IniString) then Exit;
-
-  FIniFile := TStringList.Create;
-
-  try
-    FIniFile.Text := IniString;
-    Self.SetStrings(FIniFile);
-  finally
-    FIniFile.Free;
-  end;
-end;
-
-procedure TACBrMemIniFileHelper.LoadFromFile(const FileName: string);
-Var
-  FIniFile: TStringList;
-begin
-  FIniFile := TStringList.Create;
-
-  try
-    FIniFile.LoadFromFile(FileName);
-    Self.SetStrings(FIniFile);
-  finally
-    FIniFile.Free;
-  end;
-end;
-
-procedure TACBrMemIniFileHelper.LoadFromStream(Stream: TStream);
-Var
-  FIniFile: TStringList;
-begin
-  FIniFile := TStringList.Create;
-
-  try
-    FIniFile.LoadFromStream(Stream);
-    Self.SetStrings(FIniFile);
-  finally
-    FIniFile.Free;
-  end;
-end;
-
-function TACBrMemIniFileHelper.AsString: string;
-Var
-  FIniFile: TStringList;
-begin
-  FIniFile := TStringList.Create;
-
-  try
-    Self.GetStrings(FIniFile);
-    Result := FIniFile.Text;
-  finally
-    FIniFile.Free;
-  end;
-end;
-
- { TACBrCustomIniFileHelper }
-procedure TACBrCustomIniFileHelper.WriteStringLine(const Section, Ident, Value: String);
-begin
-  Self.WriteString(Section, Ident, ChangeLineBreak(Value, ''));
-end;
-
-procedure TACBrCustomIniFileHelper.ClearEmptySections;
-Var
-  FSections, FValues: TStringList;
-  I: Integer;
-begin
-  FSections := TStringList.Create;
-  FValues := TStringList.Create;
-
-  try
-    Self.ReadSections(FSections);
-    for I := 0 to FSections.Count - 1 do
-    begin
-      FValues.Clear;
-      Self.ReadSectionValues(FSections.Strings[I], FValues);
-      if FValues.Count = 0 then
-        Self.EraseSection(FSections.Strings[I]);
-    end;
-  finally
-    FSections.Free;
-    FValues.Free;
-  end;
-end;
+  TypInfo, ACBrUtil.Strings;
 
 { TACBrPropInfoListHelper }
+
 function TACBrPropInfoListHelper.GetProperties: TArray<TRttiProperty>;
 Var
   i: Integer;
@@ -173,6 +74,7 @@ begin
 end;
 
 { TEnum }
+
 class function TEnum.TryParse<T>(const Value: Integer; out AEnum: T): Boolean;
 begin
   if PTypeInfo(TypeInfo(T))^.Kind <> tkEnumeration then

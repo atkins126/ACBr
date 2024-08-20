@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 {                                                                              }
@@ -101,6 +101,7 @@ const
   CChaveFonteTamanhoFonteInformacoesComplementares = 'Fonte.TamanhoFonteInformacoesComplementares';
   CChaveFonteTamanhoFonteDemaisCampos = 'Fonte.TamanhoFonteDemaisCampos';
   CChaveImprimeDescAcrescItemNFe = 'ImprimeDescAcrescItemNFe';
+  CChaveImprimeNNFFormatadoNFe = 'FormatarNumeroDocumento';
 
   CSessaoDANFENFCE = 'DANFENFCe';
   CChaveTipoRelatorioEvento = 'TipoRelatorioEvento';
@@ -121,6 +122,7 @@ const
   CChaveFonteLinhaItemItalic = 'FonteLinhaItem.Italic';
   CChaveFonteLinhaItemUnderline = 'FonteLinhaItem.Underline';
   CChaveFonteLinhaItemStrikeOut = 'FonteLinhaItem.StrikeOut';
+  CChaveImprimeNNFFormatadoNFCe = 'FormatarNumeroDocumento';
 
   CSessaoRespStatus = 'Status';
   CSessaoRespInutilizacao = 'Inutilizacao';

@@ -88,11 +88,15 @@ begin
         BaseCalculo := ObterConteudo(ANodes[i].Childrens.FindAnyNs('baseCalculo'), tcDe2);
         CodigoCnae := ObterConteudo(ANodes[i].Childrens.FindAnyNs('codigoCNAE'), tcStr);
         CodServ := ObterConteudo(ANodes[i].Childrens.FindAnyNs('cst'), tcStr);
-  			// <descricaoCNAE>Estúdios de extração de árvores</descricaoCNAE>
-        Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('descricaoServico'), tcStr);
+        Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('descricaoCNAE'), tcStr);
+
+        Descricao := '(' + CodigoCnae + ' - ' + Descricao + ')' + FpQuebradeLinha +
+          ObterConteudo(ANodes[i].Childrens.FindAnyNs('descricaoServico'), tcStr);
+
         Descricao := StringReplace(Descricao, FpQuebradeLinha,
                                       sLineBreak, [rfReplaceAll, rfIgnoreCase]);
-//        CodigoCnae := ObterConteudo(ANodes[i].Childrens.FindAnyNs('idCNAE'), tcStr);
+
+        idCnae := ObterConteudo(ANodes[i].Childrens.FindAnyNs('idCNAE'), tcStr);
         Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('quantidade'), tcDe2);
         ValorTotal := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valorTotal'), tcDe2);
         ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valorUnitario'), tcDe2);
@@ -139,10 +143,12 @@ begin
 end;
 
 function TNFSeR_SoftPlan.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
+var
+  ValorLiq: Double;
 begin
   Result := True;
 
-  if not Assigned(ANode) or (ANode = nil) then
+  if not Assigned(ANode) then
     Exit;
 
   with NFSe do
@@ -153,7 +159,7 @@ begin
  	  // <dataProcessamento>2017-01-15</dataProcessamento>
     NfseCancelamento.DataHora := ObterConteudo(ANode.Childrens.FindAnyNs('dataCancelamento'), tcDat);
     MotivoCancelamento := ObterConteudo(ANode.Childrens.FindAnyNs('motivoCancelamento'), tcStr);
-    Servico.CodigoCnae := ObterConteudo(ANode.Childrens.FindAnyNs('cfps'), tcStr);
+    Servico.CFPS := ObterConteudo(ANode.Childrens.FindAnyNs('cfps'), tcStr);
     Situacao := ObterConteudo(ANode.Childrens.FindAnyNs('statusNFPSe'), tcInt);
     Servico.Valores.BaseCalculo := ObterConteudo(ANode.Childrens.FindAnyNs('baseCalculo'), tcDe2);
     Servico.Valores.ValorIss := ObterConteudo(ANode.Childrens.FindAnyNs('valorISSQN'), tcDe2);
@@ -199,6 +205,17 @@ begin
     OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
                                       sLineBreak, [rfReplaceAll, rfIgnoreCase]);
   	// <valorISSQNSubstituicao>0</valorISSQNSubstituicao>
+
+    if NFSe.Servico.Valores.ValorIss <> 0 then
+      NFSe.Servico.Valores.ValorIssRetido := NFSe.Servico.Valores.ValorIss
+    else
+      NFSe.Servico.Valores.ValorIssRetido := 0;
+
+    ValorLiq := NFSe.Servico.Valores.ValorServicos - NFSe.Servico.Valores.ValorIssRetido;
+
+    NFSe.Servico.Valores.ValorLiquidoNfse := ValorLiq;
+
+    NFSe.Servico.Valores.ValorTotalNotaFiscal := NFSe.Servico.Valores.ValorServicos;
   end;
 
   LerCampoLink;
@@ -208,7 +225,7 @@ function TNFSeR_SoftPlan.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
 begin
   Result := True;
 
-  if not Assigned(ANode) or (ANode = nil) then
+  if not Assigned(ANode) then
    Exit;
 
   with NFSe do

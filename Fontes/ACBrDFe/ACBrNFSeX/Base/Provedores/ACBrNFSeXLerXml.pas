@@ -73,6 +73,7 @@ type
     function LerParamsTabIniServicos: AnsiString;
     function LerParamsTabInterno: AnsiString;
     function LerDescricaoServico(const ACodigo: string): string;
+    function NormatizarCodigoMunicipio(const Codigo: string): string;
 
     procedure VerificarSeConteudoEhLista(const aDiscriminacao: string);
     procedure LerListaJson(const aDiscriminacao: string);
@@ -157,20 +158,34 @@ begin
     Result := Aliquota;
 end;
 
+function TNFSeRClass.NormatizarCodigoMunicipio(const Codigo: string): string;
+begin
+  if length(Codigo) < 7 then
+    Result := Copy(Codigo, 1, 2) +
+        FormatFloat('00000', StrToIntDef(Copy(Codigo, 3, 5), 0))
+  else
+    Result := Codigo;
+end;
+
 function TNFSeRClass.NormatizarItemListaServico(const Codigo: string): string;
 var
   Item: Integer;
   xCodigo: string;
 begin
-  xCodigo := Codigo;
+  Result := Codigo;
 
-  Item := StrToIntDef(OnlyNumber(xCodigo), 0);
-  if Item < 100 then
-    Item := Item * 100 + 1;
+  if Length(Codigo) <= 5 then
+  begin
+    xCodigo := Codigo;
 
-  xCodigo := FormatFloat('0000', Item);
+    Item := StrToIntDef(OnlyNumber(xCodigo), 0);
+    if Item < 100 then
+      Item := Item * 100 + 1;
 
-  Result := Copy(xCodigo, 1, 2) + '.' + Copy(xCodigo, 3, 2);
+    xCodigo := FormatFloat('0000', Item);
+
+    Result := Copy(xCodigo, 1, 2) + '.' + Copy(xCodigo, 3, 2);
+  end;
 end;
 
 function TNFSeRClass.NormatizarXml(const aXml: string): string;
@@ -178,7 +193,8 @@ begin
 {$IfDef FPC}
   Result := aXml;
 {$Else}
-  Result := ParseText(aXml, True, False);
+  Result := ParseText(aXml);
+//  Result := ParseText(aXml, True, False);
   Result := FastStringReplace(Result, '&', '&amp;', [rfReplaceAll]);
 {$EndIf}
 end;
@@ -211,21 +227,18 @@ begin
 end;
 
 procedure TNFSeRClass.VerificarSeConteudoEhLista(const aDiscriminacao: string);
-var
-  xDiscriminacao: string;
 begin
-  xDiscriminacao := NFSe.Servico.Discriminacao;
   FpAOwner.ConfigGeral.DetalharServico := False;
 
-  if (Pos('[', xDiscriminacao) > 0) and (Pos(']', xDiscriminacao) > 0) and
-     (Pos('{', xDiscriminacao) > 0) and (Pos('}', xDiscriminacao) > 0) then
+  if (Pos('[', aDiscriminacao) > 0) and (Pos(']', aDiscriminacao) > 0) and
+     (Pos('{', aDiscriminacao) > 0) and (Pos('}', aDiscriminacao) > 0) then
   begin
     FpAOwner.ConfigGeral.DetalharServico := True;
 
-    if Pos('":', xDiscriminacao) > 0 then
-      LerListaJson(xDiscriminacao)
+    if Pos('":', aDiscriminacao) > 0 then
+      LerListaJson(aDiscriminacao)
     else
-      LerListaTabulada(xDiscriminacao);
+      LerListaTabulada(aDiscriminacao);
   end;
 end;
 
@@ -261,10 +274,17 @@ begin
 
     with NFSe.Servico.ItemServico.New do
     begin
+      ItemListaServico := jsonItem.AsString['ItemServico'];
       Descricao := jsonItem.AsString['Descricao'];
       ValorUnitario := jsonItem.AsCurrency['ValorUnitario'];
       Quantidade := jsonItem.AsCurrency['Quantidade'];
       ValorTotal := jsonItem.AsCurrency['ValorTotal'];
+      BaseCalculo := jsonItem.AsCurrency['ValorBaseCalculo'];
+      Aliquota := jsonItem.AsCurrency['Aliquota'];
+      ValorISS := jsonItem.AsCurrency['ValorISS'];
+
+      if ValorISS = 0 then
+        ValorISS := BaseCalculo * Aliquota/100;
     end;
   end;
 end;
@@ -272,7 +292,8 @@ end;
 procedure TNFSeRClass.LerListaTabulada(const aDiscriminacao: string);
 var
   xDiscriminacao, xDescricao, xItemServico: string;
-  fQuantidade, fValorUnitario, fValorServico, fValorBC, fAliquota: Double;
+  fQuantidade, fValorUnitario, fValorServico, fValorBC, fAliquota,
+  fValorISS: Double;
   i, j: Integer;
 
   function ExtraiValorCampo(aCampo: string; aCampoNumerico: Boolean): string;
@@ -307,6 +328,7 @@ begin
     fValorServico := StrToFloatDef(ExtraiValorCampo('ValorServico', True), 0);
     fValorBC := StrToFloatDef(ExtraiValorCampo('ValorBaseCalculo', True), 0);
     fAliquota := StrToFloatDef(ExtraiValorCampo('Aliquota', True), 0);
+    fValorISS := StrToFloatDef(ExtraiValorCampo('ValorISS', True), 0);
 
     with NFSe.Servico.ItemServico.New do
     begin
@@ -318,6 +340,10 @@ begin
       ValorBCINSS := fValorBC;
       BaseCalculo := fValorBC;
       Aliquota := fAliquota;
+      ValorISS := fValorISS;
+
+      if ValorISS = 0 then
+        ValorISS := BaseCalculo * Aliquota/100;
     end;
   end;
 end;
@@ -401,7 +427,7 @@ begin
   Url := '';
   j := PosIni;
 
-  while (j < Length(Texto)) and (Texto[j] <> ' ') do
+  while (j <= Length(Texto)) and (Texto[j] <> ' ') do
   begin
     Url := Url + Texto[j];
     Inc(j);

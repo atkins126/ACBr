@@ -42,6 +42,78 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+17/07/2024
+--- ACBrLibBoleto, ACBrLibBoletoBase, ACBrLibBoletoST, ACBrLibBoletoMT, ACBrLibBoletoStaticImport, ACBrLibBoletoStaticImport ---
+[+] Novo método Boleto_LerRetornoStream
+    #TK-5710 - https://www.projetoacbr.com.br/forum/topic/78649-acbrlibboleto-leitura-do-retorno-em-stream/#comment-508153
+    Por: Júlio Cavalcanti / Victor Panda / Antonio Carlos Junior 
+
+27/06/2024
+--- ACBrLibBoletoBase, ACBrLibBoletoMT, ACBrLibBoletoST ---
+[*] #TK-5657 - ACBrLibBoleto: Removidos parâmetros não utilizados, eDir e eNomeArq, da assinatura da GerarRemessaStream()
+--- FrmMain.cs, ACBrBoleto.cs, ACBrBoleto.Delegates.cs ---
+[*] #TK-5657 - Exemplo em C#: Configurada nova assinatura e alterado retorno de FileStream para MemoryStream, jogando o resultado no memo
+    Por: Renato Rubinho
+
+12/06/2024
+--- ACBrLibBoletoRespostas ---
+[*] #TK-5559 - ACBrBoleto implementar  retorno da propriedade NumeroArquivo dos banco q nao conter CNAB240/400
+    Por: Antonio Carlos Junior / Victor Panda
+
+14/05/2024
+-- ACBrLibBoletoConfig --
+[*] #TK-5441 - Ajustado para ler a propriedade e realizar a quebra de linha | (pipe) e ele estava sobrescrevendo o INI, desabilitado a escrita.
+	https://www.projetoacbr.com.br/forum/topic/77745-acbrlib-boleto-cef-sac-caixa-n%C3%A3o-informado/
+        Por: Daniel de Morais InfoCotidiano
+
+02/05/2024
+-- ACBrLibBoletoRespostas --
+[*] #TK-5016-1 - Add NossoNumeroCorrespondente para tratar a propriedade utilizada no Inter API V3
+        Por: Daniel de Morais InfoCotidiano
+
+19/04/2024
+-- ACBrLibBoletoST --
+[*] Ajuste visando correção de problema de liberação de memória encontrado no Boleto_Finalizar
+ #TK-5367 - https://www.projetoacbr.com.br/forum/topic/77391-erro-ao-fechar-projeto-demo-acbrlibboletodemo-c/
+        Por: Diego Folieni
+
+16/04/2024
+--- ACBrLibBoletoBase, ACBrLibBoletoST, ACBrLibBoletoMT, ACBrLibBoletoStaticImport, ACBrLibBoletoStaticImportMT ---
+[+] Novo método Boleto_GerarRemessaStream
+    #TK-5181 - https://www.projetoacbr.com.br/forum/topic/76687-gerar-remessa-stream/
+	Por: Antonio Carlos Junior
+
+27/03/2024
+--- ACBrLibBoletoRespostas ---
+[*] TK-5273 Add a propriedade CodigoEstadoTituloCobranca para retorno do mesmo na consulta
+Por: Daniel InfoCotidiano
+
+13/03/2024
+--- ACBrLibBoletoDataModule, ACBrLibBoletoConsts, ACBrLibBoletoConfig ---
+[*] TK-4361 Mudança no nivel de Log ACBrBoleto
+Por: Victor Panda, Daniel InfoCotidiano, Antonio Carlos Junior
+
+24/01/2024
+--- ACBrLibBoletoRespostas --
+[+]TK-5003 Adicionado a propriedade ValorPago que existe no componente, mas não existia na reposta da lib. Neste caso o valor esta voltando nesta propriedade.
+https://www.projetoacbr.com.br/forum/topic/75952-banco-santander-ignora-o-valor-pago-quando-motivo-de-rejei%C3%A7%C3%A3o-vem-preenchido/
+Por: Daniel Morais InfoCotidiano
+
+27/12/2023
+--- ACBrLibBoletoBase --
+[*]TK-4800 Revert 31691 para remover TEnconding
+Por: Daniel Morais InfoCotidiano
+
+16/11/2023
+--ACBrLibBoletoBase.pas--
+[-]TK-4672 ACBr Boleto - DescricaoTipoOcorrencia CodificaoResposta
+   Por: Victor H Gonzales - Pandaaa
+
+01/11/2023
+--- ACBrLibBoletoConfig, ACBrLibBoletoDataModule ---
+[-] Correção na leitura de CPF / CNPJ
+    Por: Antonio Carlos Junior e Victor H Gonzales - Pandaaa
+
 25/04/2023
 --- ACBrLibBoletoConfig, ACBrLibBoletoConsts, ACBrLibBoletoDataModule ---
 [+] Criação do campo LerNossoNumeroCompleto - #TK-3857

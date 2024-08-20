@@ -4,7 +4,7 @@
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
-{																			   }
+{                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
 {                                                                              }
@@ -206,8 +206,6 @@ type
     btnNaoEmbarque: TButton;
     btnImprimirEvento: TButton;
     btnEnviarEventoEmail: TButton;
-    tsDistribuicao: TTabSheet;
-    btnDistribuicaoDFe: TButton;
     pgRespostas: TPageControl;
     TabSheet5: TTabSheet;
     MemoResp: TMemo;
@@ -300,7 +298,6 @@ type
     procedure btnCancelarChaveClick(Sender: TObject);
     procedure btnImprimirEventoClick(Sender: TObject);
     procedure btnEnviarEventoEmailClick(Sender: TObject);
-    procedure btnDistribuicaoDFeClick(Sender: TObject);
     procedure ACBrBPe1GerarLog(const ALogLine: string; var Tratado: Boolean);
     procedure btSerialClick(Sender: TObject);
     procedure btnImprimirDANFCEOfflineClick(Sender: TObject);
@@ -336,8 +333,11 @@ uses
   ACBrUtil.FilesIO,
   ACBrUtil.DateTime,
   ACBrUtil.XMLHTML,
-  pcnAuxiliar, pcnBPe, pcnConversao, pcnConversaoBPe, pcnRetConsReciDFe,
+  pcnConversao,
+  ACBrXmlBase,
   ACBrDFeConfiguracoes, ACBrDFeSSL, ACBrDFeOpenSSL, ACBrDFeUtil,
+  ACBrBPeClass,
+  ACBrBPeConversao, ACBrDFeComum.ConsReciDFe,
   ACBrBPeBilhetes, ACBrBPeConfiguracoes,
   Frm_Status, Frm_SelecionarCertificado, Frm_ConfiguraSerial;
 
@@ -357,7 +357,7 @@ end;
 procedure TfrmACBrBPe.ACBrBPe1StatusChange(Sender: TObject);
 begin
   case ACBrBPe1.Status of
-    stIdleBPe:
+    stBPeIdle:
       begin
         if ( frmStatus <> nil ) then
           frmStatus.Hide;
@@ -447,13 +447,16 @@ begin
     //
     Ide.cUF := UFtoCUF(edtEmitUF.Text);
 
+    {
     // TpcnTipoAmbiente = (taProducao, taHomologacao);
     case rgTipoAmb.ItemIndex of
-      0: Ide.tpAmb := taProducao;
-      1: Ide.tpAmb := taHomologacao;
+      0: Ide.tpAmb := TACBrTipoAmbiente(taProducao);
+      1: Ide.tpAmb := TACBrTipoAmbiente(taHomologacao);
     end;
 
     Ide.modelo  := 63;
+    }
+
     Ide.serie   := 1;
     Ide.nBP    := StrToIntDef(NumDFe, 0);
     Ide.cBP    := GerarCodigoDFe(Ide.nBP);
@@ -461,7 +464,7 @@ begin
     Ide.modal   := moRodoviario;
     Ide.dhEmi   := Now;
     // TpcnTipoEmissao = (teNormal, teOffLine);
-    Ide.tpEmis  := teNormal;
+    Ide.tpEmis  := TACBrTipoEmissao(teNormal);
     Ide.verProc := '1.0.0.0'; //Versão do seu sistema
     Ide.indPres := pcPresencial;
     Ide.UFIni   := 'SP';
@@ -673,6 +676,7 @@ begin
     //
     Ide.cUF := UFtoCUF(edtEmitUF.Text);
 
+    {
     // TpcnTipoAmbiente = (taProducao, taHomologacao);
     case rgTipoAmb.ItemIndex of
       0: Ide.tpAmb := taProducao;
@@ -680,6 +684,7 @@ begin
     end;
 
     Ide.modelo  := 63;
+    }
     Ide.serie   := 1;
     Ide.nBP    := StrToIntDef(NumDFe, 0);
     Ide.cBP    := GerarCodigoDFe(Ide.nBP);
@@ -688,7 +693,7 @@ begin
     Ide.dhEmi   := Now;
     Ide.dCompet := Date;
     // TpcnTipoEmissao = (teNormal, teOffLine);
-    Ide.tpEmis  := teNormal;
+    Ide.tpEmis  := TACBrTipoEmissao(teNormal);
     Ide.verProc := '1.0.0.0'; //Versão do seu sistema
     Ide.indPres := pcPresencial;
     Ide.UFIni   := 'SP';
@@ -998,7 +1003,7 @@ begin
     memoRespWS.Lines.Text := ACBrBPe1.WebServices.EnvEvento.RetornoWS;
     LoadXML(ACBrBPe1.WebServices.EnvEvento.RetornoWS, WBResposta);
     ShowMessage(IntToStr(ACBrBPe1.WebServices.EnvEvento.cStat));
-    ShowMessage(ACBrBPe1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0].RetInfEvento.nProt);
+    ShowMessage(ACBrBPe1.WebServices.EnvEvento.EventoRetorno.RetInfEvento.nProt);
   end;
 end;
 
@@ -1132,7 +1137,7 @@ begin
 
   MemoDados.Lines.Add('');
   MemoDados.Lines.Add('Envio BPe');
-  MemoDados.Lines.Add('tpAmb: ' + TpAmbToStr(ACBrBPe1.WebServices.Enviar.TpAmb));
+  MemoDados.Lines.Add('tpAmb: ' + TipoAmbienteToStr(ACBrBPe1.WebServices.Enviar.TpAmb));
   MemoDados.Lines.Add('verAplic: ' + ACBrBPe1.WebServices.Enviar.verAplic);
   MemoDados.Lines.Add('cStat: ' + IntToStr(ACBrBPe1.WebServices.Enviar.cStat));
   MemoDados.Lines.Add('cUF: ' + IntToStr(ACBrBPe1.WebServices.Enviar.cUF));
@@ -1153,34 +1158,6 @@ end;
 procedure TfrmACBrBPe.btnDataValidadeClick(Sender: TObject);
 begin
   ShowMessage(FormatDateBr(ACBrBPe1.SSL.CertDataVenc));
-end;
-
-procedure TfrmACBrBPe.btnDistribuicaoDFeClick(Sender: TObject);
-var
-  cUFAutor, CNPJ, ultNSU, ANSU: string;
-begin
-  cUFAutor := '';
-  if not(InputQuery('WebServices Distribuição Documentos Fiscais', 'Código da UF do Autor', cUFAutor)) then
-     exit;
-
-  CNPJ := '';
-  if not(InputQuery('WebServices Distribuição Documentos Fiscais', 'CNPJ/CPF do interessado no DF-e', CNPJ)) then
-     exit;
-
-  ultNSU := '';
-  if not(InputQuery('WebServices Distribuição Documentos Fiscais', 'Último NSU recebido pelo ator', ultNSU)) then
-     exit;
-
-  ANSU := '';
-  if not(InputQuery('WebServices Distribuição Documentos Fiscais', 'NSU específico', ANSU)) then
-     exit;
-
-  ACBrBPe1.DistribuicaoDFe(StrToInt(cUFAutor), CNPJ, ultNSU, ANSU);
-
-  MemoResp.Lines.Text := ACBrBPe1.WebServices.DistribuicaoDFe.RetWS;
-  memoRespWS.Lines.Text := ACBrBPe1.WebServices.DistribuicaoDFe.RetornoWS;
-
-  LoadXML(ACBrBPe1.WebServices.DistribuicaoDFe.RetWS, WBResposta);
 end;
 
 procedure TfrmACBrBPe.btnEnviarEmailClick(Sender: TObject);
@@ -1580,7 +1557,7 @@ begin
 
   MemoDados.Lines.Add('');
   MemoDados.Lines.Add('Status Serviço');
-  MemoDados.Lines.Add('tpAmb: '    +TpAmbToStr(ACBrBPe1.WebServices.StatusServico.tpAmb));
+  MemoDados.Lines.Add('tpAmb: '    +TipoAmbienteToStr(ACBrBPe1.WebServices.StatusServico.tpAmb));
   MemoDados.Lines.Add('verAplic: ' +ACBrBPe1.WebServices.StatusServico.verAplic);
   MemoDados.Lines.Add('cStat: '    +IntToStr(ACBrBPe1.WebServices.StatusServico.cStat));
   MemoDados.Lines.Add('xMotivo: '  +ACBrBPe1.WebServices.StatusServico.xMotivo);
@@ -1675,13 +1652,13 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrBPe1.Bilhetes.Clear;
-    ACBrBPe1.Bilhetes.LoadFromFile(OpenDialog1.FileName, True);
+    ACBrBPe1.Bilhetes.LoadFromFile(OpenDialog1.FileName);
 
     try
       ACBrBPe1.Bilhetes.Validar;
 
       if ACBrBPe1.Bilhetes.Items[0].Alertas <> '' then
-        MemoDados.Lines.Add('Alertas: '+ACBrBPe1.Bilhetes.Items[0].Alertas);
+        MemoDados.Lines.Add('Alertas: ' + ACBrBPe1.Bilhetes.Items[0].Alertas);
 
       ShowMessage('Bilhete de Passagem Eletrônico Valido');
     except

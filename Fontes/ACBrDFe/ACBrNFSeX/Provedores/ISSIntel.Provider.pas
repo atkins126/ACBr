@@ -49,12 +49,12 @@ type
     function GetNameSpace: string;
     function GetSoapAction: string;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -155,8 +155,8 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('codigo'), tcStr);
-      AErro.Descricao := ACBrStr(Mensagem);
-      AErro.Correcao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('correcao'), tcStr));
+      AErro.Descricao := Mensagem;
+      AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('correcao'), tcStr);
     end;
   end;
 end;
@@ -181,7 +181,7 @@ begin
     Result := TACBrNFSeX(FPDFeOwner).Provider.ConfigWebServices.Producao.SoapAction;
 end;
 
-function TACBrNFSeXWebserviceISSIntel.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSIntel.Recepcionar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -196,7 +196,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceISSIntel.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSIntel.ConsultarLote(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -211,7 +211,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceISSIntel.ConsultarSituacao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSIntel.ConsultarSituacao(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -226,7 +226,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceISSIntel.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSIntel.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -241,7 +241,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceISSIntel.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSIntel.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -256,7 +256,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceISSIntel.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSIntel.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -276,7 +276,7 @@ function TACBrNFSeXWebserviceISSIntel.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
   Result := RemoverCaracteresDesnecessarios(Result);

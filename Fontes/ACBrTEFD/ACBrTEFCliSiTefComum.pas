@@ -37,7 +37,8 @@ unit ACBrTEFCliSiTefComum;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes,
+  SysUtils,
   ACBrTEFComum;
 
 resourcestring
@@ -239,7 +240,9 @@ procedure ConteudoToPropertyCliSiTef(AACBrTEFResp: TACBrTEFResp);
 implementation
 
 uses
-  strutils, Math, dateutils,
+  StrUtils,
+  Math,
+  DateUtils,
   ACBrUtil.Strings,
   ACBrUtil.Base,
   ACBrUtil.Math,
@@ -404,7 +407,7 @@ begin
 
     QtdLinhasComprovante := max(ImagemComprovante1aVia.Count, ImagemComprovante2aVia.Count);
     Confirmar := (QtdLinhasComprovante > 0);
-    Sucesso := (NSU_TEF <> '');
+    Sucesso := (NSU_TEF <> '') or Confirmar;
 
     // leitura de parcelas conforme nova documentação
     // 141 e 142 foram removidos em Setembro de 2014

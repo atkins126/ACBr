@@ -75,7 +75,7 @@ type
   TACBrCodigoMulta       = (cmValorFixo, cmPercentual, cmIsento);
 
   {Definir se o titulo será protestado, não protestado ou negativado }
-  TACBrCodigoNegativacao = (cnNenhum, cnProtestarCorrido, cnProtestarUteis, cnNaoProtestar, cnNegativar, cnNaoNegativar, cnCancelamento);
+  TACBrCodigoNegativacao = (cnNenhum, cnProtestarCorrido, cnProtestarUteis, cnNaoProtestar, cnNegativar, cnNaoNegativar, cnCancelamento, cnNegativarUteis);
 
   {Definir Tipo de Operação para Registro de Cobrança via WebService}
   TOperacao = (tpInclui, tpAltera, tpBaixa, tpConsulta, tpConsultaDetalhe, tpPIXCriar, tpPIXCancelar, tpPIXConsultar, tpCancelar, tpTicket);
@@ -85,7 +85,7 @@ type
                      tpNao_Aceita_Valor_Divergente, tpSomente_Valor_Minimo);
 
     { Situação do boleto. Campo obrigatoriamente MAIÚSCULO. Domínios: A - Em ser B - Baixados/Protestados/Liquidados }
-  TACBrIndicadorSituacaoBoleto    = (isbNenhum,isbAberto,isbBaixado);
+  TACBrIndicadorSituacaoBoleto    = (isbNenhum,isbAberto,isbBaixado,isbCancelado);
 
   { Indica se o Boleto está vencido ou não. Campo obrigatoriamente MAIÚSCULO. Domínio: S para boletos vencidos N para boletos não vencidos }
   TACBrIndicadorBoletoVencido     = (ibvNenhum,ibvNao,ibvSim);
@@ -156,15 +156,16 @@ end;
 function StrToTipoNegativacao(out ok: Boolean; const s: String
   ): TACBrCodigoNegativacao;
 begin
-  Result := StrToEnumerado(ok, s, ['NENHUM', 'PROTESTAR', 'PROTESTAR_UTEIS','DEVOLVER','NEGATIVAR','NAO_NEGATIVAR'],
-                                  [cnNenhum, cnProtestarCorrido, cnProtestarUteis, cnNaoProtestar, cnNegativar, cnNaoNegativar]);
+  Result := StrToEnumerado(ok, s, ['NENHUM','PROTESTAR'       ,'PROTESTAR_UTEIS','DEVOLVER'    ,'NEGATIVAR','NAO_NEGATIVAR','CANCELAMENTO','NEGATIVAR_UTEIS'],
+                                  [cnNenhum,cnProtestarCorrido,cnProtestarUteis ,cnNaoProtestar,cnNegativar,cnNaoNegativar ,cnCancelamento,cnNegativarUteis]);
+
 
 end;
 
 function TipoNegativacaoToStr(const t: TACBrCodigoNegativacao): String;
 begin
-  Result := EnumeradoToStr(t, ['NENHUM', 'PROTESTAR', 'PROTESTAR_UTEIS','DEVOLVER','NEGATIVAR','NAO_NEGATIVAR'],
-                              [cnNenhum, cnProtestarCorrido, cnProtestarUteis, cnNaoProtestar, cnNegativar, cnNaoNegativar]);
+  Result := EnumeradoToStr(t, ['NENHUM', 'PROTESTAR'       ,'PROTESTAR_UTEIS','DEVOLVER'     ,'NEGATIVAR' ,'NAO_NEGATIVAR','CANCELAMENTO', 'NEGATIVAR_UTEIS'],
+                              [cnNenhum, cnProtestarCorrido, cnProtestarUteis, cnNaoProtestar, cnNegativar, cnNaoNegativar ,cnCancelamento, cnNegativarUteis]);
 
 end;
 

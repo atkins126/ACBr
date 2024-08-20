@@ -86,7 +86,7 @@ begin
    fpTamanhoMaximoNossoNum := 7;
    fpTamanhoCarteira   := 1;
    fpTamanhoConta      := 12;
-   fpCodigosMoraAceitos:= '012';
+   fpCodigosMoraAceitos:= '0123'; {0 isento CNAB, 3 IsentoAPI}
    fpLayoutVersaoArquivo := 81;
    fpLayoutVersaoLote    := 40;
    fpValorTotalDocs := 0;
@@ -1138,17 +1138,8 @@ begin
                       PadLeft('', 15, '0'))                               + // 75 - 89 Percentual de multa. Informar zeros se não cobrar
                space(10);                                                   // 90-99 Informações do sacado
 
-               if Mensagem.Count > 0 then
-               begin
-                 Result :=  Result + PadRight(Copy(Mensagem[0],1,40),40);    // 100-139 Menssagem livre
-
-                 if Mensagem.Count > 1 then
-                   Result := Result + PadRight(Copy(Mensagem[1],1,40),40)    // 140-179 Menssagem livre
-                 else
-                   Result := Result + Space(40);
-               end
-               else
-                 Result := Result + Space(80);
+               Result := Result + Space(80); // 100-139 Menssagem livre
+                                             // 140-179 Menssagem livre
 
                Result := Result +
                space(20)                                                  + // 180-199 Uso da FEBRABAN "Brancos"
@@ -1484,6 +1475,7 @@ begin
       toRetornoAbatimentoCancelado                          : Result :='13';
       toRetornoVencimentoAlterado                           : Result :='14';
       toRetornoLiquidadoEmCartorio                          : Result :='15';
+      toRetornoLiquidadoAposBaixaOuNaoRegistro              : Result :='17';
       toRetornoRecebimentoInstrucaoProtestar                : Result :='19';
       toRetornoDebitoEmConta                                : Result :='20';
       toRetornoNomeSacadoAlterado                           : Result :='21';

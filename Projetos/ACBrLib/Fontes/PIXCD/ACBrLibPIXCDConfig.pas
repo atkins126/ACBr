@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Antonio Carlos Junior                           }
 {                                                                              }
@@ -42,261 +42,398 @@ uses
 
 type
 
-  { TPIXCDMateraConfig }
-  TPIXCDMateraConfig = class
+  { TPIXCDPSPConfig }
 
+  TPIXCDPSPConfig = class
+    private
+      FScopes: TACBrPSPScopes;
+    protected
+      FSessaoPSP: String;
+    public
+      constructor Create;
+
+      procedure GravarIni(const AIni: TCustomIniFile); virtual;
+      procedure LerIni(const AIni: TCustomIniFile); virtual;
+
+      property Scopes: TACBrPSPScopes read FScopes write FScopes;
+  end;
+
+  { TPIXCDC6BankConfig }
+  TPIXCDC6BankConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FClientSecret: String;
+    FArqChavePrivada: String;
+    FArqCertificado: String;
+
+    public
+    Constructor Create;
+
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
+
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property ClientSecret: String read FClientSecret write FClientSecret;
+    property ArqChavePrivada: String read FArqChavePrivada write FArqChavePrivada;
+    property ArqCertificado: String read FArqCertificado write FArqCertificado;
+  end;
+
+  { TPIXCDBanrisulConfig }
+  TPIXCDBanrisulConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FClientSecret: String;
+    FArquivoCertificado: String;
+    FSenhaPFX: AnsiString;
+
+    public
+    Constructor Create;
+
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
+
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property ClientSecret: String read FClientSecret write FClientSecret;
+    property ArquivoCertificado: String read FArquivoCertificado write FArquivoCertificado;
+    property SenhaPFX: AnsiString read FSenhaPFX write FSenhaPFX;
+  end;
+
+  { TPIXCDGate2AllConfig }
+  TPIXCDGate2AllConfig = class(TPIXCDPSPConfig)
+    FAuthenticationApi: String;
+    FAuthenticationKey: String;
+
+    public
+    Constructor Create;
+
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
+
+    property AuthenticationApi: String read FAuthenticationApi write FAuthenticationApi;
+    property AuthenticationKey: String read FAuthenticationKey write FAuthenticationKey;
+  end;
+
+  { TPIXCDMercadoPagoConfig }
+  TPIXCDMercadoPagoConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FAccessToken: String;
+
+    public
+    Constructor Create;
+
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
+
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property AccessToken: String read FAccessToken write FAccessToken;
+  end;
+
+  { TPIXCDCieloConfig }
+  TPIXCDCieloConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FClientSecret: String;
+
+    public
+    Constructor Create;
+
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
+
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property ClientSecret: String read FClientSecret write FClientSecret;
+  end;
+
+  { TPIXCDMateraConfig }
+  TPIXCDMateraConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FSecretKey: String;
+    FClientSecret: String;
+    FArqCertificado: String;
+    FArqChavePrivada: String;
+    FAccountID: String;
+    FMediatorFee: Currency;
+
+    public
+    Constructor Create;
+
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
+
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property SecretKey: String read FSecretKey write FSecretKey;
+    property ClientSecret: String read FClientSecret write FClientSecret;
+    property ArqCertificado: String read FArqCertificado write FArqCertificado;
+    property ArqChavePrivada: String read FArqChavePrivada write FArqChavePrivada;
+    property AccountID: String read FAccountID write FAccountID;
+    property MediatorFee: Currency read FMediatorFee write FMediatorFee;
   end;
 
 
   { TPIXCDAilosConfig }
-  TPIXCDAilosConfig = class
-    FChavePIX: AnsiString;
-    FClientID: AnsiString;
-    FClientSecret: AnsiString;
-    FArqChavePrivada: AnsiString;
-    FArqCertificado: AnsiString;
-    FArqCertificadoRoot: AnsiString;
+  TPIXCDAilosConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FClientSecret: String;
+    FArqChavePrivada: String;
+    FArqCertificado: String;
+    FArqCertificadoRoot: String;
 
     public
     Constructor Create;
 
-    procedure LerIni(const AIni: TCustomIniFile);
-    procedure GravarIni(const AIni: TCustomIniFile);
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
 
-    property ChavePIX: AnsiString read FChavePIX write FChavePIX;
-    property ClientID: AnsiString read FClientID write FClientID;
-    property ClientSecret: AnsiString read FClientSecret write FClientSecret;
-    property ArqChavePrivada: AnsiString read FArqChavePrivada write FArqChavePrivada;
-    property ArqCertificado: AnsiString read FArqCertificado write FArqCertificado;
-    property ArqCertificadoRoot: AnsiString read FArqCertificadoRoot write FArqCertificadoRoot;
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property ClientSecret: String read FClientSecret write FClientSecret;
+    property ArqChavePrivada: String read FArqChavePrivada write FArqChavePrivada;
+    property ArqCertificado: String read FArqCertificado write FArqCertificado;
+    property ArqCertificadoRoot: String read FArqCertificadoRoot write FArqCertificadoRoot;
   end;
 
   { TPIXCDBancoDoBrasilConfig }
-  TPIXCDBancoDoBrasilConfig = class
-    FChavePIX: AnsiString;
-    FClientID: AnsiString;
-    FClientSecret: AnsiString;
-    FDeveloperApplicationKey: AnsiString;
-    FArqChavePrivada: AnsiString;
-    FArqCertificado: AnsiString;
-    FArqPFX: AnsiString;
+  TPIXCDBancoDoBrasilConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FClientSecret: String;
+    FDeveloperApplicationKey: String;
+    FArqChavePrivada: String;
+    FArqCertificado: String;
+    FArqPFX: String;
     FSenhaPFX: AnsiString;
-    FVersaoAPI: TACBrBBAPIVersao;
-    FTipoCertificado: Integer;
+    FBBAPIVersao: TACBrBBAPIVersao;
+    FAPIVersion: TACBrPIXAPIVersion;
 
     public
     Constructor Create;
 
-    procedure LerIni(const AIni: TCustomIniFile);
-    procedure GravarIni(const AIni: TCustomIniFile);
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
 
-    property ChavePIX: AnsiString read FChavePIX write FChavePIX;
-    property ClientID: AnsiString read FClientID write FClientID;
-    property ClientSecret: AnsiString read FClientSecret write FClientSecret;
-    property DeveloperApplicationKey: AnsiString read FDeveloperApplicationKey write FDeveloperApplicationKey;
-    property ArqChavePrivada: AnsiString read FArqChavePrivada write FArqChavePrivada;
-    property ArqCertificado: AnsiString read FArqCertificado write FArqCertificado;
-    property ArqPFX: AnsiString read FArqPFX write FArqPFX;
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property ClientSecret: String read FClientSecret write FClientSecret;
+    property DeveloperApplicationKey: String read FDeveloperApplicationKey write FDeveloperApplicationKey;
+    property ArqChavePrivada: String read FArqChavePrivada write FArqChavePrivada;
+    property ArqCertificado: String read FArqCertificado write FArqCertificado;
+    property ArqPFX: String read FArqPFX write FArqPFX;
     property SenhaPFX: AnsiString read FSenhaPFX write FSenhaPFX;
-    property VersaoAPI: TACBrBBAPIVersao read FVersaoAPI write FVersaoAPI;
-    property TipoCertificado: Integer read FTipoCertificado write FTipoCertificado;
+    property BBAPIVersao: TACBrBBAPIVersao read FBBAPIVersao write FBBAPIVersao;
+    property APIVersion: TACBrPIXAPIVersion read FAPIVersion write FAPIVersion;
   end;
 
   { TPIXCDGerenciaNetConfig }
-  TPIXCDGerenciaNetConfig = class
-    FChavePIX: AnsiString;
-    FClientID: AnsiString;
-    FClientSecret: AnsiString;
-    FArqPFX: Ansistring;
+  TPIXCDGerenciaNetConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FClientSecret: String;
+    FArqPFX: String;
 
     public
     constructor Create;
 
-    procedure LerIni(const AIni: TCustomIniFile);
-    procedure GravarIni(const AIni: TCustomIniFile);
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
 
-    property ChavePIX: AnsiString read FChavePIX write FChavePIX;
-    property ClientID: AnsiString read FClientID write FClientID;
-    property ClientSecret: AnsiString read FClientSecret write FClientSecret;
-    property ArqPFX: AnsiString read FArqPFX write FArqPFX;
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property ClientSecret: String read FClientSecret write FClientSecret;
+    property ArqPFX: String read FArqPFX write FArqPFX;
   end;
 
   { TPIXCDInterConfig }
-  TPIXCDInterConfig = class
-    FChavePIX: AnsiString;
-    FClientID: AnsiString;
-    FClientSecret: AnsiString;
-    FArqChavePrivada: AnsiString;
-    FArqCertificado: AnsiString;
+  TPIXCDInterConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FClientSecret: String;
+    FArqChavePrivada: String;
+    FArqCertificado: String;
 
     public
     constructor Create;
 
-    procedure LerIni(const AIni: TCustomIniFile);
-    procedure GravarIni(const AIni: TCustomIniFile);
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
 
-    property ChavePIX: AnsiString read FChavePIX write FChavePIX;
-    property ClientID: AnsiString read FClientID write FClientID;
-    property ClientSecret: AnsiString read FClientSecret write FClientSecret;
-    property ArqChavePrivada: AnsiString read FArqChavePrivada write FArqChavePrivada;
-    property ArqCertificado: AnsiString read FArqCertificado write FArqCertificado;
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property ClientSecret: String read FClientSecret write FClientSecret;
+    property ArqChavePrivada: String read FArqChavePrivada write FArqChavePrivada;
+    property ArqCertificado: String read FArqCertificado write FArqCertificado;
   end;
 
   { TPIXCDItauConfig }
-  TPIXCDItauConfig = class
-    FChavePIX: AnsiString;
-    FClientID: AnsiString;
-    FClientSecret: AnsiString;
-    FArqChavePrivada: AnsiString;
-    FArqCertificado: AnsiString;
+  TPIXCDItauConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FClientSecret: String;
+    FArqChavePrivada: String;
+    FArqCertificado: String;
+    FAPIVersion: TACBrPIXAPIVersion;
 
     public
     constructor Create;
 
-    procedure LerIni(const AIni: TCustomIniFile);
-    procedure GravarIni(const AIni: TCustomIniFile);
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
 
-    property ChavePIX: AnsiString read FChavePIX write FChavePIX;
-    property ClientID: AnsiString read FClientID write FClientID;
-    property ClientSecret: AnsiString read FClientSecret write FClientSecret;
-    property ArqChavePrivada: AnsiString read FArqChavePrivada write FArqChavePrivada;
-    property ArqCertificado: AnsiString read FArqCertificado write FArqCertificado;
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property ClientSecret: String read FClientSecret write FClientSecret;
+    property ArqChavePrivada: String read FArqChavePrivada write FArqChavePrivada;
+    property ArqCertificado: String read FArqCertificado write FArqCertificado;
+    property APIVersion: TACBrPIXAPIVersion read FAPIVersion write FAPIVersion;
   end;
 
   { TPIXCDPagSeguroConfig }
-  TPIXCDPagSeguroConfig = class
-    FChavePIX: AnsiString;
-    FClientID: AnsiString;
-    FClientSecret: AnsiString;
-    FArqChavePrivada: AnsiString;
-    FArqCertificado: AnsiString;
+  TPIXCDPagSeguroConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FClientSecret: String;
+    FArqChavePrivada: String;
+    FArqCertificado: String;
 
     public
     constructor Create;
 
-    procedure LerIni(const AIni: TCustomIniFile);
-    procedure GravarIni(const AIni: TCustomIniFile);
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
 
-    property ChavePIX: AnsiString read FChavePIX write FChavePIX;
-    property ClientID: AnsiString read FClientID write FClientID;
-    property ClientSecret: AnsiString read FClientSecret write FClientSecret;
-    property ArqChavePrivada: AnsiString read FArqChavePrivada write FArqChavePrivada;
-    property ArqCertificado: AnsiString read FArqCertificado write FArqCertificado;
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property ClientSecret: String read FClientSecret write FClientSecret;
+    property ArqChavePrivada: String read FArqChavePrivada write FArqChavePrivada;
+    property ArqCertificado: String read FArqCertificado write FArqCertificado;
   end;
 
   { TPIXCDPixPDVConfig }
-  TPIXCDPixPDVConfig = class
-    FCNPJ: AnsiString;
-    FToken: AnsiString;
-    FSecretKey: AnsiString;
+  TPIXCDPixPDVConfig = class(TPIXCDPSPConfig)
+    FCNPJ: String;
+    FToken: String;
+    FSecretKey: String;
 
     public
     constructor Create;
 
-    procedure LerIni(const AIni: TCustomIniFile);
-    procedure GravarIni(const AIni: TCustomIniFile);
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
 
-    property CNPJ: AnsiString read FCNPJ write FCNPJ;
-    property Token: AnsiString read FToken write FToken;
-    property SecretKey: AnsiString read FSecretKey write FSecretKey;
+    property CNPJ: String read FCNPJ write FCNPJ;
+    property Token: String read FToken write FToken;
+    property SecretKey: String read FSecretKey write FSecretKey;
   end;
 
   { TPIXCDSantanderConfig }
-  TPIXCDSantanderConfig = class
-    FChavePIX: AnsiString;
-    FConsumerKey: AnsiString;
-    FConsumerSecret: AnsiString;
-    FArqCertificadoPFX: AnsiString;
+  TPIXCDSantanderConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FConsumerKey: String;
+    FConsumerSecret: String;
+    FArqCertificadoPFX: String;
     FSenhaCertificadoPFX: AnsiString;
+    FAPIVersion: TACBrPIXAPIVersion;
 
     public
     constructor Create;
 
-    procedure LerIni(const AIni: TCustomIniFile);
-    procedure GravarIni(const AIni: TCustomIniFile);
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
 
-    property ChavePIX: AnsiString read FChavePIX write FChavePIX;
-    property ConsumerKey: AnsiString read FConsumerKey write FConsumerKey;
-    property ConsumerSecret: AnsiString read FConsumerSecret write FConsumerSecret;
-    property ArqCertificadoPFX: AnsiString read FArqCertificadoPFX write FArqCertificadoPFX;
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ConsumerKey: String read FConsumerKey write FConsumerKey;
+    property ConsumerSecret: String read FConsumerSecret write FConsumerSecret;
+    property ArqCertificadoPFX: String read FArqCertificadoPFX write FArqCertificadoPFX;
     property SenhaCertificadoPFX: AnsiString read FSenhaCertificadoPFX write FSenhaCertificadoPFX;
+    property APIVersion: TACBrPIXAPIVersion read FAPIVersion write FAPIVersion;
   end;
 
   { TPIXCDShipayConfig }
-  TPIXCDShipayConfig = class
-    FClientID: AnsiString;
-    FSecretKey: AnsiString;
-    FAccessKey: AnsiString;
+  TPIXCDShipayConfig = class(TPIXCDPSPConfig)
+    FClientID: String;
+    FSecretKey: String;
+    FAccessKey: String;
 
     public
     constructor Create;
 
-    procedure LerIni(const AIni: TCustomIniFile);
-    procedure GravarIni(const AIni: TCustomIniFile);
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
 
-    property ClientID: AnsiString read FClientID write FClientID;
-    property SecretKey: AnsiString read FSecretKey write FSecretKey;
-    property AccessKey: AnsiString read FAccessKey write FAccessKey;
+    property ClientID: String read FClientID write FClientID;
+    property SecretKey: String read FSecretKey write FSecretKey;
+    property AccessKey: String read FAccessKey write FAccessKey;
   end;
 
   { TPIXCDSiccobConfig }
-  TPIXCDSiccobConfig = class
-    FChavePIX: AnsiString;
-    FClientID: AnsiString;
-    FArqChavePrivada: AnsiString;
-    FArqCertificado: AnsiString;
+  TPIXCDSiccobConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FTokenSandbox: String;
+    FArqChavePrivada: String;
+    FArqCertificado: String;
+    FAPIVersion: TACBrPIXAPIVersion;
 
     public
     constructor Create;
 
-    procedure LerIni(const AIni: TCustomIniFile);
-    procedure GravarIni(const AIni: TCustomIniFile);
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
 
-    property ChavePIX: AnsiString read FChavePIX write FChavePIX;
-    property ClientID: AnsiString read FClientID write FChavePIX;
-    property ArqChavePrivada: AnsiString read FArqChavePrivada write FArqChavePrivada;
-    property ArqCertificado: AnsiString read FArqCertificado write FArqCertificado;
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property TokenSandbox: String read FTokenSandbox write FTokenSandbox;
+    property ArqChavePrivada: String read FArqChavePrivada write FArqChavePrivada;
+    property ArqCertificado: String read FArqCertificado write FArqCertificado;
+    property APIVersion: TACBrPIXAPIVersion read FAPIVersion write FAPIVersion;
   end;
 
   { TPIXCDSicrediConfig }
-  TPIXCDSicrediConfig = class
-    FChavePIX: AnsiString;
-    FClientID: AnsiString;
-    FClientSecret: AnsiString;
-    FArqChavePrivada: AnsiString;
-    FArqCertificado: AnsiString;
+  TPIXCDSicrediConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FClientSecret: String;
+    FArqChavePrivada: String;
+    FArqCertificado: String;
+    FAPIVersion: TACBrPIXAPIVersion;
 
     public
     constructor Create;
 
-    procedure LerIni(const AIni: TCustomIniFile);
-    procedure GravarIni(const AIni: TCustomIniFile);
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
 
-    property ChavePIX: AnsiString read FChavePIX write FChavePIX;
-    property ClientID: AnsiString read FClientID write FClientID;
-    property ClientSecret: AnsiString read FClientSecret write FClientSecret;
-    property ArqChavePrivada: AnsiString read FArqChavePrivada write FArqChavePrivada;
-    property ArqCertificado: AnsiString read FArqCertificado write FArqCertificado;
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property ClientSecret: String read FClientSecret write FClientSecret;
+    property ArqChavePrivada: String read FArqChavePrivada write FArqChavePrivada;
+    property ArqCertificado: String read FArqCertificado write FArqCertificado;
+    property APIVersion: TACBrPIXAPIVersion read FAPIVersion write FAPIVersion;
   end;
 
   {TPIXCDBradescoConfig}
-  TPIXCDBradescoConfig = class
-    FChavePIX: AnsiString;
-    FClientID: AnsiString;
-    FClientSecret: AnsiString;
-    FArqPFX: AnsiString;
+  TPIXCDBradescoConfig = class(TPIXCDPSPConfig)
+    FChavePIX: String;
+    FClientID: String;
+    FClientSecret: String;
+    FArqPFX: String;
     FSenhaPFX: AnsiString;
 
     public
     constructor Create;
 
-    procedure LerIni(const AIni: TCustomIniFile);
-    procedure GravarIni(const AIni: TCustomIniFile);
+    procedure LerIni(const AIni: TCustomIniFile); override;
+    procedure GravarIni(const AIni: TCustomIniFile); override;
 
-    property ChavePIX: AnsiString read FChavePIX write FChavePIX;
-    property ClientID: AnsiString read FClientID write FClientID;
-    property ClientSecret: AnsiString read FClientSecret write FClientSecret;
-    property ArqPFX: AnsiString read FArqPFX write FArqPFX;
+    property ChavePIX: String read FChavePIX write FChavePIX;
+    property ClientID: String read FClientID write FClientID;
+    property ClientSecret: String read FClientSecret write FClientSecret;
+    property ArqPFX: String read FArqPFX write FArqPFX;
     property SenhaPFX: AnsiString read FSenhaPFX write FSenhaPFX;
   end;
 
@@ -349,6 +486,11 @@ type
       FPIXCDBancoDoBrasilConfig: TPIXCDBancoDoBrasilConfig;
       FPIXCDAilosConfig: TPIXCDAilosConfig;
       FPIXCDMateraConfig: TPIXCDMateraConfig;
+      FPIXCDCieloConfig: TPIXCDCieloConfig;
+      FPIXCDMercadoPagoConfig: TPIXCDMercadoPagoConfig;
+      FPIXCDGate2All: TPIXCDGate2AllConfig;
+      FPIXCDBanrisul: TPIXCDBanrisulConfig;
+      FPIXCDC6Bank: TPIXCDC6BankConfig;
 
     protected
 
@@ -379,12 +521,20 @@ type
       property PIXCDBancoDoBrasil: TPIXCDBancoDoBrasilConfig read FPIXCDBancoDoBrasilConfig;
       property PIXCDAilos:         TPIXCDAilosConfig read FPIXCDAilosConfig;
       property PIXCDMatera:        TPIXCDMateraConfig read FPIXCDMateraConfig;
+      property PIXCDCielo:         TPIXCDCieloConfig read FPIXCDCieloConfig;
+      property PIXCDMercadoPago:   TPIXCDMercadoPagoConfig read FPIXCDMercadoPagoConfig;
+      property PIXCDGate2All:      TPIXCDGate2AllConfig read FPIXCDGate2All;
+      property PIXCDBanrisul:      TPIXCDBanrisulConfig read FPIXCDBanrisul;
+      property PIXCDC6Bank:        TPIXCDC6BankConfig read FPIXCDC6Bank;
   end;
+
+  function StringToSetOfPSPScopes(const AOriginalString: String): TACBrPSPScopes;
+  function SetOfPSPScopesToString(const ASetOfScopes: TACBrPSPScopes): String;
 
 implementation
 
 Uses
-  ACBrLibPIXCDBase, ACBrLibPIXCDConsts, ACBrLibConsts, ACBrLibComum, ACBrUtil.FilesIO, ACBrUtil.Strings;
+  ACBrLibPIXCDBase, ACBrLibPIXCDConsts, ACBrLibConsts, ACBrUtil.FilesIO, ACBrUtil.Strings, TypInfo;
 
 { TLibPIXCDConfig }
 constructor TLibPIXCDConfig.Create(AOwner: TObject; ANomeArquivo: String; AChaveCrypt: AnsiString);
@@ -404,7 +554,12 @@ begin
   FPIXCDGerenciaNetConfig := TPIXCDGerenciaNetConfig.Create;
   FPIXCDBancoDoBrasilConfig := TPIXCDBancoDoBrasilConfig.Create;
   FPIXCDAilosConfig := TPIXCDAilosConfig.Create;
-  //FPIXCDMateraConfig := TPIXCDMatera.Create;
+  FPIXCDMateraConfig := TPIXCDMateraConfig.Create;
+  FPIXCDCieloConfig := TPIXCDCieloConfig.Create;
+  FPIXCDMercadoPagoConfig := TPIXCDMercadoPagoConfig.Create;
+  FPIXCDGate2All := TPIXCDGate2AllConfig.Create;
+  FPIXCDBanrisul := TPIXCDBanrisulConfig.Create;
+  FPIXCDC6Bank := TPIXCDC6BankConfig.Create;
 end;
 
 destructor TLibPIXCDConfig.Destroy;
@@ -422,7 +577,12 @@ begin
   FPIXCDGerenciaNetConfig.Free;
   FPIXCDBancoDoBrasilConfig.Free;
   FPIXCDAilosConfig.Free;
-  //FPIXCDMateraConfig.Free;
+  FPIXCDMateraConfig.Free;
+  FPIXCDCieloConfig.Free;
+  FPIXCDMercadoPagoConfig.Free;
+  FPIXCDGate2All.Free;
+  FPIXCDBanrisul.Free;
+  FPIXCDC6Bank.Free;
 
   inherited Destroy;
 end;
@@ -453,7 +613,12 @@ begin
   FPIXCDGerenciaNetConfig.LerIni(Ini);
   FPIXCDBancoDoBrasilConfig.LerIni(Ini);
   FPIXCDAilosConfig.LerIni(Ini);
-  //FPIXCDMateraConfig.LerIni(Ini);
+  FPIXCDMateraConfig.LerIni(Ini);
+  FPIXCDCieloConfig.LerIni(Ini);
+  FPIXCDMercadoPagoConfig.LerIni(Ini);
+  FPIXCDGate2All.LerIni(Ini);
+  FPIXCDBanrisul.LerIni(Ini);
+  FPIXCDC6Bank.LerIni(Ini);
 end;
 
 procedure TLibPIXCDConfig.ClasseParaINI;
@@ -475,7 +640,12 @@ begin
   FPIXCDGerenciaNetConfig.GravarIni(Ini);
   FPIXCDBancoDoBrasilConfig.GravarIni(Ini);
   FPIXCDAilosConfig.GravarIni(Ini);
-  //FPIXCDMateraConfig.GravarIni(Ini);
+  FPIXCDMateraConfig.GravarIni(Ini);
+  FPIXCDCieloConfig.GravarIni(Ini);
+  FPIXCDMercadoPagoConfig.GravarIni(Ini);
+  FPIXCDGate2All.GravarIni(Ini);
+  FPIXCDBanrisul.GravarIni(Ini);
+  FPIXCDC6Bank.GravarIni(Ini);
 end;
 
 procedure TLibPIXCDConfig.ClasseParaComponentes;
@@ -508,7 +678,7 @@ begin
   inherited;
   FPSP := PSP;
   FAmbiente := ambTeste;
-  FArqLOG := '';
+  FArqLOG := EmptyStr;
   FDadosAutomacao := TACBrPixDadosAutomacao.Create;
   FNivelLog := 1;
   FProxy := TACBrHttpProxy.Create;
@@ -530,6 +700,10 @@ procedure TPIXCDConfig.LerIni(const AIni: TCustomIniFile);
 begin
   Ambiente := TACBrPixCDAmbiente(AIni.ReadInteger(CSessaoPixCDConfig, CChaveAmbiente, integer(Ambiente)));
   ArqLog   := AIni.ReadString(CSessaoPixCDConfig, CChaveArqLogPixCD, ArqLog);
+  NivelLog := AIni.ReadInteger(CSessaoPixCDConfig, CChaveNivelLog, NivelLog);
+  TipoChave:= TACBrPIXTipoChave(AIni.ReadInteger(CSessaoPixCDConfig, CChaveTipoChave, Integer(TipoChave)));
+  PSP := TACBrPIXPSP(AIni.ReadInteger(CSessaoPixCDConfig, CChavePSP, Integer(PSP)));
+  TimeOut:= AIni.ReadInteger(CSessaoPixCDConfig, CChaveTimeOut, TimeOut);
 
   with DadosAutomacao do
   begin
@@ -539,8 +713,6 @@ begin
     VersaoAplicacao := AIni.ReadString(CSessaoPixCDConfig, CChaveVersaoAplicacao, VersaoAplicacao);
   end;
 
-  NivelLog := AIni.ReadInteger(CSessaoPixCDConfig, CChaveNivelLog, NivelLog);
-
   with Proxy do
   begin
     Host := AIni.ReadString(CSessaoPixCDConfig, CChaveProxyHost, Host);
@@ -549,25 +721,24 @@ begin
     User := AIni.ReadString(CSessaoPixCDConfig, CChaveProxyUser, User);
   end;
 
-  TipoChave:= TACBrPIXTipoChave(AIni.ReadInteger(CSessaoPixCDConfig, CChaveTipoChave, Integer(TipoChave)));
-  PSP := TACBrPIXPSP(AIni.ReadInteger(CSessaoPixCDConfig, CChavePSP, Integer(PSP)));
-
   with Recebedor do
   begin
+    CodCategoriaComerciante := AIni.ReadInteger(CSessaoPixCDConfig, CChaveCodCategoriaComerciante, CodCategoriaComerciante);
     CEP := AIni.ReadString(CSessaoPixCDConfig, CChaveCEPRecebedor, CEP);
     Cidade := AIni.ReadString(CSessaoPixCDConfig, CChaveCidadeRecebedor, Cidade);
-    CodCategoriaComerciante := AIni.ReadInteger(CSessaoPixCDConfig, CChaveCodCategoriaComerciante, CodCategoriaComerciante);
     Nome := AIni.ReadString(CSessaoPixCDConfig, CChaveNomeRecebedor, Nome);
     UF := AIni.ReadString(CSessaoPixCDConfig, CChaveUFRecebedor, UF);
   end;
-
-  TimeOut:= AIni.ReadInteger(CSessaoPixCDConfig, CChaveTimeOut, TimeOut);
 end;
 
 procedure TPIXCDConfig.GravarIni(const AIni: TCustomIniFile);
 begin
   AIni.WriteInteger(CSessaoPixCDConfig, CChaveAmbiente, integer(Ambiente));
   AIni.WriteString(CSessaoPixCDConfig, CChaveArqLogPixCD, ArqLog);
+  AIni.WriteInteger(CSessaoPixCDConfig, CChaveNivelLog, NivelLog);
+  AIni.WriteInteger(CSessaoPixCDConfig, CChaveTipoChave, Integer(TipoChave));
+  AIni.WriteInteger(CSessaoPixCDConfig, CChavePSP, Integer(PSP));
+  AIni.WriteInteger(CSessaoPixCDConfig, CChaveTimeOut, TimeOut);
 
   with DadosAutomacao do
   begin
@@ -577,8 +748,6 @@ begin
     AIni.WriteString(CSessaoPixCDConfig, CChaveVersaoAplicacao, VersaoAplicacao);
   end;
 
-  AIni.WriteInteger(CSessaoPixCDConfig, CChaveNivelLog, NivelLog);
-
   with Proxy do
   begin
     AIni.WriteString(CSessaoPixCDConfig, CChaveProxyHost, Host);
@@ -587,355 +756,658 @@ begin
     AIni.WriteString(CSessaoPixCDConfig, CChaveProxyUser, User);
   end;
 
-  AIni.WriteInteger(CSessaoPixCDConfig, CChaveTipoChave, Integer(TipoChave));
-  AIni.WriteInteger(CSessaoPixCDConfig, CChavePSP, Integer(PSP));
-
   with Recebedor do
   begin
+    AIni.WriteInteger(CSessaoPixCDConfig, CChaveCodCategoriaComerciante, CodCategoriaComerciante);
     AIni.WriteString(CSessaoPixCDConfig, CChaveCEPRecebedor, CEP);
     AIni.WriteString(CSessaoPixCDConfig, CChaveCidadeRecebedor, Cidade);
-    AIni.WriteInteger(CSessaoPixCDConfig, CChaveCodCategoriaComerciante, CodCategoriaComerciante);
     AIni.WriteString(CSessaoPixCDConfig, CChaveNomeRecebedor, Nome);
     AIni.WriteString(CSessaoPixCDConfig, CChaveUFRecebedor, UF);
   end;
-
-  AIni.WriteInteger(CSessaoPixCDConfig, CChaveTimeOut, TimeOut);
 end;
 
 { TPIXCDBradescoConfig }
 constructor TPIXCDBradescoConfig.Create;
 begin
-  FChavePIX := '';
-  FClientID := '';
-  FClientSecret := '';
-  FArqPFX := '';
-  FSenhaPFX := '';
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FClientID := EmptyStr;
+  FClientSecret := EmptyStr;
+  FArqPFX := EmptyStr;
+  FSenhaPFX := EmptyStr;
+  FSessaoPSP := CSessaoPIXCDBradescoConfig;
 end;
 
 procedure TPIXCDBradescoConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  ChavePIX := Aini.ReadString(CSessaoPixCDBradescoConfig, CChavePIXBradesco, ChavePIX);
-  ClientID := AIni.ReadString(CSessaoPixCDBradescoConfig, CChaveClientIDBradesco, ClientID);
-  ClientSecret:= AIni.ReadString(CSessaoPixCDBradescoConfig, CChaveClientSecretBradesco, ClientSecret);
-  ArqPFX := AIni.ReadString(CSessaoPixCDBradescoConfig, CChaveArqPFXBradesco, ArqPFX);
-  SenhaPFX := AIni.ReadString(CSessaoPixCDBradescoConfig, CChaveSenhaPFXBradesco, SenhaPFX);
+  inherited LerIni(AIni);
+  ChavePIX := Aini.ReadString(CSessaoPIXCDBradescoConfig, CChavePIXBradesco, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDBradescoConfig, CChaveClientIDBradesco, ClientID);
+  ClientSecret:= AIni.ReadString(CSessaoPIXCDBradescoConfig, CChaveClientSecretBradesco, ClientSecret);
+  ArqPFX := AIni.ReadString(CSessaoPIXCDBradescoConfig, CChaveArqPFXBradesco, ArqPFX);
+  SenhaPFX := AIni.ReadString(CSessaoPIXCDBradescoConfig, CChaveSenhaPFXBradesco, SenhaPFX);
 end;
 
 procedure TPIXCDBradescoConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoPixCDBradescoConfig, CChavePIXBradesco, ChavePIX);
-  AIni.WriteString(CSessaoPixCDBradescoConfig, CChaveClientIDBradesco, ClientID);
-  AIni.WriteString(CSessaoPixCDBradescoConfig, CChaveClientSecretBradesco, ClientSecret);
-  AIni.WriteString(CSessaoPixCDBradescoConfig, CChaveArqPFXBradesco, CChaveArqPFXBradesco);
-  AIni.WriteString(CSessaoPixCDBradescoConfig, CChaveSenhaPFXBradesco, SenhaPFX);
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDBradescoConfig, CChavePIXBradesco, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDBradescoConfig, CChaveClientIDBradesco, ClientID);
+  AIni.WriteString(CSessaoPIXCDBradescoConfig, CChaveClientSecretBradesco, ClientSecret);
+  AIni.WriteString(CSessaoPIXCDBradescoConfig, CChaveArqPFXBradesco, ArqPFX);
+  AIni.WriteString(CSessaoPIXCDBradescoConfig, CChaveSenhaPFXBradesco, SenhaPFX);
 end;
 
 { TPIXCDSicrediConfig }
 constructor TPIXCDSicrediConfig.Create;
 begin
-  FChavePIX := '';
-  FClientID := '';
-  FClientSecret := '';
-  FArqChavePrivada := '';
-  FArqCertificado := '';
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FClientID := EmptyStr;
+  FClientSecret := EmptyStr;
+  FArqChavePrivada := EmptyStr;
+  FArqCertificado := EmptyStr;
+  FAPIVersion:= ver262;
+  FSessaoPSP := CSessaoPIXCDSicrediConfig;
 end;
 
 procedure TPIXCDSicrediConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  ChavePIX := AIni.ReadString(CSessaoPixCDSicrediConfig, CChavePIXSicredi, ChavePIX);
-  ClientID := AIni.ReadString(CSessaoPixCDSicrediConfig, CChaveClientIDSicredi, ClientID);
-  ClientSecret := AIni.ReadString(CSessaoPixCDSicrediConfig, CChaveClientSecretSicredi, ClientSecret);
-  ArqChavePrivada := AIni.ReadString(CSessaoPixCDSicrediConfig, CChaveArqChavePrivadaSicredi, ArqChavePrivada);
-  ArqCertificado := AIni.ReadString(CSessaoPixCDSicrediConfig, CChaveArqCertificadoSicredi, ArqCertificado);
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDSicrediConfig, CChavePIXSicredi, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDSicrediConfig, CChaveClientIDSicredi, ClientID);
+  ClientSecret := AIni.ReadString(CSessaoPIXCDSicrediConfig, CChaveClientSecretSicredi, ClientSecret);
+  ArqChavePrivada := AIni.ReadString(CSessaoPIXCDSicrediConfig, CChaveArqChavePrivadaSicredi, ArqChavePrivada);
+  ArqCertificado := AIni.ReadString(CSessaoPIXCDSicrediConfig, CChaveArqCertificadoSicredi, ArqCertificado);
+  APIVersion := TACBrPIXAPIVersion(AIni.ReadInteger(CSessaoPIXCDSicrediConfig, CChaveAPIVersionSicredi, Integer(APIVersion)));
 end;
 
 procedure TPIXCDSicrediConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoPixCDSicrediConfig, CChavePIXSicredi, ChavePIX);
-  AIni.WriteString(CSessaoPixCDSicrediConfig, CChaveClientIDSicredi, ClientID);
-  AIni.WriteString(CSessaoPixCDSicrediConfig, CChaveClientSecretSicredi, ClientSecret);
-  AIni.WriteString(CSessaoPixCDSicrediConfig, CChaveArqChavePrivadaSicredi, ArqChavePrivada);
-  AIni.WriteString(CSessaoPixCDSicrediConfig, CChaveArqCertificadoSicredi, ArqCertificado);
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDSicrediConfig, CChavePIXSicredi, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDSicrediConfig, CChaveClientIDSicredi, ClientID);
+  AIni.WriteString(CSessaoPIXCDSicrediConfig, CChaveClientSecretSicredi, ClientSecret);
+  AIni.WriteString(CSessaoPIXCDSicrediConfig, CChaveArqChavePrivadaSicredi, ArqChavePrivada);
+  AIni.WriteString(CSessaoPIXCDSicrediConfig, CChaveArqCertificadoSicredi, ArqCertificado);
+  AIni.WriteInteger(CSessaoPIXCDSicrediConfig, CChaveAPIVersionSicredi, Integer(APIVersion));
 end;
 
 { TPIXCDSiccobConfig }
 constructor TPIXCDSiccobConfig.Create;
 begin
-  FChavePIX := '';
-  FClientID := '';
-  FArqChavePrivada := '';
-  FArqCertificado := '';
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FClientID := EmptyStr;
+  FTokenSandbox := EmptyStr;
+  FArqChavePrivada := EmptyStr;
+  FArqCertificado := EmptyStr;
+  FAPIVersion := ver262;
+  FSessaoPSP := CSessaoPIXCDSicoobConfig;
 end;
 
 procedure TPIXCDSiccobConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  ChavePIX := AIni.ReadString(CSessaoPixCDSicoobConfig, CChavePIXSicoob, ChavePIX);
-  ClientID := AIni.ReadString(CSessaoPixCDSicoobConfig, CChaveClientIDSicoob, ClientID);
-  ArqChavePrivada := AIni.ReadString(CSessaoPixCDSicoobConfig, CChaveArqChavePrivadaSicoob, ArqChavePrivada);
-  ArqCertificado := AIni.ReadString(CSessaoPixCDSicoobConfig, CChaveArqCertificadoSicoob, ArqCertificado);
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDSicoobConfig, CChavePIXSicoob, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDSicoobConfig, CChaveClientIDSicoob, ClientID);
+  TokenSandbox := AIni.ReadString(CSessaoPIXCDSicoobConfig, CChaveTokenSandboxSicoob, TokenSandbox);
+  ArqChavePrivada := AIni.ReadString(CSessaoPIXCDSicoobConfig, CChaveArqChavePrivadaSicoob, ArqChavePrivada);
+  ArqCertificado := AIni.ReadString(CSessaoPIXCDSicoobConfig, CChaveArqCertificadoSicoob, ArqCertificado);
+  APIVersion := TACBrPIXAPIVersion(AIni.ReadInteger(CSessaoPIXCDSicoobConfig, CChaveAPIVersionSicoob, Integer(APIVersion)));
 end;
 
 procedure TPIXCDSiccobConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoPixCDSicoobConfig, CChavePIXSicoob, ChavePIX);
-  AIni.WriteString(CSessaoPixCDSicoobConfig, CChaveClientIDSicoob, ClientID);
-  Aini.WriteString(CSessaoPixCDSicoobConfig, CChaveArqChavePrivadaSicoob, ArqChavePrivada);
-  AIni.WriteString(CSessaoPixCDSicoobConfig, CChaveArqCertificadoSicoob, ArqCertificado);
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDSicoobConfig, CChavePIXSicoob, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDSicoobConfig, CChaveClientIDSicoob, ClientID);
+  AIni.WriteString(CSessaoPIXCDSicoobConfig, CChaveTokenSandboxSicoob, TokenSandbox);
+  Aini.WriteString(CSessaoPIXCDSicoobConfig, CChaveArqChavePrivadaSicoob, ArqChavePrivada);
+  AIni.WriteString(CSessaoPIXCDSicoobConfig, CChaveArqCertificadoSicoob, ArqCertificado);
+  AIni.WriteInteger(CSessaoPIXCDSicoobConfig, CChaveAPIVersionSicoob, Integer(APIVersion));
 end;
 
 { TPIXCDShipayConfig }
 constructor TPIXCDShipayConfig.Create;
 begin
-  FClientID := '';
-  FSecretKey := '';
-  FAccessKey := '';
+  inherited Create;
+  FClientID := EmptyStr;
+  FSecretKey := EmptyStr;
+  FAccessKey := EmptyStr;
+  FSessaoPSP := CSessaoPIXCDShipayConfig;
 end;
 
 procedure TPIXCDShipayConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  ClientID := AIni.ReadString(CSessaoPixCDShipayConfig, CChaveClientIDShipay, ClientID);
-  SecretKey := AIni.ReadString(CSessaoPixCDShipayConfig, CChaveSecretKeyShipay, SecretKey);
-  AccessKey := AIni.ReadString(CSessaoPixCDShipayConfig, CChaveAccessKey, AccessKey);
+  inherited LerIni(AIni);
+  ClientID := AIni.ReadString(CSessaoPIXCDShipayConfig, CChaveClientIDShipay, ClientID);
+  SecretKey := AIni.ReadString(CSessaoPIXCDShipayConfig, CChaveSecretKeyShipay, SecretKey);
+  AccessKey := AIni.ReadString(CSessaoPIXCDShipayConfig, CChaveAccessKeyShipay, AccessKey);
 end;
 
 procedure TPIXCDShipayConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoPixCDShipayConfig, CChaveClientIDShipay, ClientID);
-  AIni.WriteString(CSessaoPixCDShipayConfig, CChaveSecretKeyShipay, SecretKey);
-  AIni.WriteString(CSessaoPixCDShipayConfig, CChaveAccessKey, AccessKey);
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDShipayConfig, CChaveClientIDShipay, ClientID);
+  AIni.WriteString(CSessaoPIXCDShipayConfig, CChaveSecretKeyShipay, SecretKey);
+  AIni.WriteString(CSessaoPIXCDShipayConfig, CChaveAccessKeyShipay, AccessKey);
 end;
 
 { TPIXCDSantanderConfig }
 constructor TPIXCDSantanderConfig.Create;
 begin
-  FChavePIX := '';
-  FConsumerKey := '';
-  FConsumerSecret := '';
-  FArqCertificadoPFX := '';
-  FSenhaCertificadoPFX := '';
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FConsumerKey := EmptyStr;
+  FConsumerSecret := EmptyStr;
+  FArqCertificadoPFX := EmptyStr;
+  FSenhaCertificadoPFX := EmptyStr;
+  FAPIVersion:= ver262;
+  FSessaoPSP := CSessaoPIXCDSantanderConfig;
 end;
 
 procedure TPIXCDSantanderConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  ChavePIX := AIni.ReadString(CSessaoPixCDSantanderConfig, CChavePIXSantander, ChavePIX);
-  ConsumerKey := AIni.ReadString(CSessaoPixCDSantanderConfig, CChaveConsumerKey, ConsumerKey);
-  ConsumerSecret := AIni.ReadString(CSessaoPixCDSantanderConfig, CChaveConsumerSecret, ConsumerSecret);
-  ArqCertificadoPFX := AIni.ReadString(CSessaoPixCDSantanderConfig, CChaveArqCertificadoPFX, ArqCertificadoPFX);
-  SenhaCertificadoPFX := AIni.ReadString(CSessaoPixCDSantanderConfig, CChaveSenhaCertificadoPFX, SenhaCertificadoPFX);
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDSantanderConfig, CChavePIXSantander, ChavePIX);
+  ConsumerKey := AIni.ReadString(CSessaoPIXCDSantanderConfig, CChaveConsumerKeySantander, ConsumerKey);
+  ConsumerSecret := AIni.ReadString(CSessaoPIXCDSantanderConfig, CChaveConsumerSecretSantander, ConsumerSecret);
+  ArqCertificadoPFX := AIni.ReadString(CSessaoPIXCDSantanderConfig, CChaveArqCertificadoPFXSantander, ArqCertificadoPFX);
+  SenhaCertificadoPFX := AIni.ReadString(CSessaoPIXCDSantanderConfig, CChaveSenhaCertificadoPFXSantander, SenhaCertificadoPFX);
+  APIVersion := TACBrPIXAPIVersion(AIni.ReadInteger(CSessaoPIXCDSantanderConfig, CChaveAPIVersionSantander, Integer(APIVersion)));
 end;
 
 procedure TPIXCDSantanderConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoPixCDSantanderConfig, CChavePIXSantander, ChavePIX);
-  AIni.WriteString(CSessaoPixCDSantanderConfig, CChaveConsumerKey, ConsumerKey);
-  AIni.WriteString(CSessaoPixCDSantanderConfig, CChaveConsumerSecret, ConsumerSecret);
-  AIni.WriteString(CSessaoPixCDSantanderConfig, CChaveArqCertificadoPFX, ArqCertificadoPFX);
-  AIni.WriteString(CSessaoPixCDSantanderConfig, CChaveSenhaCertificadoPFX, SenhaCertificadoPFX);
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDSantanderConfig, CChavePIXSantander, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDSantanderConfig, CChaveConsumerKeySantander, ConsumerKey);
+  AIni.WriteString(CSessaoPIXCDSantanderConfig, CChaveConsumerSecretSantander, ConsumerSecret);
+  AIni.WriteString(CSessaoPIXCDSantanderConfig, CChaveArqCertificadoPFXSantander, ArqCertificadoPFX);
+  AIni.WriteString(CSessaoPIXCDSantanderConfig, CChaveSenhaCertificadoPFXSantander, SenhaCertificadoPFX);
+  AIni.WriteInteger(CSessaoPIXCDSantanderConfig, CChaveAPIVersionSantander, Integer(APIVersion));
 end;
 
 { TPIXCDPixPDVConfig }
 constructor TPIXCDPixPDVConfig.Create;
 begin
-  FCNPJ := '';
-  FToken := '';
-  FSecretKey := '';
+  inherited Create;
+  FCNPJ := EmptyStr;
+  FToken := EmptyStr;
+  FSecretKey := EmptyStr;
+  FSessaoPSP := CSessaoPIXCDPixPDVConfig;
 end;
 
 procedure TPIXCDPixPDVConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  CNPJ := AIni.ReadString(CSessaoPixCDPixPDVConfig, CChaveCNPJPixPDV, CNPJ);
-  Token := AIni.ReadString(CSessaoPixCDPixPDVConfig, CChaveToken, Token);
-  SecretKey := AIni.ReadString(CSessaoPixCDPixPDVConfig, CChaveSecretKeyPixPDV, SecretKey);
+  inherited LerIni(AIni);
+  CNPJ := AIni.ReadString(CSessaoPIXCDPixPDVConfig, CChaveCNPJPixPDV, CNPJ);
+  Token := AIni.ReadString(CSessaoPIXCDPixPDVConfig, CChaveToken, Token);
+  SecretKey := AIni.ReadString(CSessaoPIXCDPixPDVConfig, CChaveSecretKeyPixPDV, SecretKey);
 end;
 
 procedure TPIXCDPixPDVConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoPixCDPixPDVConfig, CChaveCNPJPixPDV, CNPJ);
-  AIni.WriteString(CSessaoPixCDPixPDVConfig, CChaveToken, Token);
-  AIni.WriteString(CSessaoPixCDPixPDVConfig, CChaveSecretKeyPixPDV, SecretKey);
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDPixPDVConfig, CChaveCNPJPixPDV, CNPJ);
+  AIni.WriteString(CSessaoPIXCDPixPDVConfig, CChaveToken, Token);
+  AIni.WriteString(CSessaoPIXCDPixPDVConfig, CChaveSecretKeyPixPDV, SecretKey);
 end;
 
 { TPIXCDPagSeguroConfig }
 constructor TPIXCDPagSeguroConfig.Create;
 begin
-  FChavePIX := '';
-  FClientID := '';
-  FClientSecret := '';
-  FArqChavePrivada := '';
-  FArqCertificado := '';
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FClientID := EmptyStr;
+  FClientSecret := EmptyStr;
+  FArqChavePrivada := EmptyStr;
+  FArqCertificado := EmptyStr;
+  FSessaoPSP := CSessaoPIXCDPagSeguroConfig;
 end;
 
 procedure TPIXCDPagSeguroConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  ChavePIX := AIni.ReadString(CSessaoPixCDPagSeguroConfig, CChavePIXPagSeguro, ChavePIX);
-  ClientID := AIni.ReadString(CSessaoPixCDPagSeguroConfig, CChaveClientIDPagSeguro, ClientID);
-  ClientSecret := AIni.ReadString(CSessaoPixCDPagSeguroConfig, CChaveClientSecretPagSeguro, ClientSecret);
-  ArqChavePrivada := AIni.ReadString(CSessaoPixCDPagSeguroConfig, CChaveArqChavePrivadaPagSeguro, ArqChavePrivada);
-  ArqCertificado := AIni.ReadString(CSessaoPixCDPagSeguroConfig, CChaveArqCertificadoPagSeguro, ArqCertificado);
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDPagSeguroConfig, CChavePIXPagSeguro, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDPagSeguroConfig, CChaveClientIDPagSeguro, ClientID);
+  ClientSecret := AIni.ReadString(CSessaoPIXCDPagSeguroConfig, CChaveClientSecretPagSeguro, ClientSecret);
+  ArqChavePrivada := AIni.ReadString(CSessaoPIXCDPagSeguroConfig, CChaveArqChavePrivadaPagSeguro, ArqChavePrivada);
+  ArqCertificado := AIni.ReadString(CSessaoPIXCDPagSeguroConfig, CChaveArqCertificadoPagSeguro, ArqCertificado);
 end;
 
 procedure TPIXCDPagSeguroConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoPixCDPagSeguroConfig, CChavePIXPagSeguro, ChavePIX);
-  AIni.WriteString(CSessaoPixCDPagSeguroConfig, CChaveClientIDPagSeguro, ClientID);
-  AIni.WriteString(CSessaoPixCDPagSeguroConfig, CChaveClientSecretPagSeguro, ClientSecret);
-  AIni.WriteString(CSessaoPixCDPagSeguroConfig, CChaveArqChavePrivadaPagSeguro, ArqChavePrivada);
-  AIni.WriteString(CSessaoPixCDPagSeguroConfig, CChaveArqCertificadoPagSeguro, ArqCertificado);
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDPagSeguroConfig, CChavePIXPagSeguro, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDPagSeguroConfig, CChaveClientIDPagSeguro, ClientID);
+  AIni.WriteString(CSessaoPIXCDPagSeguroConfig, CChaveClientSecretPagSeguro, ClientSecret);
+  AIni.WriteString(CSessaoPIXCDPagSeguroConfig, CChaveArqChavePrivadaPagSeguro, ArqChavePrivada);
+  AIni.WriteString(CSessaoPIXCDPagSeguroConfig, CChaveArqCertificadoPagSeguro, ArqCertificado);
 end;
 
 { TPIXCDItauConfig }
 constructor TPIXCDItauConfig.Create;
 begin
-  FChavePIX := '';
-  FClientID := '';
-  FClientSecret := '';
-  FArqChavePrivada := '';
-  FArqCertificado := '';
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FClientID := EmptyStr;
+  FClientSecret := EmptyStr;
+  FArqChavePrivada := EmptyStr;
+  FArqCertificado := EmptyStr;
+  FAPIVersion:= ver262;
+  FSessaoPSP := CSessaoPIXCDItauConfig;
 end;
 
 procedure TPIXCDItauConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  ChavePIX := AIni.ReadString(CSessaoPixCDItauConfig, CChavePIXItau, ChavePIX);
-  ClientID := AIni.ReadString(CSessaoPixCDItauConfig, CChaveClientIDItau, ClientID);
-  ClientSecret := AIni.ReadString(CSessaoPixCDItauConfig, CChaveClientSecretItau, ClientSecret);
-  ArqChavePrivada := AIni.ReadString(CSessaoPixCDItauConfig, CChaveArqChavePrivadaItau, ArqChavePrivada);
-  ArqCertificado := AIni.ReadString(CSessaoPixCDItauConfig, CChaveArqCertificadoItau, ArqCertificado);
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDItauConfig, CChavePIXItau, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDItauConfig, CChaveClientIDItau, ClientID);
+  ClientSecret := AIni.ReadString(CSessaoPIXCDItauConfig, CChaveClientSecretItau, ClientSecret);
+  ArqChavePrivada := AIni.ReadString(CSessaoPIXCDItauConfig, CChaveArqChavePrivadaItau, ArqChavePrivada);
+  ArqCertificado := AIni.ReadString(CSessaoPIXCDItauConfig, CChaveArqCertificadoItau, ArqCertificado);
+  APIVersion := TACBrPIXAPIVersion(AIni.ReadInteger(CSessaoPIXCDItauConfig, CChaveAPIVersionItau, Integer(APIVersion)));
 end;
 
 procedure TPIXCDItauConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoPixCDItauConfig, CChavePIXItau, ChavePIX);
-  AIni.WriteString(CSessaoPixCDItauConfig, CChaveClientIDItau, ClientID);
-  AIni.WriteString(CSessaoPixCDItauConfig, CChaveClientSecretItau, ClientSecret);
-  AIni.WriteString(CSessaoPixCDItauConfig, CChaveArqChavePrivadaItau, ArqChavePrivada);
-  AIni.WriteString(CSessaoPixCDItauConfig, CChaveArqCertificadoItau, ArqCertificado);
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDItauConfig, CChavePIXItau, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDItauConfig, CChaveClientIDItau, ClientID);
+  AIni.WriteString(CSessaoPIXCDItauConfig, CChaveClientSecretItau, ClientSecret);
+  AIni.WriteString(CSessaoPIXCDItauConfig, CChaveArqChavePrivadaItau, ArqChavePrivada);
+  AIni.WriteString(CSessaoPIXCDItauConfig, CChaveArqCertificadoItau, ArqCertificado);
+  AIni.WriteInteger(CSessaoPIXCDItauConfig, CChaveAPIVersionItau, Integer(APIVersion));
 end;
 
 { TPIXCDInterConfig }
 constructor TPIXCDInterConfig.Create;
 begin
-  FChavePIX := '';
-  FClientID := '';
-  FClientSecret := '';
-  FArqChavePrivada := '';
-  FArqCertificado := '';
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FClientID := EmptyStr;
+  FClientSecret := EmptyStr;
+  FArqChavePrivada := EmptyStr;
+  FArqCertificado := EmptyStr;
+  FSessaoPSP := CSessaoPIXCDInterConfig;
 end;
 
 procedure TPIXCDInterConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  ChavePIX := AIni.ReadString(CSessaoPixCDInterConfig, CChavePIXInter, ChavePIX);
-  ClientID := AIni.ReadString(CSessaoPixCDInterConfig, CChaveClientIDInter, ClientID);
-  ClientSecret := AIni.ReadString(CSessaoPixCDInterConfig, CChaveClientSecretInter, ClientSecret);
-  ArqChavePrivada := AIni.ReadString(CSessaoPixCDInterConfig, CChaveArqChavePrivadaInter, ArqChavePrivada);
-  ArqCertificado := AIni.ReadString(CSessaoPixCDInterConfig, CChaveArqCertificadoInter, ArqCertificado);
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDInterConfig, CChavePIXInter, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDInterConfig, CChaveClientIDInter, ClientID);
+  ClientSecret := AIni.ReadString(CSessaoPIXCDInterConfig, CChaveClientSecretInter, ClientSecret);
+  ArqChavePrivada := AIni.ReadString(CSessaoPIXCDInterConfig, CChaveArqChavePrivadaInter, ArqChavePrivada);
+  ArqCertificado := AIni.ReadString(CSessaoPIXCDInterConfig, CChaveArqCertificadoInter, ArqCertificado);
 end;
 
 procedure TPIXCDInterConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoPixCDInterConfig, CChavePIXInter, ChavePIX);
-  AIni.WriteString(CSessaoPixCDInterConfig, CChaveClientIDInter, ClientID);
-  AIni.WriteString(CSessaoPixCDInterConfig, CChaveClientSecretInter, ClientSecret);
-  AIni.WriteString(CSessaoPixCDInterConfig, CChaveArqChavePrivadaInter, ArqChavePrivada);
-  AIni.WriteString(CSessaoPixCDInterConfig, CChaveArqCertificadoInter, ArqCertificado);
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDInterConfig, CChavePIXInter, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDInterConfig, CChaveClientIDInter, ClientID);
+  AIni.WriteString(CSessaoPIXCDInterConfig, CChaveClientSecretInter, ClientSecret);
+  AIni.WriteString(CSessaoPIXCDInterConfig, CChaveArqChavePrivadaInter, ArqChavePrivada);
+  AIni.WriteString(CSessaoPIXCDInterConfig, CChaveArqCertificadoInter, ArqCertificado);
 end;
 
 { TPIXCDGerenciaNetConfig }
 constructor TPIXCDGerenciaNetConfig.Create;
 begin
-  FChavePIX := '';
-  FClientID := '';
-  FClientSecret := '';
-  FArqPFX := '';
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FClientID := EmptyStr;
+  FClientSecret := EmptyStr;
+  FArqPFX := EmptyStr;
+  FSessaoPSP := CSessaoPIXCDGerenciaNetConfig;
 end;
 
 procedure TPIXCDGerenciaNetConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  ChavePIX := AIni.ReadString(CSessaoPixCDGerenciaNetConfig, CChavePIXGerenciaNet, ChavePIX);
-  ClientID := AIni.ReadString(CSessaoPixCDGerenciaNetConfig, CChaveClientIDGerenciaNet, ClientID);
-  ClientSecret := AIni.ReadString(CSessaoPixCDGerenciaNetConfig, CChaveClientSecretGerenciaNet, ClientSecret);
-  ArqPFX := AIni.ReadString(CSessaoPixCDGerenciaNetConfig, CChaveArqPFXGerenciaNet, ArqPFX);
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDGerenciaNetConfig, CChavePIXGerenciaNet, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDGerenciaNetConfig, CChaveClientIDGerenciaNet, ClientID);
+  ClientSecret := AIni.ReadString(CSessaoPIXCDGerenciaNetConfig, CChaveClientSecretGerenciaNet, ClientSecret);
+  ArqPFX := AIni.ReadString(CSessaoPIXCDGerenciaNetConfig, CChaveArqPFXGerenciaNet, ArqPFX);
 end;
 
 procedure TPIXCDGerenciaNetConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoPixCDGerenciaNetConfig, CChavePIXGerenciaNet, ChavePIX);
-  AIni.WriteString(CSessaoPixCDGerenciaNetConfig, CChaveClientIDGerenciaNet, ClientID);
-  AIni.WriteString(CSessaoPixCDGerenciaNetConfig, CChaveClientSecretGerenciaNet, ClientSecret);
-  AIni.WriteString(CSessaoPixCDGerenciaNetConfig, CChaveArqPFXGerenciaNet, ArqPFX);
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDGerenciaNetConfig, CChavePIXGerenciaNet, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDGerenciaNetConfig, CChaveClientIDGerenciaNet, ClientID);
+  AIni.WriteString(CSessaoPIXCDGerenciaNetConfig, CChaveClientSecretGerenciaNet, ClientSecret);
+  AIni.WriteString(CSessaoPIXCDGerenciaNetConfig, CChaveArqPFXGerenciaNet, ArqPFX);
 end;
 
 { TPIXCDBancoDoBrasilConfig }
 constructor TPIXCDBancoDoBrasilConfig.Create;
 begin
-  FChavePIX := '';
-  FClientID := '';
-  FClientSecret := '';
-  FDeveloperApplicationKey := '';
-  FArqChavePrivada := '';
-  FArqCertificado := '';
-  FArqPFX := '';
-  FSenhaPFX := '';
-  FVersaoAPI := apiVersao1;
-  FTipoCertificado := 0;
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FClientID := EmptyStr;
+  FClientSecret := EmptyStr;
+  FDeveloperApplicationKey := EmptyStr;
+  FArqChavePrivada := EmptyStr;
+  FArqCertificado := EmptyStr;
+  FArqPFX := EmptyStr;
+  FSenhaPFX := EmptyStr;
+  FBBAPIVersao := apiVersao1;
+  FAPIVersion := ver262;
+  FSessaoPSP := CSessaoPIXCDBancoBrasilConfig;
 end;
 
 procedure TPIXCDBancoDoBrasilConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  ChavePIX := AIni.ReadString(CSessaoPixCDBancoBrasilConfig, CChavePIXBancoBrasil, ChavePIX);
-  ClientID := AIni.ReadString(CSessaoPixCDBancoBrasilConfig, CChaveClientIDBancoBrasil, ClientID);
-  ClientSecret := AIni.ReadString(CSessaoPixCDBancoBrasilConfig, CChaveClientSecretBancoBrasil, ClientSecret);
-  DeveloperApplicationKey := AIni.ReadString(CSessaoPixCDBancoBrasilConfig, CChaveDeveloperApplicationKeyBancoBrasil, DeveloperApplicationKey);
-  ArqChavePrivada := AIni.ReadString(CSessaoPixCDBancoBrasilConfig, CChaveArqChavePrivadaBancoBrasil, ArqChavePrivada);
-  ArqCertificado := AIni.ReadString(CSessaoPixCDBancoBrasilConfig, CChaveArqCertificadoBancoBrasil, ArqCertificado);
-  ArqPFX := AIni.ReadString(CSessaoPixCDBancoBrasilConfig, CChaveArqPFXBancoBrasil, ArqPFX);
-  SenhaPFX := AIni.ReadString(CSessaoPixCDBancoBrasilConfig, CChaveSenhaPFXBancoBrasil, SenhaPFX);
-  VersaoAPI := TACBrBBAPIVersao(AIni.ReadInteger(CSessaoPixCDBancoBrasilConfig, CChaveVersaoAPIBancoBrasil, Integer(VersaoAPI)));
-  TipoCertificado := AIni.ReadInteger(CSessaoPixCDBancoBrasilConfig, CChaveTipoCertificadoBancoBrasil, TipoCertificado);
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDBancoBrasilConfig, CChavePIXBancoBrasil, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDBancoBrasilConfig, CChaveClientIDBancoBrasil, ClientID);
+  ClientSecret := AIni.ReadString(CSessaoPIXCDBancoBrasilConfig, CChaveClientSecretBancoBrasil, ClientSecret);
+  DeveloperApplicationKey := AIni.ReadString(CSessaoPIXCDBancoBrasilConfig, CChaveDeveloperApplicationKeyBancoBrasil, DeveloperApplicationKey);
+  ArqChavePrivada := AIni.ReadString(CSessaoPIXCDBancoBrasilConfig, CChaveArqChavePrivadaBancoBrasil, ArqChavePrivada);
+  ArqCertificado := AIni.ReadString(CSessaoPIXCDBancoBrasilConfig, CChaveArqCertificadoBancoBrasil, ArqCertificado);
+  ArqPFX := AIni.ReadString(CSessaoPIXCDBancoBrasilConfig, CChaveArqPFXBancoBrasil, ArqPFX);
+  SenhaPFX := AIni.ReadString(CSessaoPIXCDBancoBrasilConfig, CChaveSenhaPFXBancoBrasil, SenhaPFX);
+  BBAPIVersao := TACBrBBAPIVersao(AIni.ReadInteger(CSessaoPIXCDBancoBrasilConfig, CChaveBBAPIVersaoBancoBrasil, Integer(BBAPIVersao)));
+  APIVersion := TACBrPIXAPIVersion(AIni.ReadInteger(CSessaoPIXCDBancoBrasilConfig, CChaveAPIVersionBancoBrasil, Integer(APIVersion)));
 end;
 
 procedure TPIXCDBancoDoBrasilConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoPixCDBancoBrasilConfig, CChavePIXBancoBrasil, ChavePIX);
-  AIni.WriteString(CSessaoPixCDBancoBrasilConfig, CChaveClientIDBancoBrasil, ClientID);
-  AIni.WriteString(CSessaoPixCDBancoBrasilConfig, CChaveClientSecretBancoBrasil, ClientSecret);
-  AIni.WriteString(CSessaoPixCDBancoBrasilConfig, CChaveDeveloperApplicationKeyBancoBrasil, DeveloperApplicationKey);
-  AIni.WriteString(CSessaoPixCDBancoBrasilConfig, CChaveArqChavePrivadaBancoBrasil, ArqChavePrivada);
-  AIni.WriteString(CSessaoPixCDBancoBrasilConfig, CChaveArqCertificadoBancoBrasil, ArqCertificado);
-  AIni.WriteString(CSessaoPixCDBancoBrasilConfig, CChaveArqPFXBancoBrasil, ArqPFX);
-  AIni.WriteString(CSessaoPixCDBancoBrasilConfig, CChaveSenhaPFXBancoBrasil, SenhaPFX);
-  AIni.WriteInteger(CSessaoPixCDBancoBrasilConfig, CChaveVersaoAPIBancoBrasil, Integer(VersaoAPI));
-  AIni.WriteInteger(CSessaoPixCDBancoBrasilConfig, CChaveTipoCertificadoBancoBrasil, Integer(TipoCertificado));
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDBancoBrasilConfig, CChavePIXBancoBrasil, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDBancoBrasilConfig, CChaveClientIDBancoBrasil, ClientID);
+  AIni.WriteString(CSessaoPIXCDBancoBrasilConfig, CChaveClientSecretBancoBrasil, ClientSecret);
+  AIni.WriteString(CSessaoPIXCDBancoBrasilConfig, CChaveDeveloperApplicationKeyBancoBrasil, DeveloperApplicationKey);
+  AIni.WriteString(CSessaoPIXCDBancoBrasilConfig, CChaveArqChavePrivadaBancoBrasil, ArqChavePrivada);
+  AIni.WriteString(CSessaoPIXCDBancoBrasilConfig, CChaveArqCertificadoBancoBrasil, ArqCertificado);
+  AIni.WriteString(CSessaoPIXCDBancoBrasilConfig, CChaveArqPFXBancoBrasil, ArqPFX);
+  AIni.WriteString(CSessaoPIXCDBancoBrasilConfig, CChaveSenhaPFXBancoBrasil, SenhaPFX);
+  AIni.WriteInteger(CSessaoPIXCDBancoBrasilConfig, CChaveBBAPIVersaoBancoBrasil, Integer(BBAPIVersao));
+  AIni.WriteInteger(CSessaoPIXCDBancoBrasilConfig, CChaveAPIVersionBancoBrasil, Integer(APIVersion));
 end;
 
 { TPIXCDAilosConfig }
 constructor TPIXCDAilosConfig.Create;
 begin
-  FChavePIX := '';
-  FClientID := '';
-  FClientSecret := '';
-  FArqChavePrivada := '';
-  FArqCertificado := '';
-  FArqCertificadoRoot := '';
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FClientID := EmptyStr;
+  FClientSecret := EmptyStr;
+  FArqChavePrivada := EmptyStr;
+  FArqCertificado := EmptyStr;
+  FArqCertificadoRoot := EmptyStr;
+  FSessaoPSP := CSessaoPIXCDAilosConfig;
 end;
 
 procedure TPIXCDAilosConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  ChavePIX := AIni.ReadString(CSessaoPixCDAilosConfig, CChavePIXAilos, ChavePIX);
-  ClientID := AIni.ReadString(CSessaoPixCDAilosConfig, CChaveClientIDAilos, ClientID);
-  ClientSecret := AIni.ReadString(CSessaoPixCDAilosConfig, CChaveClientSecretAilos, ClientSecret);
-  ArqChavePrivada := AIni.ReadString(CSessaoPixCDAilosConfig, CChaveArqChavePrivadaAilos, ArqChavePrivada);
-  ArqCertificado := AIni.ReadString(CSessaoPixCDAilosConfig, CChaveArqCertificadoAilos, ArqCertificado);
-  ArqCertificadoRoot := AIni.ReadString(CSessaoPixCDAilosConfig, CChaveArqCertificadoRootAilos, ArqCertificadoRoot);
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDAilosConfig, CChavePIXAilos, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDAilosConfig, CChaveClientIDAilos, ClientID);
+  ClientSecret := AIni.ReadString(CSessaoPIXCDAilosConfig, CChaveClientSecretAilos, ClientSecret);
+  ArqChavePrivada := AIni.ReadString(CSessaoPIXCDAilosConfig, CChaveArqChavePrivadaAilos, ArqChavePrivada);
+  ArqCertificado := AIni.ReadString(CSessaoPIXCDAilosConfig, CChaveArqCertificadoAilos, ArqCertificado);
+  ArqCertificadoRoot := AIni.ReadString(CSessaoPIXCDAilosConfig, CChaveArqCertificadoRootAilos, ArqCertificadoRoot);
 end;
 
 procedure TPIXCDAilosConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoPixCDAilosConfig, CChavePIXAilos, ChavePIX);
-  AIni.WriteString(CSessaoPixCDAilosConfig, CChaveClientIDAilos, ClientID);
-  AIni.WriteString(CSessaoPixCDAilosConfig, CChaveClientSecretAilos, ClientSecret);
-  AIni.WriteString(CSessaoPixCDAilosConfig, CChaveArqChavePrivadaAilos, ArqChavePrivada);
-  AIni.WriteString(CSessaoPixCDAilosConfig, CChaveArqCertificadoAilos, ArqCertificado);
-  AIni.WriteString(CSessaoPixCDAilosConfig, CChaveArqCertificadoRootAilos, ArqCertificadoRoot);
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDAilosConfig, CChavePIXAilos, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDAilosConfig, CChaveClientIDAilos, ClientID);
+  AIni.WriteString(CSessaoPIXCDAilosConfig, CChaveClientSecretAilos, ClientSecret);
+  AIni.WriteString(CSessaoPIXCDAilosConfig, CChaveArqChavePrivadaAilos, ArqChavePrivada);
+  AIni.WriteString(CSessaoPIXCDAilosConfig, CChaveArqCertificadoAilos, ArqCertificado);
+  AIni.WriteString(CSessaoPIXCDAilosConfig, CChaveArqCertificadoRootAilos, ArqCertificadoRoot);
+end;
+
+{ TPIXCDMateraConfig }
+constructor TPIXCDMateraConfig.Create;
+begin
+  inherited Create;
+  FClientID := EmptyStr;
+  FSecretKey := EmptyStr;
+  FClientSecret := EmptyStr;
+  FArqCertificado := EmptyStr;
+  FArqChavePrivada := EmptyStr;
+  FAccountID := EmptyStr;
+  FChavePIX := EmptyStr;
+  FMediatorFee  := 0;
+  FSessaoPSP := CSessaoPIXCDMateraConfig;
+end;
+
+procedure TPIXCDMateraConfig.LerIni(const AIni: TCustomIniFile);
+begin
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDMateraConfig, CChavePIXMatera, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDMateraConfig, CChaveClientIDMatera, ClientID);
+  SecretKey := AIni.ReadString(CSessaoPIXCDMateraConfig, CChaveSecretKeyMatera, SecretKey);
+  ClientSecret := AIni.ReadString(CSessaoPIXCDMateraConfig, CChaveClientSecretMatera, ClientSecret);
+  ArqCertificado := AIni.ReadString(CSessaoPIXCDMateraConfig, CChaveArqCertificadoMatera, ArqCertificado);
+  ArqChavePrivada := AIni.ReadString(CSessaoPIXCDMateraConfig, CChaveArqChavePrivadaMatera, ArqChavePrivada);
+  AccountID := AIni.ReadString(CSessaoPIXCDMateraConfig, CChaveAccountIDMatera, AccountID);
+  MediatorFee := AIni.ReadFloat(CSessaoPIXCDMateraConfig, CChaveMediatorFeeMatera, MediatorFee);
+end;
+
+procedure TPIXCDMateraConfig.GravarIni(const AIni: TCustomIniFile);
+begin
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDMateraConfig, CChavePIXMatera, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDMateraConfig, CChaveClientIDMatera, ClientID);
+  AIni.WriteString(CSessaoPIXCDMateraConfig, CChaveSecretKeyMatera, SecretKey);
+  AIni.WriteString(CSessaoPIXCDMateraConfig, CChaveClientSecretMatera, ClientSecret);
+  AIni.WriteString(CSessaoPIXCDMateraConfig, CChaveArqCertificadoMatera, ArqCertificado);
+  AIni.WriteString(CSessaoPIXCDMateraConfig, CChaveArqChavePrivadaMatera, ArqChavePrivada);
+  AIni.WriteString(CSessaoPIXCDMateraConfig, CChaveAccountIDMatera, AccountID);
+  AIni.WriteFloat(CSessaoPIXCDMateraConfig, CChaveMediatorFeeMatera, MediatorFee);
+end;
+
+{ TPIXCDCieloConfig }
+constructor TPIXCDCieloConfig.Create;
+begin
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FClientID := EmptyStr;
+  FClientSecret := EmptyStr;
+  FSessaoPSP := CSessaoPIXCDCieloConfig;
+end;
+
+procedure TPIXCDCieloConfig.LerIni(const AIni: TCustomIniFile);
+begin
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDCieloConfig, CChavePIXCielo, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDCieloConfig, CChaveClientIDCielo, ClientID);
+  ClientSecret := AIni.ReadString(CSessaoPIXCDCieloConfig, CChaveClientSecretCielo, ClientSecret);
+end;
+
+procedure TPIXCDCieloConfig.GravarIni(const AIni: TCustomIniFile);
+begin
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDCieloConfig, CChavePIXCielo, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDCieloConfig, CChaveClientIDCielo, ClientID);
+  AIni.WriteString(CSessaoPIXCDCieloConfig, CChaveClientSecretCielo, ClientSecret);
+end;
+
+{ TPIXCDMercadoPagoConfig }
+constructor TPIXCDMercadoPagoConfig.Create;
+begin
+  inherited Create;
+  FChavePIX:= EmptyStr;
+  FAccessToken:= EmptyStr;
+  FSessaoPSP := CSessaoPIXCDMercadoPagoConfig;
+end;
+
+procedure TPIXCDMercadoPagoConfig.LerIni(const AIni: TCustomIniFile);
+begin
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDMercadoPagoConfig, CChavePIXMercadoPago, ChavePIX);
+  AccessToken := AIni.ReadString(CSessaoPIXCDMercadoPagoConfig, CChaveAccesTokenMercadoPago, AccessToken);
+end;
+
+procedure TPIXCDMercadoPagoConfig.GravarIni(const AIni: TCustomIniFile);
+begin
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDMercadoPagoConfig, CChavePIXMercadoPago, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDMercadoPagoConfig, CChaveAccesTokenMercadoPago, AccessToken);
+end;
+
+{ TPIXCDGate2AllConfig }
+constructor TPIXCDGate2AllConfig.Create;
+begin
+  inherited Create;
+  FAuthenticationApi := EmptyStr;
+  FAuthenticationKey := EmptyStr;
+  FSessaoPSP := CSessaoPIXCDGate2AllConfig;
+end;
+
+procedure TPIXCDGate2AllConfig.LerIni(const AIni: TCustomIniFile);
+begin
+  inherited LerIni(AIni);
+  AuthenticationApi := AIni.ReadString(CSessaoPIXCDGate2AllConfig, CChaveAuthenticationApiGate2All, AuthenticationApi);
+  AuthenticationKey := AIni.ReadString(CSessaoPIXCDGate2AllConfig, CChaveAuthenticationKeyGate2All, AuthenticationKey);
+end;
+
+procedure TPIXCDGate2AllConfig.GravarIni(const AIni: TCustomIniFile);
+begin
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDGate2AllConfig, CChaveAuthenticationApiGate2All, AuthenticationApi);
+  AIni.WriteString(CSessaoPIXCDGate2AllConfig, CChaveAuthenticationKeyGate2All, AuthenticationKey);
+end;
+
+{ TPIXCDBanrisulConfig }
+constructor TPIXCDBanrisulConfig.Create;
+begin
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FClientID := EmptyStr;
+  FClientSecret := EmptyStr;
+  FArquivoCertificado := EmptyStr;
+  FSenhaPFX := EmptyStr;
+  FSessaoPSP := CSessaoPIXCDBanrisulConfig;
+end;
+
+procedure TPIXCDBanrisulConfig.LerIni(const AIni: TCustomIniFile);
+begin
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDBanrisulConfig, CChavePIXBanrisul, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDBanrisulConfig, CChaveClientIDBanrisul, ClientID);
+  ClientSecret := AIni.ReadString(CSessaoPIXCDBanrisulConfig, CChaveClientSecretBanrisul, ClientSecret);
+  ArquivoCertificado := AIni.ReadString(CSessaoPIXCDBanrisulConfig, CChaveArquivoCertificadoBanrisul, ArquivoCertificado);
+  SenhaPFX := AIni.ReadString(CSessaoPIXCDBanrisulConfig, CChaveSenhaPFXBanrisul, SenhaPFX);
+end;
+
+procedure TPIXCDBanrisulConfig.GravarIni(const AIni: TCustomIniFile);
+begin
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDBanrisulConfig, CChavePIXBanrisul, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDBanrisulConfig, CChaveClientIDBanrisul, ClientID);
+  AIni.WriteString(CSessaoPIXCDBanrisulConfig, CChaveClientSecretBanrisul, ClientSecret);
+  AIni.WriteString(CSessaoPIXCDBanrisulConfig, CChaveArquivoCertificadoBanrisul, ArquivoCertificado);
+  AIni.WriteString(CSessaoPIXCDBanrisulConfig, CChaveSenhaPFXBanrisul, SenhaPFX);
+end;
+
+{ TPIXCDC6BankConfig }
+constructor TPIXCDC6BankConfig.Create;
+begin
+  inherited Create;
+  FChavePIX := EmptyStr;
+  FClientID := EmptyStr;
+  FClientSecret := EmptyStr;
+  FArqChavePrivada := EmptyStr;
+  FArqCertificado := EmptyStr;
+  FSessaoPSP := CSessaoPIXCDC6BankConfig;
+end;
+
+procedure TPIXCDC6BankConfig.LerIni(const AIni: TCustomIniFile);
+begin
+  inherited LerIni(AIni);
+  ChavePIX := AIni.ReadString(CSessaoPIXCDC6BankConfig, CChavePIXC6Bank, ChavePIX);
+  ClientID := AIni.ReadString(CSessaoPIXCDC6BankConfig, CChaveClientIDC6Bank, ClientID);
+  ClientSecret := AIni.ReadString(CSessaoPIXCDC6BankConfig, CChaveClientSecretC6Bank, ClientSecret);
+  ArqChavePrivada := AIni.ReadString(CSessaoPIXCDC6BankConfig, CChaveArqChavePrivadaC6Bank, ArqChavePrivada);
+  ArqCertificado := AIni.ReadString(CSessaoPIXCDC6BankConfig, CChaveArqCertificadoC6Bank, ArqCertificado);
+end;
+
+procedure TPIXCDC6BankConfig.GravarIni(const AIni: TCustomIniFile);
+begin
+  inherited GravarIni(AIni);
+  AIni.WriteString(CSessaoPIXCDC6BankConfig, CChavePIXC6Bank, ChavePIX);
+  AIni.WriteString(CSessaoPIXCDC6BankConfig, CChaveClientIDC6Bank, ClientID);
+  AIni.WriteString(CSessaoPIXCDC6BankConfig, CChaveClientSecretC6Bank, ClientSecret);
+  AIni.WriteString(CSessaoPIXCDC6BankConfig, CChaveArqChavePrivadaC6Bank, ArqChavePrivada);
+  AIni.WriteString(CSessaoPIXCDC6BankConfig, CChaveArqCertificadoC6Bank, ArqCertificado);
+end;
+
+{ TPIXCDPSPConfig }
+constructor TPIXCDPSPConfig.Create;
+begin
+  FScopes := [scCobWrite,scCobRead,scPixWrite,scPixRead];
+end;
+
+procedure TPIXCDPSPConfig.GravarIni(const AIni: TCustomIniFile);
+var
+  LScopesStr: String;
+begin
+  LScopesStr := SetOfPSPScopesToString(Scopes);
+  AIni.WriteString(FSessaoPSP, CChaveScopes, LScopesStr);
+end;
+
+procedure TPIXCDPSPConfig.LerIni(const AIni: TCustomIniFile);
+var
+  LScopesStr: String;
+begin
+  LScopesStr := SetOfPSPScopesToString(Scopes);
+  Scopes := StringToSetOfPSPScopes(AIni.ReadString(FSessaoPSP, CChaveScopes, LScopesStr));
+end;
+
+function StringToSetOfPSPScopes(const AOriginalString: String): TACBrPSPScopes;
+var
+  LScopesString, LScopeName: String;
+  LScopesList: TStringList;
+  LTotalOfScopes: Integer;
+  I: Integer;
+  LScope: TACBrPSPScope;
+begin
+  Result := [];
+
+  LScopesString := RetornarConteudoEntre(AOriginalString, '[', ']');
+
+
+  if LScopesString.IsEmpty then
+    LScopesString := AOriginalString;
+
+  LScopesString := Trim(LScopesString);
+
+  LScopesList := TStringList.Create;
+  try
+    LTotalOfScopes := AddDelimitedTextToList(LScopesString, ',', LScopesList, #0);
+    for I:=0 to Pred(LTotalOfScopes) do
+    begin
+      LScopeName := Trim(LScopesList.Strings[I]);
+      LScope := TACBrPSPScope(GetEnumValue(TypeInfo(TACBrPSPScope), LScopeName));
+      Result := Result + [LScope];
+    end;
+
+  finally
+    LScopesList.Free;
+  end;
+end;
+
+function SetOfPSPScopesToString(const ASetOfScopes: TACBrPSPScopes): String;
+var
+  LScope: TACBrPSPScope;
+begin
+  Result := '';
+  for LScope in ASetOfScopes do
+  begin
+    Result := Result + GetEnumName(TypeInfo(TACBrPSPScope), Ord(LScope)) + ',';
+  end;
+
+  Result := '[' + Copy(Result, 0, Length(Result)-1) + ']';
 end;
 
 end.

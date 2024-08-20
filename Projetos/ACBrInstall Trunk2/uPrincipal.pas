@@ -61,7 +61,6 @@ type
     Label2: TLabel;
     edtDirDestino: TEdit;
     Label6: TLabel;
-    imgLogomarca: TImage;
     lstMsgInstalacao: TListBox;
     pnlTopo: TPanel;
     Label9: TLabel;
@@ -82,7 +81,6 @@ type
     pnlInfoCompilador: TPanel;
     wizPgPacotes: TJvWizardInteriorPage;
     lbInfo: TListBox;
-    Label22: TLabel;
     framePacotes1: TframePacotes;
     wizPgSelectIDEs: TJvWizardInteriorPage;
     grpCompilacao: TGroupBox;
@@ -105,11 +103,19 @@ type
     Label4: TLabel;
     Label5: TLabel;
     Label11: TLabel;
-    Label12: TLabel;
-    Label13: TLabel;
     Label14: TLabel;
     scrlbxDelphiVersion: TScrollBox;
     chkSobrescreverDLLs: TCheckBox;
+    GroupBox1: TGroupBox;
+    chkExportadorFastPNG: TCheckBox;
+    chkExportadorFastSVG: TCheckBox;
+    imgLogomarca: TImage;
+    pnlLogo: TPanel;
+    imgOK: TImage;
+    lblNotaDelphiAntigo: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    lblSombra: TLabel;
     procedure btnDesmarcarTodasClick(Sender: TObject);
     procedure imgPropaganda1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -313,30 +319,43 @@ begin
   for iFor := 0 to FUmaListaPlataformasAlvos.Count - 1 do
   begin
     achk := TCheckBox.Create(scrlbxDelphiVersion);
-    achk.Parent  := scrlbxDelphiVersion;
-    achk.Name    := 'chk'+IntToStr(iFor);
-    achk.Caption := FUmaListaPlataformasAlvos[iFor].GetNomeAlvo;
-    achk.Tag     := iFor;
-    achk.Left    := 4;
-    ValorTop     := 4;
-    if (iFor > 0) then
-    begin
-      ValorTop   := FListaCheckBoxPlataformas[iFor-1].Top + FListaCheckBoxPlataformas[iFor-1].Height;
-      if FUmaListaPlataformasAlvos[iFor].InstalacaoAtual.Name <> FUmaListaPlataformasAlvos[iFor-1].InstalacaoAtual.Name then
+    try
+      achk.Parent  := scrlbxDelphiVersion;
+      achk.Name    := 'chk'+IntToStr(iFor);
+      achk.Tag     := iFor;
+      achk.Left    := 4;
+      ValorTop     := 4;
+      if (iFor > 0) then
       begin
-        ValorTop   := ValorTop + 8;
+        ValorTop   := FListaCheckBoxPlataformas[iFor-1].Top + FListaCheckBoxPlataformas[iFor-1].Height;
+        if FUmaListaPlataformasAlvos[iFor].InstalacaoAtual.Name <> FUmaListaPlataformasAlvos[iFor-1].InstalacaoAtual.Name then
+        begin
+          ValorTop   := ValorTop + 8;
+        end;
       end;
+      achk.Width   := scrlbxDelphiVersion.Width - 16;
+      achk.Top     := ValorTop;
+      achk.Caption := FUmaListaPlataformasAlvos[iFor].GetNomeAlvo;
+  //    if FUmaListaPlataformasAlvos[iFor].EhSuportadaPeloACBrBeta then
+  //    begin
+  //      achk.StyleName := Estilo.Suportado.Apenas.Delphi10.4;
+  //      //achk.Font.Color :=
+  //      //achk.Font.Style := [fsItalic];
+  //    end;
+      achk.Enabled := FUmaListaPlataformasAlvos[iFor].EhSuportadaPeloACBr;
+      achk.OnClick := clbDelphiVersionClick;
+    except
+      on E: EConvertError do
+      begin
+        achk.Enabled := False;
+        achk.Caption := 'Erro ao detectar versão.';
+      {$IFDEF DEBUG}
+        ShowMessage('Erro ao detectar versão. Erro: '+ E.Message);
+      {$ENDIF}
+//        achk.Visible := False;
+      end;
+
     end;
-    achk.Width   := scrlbxDelphiVersion.Width - 16;
-    achk.Top     := ValorTop;
-//    if FUmaListaPlataformasAlvos[iFor].EhSuportadaPeloACBrBeta then
-//    begin
-//      achk.StyleName := Estilo.Suportado.Apenas.Delphi10.4;
-//      //achk.Font.Color :=
-//      //achk.Font.Style := [fsItalic];
-//    end;
-    achk.Enabled := FUmaListaPlataformasAlvos[iFor].EhSuportadaPeloACBr;
-    achk.OnClick := clbDelphiVersionClick;
     FListaCheckBoxPlataformas.Add(achk);
   end;
 end;
@@ -377,7 +396,7 @@ begin
   Caption                   := Caption + ' ' + sVersaoInstalador;
   FUmaListaPlataformasAlvos := GeraListaPlataformasAlvos;
   FUltimoArquivoLog         := '';
-  FListaCheckBoxPlataformas            := TList<TCheckBox>.Create;
+  FListaCheckBoxPlataformas := TList<TCheckBox>.Create;
 
   MontaListaIDEsSuportadas;
 
@@ -482,6 +501,7 @@ begin
   OpcoesInstall.DeveCopiarOutrasDLLs      := ckbCopiarTodasDll.Checked;
   OpcoesInstall.UsarCpp                   := ckbBCB.Checked;
   OpcoesInstall.UsarUsarArquivoConfig     := ckbUsarArquivoConfig.Checked;
+
   case rdgdll.ItemIndex of
     0 : OpcoesInstall.sDestinoDLLs := tdSystem;
     1 : OpcoesInstall.sDestinoDLLs := tdDelphi;
@@ -496,6 +516,8 @@ begin
   OpcoesCompilacao.DeveInstalarXMLSec        := not ckbRemoveXMLSec.Checked;
   OpcoesCompilacao.UsarCargaTardiaDLL        := ckbCargaDllTardia.Checked;
   OpcoesCompilacao.RemoverStringCastWarnings := ckbRemoverCastWarnings.Checked;
+  OpcoesCompilacao.UsarExportadorFRSVG    := chkExportadorFastSVG.Checked;
+  OpcoesCompilacao.UsarExportadorFRPNG    := chkExportadorFastPNG.Checked;
 end;
 
 procedure TfrmPrincipal.AjustaTelaConformeConfiguracoes(OpcoesInstall: TACBrInstallOpcoes; OpcoesCompilacao: TACBrCompilerOpcoes);
@@ -505,6 +527,7 @@ begin
   ckbCopiarTodasDll.Checked         := OpcoesInstall.DeveCopiarOutrasDLLs;
   ckbBCB.Checked                    := OpcoesInstall.UsarCpp;
   ckbUsarArquivoConfig.Checked      := OpcoesInstall.UsarUsarArquivoConfig;
+
   case OpcoesInstall.sDestinoDLLs of
     tdSystem: rdgdll.ItemIndex := 0;
     tdDelphi: rdgdll.ItemIndex := 1;
@@ -517,6 +540,8 @@ begin
   ckbRemoveXMLSec.Checked           := not OpcoesCompilacao.DeveInstalarXMLSec;
   ckbCargaDllTardia.Checked         := OpcoesCompilacao.UsarCargaTardiaDLL;
   ckbRemoverCastWarnings.Checked    := OpcoesCompilacao.RemoverStringCastWarnings;
+  chkExportadorFastSVG.Checked      := OpcoesCompilacao.UsarExportadorFRSVG;
+  chkExportadorFastPNG.Checked      := OpcoesCompilacao.UsarExportadorFRPNG;
 end;
 
 procedure TfrmPrincipal.btnDesmarcarTodasClick(Sender: TObject);

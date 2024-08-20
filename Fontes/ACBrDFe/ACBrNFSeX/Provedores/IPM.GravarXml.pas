@@ -39,7 +39,6 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXGravarXml_ABRASFv2,
   ACBrNFSeXConversao, ACBrNFSeXConsts;
 
@@ -51,11 +50,11 @@ type
     FpGerarID: Boolean;
     FpNrOcorrTagsTomador: Integer;
     FpNrOcorrCodigoAtividade: Integer;
+    FpNaoGerarGrupoRps: Boolean;
 
   protected
     procedure Configuracao; override;
 
-    function GerarGrupoRPS: Boolean;
     function GerarIdentificacaoRPS: TACBrXmlNode;
     function GerarValoresServico: TACBrXmlNode;
     function GerarPrestador: TACBrXmlNode;
@@ -112,6 +111,11 @@ begin
 
   Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
   Opcoes.DecimalChar := ',';
+  {
+    Se no arquivo ACBrNFSeXServicos.ini existe o campo: NaoGerarGrupoRps na
+    definição da cidade o valor de NaoGerar é True
+  }
+  FpNaoGerarGrupoRps := FpAOwner.ConfigGeral.Params.TemParametro('NaoGerarGrupoRps');
 
   FDocument.Clear();
 
@@ -125,10 +129,27 @@ begin
   FDocument.Root := NFSeNode;
 
   if (VersaoNFSe in [ve100, ve101]) and (Ambiente = taHomologacao) then
-    NFSeNode.AppendChild(AddNode(tcStr, '#3', 'nfse_teste', 1, 1, 1, '1', ''));
+  begin
+    if not FpNaoGerarGrupoRps then
+      NFSeNode.AppendChild(AddNode(tcStr, '#2', 'identificador', 1, 80, 0,
+        'nfseh_' + NFSe.IdentificacaoRps.Numero + '.' + NFSe.IdentificacaoRps.Serie, ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'identificador', 1, 80, 0,
-    'nfse_' + NFSe.IdentificacaoRps.Numero + '.' + NFSe.IdentificacaoRps.Serie, ''));
+    {
+     Na versão 1.01 (que é a que estou testando), a tag <nfse_teste> deve ser
+     preenchida quando o usuário quer validar o seu XML.
+     Quando a tag está no XML e o XML está válido, no lugar de simplesmente
+     aceitar a NFS-e (vai entender), o provedor retorna o seguinte "erro":
+     NFS-e válida para emissão.
+     }
+    if  VersaoNFSe = ve100 then
+        NFSeNode.AppendChild(AddNode(tcStr, '#3', 'nfse_teste', 1, 1, 1, '1', ''));
+  end
+  else
+  begin
+    if not FpNaoGerarGrupoRps then
+      NFSeNode.AppendChild(AddNode(tcStr, '#2', 'identificador', 1, 80, 0,
+        'nfse_' + NFSe.IdentificacaoRps.Numero + '.' + NFSe.IdentificacaoRps.Serie, ''));
+  end;
 
   xmlNode := GerarIdentificacaoRPS;
   NFSeNode.AppendChild(xmlNode);
@@ -208,25 +229,12 @@ begin
   end;
 end;
 
-function TNFSeW_IPM.GerarGrupoRPS: Boolean;
-var
-  NaoGerar: Boolean;
-begin
-  {
-    Se no arquivo ACBrNFSeXServicos.ini existe o campo: NaoGerarGrupoRps na
-    definição da cidade o valor de NaoGerar é True
-  }
-  NaoGerar := FpAOwner.ConfigGeral.Params.TemParametro('NaoGerarGrupoRps');
-
-  // Na condição abaixo se faz necessário o "not".
-  Result := (StrToIntDef(NFSe.IdentificacaoRps.Numero, 0) > 0) and (not NaoGerar);
-end;
-
 function TNFSeW_IPM.GerarIdentificacaoRPS: TACBrXmlNode;
 begin
   Result :=  nil;
 
-  if GerarGrupoRPS then
+  if (StrToIntDef(NFSe.IdentificacaoRps.Numero, 0) > 0) and
+     (not FpNaoGerarGrupoRps) then
   begin
     Result := CreateElement('rps');
 
@@ -332,7 +340,7 @@ begin
                            NFSe.Servico.ItemServico[I].SituacaoTributaria, ''));
 
     Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_tributavel', 1, 15, 0,
-                                   NFSe.Servico.ItemServico[I].ValorTotal, ''));
+                              NFSe.Servico.ItemServico[I].ValorTributavel, ''));
 
     Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_deducao', 1, 15, 0,
                                 NFSe.Servico.ItemServico[I].ValorDeducoes, ''));
@@ -411,7 +419,7 @@ begin
   Result := CreateElement('tomador');
 
   Result.AppendChild(AddNode(tcStr, '#1', 'endereco_informado', 1, 1, 0,
-                            Trim(NFSe.Tomador.Endereco.EnderecoInformado), ''));
+            FpAOwner.SimNaoOpcToStr(NFSe.Tomador.Endereco.EnderecoInformado), ''));
 
   if Trim(NFSe.Tomador.IdentificacaoTomador.DocEstrangeiro) <> '' then
   begin
@@ -460,13 +468,17 @@ begin
                                   NFSe.Tomador.Endereco.Complemento, DSC_XCPL));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'ponto_referencia', 1, 100, FpNrOcorrTagsTomador,
-                                                                       '', ''));
+                                    NFSe.Tomador.Endereco.PontoReferencia, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'bairro', 1, 30, FpNrOcorrTagsTomador,
                                     NFSe.Tomador.Endereco.Bairro, DSC_XBAIRRO));
 
-  Result.AppendChild(AddNode(tcStr, '#1', 'cidade', 1, 9, FpNrOcorrTagsTomador,
-    CodIBGEToCodTOM(StrToIntDef(NFSe.Tomador.Endereco.CodigoMunicipio, 0)), ''));
+  if Trim(NFSe.Tomador.IdentificacaoTomador.DocEstrangeiro) <> '' then
+    Result.AppendChild(AddNode(tcStr, '#1', 'cidade', 1, 100, FpNrOcorrTagsTomador,
+                                          NFSe.Tomador.Endereco.xMunicipio, ''))
+  else
+    Result.AppendChild(AddNode(tcStr, '#1', 'cidade', 1, 9, FpNrOcorrTagsTomador,
+   CodIBGEToCodTOM(StrToIntDef(NFSe.Tomador.Endereco.CodigoMunicipio, 0)), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'cep', 1, 8, FpNrOcorrTagsTomador,
                                     OnlyNumber(NFSe.Tomador.Endereco.CEP), ''));

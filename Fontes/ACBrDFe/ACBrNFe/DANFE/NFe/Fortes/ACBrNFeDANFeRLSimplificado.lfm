@@ -7,8 +7,9 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
   Font.Style = [fsBold]
   inherited RLNFe: TRLReport
     Tag = 1
-    Height = 1058
-    Top = 0
+    Left = 416
+    Height = 1890
+    Top = 16
     Width = 340
     AllowedBands = [btHeader, btDetail, btSummary, btFooter]
     Background.Arrange = baCenter
@@ -16,7 +17,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
     Font.Name = 'Courier New'
     PageSetup.PaperSize = fpCustom
     PageSetup.PaperWidth = 90
-    PageSetup.PaperHeight = 280
+    PageSetup.PaperHeight = 500
     UnlimitedHeight = True
     BeforePrint = RLNFeBeforePrint
     OnDataRecord = RLNFeDataRecord
@@ -114,6 +115,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
         Height = 34
         Top = 23
         Width = 260
+        Alignment = taCenter
         AutoSize = False
         BarcodeType = bcCode128C
         Margins.LeftMargin = 1
@@ -516,7 +518,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
     object rlb05c_Lin_Itens: TRLBand[2]
       Left = 38
       Height = 1
-      Top = 965
+      Top = 1121
       Width = 264
       BandType = btFooter
       Color = clWhite
@@ -694,7 +696,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       OnDataRecord = subItensDataRecord
       object rlb05b_Desc_Itens: TRLBand
         Left = 0
-        Height = 34
+        Height = 18
         Top = 0
         Width = 264
         AutoSize = True
@@ -702,7 +704,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
         Borders.DrawLeft = False
         Borders.DrawTop = False
         Borders.DrawRight = False
-        Borders.DrawBottom = True
+        Borders.DrawBottom = False
         Color = clWhite
         Font.Color = clWindowText
         Font.Height = -8
@@ -715,62 +717,6 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
           Height = 16
           Top = 2
           Width = 55
-          AutoSize = False
-          Color = clWhite
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Times New Roman'
-          ParentColor = False
-          ParentFont = False
-        end
-        object rlmProdutoUnidade: TRLLabel
-          Left = 104
-          Height = 15
-          Top = 18
-          Width = 32
-          Alignment = taCenter
-          AutoSize = False
-          Color = clWhite
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Times New Roman'
-          ParentColor = False
-          ParentFont = False
-        end
-        object rlmProdutoQTDE: TRLLabel
-          Left = 64
-          Height = 15
-          Top = 18
-          Width = 48
-          Alignment = taRightJustify
-          AutoSize = False
-          Color = clWhite
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Times New Roman'
-          ParentColor = False
-          ParentFont = False
-        end
-        object rlmProdutoValor: TRLLabel
-          Left = 133
-          Height = 15
-          Top = 18
-          Width = 69
-          Alignment = taRightJustify
-          AutoSize = False
-          Color = clWhite
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Times New Roman'
-          ParentColor = False
-          ParentFont = False
-        end
-        object rlmProdutoTotal: TRLLabel
-          Left = 200
-          Height = 15
-          Top = 18
-          Width = 67
-          Alignment = taRightJustify
           AutoSize = False
           Color = clWhite
           Font.Color = clWindowText
@@ -792,10 +738,33 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
           ParentColor = False
           ParentFont = False
         end
+        object rlmProdutoDescricao: TRLMemo
+          Left = 95
+          Height = 14
+          Top = 2
+          Width = 166
+          Behavior = [beSiteExpander]
+          Font.CharSet = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Times New Roman'
+          ParentFont = False
+        end
+      end
+      object rlb05b_Desc_Itens_Cont: TRLBand
+        Left = 0
+        Height = 16
+        Top = 18
+        Width = 264
+        Borders.Sides = sdCustom
+        Borders.DrawLeft = False
+        Borders.DrawTop = False
+        Borders.DrawRight = False
+        Borders.DrawBottom = True
         object rlmProdutoCFOP: TRLLabel
           Left = 3
           Height = 15
-          Top = 18
+          Top = 0
           Width = 25
           AutoSize = False
           Color = clWhite
@@ -808,7 +777,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
         object rlmProdutoCST: TRLLabel
           Left = 35
           Height = 15
-          Top = 18
+          Top = 0
           Width = 25
           AutoSize = False
           Color = clWhite
@@ -818,16 +787,60 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
           ParentColor = False
           ParentFont = False
         end
-        object rlmProdutoDescricao: TRLMemo
-          Left = 95
-          Height = 14
-          Top = 2
-          Width = 166
-          Behavior = [beSiteExpander]
-          Font.CharSet = ANSI_CHARSET
+        object rlmProdutoQTDE: TRLLabel
+          Left = 64
+          Height = 15
+          Top = 0
+          Width = 41
+          Alignment = taRightJustify
+          AutoSize = False
+          Color = clWhite
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Times New Roman'
+          ParentColor = False
+          ParentFont = False
+        end
+        object rlmProdutoTotal: TRLLabel
+          Left = 197
+          Height = 15
+          Top = 0
+          Width = 67
+          Alignment = taRightJustify
+          AutoSize = False
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Times New Roman'
+          ParentColor = False
+          ParentFont = False
+        end
+        object rlmProdutoUnidade: TRLLabel
+          Left = 106
+          Height = 15
+          Top = 0
+          Width = 32
+          Alignment = taCenter
+          AutoSize = False
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Times New Roman'
+          ParentColor = False
+          ParentFont = False
+        end
+        object rlmProdutoValor: TRLLabel
+          Left = 138
+          Height = 15
+          Top = 0
+          Width = 58
+          Alignment = taRightJustify
+          AutoSize = False
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Times New Roman'
+          ParentColor = False
           ParentFont = False
         end
       end
@@ -875,7 +888,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
         Transparent = False
       end
       object RLLabel5: TRLLabel
-        Left = 99
+        Left = 101
         Height = 14
         Top = 18
         Width = 22
@@ -904,7 +917,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
         Transparent = False
       end
       object RLLabel7: TRLLabel
-        Left = 136
+        Left = 138
         Height = 14
         Top = 18
         Width = 61
@@ -980,7 +993,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
     end
     object rlb06a_Totais: TRLBand[7]
       Left = 38
-      Height = 60
+      Height = 65
       Top = 606
       Width = 264
       AutoSize = True
@@ -995,7 +1008,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       BeforePrint = rlb06a_TotaisBeforePrint
       object rlmPagDesc: TRLMemo
         Left = 0
-        Height = 59
+        Height = 64
         Top = 0
         Width = 139
         Align = faLeft
@@ -1011,7 +1024,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       end
       object rlmPagValor: TRLMemo
         Left = 139
-        Height = 59
+        Height = 64
         Top = 0
         Width = 105
         Align = faLeft
@@ -1030,7 +1043,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
     object rlb06b_Tributos: TRLBand[8]
       Left = 38
       Height = 40
-      Top = 925
+      Top = 930
       Width = 264
       BandType = btSummary
       Borders.Sides = sdCustom
@@ -1057,7 +1070,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
     object rlbFaturaReal: TRLBand[9]
       Left = 38
       Height = 37
-      Top = 666
+      Top = 671
       Width = 264
       BandType = btSummary
       Borders.Sides = sdCustom
@@ -1212,7 +1225,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
     object rlbFatura: TRLBand[10]
       Left = 38
       Height = 222
-      Top = 703
+      Top = 708
       Width = 264
       BandType = btSummary
       Borders.Sides = sdCustom
@@ -1850,6 +1863,82 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
         Width = 302
         DrawKind = dkLine
         HoldStyle = hsRelatively
+      end
+    end
+    object rlb06a_Totais_Etiqueta: TRLBand[11]
+      Left = 38
+      Height = 39
+      Top = 970
+      Width = 264
+      AutoSize = True
+      BandType = btSummary
+      Borders.Sides = sdCustom
+      Borders.DrawLeft = False
+      Borders.DrawTop = True
+      Borders.DrawRight = False
+      Borders.DrawBottom = False
+      Color = clWhite
+      ParentColor = False
+      BeforePrint = rlb06a_Totais_EtiquetaBeforePrint
+      object RLLabel11: TRLLabel
+        Left = 3
+        Height = 15
+        Top = 24
+        Width = 200
+        Caption = 'VALOR TOTAL DA NOTA FISCAL:'
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Times New Roman'
+        ParentColor = False
+        ParentFont = False
+      end
+      object rllValorTotalNotaFiscal: TRLLabel
+        Left = 209
+        Height = 15
+        Top = 24
+        Width = 53
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'Valor Total da Nota Fiscal'
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Times New Roman'
+        ParentColor = False
+        ParentFont = False
+      end
+    end
+    object RLBand1: TRLBand[12]
+      Left = 38
+      Height = 112
+      Top = 1009
+      Width = 264
+      AutoSize = True
+      BandType = btSummary
+      Borders.Sides = sdCustom
+      Borders.DrawLeft = False
+      Borders.DrawTop = True
+      Borders.DrawRight = False
+      Borders.DrawBottom = False
+      Color = clWhite
+      ParentColor = False
+      BeforePrint = RLBand1BeforePrint
+      object rlmDadosAdicionais: TRLMemo
+        Left = 0
+        Height = 111
+        Top = 1
+        Width = 265
+        Align = faLeft
+        AutoSize = False
+        Behavior = [beSiteExpander]
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Times New Roman'
+        ParentColor = False
+        ParentFont = False
+        Transparent = False
       end
     end
   end

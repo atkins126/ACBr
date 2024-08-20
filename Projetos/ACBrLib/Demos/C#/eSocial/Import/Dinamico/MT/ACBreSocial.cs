@@ -169,12 +169,13 @@ namespace ACBrLib.eSocial
             return ProcessResult(buffer, bufferLen);
         }
 
-        public void CriarEnviareSocial(string eArqIni, int aGrupo)
+        public string CriarEnviareSocial(string eArqIni, int aGrupo)
         {
             var method = GetMethod<eSocial_CriarEnviareSocial>();
             var ret = ExecuteMethod(() => method(libHandle, ToUTF8(eArqIni), aGrupo));
 
             CheckResult(ret);
+            return GetUltimoRetorno(ret);
         }
 
         public void LimpareSocial()
@@ -289,6 +290,19 @@ namespace ACBrLib.eSocial
 
             var certificados = ProcessResult(buffer, bufferLen).Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             return certificados.Length == 0 ? new InfoCertificado[0] : certificados.Select(x => new InfoCertificado(x)).ToArray();
+        }
+
+        public string OpenSSLInfo()
+        {
+            var bufferLen = BUFFER_LEN;
+            var buffer = new StringBuilder(bufferLen);
+
+            var method = GetMethod<eSocial_OpenSSLInfo>();
+            var ret = ExecuteMethod(() => method(libHandle, buffer, ref bufferLen));
+
+            CheckResult(ret);
+
+            return ProcessResult(buffer, bufferLen);
         }
 
         #endregion Diversos

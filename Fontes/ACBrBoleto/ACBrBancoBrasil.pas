@@ -734,8 +734,13 @@ begin
 
      // Nº Dias para Baixa/Devolucao
      sDiasBaixa  := '   ';
-     if ((ATipoOcorrencia = '01') or (ATipoOcorrencia = '39')) and (Max(DataBaixa, DataLimitePagto) > Vencimento) then
-       sDiasBaixa  := IntToStrZero(DaysBetween(Vencimento, Max(DataBaixa, DataLimitePagto)), 3);
+     if ((ATipoOcorrencia = '01') or (ATipoOcorrencia = '39')) then
+     begin
+       if (Max(DataBaixa, DataLimitePagto) > Vencimento) then
+         sDiasBaixa  := IntToStrZero(DaysBetween(Vencimento, Max(DataBaixa, DataLimitePagto)), 3)
+       else
+         sDiasBaixa  := '000';
+     end;
 
      {SEGMENTO P}
      Result:= IntToStrZero(ACBrBanco.Numero, 3)                                         + // 1 a 3 - Código do banco
@@ -1284,6 +1289,16 @@ begin
        end;
 
        aRemessa.Text := aRemessa.Text + UpperCase(wLinha);
+
+       if (StrToIntDef(ATipoOcorrencia,0) in [1,85,86]) and ((Instrucao1 = '88') or (Instrucao2 = '88')) then
+       begin
+         wLinha := '5'                                          + //001 - 001 Identificação do Registro Transação Tipo 5
+                   '08'                                         + //002 - 003 Tipo de Serviço 08
+                   PadLeft(OrgaoNegativador,2,'0')              + //004 - 005 Agente Negativador 10 - Serasa ou 11 Quod
+                   Space(395);                                    //006 - 400 Brancos
+
+         aRemessa.Add(UpperCase(wLinha));
+       end;
      end;
    end;
 end;

@@ -36,8 +36,14 @@ unit pcnCFeW;
 interface
 
 uses
-  SysUtils, Classes,
-  pcnConversao, pcnGerador, pcnConsts, pcnCFe;
+  SysUtils,
+  Classes,
+  ACBrDFeConsts,
+  ACBrCFeConsts,
+  pcnConversao,
+  pcnGerador,
+  pcnCFe,
+  Math;
 
 type
 
@@ -113,8 +119,10 @@ type
 
 implementation
 
-Uses
-  pcnAuxiliar, ACBrUtil.Base, ACBrUtil.Strings;
+uses
+  ACBrDFeUtil,
+  ACBrUtil.Base,
+  ACBrUtil.Strings;
 
 { TCFeW }
 
@@ -167,7 +175,7 @@ begin
     if not ValidarCodigoUF(CFe.ide.cUF) then
       Gerador.wAlerta('B02', 'cUF', DSC_CUF, ERR_MSG_INVALIDO);
 
-    Gerador.wCampo(tcInt, 'B03', 'cNF      ', 06, 06, 0, CFe.ide.cNF, DSC_CNF);
+    Gerador.wCampo(tcInt, 'B03', 'cNF      ', 06, 06, 0, CFe.ide.cNF, DSC_CDF);
     Gerador.wCampo(tcInt, 'B04', 'mod      ', 02, 02, 0, CFe.ide.modelo, DSC_MOD);
     Gerador.wCampo(tcInt, 'B05', 'nserieSAT', 09, 09, 0, CFe.ide.nserieSAT, DSC_SERIE);
     Gerador.wCampo(tcInt, 'B06', 'nCFe     ', 06, 06, 0, IntToStrZero(CFe.ide.nCFe,6), DSC_NCFE);
@@ -288,6 +296,7 @@ end;
 procedure TCFeW.GerarDetProd(const i: integer);
 var
   DecQtd: TpcnTipoCampo;
+  LcEAN : string;
 begin
   if CFe.Det[i].Prod.EhCombustivel then
   begin
@@ -302,9 +311,16 @@ begin
 
   Gerador.wGrupo('prod', 'I01');
   Gerador.wCampo(tcStr, 'I02 ', 'cProd', 01, 60, 1, CFe.Det[i].Prod.cProd, DSC_CPROD);
-  Gerador.wCampo(tcStr, 'I03 ', 'cEAN ', 08, 14, 0, CFe.Det[i].Prod.cEAN, DSC_CEAN);
+
+  LcEAN := CFe.Det[i].Prod.cEAN;
+
+  if (CFe.infCFe.versaoDadosEnt >= 0.10) and (LcEAN = '') then
+    LcEAN := 'SEM GTIN';
+
+  Gerador.wCampo(tcStr, 'I03 ', 'cEAN ', 08, 14, IfThen(CFe.infCFe.versaoDadosEnt >= 0.10,1,0), LcEAN, DSC_CEAN);
+
   Gerador.wCampo(tcStr, 'I04 ', 'xProd', 1, 120, 1, CFe.Det[i].Prod.xProd, DSC_XPROD);
-  Gerador.wCampo(tcStr, 'I05 ', 'NCM  ', 02, 08, 0, CFe.Det[i].Prod.NCM, DSC_NCM);
+  Gerador.wCampo(tcStr, 'I05 ', 'NCM  ', 02, 08, IfThen(CFe.infCFe.versaoDadosEnt >= 0.10,1,0), CFe.Det[i].Prod.NCM, DSC_NCM);
 
   // Segundo o Manual o tamanho é fixo em 7
   if CFe.infCFe.versaoDadosEnt >= 0.08 then
@@ -330,6 +346,8 @@ begin
   end;
 
   (**)GerarDetobsFiscoDet(i);
+  if CFe.infCFe.versaoDadosEnt >= 0.10 then
+    Gerador.wCampo(tcInt64, 'I20 ', 'cANP  ', 09, 09, 0, CFe.Det[i].Prod.cANP, DSC_CANP);
   Gerador.wGrupo('/prod');
 end;
 
@@ -369,7 +387,7 @@ begin
   if CFe.Emit.cRegTrib = RTRegimeNormal then
   begin
     case CFe.Det[i].Imposto.ICMS.CST of
-      cst00, cst20, cst90 :
+      cst00, cst01, cst12, cst13, cst14, cst20, cst21, cst72, cst73, cst74, cst90 :
         begin
           Gerador.wGrupo('ICMS00');
           Gerador.wCampo(tcStr, 'N06', 'Orig ', 01, 01, 1, OrigTOStr(CFe.Det[i].Imposto.ICMS.orig), DSC_ORIG);
@@ -381,7 +399,7 @@ begin
 
           Gerador.wGrupo('/ICMS00');
         end;
-      cst40, cst41, cst50, cst60 :
+      cst30, cst40, cst41, cst50, cst60, cst61 :
         begin
           Gerador.wGrupo('ICMS40');
           Gerador.wCampo(tcStr, 'N06', 'Orig', 01, 01, 1, OrigTOStr(CFe.Det[i].Imposto.ICMS.orig), DSC_ORIG);

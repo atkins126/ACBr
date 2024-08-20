@@ -1,8 +1,8 @@
 inherited LibPIXCDDM: TLibPIXCDDM
   Height = 315
-  HorizontalOffset = 1020
-  VerticalOffset = 262
-  Width = 455
+  HorizontalOffset = 554
+  VerticalOffset = 268
+  Width = 563
   object ACBrPixCD1: TACBrPixCD[0]
     Recebedor.CodCategoriaComerciante = 0
     Left = 57
@@ -47,7 +47,7 @@ inherited LibPIXCDDM: TLibPIXCDDM
   end
   object ACBrPSPPagSeguro1: TACBrPSPPagSeguro[8]
     Scopes = [scCobWrite, scCobRead, scPixWrite, scPixRead]
-    Left = 57
+    Left = 56
     Top = 160
   end
   object ACBrPSPGerenciaNet1: TACBrPSPGerenciaNet[9]
@@ -72,7 +72,33 @@ inherited LibPIXCDDM: TLibPIXCDDM
   end
   object ACBrPSPMatera1: TACBrPSPMatera[13]
     Scopes = [scCobWrite, scCobRead, scPixWrite, scPixRead]
+    MediatorFee = 0
     Left = 144
     Top = 224
+  end
+  object ACBrPSPCielo1: TACBrPSPCielo[14]
+    Scopes = [scCobWrite, scCobRead, scPixWrite, scPixRead]
+    Left = 240
+    Top = 224
+  end
+  object ACBrPSPMercadoPago1: TACBrPSPMercadoPago[15]
+    Scopes = [scCobWrite, scCobRead, scPixWrite, scPixRead]
+    Left = 352
+    Top = 224
+  end
+  object ACBrPSPBanrisul1: TACBrPSPBanrisul[16]
+    Scopes = [scCobWrite, scCobRead, scPixWrite, scPixRead]
+    Left = 472
+    Top = 40
+  end
+  object ACBrPSPGate2All1: TACBrPSPGate2All[17]
+    Scopes = [scCobWrite, scCobRead, scPixWrite, scPixRead]
+    Left = 448
+    Top = 96
+  end
+  object ACBrPSPC6Bank1: TACBrPSPC6Bank[18]
+    Scopes = [scCobWrite, scCobRead, scPixWrite, scPixRead]
+    Left = 480
+    Top = 160
   end
 end

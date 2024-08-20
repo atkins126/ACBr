@@ -119,9 +119,8 @@ begin
   NrOcorrValLiq := 0;
   NrOcorrCodigoCnae := 0;
   NrOcorrCodTribMun := 0;
-  NrOcorrCodigoPais := 0;
   NrOcorrMunIncid := 0;
-  NrOcorrCodPaisTomador := 0;
+  NrOcorrCodigoPaisTomador := 0;
   NrOcorrRazaoSocialInterm := 0;
   NrOcorrValorDeducoes := 0;
   NrOcorrValorISSRetido_1 := 0;
@@ -141,7 +140,6 @@ begin
   NrOcorrValorTotalRecebido := -1;
   NrOcorrInscEstTomador := -1;
   NrOcorrOutrasInformacoes := -1;
-  NrOcorrCodPaisTomador := -1;
   NrOcorrInformacoesComplemetares := -1;
   NrOcorrRegimeEspecialTributacao := -1;
 end;

@@ -49,13 +49,13 @@ uses
 type
   TACBrNFSeXWebservicePadraoNacional = class(TACBrNFSeXWebserviceRest)
   public
-    function GerarNFSe(ACabecalho, AMSG: string): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: string): string; override;
-    function ConsultarNFSePorChave(ACabecalho, AMSG: string): string; override;
-    function EnviarEvento(ACabecalho, AMSG: string): string; override;
-    function ConsultarEvento(ACabecalho, AMSG: string): string; override;
-    function ConsultarDFe(ACabecalho, AMSG: string): string; override;
-    function ConsultarParam(ACabecalho, AMSG: string): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: string): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: string): string; override;
+    function ConsultarNFSePorChave(const ACabecalho, AMSG: string): string; override;
+    function EnviarEvento(const ACabecalho, AMSG: string): string; override;
+    function ConsultarEvento(const ACabecalho, AMSG: string): string; override;
+    function ConsultarDFe(const ACabecalho, AMSG: string): string; override;
+    function ConsultarParam(const ACabecalho, AMSG: string): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -109,9 +109,9 @@ implementation
 
 uses
   synacode,
-  pcnAuxiliar,
   ACBrDFeException, ACBrCompress,
-  ACBrUtil.Base, ACBrUtil.XMLHTML, ACBrUtil.Strings,
+  ACBrUtil.DateTime,
+  ACBrUtil.Base, ACBrUtil.XMLHTML, ACBrUtil.Strings, ACBrUtil.FilesIO,
   ACBrNFSeX, ACBrNFSeXConsts, ACBrNFSeXConfiguracoes,
   PadraoNacional.GravarXml, PadraoNacional.LerXml;
 
@@ -129,6 +129,14 @@ begin
     FormatoArqRetorno := tfaJson;
     FormatoArqEnvioSoap := tfaJson;
     FormatoArqRetornoSoap := tfaJson;
+
+    ServicosDisponibilizados.EnviarUnitario := True;
+    ServicosDisponibilizados.ConsultarNfseChave := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.EnviarEvento := True;
+    ServicosDisponibilizados.ConsultarEvento := True;
+    ServicosDisponibilizados.ConsultarDFe := True;
+    ServicosDisponibilizados.ConsultarParam := True;
   end;
 
   with ConfigWebServices do
@@ -146,17 +154,11 @@ begin
 
     DadosCabecalho := GetCabecalho('');
 
-    with XmlRps do
-    begin
-      InfElemento := 'infDPS';
-      DocElemento := 'DPS';
-    end;
+    XmlRps.InfElemento := 'infDPS';
+    XmlRps.DocElemento := 'DPS';
 
-    with EnviarEvento do
-    begin
-      InfElemento := 'infPedReg';
-      DocElemento := 'pedRegEvento';
-    end;
+    EnviarEvento.InfElemento := 'infPedReg';
+    EnviarEvento.DocElemento := 'pedRegEvento';
   end;
 
   with ConfigAssinar do
@@ -230,8 +232,8 @@ var
     begin
       AItem := Collection.New;
       AItem.Codigo := Codigo;
-      AItem.Descricao := ACBrStr(JSonItem.AsString['Descricao']);
-      AItem.Correcao := ACBrStr(JSonItem.AsString['Complemento']);
+      AItem.Descricao := JSonItem.AsString['Descricao'];
+      AItem.Correcao := JSonItem.AsString['Complemento'];
     end
     else
     begin
@@ -241,8 +243,8 @@ var
       begin
         AItem := Collection.New;
         AItem.Codigo := Codigo;
-        AItem.Descricao := ACBrStr(JSonItem.AsString['descricao']);
-        AItem.Correcao := ACBrStr(JSonItem.AsString['complemento']);
+        AItem.Descricao := JSonItem.AsString['descricao'];
+        AItem.Correcao := JSonItem.AsString['complemento'];
       end;
     end;
   end;
@@ -337,7 +339,7 @@ begin
        (ConfigAssinar.RpsGerarNFSe and (Response.ModoEnvio = meUnitario)) then
     begin
       Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
-                                         PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
+                                         ConfigMsgDados.XmlRps.DocElemento,
                                          ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
 
       Response.ArquivoEnvio := Nota.XmlRps;
@@ -359,7 +361,8 @@ var
   NFSeXml: string;
   DocumentXml: TACBrXmlDocument;
   ANode: TACBrXmlNode;
-  NumNFSe, NumDps: string;
+  NumNFSe, NumDps, CodVerif: string;
+  DataAut: TDateTime;
   ANota: TNotaFiscal;
 begin
   if Response.ArquivoRetorno = '' then
@@ -405,10 +408,19 @@ begin
 
           ANode := DocumentXml.Root.Childrens.FindAnyNs('infNFSe');
 
+          CodVerif := OnlyNumber(ObterConteudoTag(ANode.Attributes.Items['Id']));
           NumNFSe := ObterConteudoTag(ANode.Childrens.FindAnyNs('nNFSe'), tcStr);
+          DataAut := ObterConteudoTag(ANode.Childrens.FindAnyNs('dhProc'), tcDatHor);
+
           ANode := ANode.Childrens.FindAnyNs('DPS');
           ANode := ANode.Childrens.FindAnyNs('infDPS');
           NumDps := ObterConteudoTag(ANode.Childrens.FindAnyNs('nDPS'), tcStr);
+
+          with Response do
+          begin
+            NumeroNota := NumNFSe;
+            Data := DataAut;
+          end;
 
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumDps);
 
@@ -1317,6 +1329,11 @@ begin
           Response.ArquivoEnvio := '{"pedidoRegistroEventoXmlGZipB64":"' + Response.ArquivoEnvio + '"}';
           FpPath := '/nfse/' + FpChave + '/eventos';
         end;
+    else
+      begin
+        Response.ArquivoEnvio := '';
+        FpPath := '';
+      end;
     end;
 
     FpMethod := 'POST';
@@ -1361,7 +1378,7 @@ end;
 
 { TACBrNFSeXWebservicePadraoNacional }
 
-function TACBrNFSeXWebservicePadraoNacional.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.GerarNFSe(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1373,7 +1390,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebservicePadraoNacional.ConsultarNFSePorChave(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.ConsultarNFSePorChave(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1385,7 +1402,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebservicePadraoNacional.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.ConsultarNFSePorRps(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1397,7 +1414,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebservicePadraoNacional.EnviarEvento(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.EnviarEvento(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1409,7 +1426,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebservicePadraoNacional.ConsultarEvento(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.ConsultarEvento(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1421,7 +1438,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebservicePadraoNacional.ConsultarDFe(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.ConsultarDFe(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1433,7 +1450,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebservicePadraoNacional.ConsultarParam(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.ConsultarParam(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1450,7 +1467,7 @@ function TACBrNFSeXWebservicePadraoNacional.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  if Pos('%PDF-1.4', Result) = 0 then
+  if not StringIsPDF(Result) then
     Result := UTF8Decode(Result);
 end;
 

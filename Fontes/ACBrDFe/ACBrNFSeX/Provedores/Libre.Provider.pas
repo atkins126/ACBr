@@ -48,14 +48,14 @@ type
   private
     function GetNameSpace: string;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -90,6 +90,9 @@ begin
     ConsultaPorFaixaPreencherNumNfseFinal := True;
     ModoEnvio := meLoteAssincrono;
     Identificador := '';
+
+    ServicosDisponibilizados.EnviarLoteSincrono := False;
+    ServicosDisponibilizados.EnviarUnitario := False;
   end;
 
   ConfigWebServices.AtribVerLote := '';
@@ -172,7 +175,7 @@ begin
   Result := 'xmlns:nfse="' + Result + '"';
 end;
 
-function TACBrNFSeXWebserviceLibre204.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceLibre204.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -188,7 +191,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceLibre204.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceLibre204.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -204,7 +207,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceLibre204.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceLibre204.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -220,7 +223,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceLibre204.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceLibre204.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -236,7 +239,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceLibre204.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceLibre204.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -252,7 +255,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceLibre204.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceLibre204.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -268,7 +271,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceLibre204.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceLibre204.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -283,7 +286,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceLibre204.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceLibre204.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -305,7 +308,7 @@ function TACBrNFSeXWebserviceLibre204.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 
   // Retorno do EnviarLote retornando tag fora do padrão

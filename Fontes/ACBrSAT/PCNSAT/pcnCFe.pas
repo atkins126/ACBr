@@ -47,7 +47,7 @@ uses
   {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
    System.Contnrs,
   {$IfEnd}      
-  pcnConversao, pcnSignature, pcnAuxiliar, ACBrBase;
+  pcnConversao, pcnSignature, ACBrBase;
 
 type
 
@@ -325,7 +325,7 @@ type
     FCEST: string;
     FCFOP: string;
     FuCom: string;
-    FqCom: currency;
+    FqCom: double;
     FvUnCom: double;
     FvProd: currency;
     FindRegra: TpcnindRegra;
@@ -335,6 +335,7 @@ type
     FvRatDesc: currency;
     FvRatAcr: currency;
     FobsFiscoDet: TobsFiscoDetCollection;
+    FcANP: integer;
   public
     constructor Create(AOwner: TDetcollectionItem);
     destructor Destroy; override;
@@ -348,7 +349,7 @@ type
     property CFOP: string read FCFOP write FCFOP;
     property uCom: string read FuCom write FuCom;
     property EhCombustivel: Boolean read FEhCombustivel write FEhCombustivel;
-    property qCom: currency read FqCom write FqCom;
+    property qCom: double read FqCom write FqCom;
     property vUnCom: double read FvUnCom write FvUnCom;
     property vProd: currency read FvProd write FvProd;
     property indRegra : TpcnindRegra read FindRegra write FindRegra;
@@ -358,6 +359,7 @@ type
     property vRatDesc: currency read FvRatDesc write FvRatDesc;
     property vRatAcr: currency read FvRatAcr write FvRatAcr;
     property obsFiscoDet: TobsFiscoDetCollection read FobsFiscoDet;
+    property cANP: integer read FcANP write FcANP;
   end;
 
   { TobsFiscoDetCollection }
@@ -1380,7 +1382,7 @@ begin
   try
     try
       infCFe.versaoDadosEnt := StringToFloatDef(INIRec.ReadString('infCFe','versao',''), infCFe.versaoDadosEnt);
-      Ide.cUF        := INIRec.ReadInteger( 'Identificacao','cUF' ,UFparaCodigo(INIRec.ReadString(  'Emitente','UF', CodigoParaUF(Ide.cUF))));
+      Ide.cUF        := INIRec.ReadInteger( 'Identificacao','cUF' ,UFparaCodigoUF(INIRec.ReadString(  'Emitente','UF', CodigoUFparaUF(Ide.cUF))));
       Ide.cNF        := INIRec.ReadInteger( 'Identificacao','cNF' ,INIRec.ReadInteger( 'Identificacao','Codigo' ,Ide.cNF));
       Ide.modelo     := INIRec.ReadInteger( 'Identificacao','mod' ,INIRec.ReadInteger( 'Identificacao','Modelo' ,Ide.modelo));
       Ide.nserieSAT  := INIRec.ReadInteger( 'Identificacao','nserieSAT'  ,Ide.nserieSAT);

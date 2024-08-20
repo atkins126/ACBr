@@ -4,7 +4,7 @@
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
-{																			   }
+{                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
 {                                                                              }
@@ -36,8 +36,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, Spin, Buttons, ComCtrls, OleCtrls, SHDocVw,
   ShellAPI, XMLIntf, XMLDoc, zlib,
-  ACBrBase, ACBrUtil, ACBrDFe,
-  ACBrMail, ACBrONE;
+  ACBrBase, ACBrDFe, ACBrMail, ACBrONE;
 
 type
   TfrmACBrONE = class(TForm)
@@ -259,7 +258,9 @@ implementation
 uses
   strutils, math, TypInfo, DateUtils, synacode, blcksock, FileCtrl, Grids,
   IniFiles, Printers,
-  pcnConversao, pcnConversaoONE,
+  pcnConversao,
+  ACBrONE.Conversao,
+  ACBrUtil.DateTime, ACBrUtil.FilesIO, ACBrUtil.XMLHTML, ACBrUtil.Base,
   ACBrDFeSSL, ACBrDFeOpenSSL, ACBrDFeUtil,
   Frm_Status, Frm_SelecionarCertificado;
 
@@ -280,7 +281,7 @@ end;
 procedure TfrmACBrONE.ACBrONE1StatusChange(Sender: TObject);
 begin
   case ACBrONE1.Status of
-    stIdleONE:
+    stONEIdle:
       begin
         if ( frmStatus <> nil ) then
           frmStatus.Hide;
@@ -520,7 +521,7 @@ begin
       placa           := 'ABC1234';
       tpVeiculo       := tvCarga;
       velocidade      := 80;
-      foto            := '';
+      foto            := 'xxxxxxxxxxx';
       indiceConfianca := 84;
       pesoBrutoTotal  := 5;
       nroEixos        := 3;
@@ -948,8 +949,8 @@ end;
 
 procedure TfrmACBrONE.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser);
 begin
-  ACBrUtil.WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
-                      ACBrUtil.ConverteXMLtoUTF8(RetWS), False, False);
+  WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
+                      ConverteXMLtoUTF8(RetWS), False, False);
 
   MyWebBrowser.Navigate(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml');
 end;

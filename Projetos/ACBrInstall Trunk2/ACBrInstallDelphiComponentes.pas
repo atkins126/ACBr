@@ -58,6 +58,8 @@ type
     UsarCargaTardiaDLL: Boolean;
     RemoverStringCastWarnings: Boolean;
     DeveSobrescreverDllsExistentes: Boolean;
+    UsarExportadorFRSVG: Boolean;
+    UsarExportadorFRPNG: Boolean;
   public
     procedure DesligarDefines(const ArquivoACBrInc: TFileName);
     procedure RedefinirValoresOpcoesParaPadrao;
@@ -133,7 +135,7 @@ type
     procedure InstalarOutrosRequisitos;
     procedure FazInstalacaoDLLs(const APathBin: string);
     procedure ConfiguraMetodosCompiladores;
-    function FazBroadcastDeAlteracaoDeConfiguracao(cs: PWideChar) : Integer;
+//    function FazBroadcastDeAlteracaoDeConfiguracao(cs: PWideChar) : Integer;
 
   public
     OpcoesInstall: TACBrInstallOpcoes;
@@ -251,8 +253,8 @@ end;
 
 procedure TACBrInstallComponentes.BeforeExecute(Sender: TJclBorlandCommandLineTool);
 const
-  VersoesComNamespaces: array[0..12] of string = ('d16', 'd17','d18','d19','d20','d21','d22','d23','d24','d25',
-                                                  'd26','d27', 'd28');
+  VersoesComNamespaces: array[0..13] of string = ('d16', 'd17','d18','d19','d20','d21','d22','d23','d24','d25',
+                                                  'd26','d27', 'd28','d29');
   NamespacesBase = 'System;Xml;Data;Datasnap;Web;Soap;';
   NamespacesWindows = 'Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Winapi;System.Win;';
   NamespacesOSX = 'Macapi;Posix;System.Mac;';
@@ -449,8 +451,14 @@ begin
     end;
     InformaProgresso;
 
+    if OpcoesCompilacao.UsarExportadorFRSVG then
+      InformaSituacao('Habilitado Diretiva de Exportação SVG para Fast Reports...');
+
+    if OpcoesCompilacao.UsarExportadorFRPNG then
+      InformaSituacao('Habilitado Diretiva de Exportação PNG para Fast Reports...');
 
     CompilarEInstalarPacotes(ListaPacotes);
+
   end; //<---- endwith
 end;
 
@@ -804,18 +812,18 @@ begin
   Result := (FCountErros = 0);
 end;
 
-function TACBrInstallComponentes.FazBroadcastDeAlteracaoDeConfiguracao(cs: PWideChar) : Integer;
-var
-  wParam: Integer;
-  lParam: Integer;
-  lpdwResult: PDWORD_PTR;
-begin
-  // enviar um broadcast de atualização para o windows
-  wParam := 0;
-  lParam := LongInt(cs);
-  lpdwResult := nil;
-  Result := SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, wParam, lParam, SMTO_NORMAL, 4000, lpdwResult);
-end;
+//function TACBrInstallComponentes.FazBroadcastDeAlteracaoDeConfiguracao(cs: PWideChar) : Integer;
+//var
+//  wParam: Integer;
+//  lParam: Integer;
+//  lpdwResult: PDWORD_PTR;
+//begin
+//  // enviar um broadcast de atualização para o windows
+//  wParam := 0;
+//  lParam := LongInt(cs);
+//  lpdwResult := nil;
+//  Result := SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, wParam, lParam, SMTO_NORMAL, 4000, lpdwResult);
+//end;
 
 procedure TACBrInstallComponentes.InstalarCapicom(ADestino : TDestino; const APathBin: string);
 begin
@@ -946,49 +954,18 @@ begin
 end;
 
 procedure TACBrInstallComponentes.AdicionaEnvironmentPathNaVersaoEspecificaDoDelphi(const AProcurarRemover: string);
-var
-  PathsAtuais: string;
-  ListaPaths: TStringList;
-  I: Integer;
-  Resultado: Integer;
-const
-  cs: PChar = 'Environment Variables';
+//var
+//  Resultado: Integer;
+//const
+//  cs: PChar = 'Environment Variables';
 begin
-  with FUmaPlataformaDestino do
-  begin
-    // tentar ler o path configurado na ide do delphi, se não existir ler
-    // a atual para complementar e fazer o override
-    PathsAtuais := Trim(InstalacaoAtual.EnvironmentVariables.Values['PATH']);
-    if PathsAtuais = '' then
-      PathsAtuais := GetEnvironmentVariable('PATH');
-    // manipular as strings
-    ListaPaths := TStringList.Create;
-    try
-      ListaPaths.Clear;
-      ListaPaths.Delimiter := ';';
-      ListaPaths.StrictDelimiter := True;
-      ListaPaths.DelimitedText := PathsAtuais;
-      // verificar se existe algo do ACBr e remover apenas se for Win32
-      if (Trim(AProcurarRemover) <> '') and (tPlatformAtual = bpWin32) then
-      begin
-        for I := ListaPaths.Count - 1 downto 0 do
-        begin
-          if Pos(AnsiUpperCase(AProcurarRemover), AnsiUpperCase(ListaPaths[I])) > 0 then
-            ListaPaths.Delete(I);
-        end;
-      end;
-      // adicionar ao path a pasta da biblioteca
-      ListaPaths.Add(sDirLibrary);
-      InstalacaoAtual.ConfigData.WriteString(cs, 'PATH', ListaPaths.DelimitedText);
+  FUmaPlataformaDestino.AdicionaEnvironmentPath(AProcurarRemover, False);
 
-      //Isso é realmente necessário??
-      Resultado := FazBroadcastDeAlteracaoDeConfiguracao(cs);
-      if Resultado = 0 then
-        raise Exception.create('Ocorreu um erro ao tentar configurar o path: ' + SysErrorMessage(GetLastError));
-    finally
-      ListaPaths.Free;
-    end;
-  end;//---endwith
+  //Isso é realmente necessário??
+  // Não é necessário fazer broadcast. A alteração afeta apenas a IDE e não a variável do sistema "PATH".
+//  Resultado := FazBroadcastDeAlteracaoDeConfiguracao(cs);
+//  if Resultado = 0 then
+//    raise Exception.create('Ocorreu um erro ao tentar configurar o path: ' + SysErrorMessage(GetLastError));
 end;
 
 procedure TACBrInstallComponentes.CompilaPacotePorNomeArquivo(const NomePacote: string);
@@ -1211,7 +1188,7 @@ begin
 
     if not (listaPacotes[iDpk].SuportaVersao(FUmaPlataformaDestino.InstalacaoAtual.IDEPackageVersionNumber)) then
     begin
-      FazLog(Format('Versão "%s" não suportada para o pacote "%s". Pulando pacote.',
+      FazLog(Format('Info: Versão "%s" não suportada para o pacote "%s". Pulando pacote.',
                     [IntToStr(FUmaPlataformaDestino.InstalacaoAtual.VersionNumber), NomePacote]) );
       InformaProgresso;
       Continue;
@@ -1219,6 +1196,14 @@ begin
 
     // Busca diretório do pacote
     sDirPackage := FindDirPackage(IncludeTrailingPathDelimiter(PastaACBr) + 'Pacotes\Delphi', NomePacote);
+    if (sDirPackage = '') and (not listaPacotes[iDpk].MarcadoParaInstalar) then
+    begin
+      FazLog(Format('Info: Pacote "%s" não localizado. Mas não marcado para instalar... Pulando pacote.',
+                    [NomePacote]) );
+      InformaProgresso;
+      Continue;
+    end;
+
     FPacoteAtual := sDirPackage + NomePacote;
     GetDPKFileInfo(FPacoteAtual, bRunOnly);
 
@@ -1277,6 +1262,10 @@ begin
     UsarCargaTardiaDLL        := ArqIni.ReadBool('CONFIG','CargaDllTardia', True);
     RemoverStringCastWarnings := ArqIni.ReadBool('CONFIG','RemoverCastWarnings', RemoverStringCastWarnings);
     DeveSobrescreverDllsExistentes := ArqIni.ReadBool('CONFIG','SobrescreverDLL', DeveSobrescreverDllsExistentes);;
+    DeveInstalarOpenSSL       := ArqIni.ReadBool('CONFIG','InstalaOpenSSL', DeveInstalarOpenSSL);
+    DeveInstalarOpenSSL       := ArqIni.ReadBool('CONFIG','InstalaOpenSSL', DeveInstalarOpenSSL);
+    UsarExportadorFRPNG       := ArqIni.ReadBool('CONFIG','UsarExportadorFRPNG', UsarExportadorFRPNG);
+    UsarExportadorFRSVG       := ArqIni.ReadBool('CONFIG','UsarExportadorFRSVG', UsarExportadorFRSVG);
   finally
     ArqIni.Free;
   end;
@@ -1290,6 +1279,8 @@ begin
   DesligarDefineACBrInc(ArquivoACBrInc, 'USE_DELAYED', UsarCargaTardiaDLL);
   DesligarDefineACBrInc(ArquivoACBrInc, 'REMOVE_CAST_WARN', RemoverStringCastWarnings);
   DesligarDefineACBrInc(ArquivoACBrInc, 'DFE_SEM_XMLSEC', not DeveInstalarXMLSec);
+  DesligarDefineACBrInc(ArquivoACBrInc, 'USE_EXPORT_FR_SVG', UsarExportadorFRSVG);
+  DesligarDefineACBrInc(ArquivoACBrInc, 'USE_EXPORT_FR_PNG', UsarExportadorFRPNG);
 end;
 
 procedure TACBrCompilerOpcoes.RedefinirValoresOpcoesParaPadrao;
@@ -1300,6 +1291,8 @@ begin
   UsarCargaTardiaDLL             := True;
   RemoverStringCastWarnings      := True;
   DeveSobrescreverDllsExistentes := False;
+  UsarExportadorFRSVG            := False;
+  UsarExportadorFRPNG            := False;
 end;
 
 procedure TACBrCompilerOpcoes.SalvarEmArquivoIni(const ArquivoIni: string);
@@ -1314,6 +1307,8 @@ begin
     ArqIni.WriteBool('CONFIG','CargaDllTardia', UsarCargaTardiaDLL);
     ArqIni.WriteBool('CONFIG','RemoverCastWarnings', RemoverStringCastWarnings);
     ArqIni.WriteBool('CONFIG','SobrescreverDLL', DeveSobrescreverDllsExistentes);
+    ArqIni.WriteBool('CONFIG','UsarExportadorFRPNG', UsarExportadorFRPNG);
+    ArqIni.WriteBool('CONFIG','UsarExportadorFRSVG', UsarExportadorFRSVG);
   finally
     ArqIni.Free;
   end;

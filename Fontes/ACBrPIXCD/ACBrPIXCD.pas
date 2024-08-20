@@ -332,6 +332,7 @@ type
     procedure SetChavePIX(AValue: String);
     procedure SetACBrPixCD(AValue: TACBrPixCD);
   protected
+    fpIsBacen: Boolean;
     fpAutenticado: Boolean;
     fpAutenticouManual:Boolean;
     fpToken: String;
@@ -407,6 +408,7 @@ type
     property epCobV: TACBrPixEndPointCobV read fepCobV;
 
     property Http: THTTPSend read fHttpSend;
+    property IsBacen: Boolean read fpIsBacen;
   published
     property ACBrPixCD: TACBrPixCD read fPixCD write SetACBrPixCD;
 
@@ -814,8 +816,8 @@ begin
   fPSP.PrepararHTTP;
   with fPSP.URLQueryParams do
   begin
-    Values['inicio'] := DateTimeToIso8601(aInicio);
-    Values['fim'] := DateTimeToIso8601(aFim);
+    Values['inicio'] := DateTimeToIso8601(aInicio, BiasToTimeZone(TimeZoneBias*(-1)));
+    Values['fim'] := DateTimeToIso8601(aFim, BiasToTimeZone(TimeZoneBias*(-1)));
 
     s := OnlyNumber(aCpfCnpj);
     if NaoEstaVazio(s) then
@@ -945,6 +947,9 @@ begin
       end
       else if NaoEstaVazio(ArquivoChavePrivada) then
         Http.Sock.SSL.PrivateKeyFile := ArquivoChavePrivada;
+
+      if NaoEstaVazio(SenhaPFX) then
+        Http.Sock.SSL.KeyPassword := SenhaPFX;
     end;
   end;
 end;
@@ -1051,10 +1056,13 @@ var
 begin
   if (NivelLog > 1) then
     RegistrarLog('ConsultarPix( '+e2eid+' )');
-  if (Trim(e2eid) = '') then
+  if EstaVazio(Trim(e2eid)) then
     raise EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['e2eid']);
-  e := ValidarEndToEndId(e2eid);
-  if (e <> '') then
+
+  e := EmptyStr;
+  if fPSP.IsBacen then
+    e := ValidarEndToEndId(e2eid);
+  if NaoEstaVazio(e) then
     raise EACBrPixException.Create(ACBrStr(e));
 
   Clear;
@@ -1090,8 +1098,8 @@ begin
 
   with fPSP.URLQueryParams do
   begin
-    Values['inicio'] := DateTimeToIso8601(Inicio);
-    Values['fim'] := DateTimeToIso8601(Fim);
+    Values['inicio'] := DateTimeToIso8601(Inicio, BiasToTimeZone(TimeZoneBias*(-1)));
+    Values['fim'] := DateTimeToIso8601(Fim, BiasToTimeZone(TimeZoneBias*(-1)));
 
     s := Trim(TxId);
     if (s <> '') then
@@ -1141,14 +1149,13 @@ begin
   if (Trim(e2eid) = '') then
     raise EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['e2eid']);
 
-  if (Trim(idDevolucao) = '') then
+  if (Trim(idDevolucao) = '') and fPSP.IsBacen then
     raise EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['idDevolucao']);
 
   Body := Trim(fDevolucaoSolicitada.AsJSON);
   if (Body = '') then
     raise EACBrPixException.CreateFmt(ACBrStr(sErroObjetoNaoPrenchido), ['DevolucaoSolicitada']);
 
-  Clear;
   fPSP.PrepararHTTP;
   fPSP.URLPathParams.Add(e2eid);
   fPSP.URLPathParams.Add('devolucao');
@@ -1156,6 +1163,8 @@ begin
   fPSP.ConfigurarBody(ChttpMethodPUT, EndPoint, Body);
   WriteStrToStream(fPSP.Http.Document, Body);
   fPSP.Http.MimeType := CContentTypeApplicationJSon;
+
+  Clear;
   fPSP.AcessarEndPoint(ChttpMethodPUT, EndPoint, ResultCode, RespostaHttp);
   Result := (ResultCode = HTTP_CREATED);
 
@@ -1208,6 +1217,12 @@ begin
   fCobGerada := TACBrPIXCobGerada.Create('');
   fCobRevisada := TACBrPIXCobRevisada.Create('');
   fCobCompleta := TACBrPIXCobCompleta.Create('');
+
+  fCobsConsultadas.IsBacen := fPSP.IsBacen;
+  fCobSolicitada.IsBacen := fPSP.IsBacen;
+  fCobGerada.IsBacen := fPSP.IsBacen;
+  fCobRevisada.IsBacen := fPSP.IsBacen;
+  fCobCompleta.IsBacen := fPSP.IsBacen;
 end;
 
 destructor TACBrPixEndPointCob.Destroy;
@@ -1243,7 +1258,6 @@ begin
   if (Body = '') then
     raise EACBrPixException.CreateFmt(ACBrStr(sErroObjetoNaoPrenchido), ['CobSolicitada']);
 
-  Clear;
   fPSP.PrepararHTTP;
   if (TxId <> '') then
   begin
@@ -1256,6 +1270,8 @@ begin
   fPSP.ConfigurarBody(ep, EndPoint, Body);
   WriteStrToStream(fPSP.Http.Document, Body);
   fPSP.Http.MimeType := CContentTypeApplicationJSon;
+
+  Clear;
   fPSP.AcessarEndPoint(ep, EndPoint, ResultCode, RespostaHttp);
   Result := (ResultCode = HTTP_CREATED);
 
@@ -1280,12 +1296,13 @@ begin
   if (Body = '') then
     raise EACBrPixException.CreateFmt(ACBrStr(sErroObjetoNaoPrenchido), ['CobRevisada']);
 
-  Clear;
   fPSP.PrepararHTTP;
   fPSP.URLPathParams.Add(TxId);
   fPSP.ConfigurarBody(ChttpMethodPATCH, EndPoint, Body);
   WriteStrToStream(fPSP.Http.Document, Body);
   fPSP.Http.MimeType := CContentTypeApplicationJSon;
+
+  Clear;
   fPSP.AcessarEndPoint(ChttpMethodPATCH, EndPoint, ResultCode, RespostaHttp);
   Result := (ResultCode = HTTP_OK);
 
@@ -1344,8 +1361,8 @@ begin
 
   with fPSP.URLQueryParams do
   begin
-    Values['inicio'] := DateTimeToIso8601(Inicio);
-    Values['fim'] := DateTimeToIso8601(Fim);
+    Values['inicio'] := DateTimeToIso8601(Inicio, BiasToTimeZone(TimeZoneBias*(-1)));
+    Values['fim'] := DateTimeToIso8601(Fim, BiasToTimeZone(TimeZoneBias*(-1)));
 
     s := OnlyNumber(CpfCnpj);
     if (s <> '') then
@@ -1430,6 +1447,7 @@ begin
   fpValidadeToken := 0;
   fpToken := '';
   fpRefreshToken := '';
+  fpIsBacen := True;
 
   fHttpRespStream := TMemoryStream.Create;
   fHttpSend := THTTPSend.Create;
@@ -1544,6 +1562,7 @@ begin
 
   fk1 := FormatDateTime('hhnnsszzz',Now);
   fClientID := StrCrypt(AValue, fk1);  // Salva de forma Criptografada, para evitar "Inspect"
+  fpAutenticado := False;  // Força uma nova autenticação
 end;
 
 function TACBrPSP.GetClientSecret: String;
@@ -1558,6 +1577,7 @@ begin
 
   fk2 := FormatDateTime('hhnnsszzz',Now);
   fClientSecret := StrCrypt(AValue, fk2);  // Salva de forma Criptografada, para evitar "Inspect"
+  fpAutenticado := False;  // Força uma nova autenticação
 end;
 
 procedure TACBrPSP.SetTipoChave(AValue: TACBrPIXTipoChave);
@@ -1883,40 +1903,148 @@ end;
 function TACBrPSP.TransmitirHttp(const AMethod, AURL: String; out
   ResultCode: Integer; out RespostaHttp: AnsiString): Boolean;
 var
-  vMethod, vURL: String;
-  HttpBody: AnsiString;
+  vMethod, vURL, vLocation, vReqHeader: String;
+  vHttpBody, vMimeType: AnsiString;
+  ContRedir: Integer;
+
+  function DoTransmitirHTTP: Boolean;
+  begin
+    ConfigurarHTTP;
+    ConfigurarHeaders(vMethod, vURL);
+    ChamarEventoQuandoTransmitirHttp(vURL, vMethod);
+    if (NivelLog > 2) then
+    begin
+      RegistrarLog('  Req.Headers:'+ sLineBreak + vReqHeader);
+      RegistrarLog('  Req.Body:'+ sLineBreak + vHttpBody);
+    end;
+
+    if (NivelLog > 3) then
+      RegistrarLog(sLineBreak +
+        'Http.Sock.SSL.CertificateFile: ' + Http.Sock.SSL.CertificateFile + sLineBreak +
+        'Http.Sock.SSL.PrivateKeyFile: ' + Http.Sock.SSL.PrivateKeyFile + sLineBreak +
+        'Http.Sock.SSL.Certificate: ' + Http.Sock.SSL.Certificate + sLineBreak +
+        'Http.Sock.SSL.PrivateKey: ' + Http.Sock.SSL.PrivateKey + sLineBreak);
+
+    fHttpRespStream.Clear;
+    Result := fHttpSend.HTTPMethod(vMethod, vURL);  // HTTP call
+    ResultCode := fHttpSend.ResultCode;
+
+    if (NivelLog > 1) then
+      RegistrarLog('  ResultCode: '+IntToStr(ResultCode)+' - '+fHttpSend.ResultString);
+
+    if (NivelLog > 3) then
+    begin
+      RegistrarLog('  Sock.LastError: '+IntToStr(fHttpSend.Sock.LastError));
+      RegistrarLog('  Resp.Headers:'+ sLineBreak + fHttpSend.Headers.Text);
+    end;
+  end;
+
+  function ResultCodeIsRedir(ResultCode: Integer): Boolean;
+  begin
+    case ResultCode of
+      301, 302, 303, 307:
+        Result := True;
+      else
+        Result := False;
+    end;
+  end;
+
+  function IsAbsoluteURL(const URL: String): Boolean;
+  const
+    protocolos: array[0..2] of string = ('http','https', 'ftp');
+  var
+   i: Integer;
+  begin
+    Result := False;
+
+    //Testa se é um tipo absoluto relativo ao protocolo
+    if Pos('//', URL) = 1 then
+    begin
+      Result := True;
+      Exit;
+    end;
+
+    //Testa se é um tipo relativo
+    if Pos('/', URL) = 1 then
+    begin
+      Result := False;
+      Exit;
+    end;
+
+    //Testa se inicia por protocolos...
+    for I := 0 to High(protocolos) do
+    begin
+      if Pos(UpperCase(protocolos[i])+'://', UpperCase(URL)) = 1 then
+      begin
+        Result := True;
+        Break;
+      end;
+    end;
+
+    if Result then Exit;
+
+    //Começa com "www."
+    if Pos('www.', URL) = 1 then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+
+  function GetURLBasePath(const URL: String): String;
+  begin
+    Result := Copy(URL, 1, PosLast('/',URL) );
+  end;
+
 begin
   VerificarPIXCDAtribuido;
   if NivelLog > 1 then
     RegistrarLog('TransmitirHttp( '+AMethod+', '+AURL+' )');
 
-  HttpBody := '';
   vMethod := AMethod;
   vURL := AURL;
-  ConfigurarHTTP;
-  ConfigurarHeaders(AMethod, vURL);
-  ChamarEventoQuandoTransmitirHttp(vURL, vMethod);
-  if (NivelLog > 2) then
-    RegistrarLog('  Req.Headers:'+ sLineBreak + fHttpSend.Headers.Text);
-  if (NivelLog > 2) then
+  vReqHeader := fHttpSend.Headers.Text;
+  vHttpBody := StreamToAnsiString(fHttpSend.Document);
+  vMimeType := fHttpSend.MimeType;
+  Result := DoTransmitirHTTP;
+
+  ContRedir := 0;
+  while Result and (ContRedir <= 10) and (ResultCodeIsRedir(ResultCode)) do
   begin
-    HttpBody := StreamToAnsiString(fHttpSend.Document);
-    RegistrarLog('  Req.Body:'+ sLineBreak + HttpBody);
+    Inc(ContRedir);
+    if (NivelLog > 2) then
+      RegistrarLog('  Redirect: '+IntToStr(ContRedir));
+
+    vLocation := GetHeaderValue('Location:', fHttpSend.Headers);
+    vLocation := Trim(SeparateLeft( vLocation, ';' ));
+
+    //Location pode ser relativa ou absoluta http://stackoverflow.com/a/25643550/460775
+    if IsAbsoluteURL(vLocation) then
+      vURL := vLocation
+    else
+      vURL := GetURLBasePath( vURL ) + vLocation;
+
+    fHTTPSend.Clear;
+    fHTTPSend.Headers.Text := vReqHeader;
+    WriteStrToStream(fHttpSend.Document, vHttpBody);
+    fHttpSend.MimeType := vMimeType;
+
+    // Tipo de método usado não deveria ser trocado...
+    // https://tools.ietf.org/html/rfc2616#page-62
+    // ... mas talvez seja necessário, pois a maioria dos browsers o fazem
+    // http://blogs.msdn.com/b/ieinternals/archive/2011/08/19/understanding-the-impact-of-redirect-response-status-codes-on-http-methods-like-head-get-post-and-delete.aspx
+    if (ResultCode = HTTP_SEE_OTHER) or
+       ( ((ResultCode = HTTP_MOVED_PERMANENTLY) or (ResultCode = HTTP_MOVED_TEMPORARILY)) and (vMethod = ChttpMethodPOST) ) then
+      vMethod := ChttpMethodGET;
+
+    Result := DoTransmitirHTTP;
   end;
-
-  fHttpRespStream.Clear;
-  Result := fHttpSend.HTTPMethod(vMethod, vURL);  // HTTP call
-  ResultCode := fHttpSend.ResultCode;
-
-  if NivelLog > 1 then
-    RegistrarLog('  ResultCode: '+IntToStr(ResultCode)+' - '+fHttpSend.ResultString);
-  if (NivelLog > 3) then
-    RegistrarLog('  Resp.Headers:'+ sLineBreak + fHttpSend.Headers.Text);
 
   if ContentIsCompressed(fHttpSend.Headers) then
   begin
     if (NivelLog > 2) then
       RegistrarLog('    Decompress Content');
+
     RespostaHttp := DecompressStream(fHttpSend.OutputStream)
   end
   else

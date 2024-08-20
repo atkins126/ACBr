@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Jurisato Junior                           }
 {                                                                              }
@@ -39,17 +39,19 @@ interface
 uses
   Classes, SysUtils, StrUtils,
   ACBrBPeConfiguracoes,
-  pcnBPe, pcnBPeR, pcnBPeW, pcnConversao, pcnAuxiliar, pcnLeitor;
+  ACBrBPeClass, ACBrBPeXmlReader, ACBrBPeXmlWriter,
+//  pcnConversao,
+  ACBrBPeConversao;
 
 type
 
-  { Bilhete }
+  { TBilhete }
 
-  Bilhete = class(TCollectionItem)
+  TBilhete = class(TCollectionItem)
   private
     FBPe: TBPe;
-    FBPeW: TBPeW;
-    FBPeR: TBPeR;
+    FBPeW: TBPeXmlWriter;
+    FBPeR: TBPeXmlReader;
 
     FConfiguracoes: TConfiguracoesBPe;
     FXMLAssinado: String;
@@ -91,9 +93,6 @@ type
     function GerarXML: String;
     function GravarXML(const NomeArquivo: String = ''; const PathArquivo: String = ''): Boolean;
 
-    function GerarTXT: String;
-    function GravarTXT(const NomeArquivo: String = ''; const PathArquivo: String = ''): Boolean;
-
     function GravarStream(AStream: TStream): Boolean;
 
     procedure EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings = nil;
@@ -131,8 +130,8 @@ type
     FACBrBPe: TComponent;
     FConfiguracoes: TConfiguracoesBPe;
 
-    function GetItem(Index: integer): Bilhete;
-    procedure SetItem(Index: integer; const Value: Bilhete);
+    function GetItem(Index: integer): TBilhete;
+    procedure SetItem(Index: integer; const Value: TBilhete);
 
     procedure VerificarDABPE;
   public
@@ -150,10 +149,10 @@ type
     procedure ImprimirResumidoPDF;
     procedure ImprimirOffline;
 
-    function Add: Bilhete;
-    function Insert(Index: integer): Bilhete;
+    function Add: TBilhete;
+    function Insert(Index: integer): TBilhete;
 
-    property Items[Index: integer]: Bilhete read GetItem write SetItem; default;
+    property Items[Index: integer]: TBilhete read GetItem write SetItem; default;
 
     function GetNamePath: String; override;
     // Incluido o Parametro AGerarBPe que determina se após carregar os dados da BPe
@@ -165,7 +164,6 @@ type
 
     function GerarIni: String;
     function GravarXML(const PathNomeArquivo: String = ''): Boolean;
-    function GravarTXT(PathNomeArquivo: String = ''): Boolean;
 
     property ACBrBPe: TComponent read FACBrBPe;
   end;
@@ -175,50 +173,48 @@ implementation
 uses
   dateutils, IniFiles,
   synautil,
+  ACBrXmlBase,
   ACBrBPe,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.FilesIO,
   ACBrUtil.XMLHTML,
   ACBrUtil.DateTime,
-  ACBrDFeUtil, pcnConversaoBPe;
-
+  ACBrDFeUtil,
+  ACBrXmlDocument;
 { Bilhete }
 
-constructor Bilhete.Create(Collection2: TCollection);
+constructor TBilhete.Create(Collection2: TCollection);
 begin
   inherited Create(Collection2);
 
   FBPe := TBPe.Create;
-  FBPeW := TBPeW.Create(FBPe);
-  FBPeR := TBPeR.Create(FBPe);
+  FBPeW := TBPeXmlWriter.Create(FBPe);
+  FBPeR := TBPeXmlReader.Create(FBPe);
   FConfiguracoes := TACBrBPe(TBilhetes(Collection).ACBrBPe).Configuracoes;
+
+  FBPe.Ide.tpBPe := tbNormal;
+  FBPe.Ide.verProc := 'ACBrBPe';
 
   with TACBrBPe(TBilhetes(Collection).ACBrBPe) do
   begin
-//    FBPe.Ide.modelo := 63;
     FBPe.Ide.modelo := StrToInt(ModeloBPeToStr(Configuracoes.Geral.ModeloDF));
     FBPe.infBPe.Versao := VersaoBPeToDbl(Configuracoes.Geral.VersaoDF);
-    FBPe.Ide.tpBPe := tbNormal;
-    FBPe.Ide.verProc := 'ACBrBPe';
-    FBPe.Ide.tpAmb := Configuracoes.WebServices.Ambiente;
-
-    if Configuracoes.Geral.FormaEmissao = pcnConversao.teNormal then
-      FBPe.Ide.tpEmis := teNormal
-    else
-      FBPe.Ide.tpEmis := teOffLine;
+    FBPe.Ide.tpAmb := TACBrTipoAmbiente(Configuracoes.WebServices.Ambiente);
+    FBPe.Ide.tpEmis := TACBrTipoEmissao(Configuracoes.Geral.FormaEmissao);
   end;
 end;
 
-destructor Bilhete.Destroy;
+destructor TBilhete.Destroy;
 begin
   FBPeW.Free;
   FBPeR.Free;
   FBPe.Free;
+
   inherited Destroy;
 end;
 
-procedure Bilhete.Imprimir;
+procedure TBilhete.Imprimir;
 begin
   with TACBrBPe(TBilhetes(Collection).ACBrBPe) do
   begin
@@ -229,7 +225,7 @@ begin
   end;
 end;
 
-procedure Bilhete.ImprimirPDF;
+procedure TBilhete.ImprimirPDF;
 begin
   with TACBrBPe(TBilhetes(Collection).ACBrBPe) do
   begin
@@ -240,11 +236,12 @@ begin
   end;
 end;
 
-procedure Bilhete.Assinar;
+procedure TBilhete.Assinar;
 var
   XMLStr: String;
   XMLUTF8: AnsiString;
-  Leitor: TLeitor;
+  Document: TACBrXmlDocument;
+  ANode, SignatureNode, ReferenceNode, X509DataNode: TACBrXmlNode;
 begin
   with TACBrBPe(TBilhetes(Collection).ACBrBPe) do
   begin
@@ -268,29 +265,44 @@ begin
     // SSL.Assinar() sempre responde em UTF8...
     FXMLOriginal := FXMLAssinado;
 
-    Leitor := TLeitor.Create;
+    Document := TACBrXmlDocument.Create;
     try
-      leitor.Grupo := FXMLAssinado;
-      BPe.signature.URI := Leitor.rAtributo('Reference URI=');
-      BPe.signature.DigestValue := Leitor.rCampo(tcStr, 'DigestValue');
-      BPe.signature.SignatureValue := Leitor.rCampo(tcStr, 'SignatureValue');
-      BPe.signature.X509Certificate := Leitor.rCampo(tcStr, 'X509Certificate');
+      try
+        Document.LoadFromXml(FXMLOriginal);
+        ANode := Document.Root;
+
+        if ANode <> nil then
+        begin
+          SignatureNode := ANode.Childrens.FindAnyNs('Signature');
+          ReferenceNode := SignatureNode.Childrens.FindAnyNs('SignedInfo')
+                                        .Childrens.FindAnyNs('Reference');
+          X509DataNode :=  SignatureNode.Childrens.FindAnyNs('KeyInfo')
+                                        .Childrens.FindAnyNs('X509Data');
+
+          BPe.signature.URI := ObterConteudoTag(ReferenceNode.Attributes.Items['URI']);
+          BPe.signature.DigestValue := ObterConteudoTag(ReferenceNode.Childrens.FindAnyNs('DigestValue'), tcStr);
+          BPe.signature.SignatureValue := ObterConteudoTag(SignatureNode.Childrens.FindAnyNs('SignatureValue'), tcStr);
+          BPe.signature.X509Certificate := ObterConteudoTag(X509DataNode.Childrens.FindAnyNs('X509Certificate'), tcStr);
+        end;
+      except
+        //Result := False;
+      end;
     finally
-      Leitor.Free;
+      FreeAndNil(Document);
     end;
 
     if Configuracoes.Geral.ModeloDF = moBPe then
     begin
-      with TACBrBPe(TBilhetes(Collection).ACBrBPe) do
-      begin
-        BPe.infBPeSupl.qrCodBPe := GetURLQRCode(BPe.Ide.cUF,
-                                                BPe.Ide.tpAmb,
-                                                BPe.infBPe.ID);
+//      with TACBrBPe(TBilhetes(Collection).ACBrBPe) do
+//      begin
+      BPe.infBPeSupl.qrCodBPe := GetURLQRCode(BPe.Ide.cUF,
+                                              BPe.Ide.tpAmb,
+                                              BPe.infBPe.ID);
 
-  //      BPe.infBPeSupl.boardPassBPe := GetURLConsultaNFCe(BPe.Ide.cUF, BPe.Ide.tpAmb);
+      BPe.infBPeSupl.boardPassBPe := GetURLConsultaBPe(BPe.Ide.cUF, BPe.Ide.tpAmb);
 
-        GerarXML;
-      end;
+      GerarXML;
+//      end;
     end;
 
     if Configuracoes.Arquivos.Salvar and
@@ -304,7 +316,7 @@ begin
   end;
 end;
 
-procedure Bilhete.Validar;
+procedure TBilhete.Validar;
 var
   Erro, AXML, Grupo: String;
   BilheteEhValida: Boolean;
@@ -354,7 +366,7 @@ begin
   end;
 end;
 
-function Bilhete.VerificarAssinatura: Boolean;
+function TBilhete.VerificarAssinatura: Boolean;
 var
   Erro, AXML, Grupo: String;
   AssEhValida: Boolean;
@@ -391,7 +403,7 @@ begin
   Result := AssEhValida;
 end;
 
-function Bilhete.ValidarRegrasdeNegocios: Boolean;
+function TBilhete.ValidarRegrasdeNegocios: Boolean;
 var
   Erros: String;
   I: Integer;
@@ -409,7 +421,9 @@ var
   end;
 
 begin
-  Agora := DataHoraTimeZoneModoDeteccao( TACBrBPe(TBilhetes(Collection).ACBrBPe) );   //Converte o DateTime do Sistema para o TimeZone configurado, para evitar divergência de Fuso Horário.
+  // Converte o DateTime do Sistema para o TimeZone configurado, para evitar
+  // divergência de Fuso Horário.
+  Agora := DataHoraTimeZoneModoDeteccao(TACBrBPe(TBilhetes(Collection).ACBrBPe));
   GravaLog('Inicio da Validação');
 
   with TACBrBPe(TBilhetes(Collection).ACBrBPe) do
@@ -457,23 +471,17 @@ begin
   FErroRegrasdeNegocios := Erros;
 end;
 
-function Bilhete.LerXML(const AXML: String): Boolean;
-var
-  XMLStr: String;
+function TBilhete.LerXML(const AXML: String): Boolean;
 begin
-  XMLOriginal := AXML;  // SetXMLOriginal() irá verificar se AXML está em UTF8
+  XMLOriginal := AXML;
 
-  { Verifica se precisa converter "AXML" de UTF8 para a String nativa da IDE.
-    Isso é necessário, para que as propriedades fiquem com a acentuação correta }
-  XMLStr := ParseText(AXML, True, XmlEhUTF8(AXML));
-
-  FBPeR.Leitor.Arquivo := XMLStr;
+  FBPeR.Arquivo := XMLOriginal;
   FBPeR.LerXml;
 
   Result := True;
 end;
 
-function Bilhete.GravarXML(const NomeArquivo: String; const PathArquivo: String): Boolean;
+function TBilhete.GravarXML(const NomeArquivo: String; const PathArquivo: String): Boolean;
 begin
   if EstaVazio(FXMLOriginal) then
     GerarXML;
@@ -483,17 +491,7 @@ begin
   Result := TACBrBPe(TBilhetes(Collection).ACBrBPe).Gravar(FNomeArq, FXMLOriginal);
 end;
 
-function Bilhete.GravarTXT(const NomeArquivo: String; const PathArquivo: String): Boolean;
-var
-  ATXT: String;
-begin
-  FNomeArq := CalcularNomeArquivoCompleto(NomeArquivo, PathArquivo);
-  ATXT := GerarTXT;
-  Result := TACBrBPe(TBilhetes(Collection).ACBrBPe).Gravar(
-    ChangeFileExt(FNomeArq, '.txt'), ATXT);
-end;
-
-function Bilhete.GravarStream(AStream: TStream): Boolean;
+function TBilhete.GravarStream(AStream: TStream): Boolean;
 begin
   if EstaVazio(FXMLOriginal) then
     GerarXML;
@@ -503,7 +501,7 @@ begin
   Result := True;
 end;
 
-procedure Bilhete.EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings;
+procedure TBilhete.EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings;
   EnviaPDF: Boolean; sCC: TStrings; Anexos: TStrings; sReplyTo: TStrings);
 var
   NomeArq_Temp : String;
@@ -543,49 +541,57 @@ begin
   end;
 end;
 
-function Bilhete.GerarXML: String;
+function TBilhete.GerarXML: String;
 var
   IdAnterior : String;
 begin
   with TACBrBPe(TBilhetes(Collection).ACBrBPe) do
   begin
     IdAnterior := BPe.infBPe.ID;
-    FBPeW.Gerador.Opcoes.FormatoAlerta  := Configuracoes.Geral.FormatoAlerta;
-    FBPeW.Gerador.Opcoes.RetirarAcentos := Configuracoes.Geral.RetirarAcentos;
-    FBPeW.Gerador.Opcoes.RetirarEspacos := Configuracoes.Geral.RetirarEspacos;
-    FBPeW.Gerador.Opcoes.IdentarXML     := Configuracoes.Geral.IdentarXML;
+    FBPeW.Opcoes.FormatoAlerta  := Configuracoes.Geral.FormatoAlerta;
+    FBPeW.Opcoes.RetirarAcentos := Configuracoes.Geral.RetirarAcentos;
+    FBPeW.Opcoes.RetirarEspacos := Configuracoes.Geral.RetirarEspacos;
+    FBPeW.Opcoes.IdentarXML     := Configuracoes.Geral.IdentarXML;
     FBPeW.Opcoes.NormatizarMunicipios   := Configuracoes.Arquivos.NormatizarMunicipios;
     FBPeW.Opcoes.PathArquivoMunicipios  := Configuracoes.Arquivos.PathArquivoMunicipios;
 
-    pcnAuxiliar.TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
+    TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
 
+    {
+      Ao gerar o XML as tags e atributos tem que ser exatamente os da configuração
+    }
+    {
+    FBPeW.VersaoDF := Configuracoes.Geral.VersaoDF;
+    FBPeW.ModeloDF := Configuracoes.Geral.ModeloDF;
+    FBPeW.tpAmb := TACBrTipoAmbiente(Configuracoes.WebServices.Ambiente);
+    FBPeW.tpEmis := TACBrTipoEmissao(Configuracoes.Geral.FormaEmissao);
+    }
     FBPeW.idCSRT := Configuracoes.RespTec.IdCSRT;
     FBPeW.CSRT   := Configuracoes.RespTec.CSRT;
   end;
-
-  FBPeW.Opcoes.GerarTXTSimultaneamente := False;
 
   FBPeW.GerarXml;
   //DEBUG
   //WriteToTXT('c:\temp\Bilhete.xml', FBPeW.Gerador.ArquivoFormatoXML, False, False);
 
-  XMLOriginal := FBPeW.Gerador.ArquivoFormatoXML;  // SetXMLOriginal() irá converter para UTF8
+  XMLOriginal := FBPeW.Document.Xml;
 
   { XML gerado pode ter nova Chave e ID, então devemos calcular novamente o
     nome do arquivo, mantendo o PATH do arquivo carregado }
   if (NaoEstaVazio(FNomeArq) and (IdAnterior <> FBPe.infBPe.ID)) then
     FNomeArq := CalcularNomeArquivoCompleto('', ExtractFilePath(FNomeArq));
 
-  FAlertas := ACBrStr( FBPeW.Gerador.ListaDeAlertas.Text );
+  FAlertas := ACBrStr( FBPeW.ListaDeAlertas.Text );
   Result := FXMLOriginal;
 end;
 
-function Bilhete.GerarBPeIni: String;
+function TBilhete.GerarBPeIni: String;
 var
   I: integer;
   sSecao: string;
   INIRec: TMemIniFile;
   IniBPe: TStringList;
+  Ok: Boolean;
 begin
   Result := '';
 
@@ -596,6 +602,8 @@ begin
   try
     with FBPe do
     begin
+      INIRec.WriteString('infBPe', 'versao', VersaoBPeToStr(DblToVersaoBPe(Ok, infBPe.versao)));
+
       INIRec.WriteInteger('ide', 'cUF', ide.cUF);
       INIRec.WriteInteger('ide', 'mod', Ide.modelo);
       INIRec.WriteInteger('ide', 'serie', Ide.serie);
@@ -603,7 +611,7 @@ begin
       INIRec.WriteInteger('ide', 'cBP', Ide.cBP);
       INIRec.WriteString('ide', 'modal', ModalBPeToStr(Ide.modal));
       INIRec.WriteString('ide', 'dhEmi', DateTimeToStr(Ide.dhEmi));
-      INIRec.WriteString('ide', 'tpEmis', tpEmisBPeToStr(Ide.tpEmis));
+      INIRec.WriteString('ide', 'tpEmis', TipoEmissaoToStr(Ide.tpEmis));
       INIRec.WriteString('ide', 'verProc', Ide.verProc);
       INIRec.WriteString('ide', 'tpBPe', tpBPeToStr(Ide.tpBPe));
       INIRec.WriteString('ide','indPres', PresencaCompradorToStr(Ide.indPres));
@@ -707,27 +715,24 @@ begin
       begin
         sSecao := 'infViagem' + IntToStrZero(i + 1, 3);
 
-        with infViagem[i] do
+        INIRec.WriteString(sSecao, 'cPercurso', infViagem[i].cPercurso);
+        INIRec.WriteString(sSecao, 'xPercurso', infViagem[i].xPercurso);
+        INIRec.WriteString(sSecao, 'tpViagem', tpViagemToStr(infViagem[i].tpViagem));
+        INIRec.WriteString(sSecao, 'tpServ', tpServicoToStr(infViagem[i].tpServ));
+        INIRec.WriteString(sSecao, 'tpAcomodacao', tpAcomodacaoToStr(infViagem[i].tpAcomodacao));
+        INIRec.WriteString(sSecao, 'tpTrecho', tpTrechoToStr(infViagem[i].tpTrecho));
+        INIRec.WriteString(sSecao, 'dhViagem', DateTimeToStr(infViagem[i].dhViagem));
+        INIRec.WriteString(sSecao, 'dhConexao', DateTimeToStr(infViagem[i].dhConexao));
+        INIRec.WriteString(sSecao, 'prefixo', infViagem[i].Prefixo);
+        INIRec.WriteInteger(sSecao, 'poltrona', infViagem[i].Poltrona);
+        INIRec.WriteString(sSecao, 'plataforma', infViagem[i].Plataforma);
+
+        // Informações da Travessia
+
+        if infViagem[i].infTravessia.tpVeiculo <> tvNenhum then
         begin
-          INIRec.WriteString(sSecao, 'cPercurso', infViagem[i].cPercurso);
-          INIRec.WriteString(sSecao, 'xPercurso', infViagem[i].xPercurso);
-          INIRec.WriteString(sSecao, 'tpViagem', tpViagemToStr(infViagem[i].tpViagem));
-          INIRec.WriteString(sSecao, 'tpServ', tpServicoToStr(infViagem[i].tpServ));
-          INIRec.WriteString(sSecao, 'tpAcomodacao', tpAcomodacaoToStr(infViagem[i].tpAcomodacao));
-          INIRec.WriteString(sSecao, 'tpTrecho', tpTrechoToStr(infViagem[i].tpTrecho));
-          INIRec.WriteString(sSecao, 'dhViagem', DateTimeToStr(infViagem[i].dhViagem));
-          INIRec.WriteString(sSecao, 'dhConexao', DateTimeToStr(infViagem[i].dhConexao));
-          INIRec.WriteString(sSecao, 'prefixo', infViagem[i].Prefixo);
-          INIRec.WriteInteger(sSecao, 'poltrona', infViagem[i].Poltrona);
-          INIRec.WriteString(sSecao, 'plataforma', infViagem[i].Plataforma);
-
-          // Informações da Travessia
-
-          if infViagem[i].infTravessia.tpVeiculo <> tvNenhum then
-          begin
-            INIRec.WriteString(sSecao, 'tpVeiculo', tpVeiculoToStr(infViagem[i].infTravessia.tpVeiculo));
-            INIRec.WriteString(sSecao, 'sitVeiculo', SitVeiculoToStr(infViagem[i].infTravessia.sitVeiculo));
-          end;
+          INIRec.WriteString(sSecao, 'tpVeiculo', tpVeiculoToStr(infViagem[i].infTravessia.tpVeiculo));
+          INIRec.WriteString(sSecao, 'sitVeiculo', SitVeiculoToStr(infViagem[i].infTravessia.sitVeiculo));
         end;
       end;
 
@@ -747,11 +752,8 @@ begin
       begin
         sSecao := 'Comp' + IntToStrZero(i + 1, 3);
 
-        with infValorBPe.Comp[i] do
-        begin
-          INIRec.WriteString(sSecao, 'tpComp', tpComponenteToStr(infValorBPe.Comp[i].tpComp));
-          INIRec.WriteFloat(sSecao, 'vComp', infValorBPe.Comp[i].vComp);
-        end;
+        INIRec.WriteString(sSecao, 'tpComp', tpComponenteToStr(infValorBPe.Comp[i].tpComp));
+        INIRec.WriteFloat(sSecao, 'vComp', infValorBPe.Comp[i].vComp);
       end;
 
       // ICMS
@@ -762,6 +764,8 @@ begin
       INIRec.WriteFloat('ICMS', 'vICMS', Imp.ICMS.vICMS);
       INIRec.WriteFloat('ICMS', 'pRedBC', Imp.ICMS.pRedBC);
       INIRec.WriteFloat('ICMS', 'vCred', Imp.ICMS.vCred);
+      INIRec.WriteFloat('ICMS', 'vICMSDeson', Imp.ICMS.vICMSDeson);
+      INIRec.WriteString('ICMS', 'cBenef', Imp.ICMS.cBenef);
       INIRec.WriteFloat('ICMS', 'vTotTrib', Imp.vTotTrib);
       INIRec.WriteString('ICMS', 'infAdFisco', Imp.infAdFisco);
 
@@ -782,22 +786,19 @@ begin
       begin
         sSecao := 'pag' + IntToStrZero(i + 1, 2);
 
-        with pag[I] do
-        begin
-          INIRec.WriteString(sSecao, 'tPag', FormaPagamentoBPeToStr(tPag));
-          INIRec.WriteString(sSecao, 'xPag', xPag);
-          INIRec.WriteString(sSecao, 'nDocPag', nDocPag);
-          INIRec.WriteFloat(sSecao, 'vPag', vPag);
-          INIRec.WriteString(sSecao, 'tpIntegra', tpIntegraToStr(tpIntegra));
-          INIRec.WriteString(sSecao, 'CNPJ', CNPJ);
-          INIRec.WriteString(sSecao, 'tBand', BandeiraCardToStr(tBand));
-          INIRec.WriteString(sSecao, 'xBand', xBand);
-          INIRec.WriteString(sSecao, 'cAut', cAut);
-          INIRec.WriteString(sSecao, 'nsuTrans', nsuTrans);
-          INIRec.WriteString(sSecao, 'nsuHost', nsuHost);
-          INIRec.WriteInteger(sSecao, 'nParcelas', nParcelas);
-          INIRec.WriteString(sSecao, 'infAdCard', infAdCard);
-        end;
+        INIRec.WriteString(sSecao, 'tPag', FormaPagamentoBPeToStr(pag[I].tPag));
+        INIRec.WriteString(sSecao, 'xPag', pag[I].xPag);
+        INIRec.WriteString(sSecao, 'nDocPag', pag[I].nDocPag);
+        INIRec.WriteFloat(sSecao, 'vPag', pag[I].vPag);
+        INIRec.WriteString(sSecao, 'tpIntegra', tpIntegraToStr(pag[I].tpIntegra));
+        INIRec.WriteString(sSecao, 'CNPJ', pag[I].CNPJ);
+        INIRec.WriteString(sSecao, 'tBand', BandeiraCardToStr(pag[I].tBand));
+        INIRec.WriteString(sSecao, 'xBand', pag[I].xBand);
+        INIRec.WriteString(sSecao, 'cAut', pag[I].cAut);
+        INIRec.WriteString(sSecao, 'nsuTrans', pag[I].nsuTrans);
+        INIRec.WriteString(sSecao, 'nsuHost', pag[I].nsuHost);
+        INIRec.WriteInteger(sSecao, 'nParcelas', pag[I].nParcelas);
+        INIRec.WriteString(sSecao, 'infAdCard', pag[I].infAdCard);
       end;
 
       // Autorizados a baixar o XML
@@ -806,10 +807,7 @@ begin
       begin
         sSecao := 'autXML' + IntToStrZero(i + 1, 2);
 
-        with autXML.Items[i] do
-        begin
-          INIRec.WriteString(sSecao, 'CNPJCPF', CNPJCPF);
-        end;
+        INIRec.WriteString(sSecao, 'CNPJCPF', autXML.Items[i].CNPJCPF);
       end;
 
       // Informações Adicionais
@@ -837,36 +835,7 @@ begin
   end;
 end;
 
-function Bilhete.GerarTXT: String;
-var
-  IdAnterior : String;
-begin
-  with TACBrBPe(TBilhetes(Collection).ACBrBPe) do
-  begin
-    IdAnterior := BPe.infBPe.ID;
-    FBPeW.Gerador.Opcoes.FormatoAlerta  := Configuracoes.Geral.FormatoAlerta;
-    FBPeW.Gerador.Opcoes.RetirarAcentos := Configuracoes.Geral.RetirarAcentos;
-    FBPeW.Gerador.Opcoes.RetirarEspacos := Configuracoes.Geral.RetirarEspacos;
-    FBPeW.Gerador.Opcoes.IdentarXML     := Configuracoes.Geral.IdentarXML;
-    FBPeW.Opcoes.NormatizarMunicipios   := Configuracoes.Arquivos.NormatizarMunicipios;
-    FBPeW.Opcoes.PathArquivoMunicipios  := Configuracoes.Arquivos.PathArquivoMunicipios;
-  end;
-
-  FBPeW.Opcoes.GerarTXTSimultaneamente := True;
-
-  FBPeW.GerarXml;
-  XMLOriginal := FBPeW.Gerador.ArquivoFormatoXML;
-
-  // XML gerado pode ter nova Chave e ID, então devemos calcular novamente o
-  // nome do arquivo, mantendo o PATH do arquivo carregado
-  if (NaoEstaVazio(FNomeArq) and (IdAnterior <> FBPe.infBPe.ID)) then
-    FNomeArq := CalcularNomeArquivoCompleto('', ExtractFilePath(FNomeArq));
-
-  FAlertas := FBPeW.Gerador.ListaDeAlertas.Text;
-  Result := FBPeW.Gerador.ArquivoFormatoTXT;
-end;
-
-function Bilhete.CalcularNomeArquivo: String;
+function TBilhete.CalcularNomeArquivo: String;
 var
   xID: String;
   NomeXML: String;
@@ -881,7 +850,7 @@ begin
   Result := xID + NomeXML;
 end;
 
-function Bilhete.CalcularPathArquivo: String;
+function TBilhete.CalcularPathArquivo: String;
 var
   Data: TDateTime;
 begin
@@ -896,7 +865,7 @@ begin
   end;
 end;
 
-function Bilhete.CalcularNomeArquivoCompleto(NomeArquivo: String;
+function TBilhete.CalcularNomeArquivoCompleto(NomeArquivo: String;
   PathArquivo: String): String;
 var
   PathNoArquivo: String;
@@ -918,7 +887,7 @@ begin
   Result := PathArquivo + NomeArquivo;
 end;
 
-//function Bilhete.ValidarConcatChave: Boolean;
+//function TBilhete.ValidarConcatChave: Boolean;
 //var
 //  wAno, wMes, wDia: word;
 //  chaveBPe : String;
@@ -940,40 +909,40 @@ end;
 //  {*)}
 //end;
 
-function Bilhete.GetConfirmada: Boolean;
+function TBilhete.GetConfirmada: Boolean;
 begin
   Result := TACBrBPe(TBilhetes(Collection).ACBrBPe).CstatConfirmada(
     FBPe.procBPe.cStat);
 end;
 
-function Bilhete.GetcStat: Integer;
+function TBilhete.GetcStat: Integer;
 begin
   Result := FBPe.procBPe.cStat;
 end;
 
-function Bilhete.GetProcessada: Boolean;
+function TBilhete.GetProcessada: Boolean;
 begin
   Result := TACBrBPe(TBilhetes(Collection).ACBrBPe).CstatProcessado(
     FBPe.procBPe.cStat);
 end;
 
-function Bilhete.GetCancelada: Boolean;
+function TBilhete.GetCancelada: Boolean;
 begin
   Result := TACBrBPe(TBilhetes(Collection).ACBrBPe).CstatCancelada(
     FBPe.procBPe.cStat);
 end;
 
-function Bilhete.GetMsg: String;
+function TBilhete.GetMsg: String;
 begin
   Result := FBPe.procBPe.xMotivo;
 end;
 
-function Bilhete.GetNumID: String;
+function TBilhete.GetNumID: String;
 begin
   Result := OnlyNumber(BPe.infBPe.ID);
 end;
 
-function Bilhete.GetXMLAssinado: String;
+function TBilhete.GetXMLAssinado: String;
 begin
   if EstaVazio(FXMLAssinado) then
     Assinar;
@@ -981,12 +950,12 @@ begin
   Result := FXMLAssinado;
 end;
 
-procedure Bilhete.SetXML(const AValue: String);
+procedure TBilhete.SetXML(const AValue: String);
 begin
   LerXML(AValue);
 end;
 
-procedure Bilhete.SetXMLOriginal(const AValue: String);
+procedure TBilhete.SetXMLOriginal(const AValue: String);
 var
   XMLUTF8: String;
 begin
@@ -1002,12 +971,15 @@ begin
     FXMLAssinado := '';
 end;
 
-function Bilhete.LerArqIni(const AIniString: String): Boolean;
+function TBilhete.LerArqIni(const AIniString: String): Boolean;
 var
   INIRec: TMemIniFile;
   sSecao, versao, sFim: String;
   OK: Boolean;
   I: Integer;
+  ItemPag: TpagCollectionItem;
+  IteminfViagem: TInfViagemCollectionItem;
+  ItemComp: TCompCollectionItem;
 begin
   Result := True;
 
@@ -1019,19 +991,19 @@ begin
     begin
       infBPe.versao := StringToFloatDef(INIRec.ReadString('infBPe', 'versao', VersaoBPeToStr(FConfiguracoes.Geral.VersaoDF)),0);
 
-      versao := FloatToString(infBPe.versao, '.', '#0.00');
-      FConfiguracoes.Geral.VersaoDF := StrToVersaoBPe(OK, versao);
+//      versao := FloatToString(infBPe.versao, '.', '#0.00');
+//      FConfiguracoes.Geral.VersaoDF := StrToVersaoBPe(OK, versao);
 
-      Ide.tpAmb   := StrToTpAmb(OK, INIRec.ReadString( 'ide', 'tpAmb', TpAmbToStr(FConfiguracoes.WebServices.Ambiente)));
+      Ide.tpAmb   := StrToTipoAmbiente(OK, INIRec.ReadString(sSecao, 'tpAmb', IntToStr(Integer(FConfiguracoes.WebServices.Ambiente))));
       Ide.modelo  := INIRec.ReadInteger('ide', 'mod', 63);
       Ide.serie   := INIRec.ReadInteger('ide', 'serie', 1);
       Ide.nBP     := INIRec.ReadInteger('ide', 'nBP', 0);
       Ide.cBP     := INIRec.ReadInteger('ide', 'cBP', 0);
       Ide.modal   := StrToModalBPe(OK, INIRec.ReadString('ide', 'modal', '1'));
       Ide.dhEmi   := StringToDateTime(INIRec.ReadString('ide', 'dhEmi', '0'));
-      Ide.tpEmis  := StrToTpEmisBPe(OK, INIRec.ReadString('ide', 'tpEmis', IntToStr(FConfiguracoes.Geral.FormaEmissaoCodigo)));
+      Ide.tpEmis  := StrToTipoEmissao(OK, INIRec.ReadString(sSecao, 'tpEmis', IntToStr(FConfiguracoes.Geral.FormaEmissaoCodigo)));
       Ide.verProc := INIRec.ReadString('ide', 'verProc', 'ACBrBPe');
-      Ide.tpBPe   := StrTotpBPe(OK,INIRec.ReadString('ide', 'tpBPe', '0'));
+      Ide.tpBPe   := StrTotpBPe(OK, INIRec.ReadString('ide', 'tpBPe', '0'));
       Ide.indPres := StrToPresencaComprador(OK, INIRec.ReadString('ide', 'indPres', '1'));
       Ide.UFIni   := INIRec.ReadString('ide', 'UFIni', '');
       Ide.cMunIni := INIRec.ReadInteger('ide', 'cMunIni', 0);
@@ -1050,7 +1022,7 @@ begin
       Emit.xFant := INIRec.ReadString('emit', 'xFant', '');
       Emit.IM    := INIRec.ReadString('emit', 'IM', '');
       Emit.CNAE  := INIRec.ReadString('emit', 'CNAE', '');
-      Emit.CRT   := StrToCRT(ok, INIRec.ReadString('emit', 'CRT', '3'));
+      Emit.CRT   := StrToCRT(OK, INIRec.ReadString('emit', 'CRT', '3'));
       Emit.TAR   := INIRec.ReadString('emit', 'TAR', '');
 
       Emit.enderEmit.xLgr    := INIRec.ReadString('emit', 'xLgr', '');
@@ -1064,7 +1036,7 @@ begin
       Emit.enderEmit.fone    := INIRec.ReadString('emit', 'fone', '');
       Emit.enderEmit.Email   := INIRec.ReadString('emit', 'Email', '');
 
-      ide.cUF := INIRec.ReadInteger('ide', 'cUF', UFparaCodigo(Emit.enderEmit.UF));
+      ide.cUF := INIRec.ReadInteger('ide', 'cUF', UFparaCodigoUF(Emit.enderEmit.UF));
 
       //
       // Seção [comp] Comprador
@@ -1111,11 +1083,8 @@ begin
       //
       if INIRec.ReadString('infBPeSub', 'chBPe', '') <> '' then
       begin
-        with infBPeSub do
-        begin
-          chBPe := INIRec.ReadString('infBPeSub', 'chBPe', '');
-          tpSub := StrTotpSubstituicao(OK, INIRec.ReadString('infBPeSub', 'tpSub', '1'));
-        end;
+        infBPeSub.chBPe := INIRec.ReadString('infBPeSub', 'chBPe', '');
+        infBPeSub.tpSub := StrTotpSubstituicao(OK, INIRec.ReadString('infBPeSub', 'tpSub', '1'));
       end;
 
       //
@@ -1133,7 +1102,7 @@ begin
       //
       infPassagem.infPassageiro.xNome := INIRec.ReadString('infPassageiro', 'xNome', '');
       infPassagem.infPassageiro.CPF   := INIRec.ReadString('infPassageiro', 'CPF', '');
-      infPassagem.infPassageiro.tpDoc := StrTotpDocumento(Ok, INIRec.ReadString('infPassageiro', 'tpDoc', '1'));
+      infPassagem.infPassageiro.tpDoc := StrTotpDocumento(OK, INIRec.ReadString('infPassageiro', 'tpDoc', '1'));
       infPassagem.infPassageiro.nDoc  := INIRec.ReadString('infPassageiro', 'nDoc', '');
       infPassagem.infPassageiro.xDoc  := INIRec.ReadString('infPassageiro', 'xDoc', '');
       infPassagem.infPassageiro.dNasc := StringToDateTime(INIRec.ReadString('infPassageiro', 'dNasc', '0'));
@@ -1151,31 +1120,27 @@ begin
         if (sFim = 'FIM') or (Length(sFim) <= 0) then
           break;
 
-        with infViagem.New do
-        begin
-          cPercurso    := sFim;
-          xPercurso    := INIRec.ReadString(sSecao, 'xPercurso', '');
-          tpViagem     := StrTotpViagem(Ok, INIRec.ReadString(sSecao, 'tpViagem', '00'));
-          tpServ       := StrTotpServico(Ok, INIRec.ReadString(sSecao, 'tpServ', '1'));
-          tpAcomodacao := StrTotpAcomodacao(Ok, INIRec.ReadString(sSecao, 'tpAcomodacao', '1'));
-          tpTrecho     := StrTotpTrecho(Ok, INIRec.ReadString(sSecao, 'tpTrecho', '1'));
-          dhViagem     := StringToDateTime(INIRec.ReadString(sSecao, 'dhViagem', '0'));
-          dhConexao    := StringToDateTime(INIRec.ReadString(sSecao, 'dhConexao', '0'));
-          Prefixo      := INIRec.ReadString(sSecao, 'Prefixo', '');
-          Poltrona     := INIRec.ReadInteger(sSecao, 'Poltrona', 0);
-          Plataforma   := INIRec.ReadString(sSecao, 'Plataforma', '');
+        IteminfViagem := infViagem.New;
 
-          //
-          // Informações da Travessia
-          //
-          if INIRec.ReadString(sSecao, 'tpVeiculo', '') <> '' then
-          begin
-            with infTravessia do
-            begin
-              tpVeiculo  := StrTotpVeiculo(Ok, INIRec.ReadString(sSecao, 'tpVeiculo', '01'));
-              sitVeiculo := StrToSitVeiculo(Ok, INIRec.ReadString(sSecao, 'sitVeiculo', '01'));
-            end;
-          end;
+        IteminfViagem.cPercurso    := sFim;
+        IteminfViagem.xPercurso    := INIRec.ReadString(sSecao, 'xPercurso', '');
+        IteminfViagem.tpViagem     := StrTotpViagem(OK, INIRec.ReadString(sSecao, 'tpViagem', '00'));
+        IteminfViagem.tpServ       := StrTotpServico(OK, INIRec.ReadString(sSecao, 'tpServ', '1'));
+        IteminfViagem.tpAcomodacao := StrTotpAcomodacao(OK, INIRec.ReadString(sSecao, 'tpAcomodacao', '1'));
+        IteminfViagem.tpTrecho     := StrTotpTrecho(OK, INIRec.ReadString(sSecao, 'tpTrecho', '1'));
+        IteminfViagem.dhViagem     := StringToDateTime(INIRec.ReadString(sSecao, 'dhViagem', '0'));
+        IteminfViagem.dhConexao    := StringToDateTime(INIRec.ReadString(sSecao, 'dhConexao', '0'));
+        IteminfViagem.Prefixo      := INIRec.ReadString(sSecao, 'Prefixo', '');
+        IteminfViagem.Poltrona     := INIRec.ReadInteger(sSecao, 'Poltrona', 0);
+        IteminfViagem.Plataforma   := INIRec.ReadString(sSecao, 'Plataforma', '');
+
+        //
+        // Informações da Travessia
+        //
+        if INIRec.ReadString(sSecao, 'tpVeiculo', '') <> '' then
+        begin
+          IteminfViagem.infTravessia.tpVeiculo  := StrTotpVeiculo(OK, INIRec.ReadString(sSecao, 'tpVeiculo', '01'));
+          IteminfViagem.infTravessia.sitVeiculo := StrToSitVeiculo(OK, INIRec.ReadString(sSecao, 'sitVeiculo', '01'));
         end;
 
         Inc(I);
@@ -1188,7 +1153,7 @@ begin
       infValorBPe.vDesconto  := StringToFloatDef(INIRec.ReadString('infValorBPe', 'vDesconto', ''), 0);
       infValorBPe.vPgto      := StringToFloatDef(INIRec.ReadString('infValorBPe', 'vPgto', ''), 0);
       infValorBPe.vTroco     := StringToFloatDef(INIRec.ReadString('infValorBPe', 'vTroco', ''), 0);
-      infValorBPe.tpDesconto := StrTotpDesconto(Ok, INIRec.ReadString('infValorBPe', 'tpDesconto', '01'));
+      infValorBPe.tpDesconto := StrTotpDesconto(OK, INIRec.ReadString('infValorBPe', 'tpDesconto', '01'));
       infValorBPe.xDesconto  := INIRec.ReadString('infValorBPe', 'xDesconto', '');
       infValorBPe.cDesconto  := INIRec.ReadString('infValorBPe', 'cDesconto', '');
 
@@ -1203,11 +1168,9 @@ begin
         if (sFim = 'FIM') or (Length(sFim) <= 0) then
           break;
 
-        with infValorBPe.Comp.New do
-        begin
-          tpComp := StrTotpComponente(Ok, sFim);
-          vComp  := StringToFloatDef(INIRec.ReadString(sSecao, 'vComp', ''), 0);
-        end;
+        ItemComp := infValorBPe.Comp.New;
+        ItemComp.tpComp := StrTotpComponente(OK, sFim);
+        ItemComp.vComp  := StringToFloatDef(INIRec.ReadString(sSecao, 'vComp', ''), 0);
 
         Inc(I);
       end;
@@ -1215,43 +1178,40 @@ begin
       //
       // Seção [ICMS] Informacoes relativas aos Impostos
       //
-      with Imp do
+      sSecao := 'ICMS';
+      sFim   := INIRec.ReadString(sSecao, 'CST', 'FIM');
+
+      if (sFim <> 'FIM') then
       begin
-        sSecao := 'ICMS';
-        sFim   := INIRec.ReadString(sSecao, 'CST', 'FIM');
+        Imp.ICMS.CST    := StrToCSTICMS(OK, sFim);
+        Imp.ICMS.pRedBC := StringToFloatDef(INIRec.ReadString(sSecao, 'pRedBC', ''), 0);
+        Imp.ICMS.vBC    := StringToFloatDef(INIRec.ReadString(sSecao, 'vBC', ''), 0);
+        Imp.ICMS.pICMS  := StringToFloatDef(INIRec.ReadString(sSecao, 'pICMS', ''), 0);
+        Imp.ICMS.vICMS  := StringToFloatDef(INIRec.ReadString(sSecao, 'vICMS', ''), 0);
+        Imp.ICMS.vCred  := StringToFloatDef(INIRec.ReadString(sSecao, 'vCred', ''), 0);
 
-        if (sFim <> 'FIM') then
-        begin
-          with ICMS do
-          begin
-            CST    := StrToCSTICMS(OK, sFim);
-            pRedBC := StringToFloatDef(INIRec.ReadString(sSecao, 'pRedBC', ''), 0);
-            vBC    := StringToFloatDef(INIRec.ReadString(sSecao, 'vBC', ''), 0);
-            pICMS  := StringToFloatDef(INIRec.ReadString(sSecao, 'pICMS', ''), 0);
-            vICMS  := StringToFloatDef(INIRec.ReadString(sSecao, 'vICMS', ''), 0);
-            vCred  := StringToFloatDef(INIRec.ReadString(sSecao, 'vCred', ''), 0);
+        Imp.ICMS.pRedBCOutraUF := StringToFloatDef(INIRec.ReadString(sSecao, 'pRedBCOutraUF', ''), 0);
+        Imp.ICMS.vBCOutraUF    := StringToFloatDef(INIRec.ReadString(sSecao, 'vBCOutraUF', ''), 0);
+        Imp.ICMS.pICMSOutraUF  := StringToFloatDef(INIRec.ReadString(sSecao, 'pICMSOutraUF', ''), 0);
+        Imp.ICMS.vICMSOutraUF  := StringToFloatDef(INIRec.ReadString(sSecao, 'vICMSOutraUF', ''), 0);
 
-            pRedBCOutraUF := StringToFloatDef(INIRec.ReadString(sSecao, 'pRedBCOutraUF', ''), 0);
-            vBCOutraUF    := StringToFloatDef(INIRec.ReadString(sSecao, 'vBCOutraUF', ''), 0);
-            pICMSOutraUF  := StringToFloatDef(INIRec.ReadString(sSecao, 'pICMSOutraUF', ''), 0);
-            vICMSOutraUF  := StringToFloatDef(INIRec.ReadString(sSecao, 'vICMSOutraUF', ''), 0);
-          end;
+        Imp.ICMS.vICMSDeson := StringToFloatDef(INIRec.ReadString(sSecao, 'vICMSDeson', ''), 0);
+        Imp.ICMS.cBenef     := INIRec.ReadString(sSecao, 'cBenef', '');
 
-          vTotTrib   := StringToFloatDef(INIRec.ReadString(sSecao, 'vTotTrib', ''), 0);
-          infAdFisco := INIRec.ReadString(sSecao, 'infAdFisco', '');
-        end;
+        Imp.vTotTrib   := StringToFloatDef(INIRec.ReadString(sSecao, 'vTotTrib', ''), 0);
+        Imp.infAdFisco := INIRec.ReadString(sSecao, 'infAdFisco', '');
+      end;
 
-        if StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'pICMSInterPart', ''), 0) <> 0 then
-        begin
-          ICMSUFFim.vBCUFFim       := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'vBCUFFim', ''), 0);
-          ICMSUFFim.pFCPUFFim      := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'pFCPUFFim', ''), 0);
-          ICMSUFFim.pICMSUFFim     := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'pICMSUFFim', ''), 0);
-          ICMSUFFim.pICMSInter     := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'pICMSInter', ''), 0);
-          ICMSUFFim.pICMSInterPart := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'pICMSInterPart', ''), 0);
-          ICMSUFFim.vFCPUFFim      := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'vFCPUFFim', ''), 0);
-          ICMSUFFim.vICMSUFFim     := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'vICMSUFFim', ''), 0);
-          ICMSUFFim.vICMSUFIni     := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'vICMSUFIni', ''), 0);
-        end;
+      if StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'pICMSInterPart', ''), 0) <> 0 then
+      begin
+        Imp.ICMSUFFim.vBCUFFim       := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'vBCUFFim', ''), 0);
+        Imp.ICMSUFFim.pFCPUFFim      := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'pFCPUFFim', ''), 0);
+        Imp.ICMSUFFim.pICMSUFFim     := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'pICMSUFFim', ''), 0);
+        Imp.ICMSUFFim.pICMSInter     := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'pICMSInter', ''), 0);
+        Imp.ICMSUFFim.pICMSInterPart := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'pICMSInterPart', ''), 0);
+        Imp.ICMSUFFim.vFCPUFFim      := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'vFCPUFFim', ''), 0);
+        Imp.ICMSUFFim.vICMSUFFim     := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'vICMSUFFim', ''), 0);
+        Imp.ICMSUFFim.vICMSUFIni     := StringToFloatDef(INIRec.ReadString('ICMSUFFim', 'vICMSUFIni', ''), 0);
       end;
 
       //
@@ -1265,23 +1225,22 @@ begin
         if (sFim = 'FIM') or (Length(sFim) <= 0) then
           break ;
 
-        with pag.New do
-        begin
-          tPag    := StrToFormaPagamentoBPe(OK, sFim);
-          xPag    := INIRec.ReadString(sSecao, 'xPag', '');
-          nDocPag := INIRec.ReadString(sSecao, 'nDocPag', '');
-          vPag    := StringToFloatDef(INIRec.ReadString(sSecao, 'vPag', ''), 0);
+        ItemPag := Pag.New;
 
-          tpIntegra := StrTotpIntegra(OK,INIRec.ReadString(sSecao, 'tpIntegra', ''));
-          CNPJ      := INIRec.ReadString(sSecao, 'CNPJ', '');
-          tBand     := StrToBandeiraCard(OK, INIRec.ReadString(sSecao, 'tBand', '99'));
-          xBand     := INIRec.ReadString(sSecao, 'xBand', '');
-          cAut      := INIRec.ReadString(sSecao, 'cAut', '');
-          nsuTrans  := INIRec.ReadString(sSecao, 'nsuTrans', '');
-          nsuHost   := INIRec.ReadString(sSecao, 'nsuHost', '');
-          nParcelas := INIRec.ReadInteger(sSecao, 'nParcelas', 1);
-          infAdCard := INIRec.ReadString(sSecao, 'infAdCard', '');
-        end;
+        ItemPag.tPag    := StrToFormaPagamentoBPe(OK, sFim);
+        ItemPag.xPag    := INIRec.ReadString(sSecao, 'xPag', '');
+        ItemPag.nDocPag := INIRec.ReadString(sSecao, 'nDocPag', '');
+        ItemPag.vPag    := StringToFloatDef(INIRec.ReadString(sSecao, 'vPag', ''), 0);
+
+        ItemPag.tpIntegra := StrTotpIntegra(Ok, INIRec.ReadString(sSecao, 'tpIntegra', ''));
+        ItemPag.CNPJ      := INIRec.ReadString(sSecao, 'CNPJ', '');
+        ItemPag.tBand     := StrToBandeiraCard(OK, INIRec.ReadString(sSecao, 'tBand', '99'));
+        ItemPag.xBand     := INIRec.ReadString(sSecao, 'xBand', '');
+        ItemPag.cAut      := INIRec.ReadString(sSecao, 'cAut', '');
+        ItemPag.nsuTrans  := INIRec.ReadString(sSecao, 'nsuTrans', '');
+        ItemPag.nsuHost   := INIRec.ReadString(sSecao, 'nsuHost', '');
+        ItemPag.nParcelas := INIRec.ReadInteger(sSecao, 'nParcelas', 1);
+        ItemPag.infAdCard := INIRec.ReadString(sSecao, 'infAdCard', '');
 
         Inc(I);
       end;
@@ -1297,8 +1256,7 @@ begin
         if (sFim = 'FIM') or (Length(sFim) <= 0) then
           break ;
 
-        with autXML.New do
-          CNPJCPF := sFim;
+        autXML.New.CNPJCPF := sFim;
 
         Inc(I);
       end;
@@ -1312,13 +1270,10 @@ begin
       sSecao := 'infRespTec';
       if INIRec.SectionExists(sSecao) then
       begin
-        with infRespTec do
-        begin
-          CNPJ     := INIRec.ReadString(sSecao, 'CNPJ', '');
-          xContato := INIRec.ReadString(sSecao, 'xContato', '');
-          email    := INIRec.ReadString(sSecao, 'email', '');
-          fone     := INIRec.ReadString(sSecao, 'fone', '');
-        end;
+        infRespTec.CNPJ     := INIRec.ReadString(sSecao, 'CNPJ', '');
+        infRespTec.xContato := INIRec.ReadString(sSecao, 'xContato', '');
+        infRespTec.email    := INIRec.ReadString(sSecao, 'email', '');
+        infRespTec.fone     := INIRec.ReadString(sSecao, 'fone', '');
       end;
     end;
 
@@ -1342,9 +1297,9 @@ begin
 end;
 
 
-function TBilhetes.Add: Bilhete;
+function TBilhetes.Add: TBilhete;
 begin
-  Result := Bilhete(inherited Add);
+  Result := TBilhete(inherited Add);
 end;
 
 procedure TBilhetes.Assinar;
@@ -1370,9 +1325,9 @@ begin
     Result := Self.Items[0].GerarBPeIni;
 end;
 
-function TBilhetes.GetItem(Index: integer): Bilhete;
+function TBilhetes.GetItem(Index: integer): TBilhete;
 begin
-  Result := Bilhete(inherited Items[Index]);
+  Result := TBilhete(inherited Items[Index]);
 end;
 
 function TBilhetes.GetNamePath: String;
@@ -1435,12 +1390,12 @@ begin
   TACBrBPe(FACBrBPe).DABPE.ImprimirDABPEResumidoPDF(nil);
 end;
 
-function TBilhetes.Insert(Index: integer): Bilhete;
+function TBilhetes.Insert(Index: integer): TBilhete;
 begin
-  Result := Bilhete(inherited Insert(Index));
+  Result := TBilhete(inherited Insert(Index));
 end;
 
-procedure TBilhetes.SetItem(Index: integer; const Value: Bilhete);
+procedure TBilhetes.SetItem(Index: integer; const Value: TBilhete);
 begin
   Items[Index].Assign(Value);
 end;
@@ -1514,7 +1469,7 @@ begin
 
   if Result then
   begin
-    // Atribui Nome do arquivo a novas Bilhetes inseridas //
+    // Atribui Nome do arquivo a novas Bilhetes inseridas
     for i := l to Self.Count - 1 do
       Self.Items[i].NomeArq := CaminhoArquivo;
   end;
@@ -1547,7 +1502,7 @@ var
   end;
 
 begin
-  // Verifica se precisa Converter de UTF8 para a String nativa da IDE //
+  // Verifica se precisa Converter de UTF8 para a String nativa da IDE
   XMLStr := ConverteXMLtoNativeString(AXMLString);
 
   if Pos('</BPeTM>', XMLStr) > 0 then
@@ -1559,6 +1514,9 @@ begin
   while N > 0 do
   begin
     P := pos('</BPeProc>', XMLStr);
+
+    if P <= 0 then
+      P := pos('</bpeProc>', XMLStr);
 
     if P <= 0 then
       P := pos('</procBPe>', XMLStr);  // BPe obtida pelo Portal da Receita
@@ -1609,49 +1567,6 @@ begin
     NomeArq := ExtractFileName(PathNomeArquivo);
     Result := Self.Items[i].GravarXML(NomeArq, PathArq);
     Inc(i);
-  end;
-end;
-
-function TBilhetes.GravarTXT(PathNomeArquivo: String): Boolean;
-var
-  SL: TStringList;
-  ArqTXT: String;
-  I: integer;
-begin
-  Result := False;
-  SL := TStringList.Create;
-  try
-    SL.Clear;
-    for I := 0 to Self.Count - 1 do
-    begin
-      ArqTXT := Self.Items[I].GerarTXT;
-      SL.Add(ArqTXT);
-    end;
-
-    if SL.Count > 0 then
-    begin
-      // Inserindo cabeçalho //
-      SL.Insert(0, 'BILHETE|' + IntToStr(Self.Count));
-
-      // Apagando as linhas em branco //
-      i := 0;
-      while (i <= SL.Count - 1) do
-      begin
-        if SL[I] = '' then
-          SL.Delete(I)
-        else
-          Inc(i);
-      end;
-
-      if EstaVazio(PathNomeArquivo) then
-        PathNomeArquivo := PathWithDelim(
-          TACBrBPe(FACBrBPe).Configuracoes.Arquivos.PathSalvar) + 'BPe.TXT';
-
-      SL.SaveToFile(PathNomeArquivo);
-      Result := True;
-    end;
-  finally
-    SL.Free;
   end;
 end;
 

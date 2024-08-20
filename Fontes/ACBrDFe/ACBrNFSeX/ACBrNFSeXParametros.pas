@@ -47,9 +47,9 @@ type
   TACBrNFSeXConfigParams = Class
   private
     fSL: TStringList;
-    fParamsStr: String;
+    FAsString: String;
 
-    procedure SetParamsStr(AValue: String);
+    procedure SetAsString(const AValue: String);
   public
     constructor Create;
     destructor Destroy; override;
@@ -58,10 +58,86 @@ type
     function ValorParametro(const AParam: String): String;
     function ParamTemValor(const AParam, AValor: String): Boolean;
 
-    property AsString: String read fParamsStr write SetParamsStr;
+    property AsString: String read FAsString write SetAsString;
+  end;
+
+  { TACBrNFSeXAutenticacao }
+
+  TACBrNFSeXAutenticacao = Class
+  private
+    FRequerCertificado: Boolean;
+    FRequerLogin: Boolean;
+    FRequerChaveAcesso: Boolean;
+    FRequerChaveAutorizacao: Boolean;
+    FRequerFraseSecreta: Boolean;
+  public
+    property RequerCertificado: Boolean read FRequerCertificado write FRequerCertificado;
+    property RequerLogin: Boolean read FRequerLogin write FRequerLogin;
+    property RequerChaveAcesso: Boolean read FRequerChaveAcesso write FRequerChaveAcesso;
+    property RequerChaveAutorizacao: Boolean read FRequerChaveAutorizacao write FRequerChaveAutorizacao;
+    property RequerFraseSecreta: Boolean read FRequerFraseSecreta write FRequerFraseSecreta;
+  end;
+
+  { TACBrNFSeXServicosDispobilizados }
+
+  TACBrNFSeXServicosDispobilizados = Class
+  private
+    FEnviarLoteAssincrono: Boolean;
+    FEnviarLoteSincrono: Boolean;
+    FEnviarUnitario: Boolean;
+    FConsultarSituacao: Boolean;
+    FConsultarLote: Boolean;
+    FConsultarRps: Boolean;
+    FConsultarNfse: Boolean;
+    FConsultarFaixaNfse: Boolean;
+    FConsultarServicoPrestado: Boolean;
+    FConsultarServicoTomado: Boolean;
+    FCancelarNfse: Boolean;
+    FSubstituirNfse: Boolean;
+    FGerarToken: Boolean;
+    FEnviarEvento: Boolean;
+    FConsultarEvento: Boolean;
+    FConsultarDFe: Boolean;
+    FConsultarParam: Boolean;
+    FConsultarSeqRps: Boolean;
+    FConsultarLinkNfse: Boolean;
+    FConsultarNfseChave: Boolean;
+    FTestarEnvio: Boolean;
+  public
+    property EnviarLoteAssincrono: Boolean read FEnviarLoteAssincrono write FEnviarLoteAssincrono;
+    property EnviarLoteSincrono: Boolean read FEnviarLoteSincrono write FEnviarLoteSincrono;
+    property EnviarUnitario: Boolean read FEnviarUnitario write FEnviarUnitario;
+    property ConsultarSituacao: Boolean read FConsultarSituacao write FConsultarSituacao;
+    property ConsultarLote: Boolean read FConsultarLote write FConsultarLote;
+    property ConsultarRps: Boolean read FConsultarRps write FConsultarRps;
+    property ConsultarNfse: Boolean read FConsultarNfse write FConsultarNfse;
+    property ConsultarFaixaNfse: Boolean read FConsultarFaixaNfse write FConsultarFaixaNfse;
+    property ConsultarServicoPrestado: Boolean read FConsultarServicoPrestado write FConsultarServicoPrestado;
+    property ConsultarServicoTomado: Boolean read FConsultarServicoTomado write FConsultarServicoTomado;
+    property CancelarNfse: Boolean read FCancelarNfse write FCancelarNfse;
+    property SubstituirNfse: Boolean read FSubstituirNfse write FSubstituirNfse;
+    property GerarToken: Boolean read FGerarToken write FGerarToken;
+    property EnviarEvento: Boolean read FEnviarEvento write FEnviarEvento;
+    property ConsultarEvento: Boolean read FConsultarEvento write FConsultarEvento;
+    property ConsultarDFe: Boolean read FConsultarDFe write FConsultarDFe;
+    property ConsultarParam: Boolean read FConsultarParam write FConsultarParam;
+    property ConsultarSeqRps: Boolean read FConsultarSeqRps write FConsultarSeqRps;
+    property ConsultarLinkNfse: Boolean read FConsultarLinkNfse write FConsultarLinkNfse;
+    property ConsultarNfseChave: Boolean read FConsultarNfseChave write FConsultarNfseChave;
+    property TestarEnvio: Boolean read FTestarEnvio write FTestarEnvio;
+  end;
+
+  TACBrNFSeXParticularidades = class
+  private
+    FPermiteMaisDeUmServico: Boolean;
+    FPermiteTagOutrasInformacoes: Boolean;
+  public
+    property PermiteMaisDeUmServico: Boolean read FPermiteMaisDeUmServico write FPermiteMaisDeUmServico;
+    property PermiteTagOutrasInformacoes: Boolean read FPermiteTagOutrasInformacoes write FPermiteTagOutrasInformacoes;
   end;
 
   { TConfigGeral }
+
   TConfigGeral = class
   private
     // define como é o atributo ID: "Id" ou "id", se for fazio o atributo não é gerado
@@ -134,6 +210,10 @@ type
     FFormatoArqEvento: TFormatoArq;
     // define se deve imprimir o Local da Prestação de Serviço ou não
     FImprimirLocalPrestServ: Boolean;
+    FAutenticacao: TACBrNFSeXAutenticacao;
+    FServicosDisponibilizados: TACBrNFSeXServicosDispobilizados;
+    FParticularidades: TACBrNFSeXParticularidades;
+    FImprimirOptanteSN: Boolean;
 
   public
     constructor Create;
@@ -178,6 +258,10 @@ type
     property FormatoArqNota: TFormatoArq read FFormatoArqNota write FFormatoArqNota;
     property FormatoArqEvento: TFormatoArq read FFormatoArqEvento write FFormatoArqEvento;
     property ImprimirLocalPrestServ: Boolean read FImprimirLocalPrestServ write FImprimirLocalPrestServ;
+    property Autenticacao: TACBrNFSeXAutenticacao read FAutenticacao;
+    property ServicosDisponibilizados: TACBrNFSeXServicosDispobilizados read FServicosDisponibilizados;
+    property Particularidades: TACBrNFSeXParticularidades read FParticularidades write FParticularidades;
+    property ImprimirOptanteSN: Boolean read FImprimirOptanteSN write FImprimirOptanteSN;
   end;
 
   { TWebserviceInfo }
@@ -287,16 +371,16 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure LoadUrlProducao(AINI: TCustomIniFile; ASession: string);
-    procedure LoadUrlHomologacao(AINI: TCustomIniFile; ASession: string);
-    procedure LoadLinkUrlProducao(AINI: TCustomIniFile; ASession: string);
-    procedure LoadLinkUrlHomologacao(AINI: TCustomIniFile; ASession: string);
-    procedure LoadXMLNameSpaceProducao(AINI: TCustomIniFile; ASession: string);
-    procedure LoadXMLNameSpaceHomologacao(AINI: TCustomIniFile; ASession: string);
-    procedure LoadNameSpaceProducao(AINI: TCustomIniFile; ASession: string);
-    procedure LoadNameSpaceHomologacao(AINI: TCustomIniFile; ASession: string);
-    procedure LoadSoapActionProducao(AINI: TCustomIniFile; ASession: string);
-    procedure LoadSoapActionHomologacao(AINI: TCustomIniFile; ASession: string);
+    procedure LoadUrlProducao(AINI: TCustomIniFile; const ASession: string);
+    procedure LoadUrlHomologacao(AINI: TCustomIniFile; const ASession: string);
+    procedure LoadLinkUrlProducao(AINI: TCustomIniFile; const ASession: string);
+    procedure LoadLinkUrlHomologacao(AINI: TCustomIniFile; const ASession: string);
+    procedure LoadXMLNameSpaceProducao(AINI: TCustomIniFile; const ASession: string);
+    procedure LoadXMLNameSpaceHomologacao(AINI: TCustomIniFile; const ASession: string);
+    procedure LoadNameSpaceProducao(AINI: TCustomIniFile; const ASession: string);
+    procedure LoadNameSpaceHomologacao(AINI: TCustomIniFile; const ASession: string);
+    procedure LoadSoapActionProducao(AINI: TCustomIniFile; const ASession: string);
+    procedure LoadSoapActionHomologacao(AINI: TCustomIniFile; const ASession: string);
 
     property VersaoDados: string read FVersaoDados write FVersaoDados;
     property VersaoAtrib: string read FVersaoAtrib write FVersaoAtrib;
@@ -480,6 +564,8 @@ type
     FAssinaturaAdicional: boolean;
     // Tipo de Assinaturas
     FAssinaturas: TAssinaturas;
+    // Contem o conteudo do atributo Id da tag SignatureValue
+    FIdSignatureValue: string;
 
   public
     property Rps: boolean read FRps write FRps;
@@ -510,6 +596,7 @@ type
     property IncluirURI: boolean read FIncluirURI write FIncluirURI;
     property AssinaturaAdicional: boolean read FAssinaturaAdicional write FAssinaturaAdicional;
     property Assinaturas: TAssinaturas read FAssinaturas write FAssinaturas;
+    property IdSignatureValue: string read FIdSignatureValue write FIdSignatureValue;
   end;
 
   { TConfigSchemas }
@@ -632,13 +719,13 @@ begin
   Result := fSL.Values[AParam];
 end;
 
-procedure TACBrNFSeXConfigParams.SetParamsStr(AValue: String);
+procedure TACBrNFSeXConfigParams.SetAsString(const AValue: String);
 var
   s: String;
 begin
-  if fParamsStr = AValue then Exit;
-  fParamsStr := Trim(AValue);
-  s := StringReplace(fParamsStr, ':', '=', [rfReplaceAll]);
+  if FAsString = AValue then Exit;
+  FAsString := Trim(AValue);
+  s := StringReplace(FAsString, ':', '=', [rfReplaceAll]);
   AddDelimitedTextToList(s, '|', fSL, #0);
 end;
 
@@ -659,55 +746,55 @@ begin
 end;
 
 procedure TConfigWebServices.LoadLinkUrlHomologacao(AINI: TCustomIniFile;
-  ASession: string);
+  const ASession: string);
 begin
   Homologacao.FLinkURL := AINI.ReadString(ASession, 'HomLinkURL', '');
 end;
 
 procedure TConfigWebServices.LoadLinkUrlProducao(AINI: TCustomIniFile;
-  ASession: string);
+  const ASession: string);
 begin
   Producao.FLinkURL := AINI.ReadString(ASession, 'ProLinkURL', '');
 end;
 
 procedure TConfigWebServices.LoadNameSpaceHomologacao(AINI: TCustomIniFile;
-  ASession: string);
+  const ASession: string);
 begin
   Homologacao.FNameSpace := AINI.ReadString(ASession, 'HomNameSpace', '');
 end;
 
 procedure TConfigWebServices.LoadNameSpaceProducao(AINI: TCustomIniFile;
-  ASession: string);
+  const ASession: string);
 begin
   Producao.FNameSpace := AINI.ReadString(ASession, 'ProNameSpace', '');
 end;
 
 procedure TConfigWebServices.LoadXMLNameSpaceHomologacao(
-  AINI: TCustomIniFile; ASession: string);
+  AINI: TCustomIniFile; const ASession: string);
 begin
   Homologacao.FXMLNameSpace := AINI.ReadString(ASession, 'HomXMLNameSpace', '');
 end;
 
 procedure TConfigWebServices.LoadXMLNameSpaceProducao(AINI: TCustomIniFile;
-  ASession: string);
+  const ASession: string);
 begin
   Producao.FXMLNameSpace := AINI.ReadString(ASession, 'ProXMLNameSpace', '');
 end;
 
 procedure TConfigWebServices.LoadSoapActionHomologacao(AINI: TCustomIniFile;
-  ASession: string);
+  const ASession: string);
 begin
   Homologacao.FSoapAction := AINI.ReadString(ASession, 'HomSoapAction', '');
 end;
 
 procedure TConfigWebServices.LoadSoapActionProducao(AINI: TCustomIniFile;
-  ASession: string);
+  const ASession: string);
 begin
   Producao.FSoapAction := AINI.ReadString(ASession, 'ProSoapAction', '');
 end;
 
 procedure TConfigWebServices.LoadUrlHomologacao(AINI: TCustomIniFile;
-  ASession: string);
+  const ASession: string);
 begin
   with Homologacao do
   begin
@@ -739,7 +826,7 @@ begin
   end;
 end;
 
-procedure TConfigWebServices.LoadUrlProducao(AINI: TCustomIniFile; ASession: string);
+procedure TConfigWebServices.LoadUrlProducao(AINI: TCustomIniFile; const ASession: string);
 begin
   with Producao do
   begin
@@ -836,11 +923,17 @@ begin
   inherited Create;
 
   FParams := TACBrNFSeXConfigParams.Create;
+  FAutenticacao := TACBrNFSeXAutenticacao.Create;
+  FServicosDisponibilizados := TACBrNFSeXServicosDispobilizados.Create;
+  FParticularidades := TACBrNFSeXParticularidades.Create;
 end;
 
 destructor TConfigGeral.Destroy;
 begin
   FParams.Free;
+  FAutenticacao.Free;
+  FServicosDisponibilizados.Free;
+  FParticularidades.Free;
 
   inherited Destroy;
 end;

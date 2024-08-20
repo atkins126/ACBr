@@ -92,7 +92,8 @@ type
   TACBrTEFDTipo = ( gpNenhum, gpTefDial, gpTefDisc, gpHiperTef, gpCliSiTef,
                     gpTefGpu, gpVeSPague, gpBanese, gpTefAuttar, gpGoodCard,
                     gpFoxWin, gpCliDTEF, gpPetrocard, gpCrediShop, gpTicketCar,
-                    gpConvCard, gpCappta, gpPayGo, gpPayGoWeb, gpCliSiTefModular, gpTefDirecao) ;
+                    gpConvCard, gpCappta, gpPayGo, gpPayGoWeb, gpCliSiTefModular, gpTefDirecao,
+                    gpTefDialScopeGetcard, gpTefElgin) ;
 
   TACBrTEFDReqEstado = ( reqNenhum,             // Nennhuma Requisição em andamento
                          reqIniciando,          // Iniciando uma nova Requisicao
@@ -491,7 +492,7 @@ implementation
 Uses
   dateutils, StrUtils, Math, {$IFDEF FMX} System.Types {$ELSE} types{$ENDIF},
   ACBrTEFD, ACBrTEFDCliSiTef, ACBrTEFCliSiTefComum, ACBrTEFDVeSPague,
-  ACBrTEFDPayGo, ACBrTEFDPayGoWeb,
+  ACBrTEFDPayGo, ACBrTEFDPayGoWeb, ACBrTEFDDialScopeGetcard,
   ACBrUtil.Strings,
   ACBrUtil.Base,
   ACBrUtil.FilesIO;
@@ -793,6 +794,8 @@ begin
            case Linha.Sequencia of
              0 : fpRede := Linha.Informacao.AsString;
              1 : fpNFCeSAT.CNPJCredenciadora := Linha.Informacao.AsString;
+             2 : fpNFCeSAT.Bandeira := Linha.Informacao.AsString;  //Elgin
+             3 : fpCodigoBandeiraPadrao := Linha.Informacao.AsString;  //Elgin
              4 : fpBin := Linha.Informacao.AsString; //Seis primeiros digitos do cartão
              5 : fpNFCeSAT.UltimosQuatroDigitos := Linha.Informacao.AsString;
            end;
@@ -856,6 +859,17 @@ begin
              L := StrToIntDef(copy(Linha.Informacao.AsString,3,2),2);
              fpDocumentoPessoa := copy(Linha.Informacao.AsString, 5, L);
            end;
+        end;
+        715 :
+        begin //elgin
+          case Linha.Sequencia of
+             17 : fpNFCeSAT.DonoCartao := Linha.Informacao.AsString;
+             18 :
+             begin
+               fpNFCeSAT.UltimosQuatroDigitos := copy(trim(Linha.Informacao.AsString),8,4);
+               fpBin := copy(trim(Linha.Informacao.AsString),1,6);
+             end;
+          end;
         end;
        999 : fpTrailer := Linha.Informacao.AsString ;
      else
@@ -2284,6 +2298,7 @@ begin
     gpVeSPague: Result := TACBrTEFDRespVeSPague.Create;
     gpPayGo: Result := TACBrTEFDRespPayGo.Create;
     gpPayGoWeb: Result := TACBrTEFDRespPayGoWeb.Create;
+    gpTefDialScopeGetcard: Result := TACBrTEFDRespScopeGetcard.Create;
   else
     Result := TACBrTEFDRespTXT.Create;
   end;

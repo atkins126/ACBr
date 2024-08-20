@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Jurisato Junior                           }
 {                                                                              }
@@ -32,12 +32,17 @@
 
 unit ACBrLibCEPDataModule;
 
+{$IfDef FPC}
 {$mode delphi}
+{$EndIf}
 
 interface
 
 uses
-  Classes, SysUtils, FileUtil, ACBrLibComum, ACBrLibConfig, syncobjs, ACBrCEP;
+  Classes, SysUtils, syncobjs,
+  ACBrLibComum, ACBrLibConfig,
+  ACBrCEP,
+  ACBrUtil.FilesIO;
 
 type
 
@@ -46,6 +51,8 @@ type
   TLibCEPDM = class(TDataModule)
     ACBrCEP1: TACBrCEP;
 
+    procedure ACBrCEP1QuandoGravarLog(const ALogLine: String;
+      var Tratado: Boolean);
     procedure DataModuleCreate(Sender: TObject);
     procedure DataModuleDestroy(Sender: TObject);
 
@@ -76,6 +83,14 @@ begin
   FLock := TCriticalSection.Create;
 end;
 
+procedure TLibCEPDM.ACBrCEP1QuandoGravarLog(const ALogLine: String;
+  var Tratado: Boolean);
+begin
+  Tratado := (ACBrCEP1.ArqLOG = '');
+  if (Lib.Config.Socket.NivelLog > 0) then
+    GravarLog('TACBrCEP: '+ALogLine, logNormal);
+end;
+
 procedure TLibCEPDM.DataModuleDestroy(Sender: TObject);
 begin
   FLock.Destroy;
@@ -89,11 +104,21 @@ begin
 
   with ACBrCEP1 do
   begin
-    WebService    := pLibConfig.CEPConfig.WebService;
-    ChaveAcesso   := pLibConfig.CEPConfig.ChaveAcesso;
-    Usuario       := pLibConfig.CEPConfig.Usuario;
-    Senha         := pLibConfig.CEPConfig.Senha;
+    WebService := pLibConfig.CEPConfig.WebService;
+    ChaveAcesso := pLibConfig.CEPConfig.ChaveAcesso;
+    Usuario := pLibConfig.CEPConfig.Usuario;
+    Senha := pLibConfig.CEPConfig.Senha;
     PesquisarIBGE := pLibConfig.CEPConfig.PesquisarIBGE;
+    HTTPSend.Sock.SSL.SSLType := pLibConfig.CEPConfig.SSLType;
+
+    NivelLog := pLibConfig.Socket.NivelLog;
+    ArqLOG := pLibConfig.Socket.ArqLog;
+    TimeOut := pLibConfig.Socket.TimeOut;
+
+    ProxyHost := pLibConfig.ProxyInfo.Servidor;
+    ProxyPort := IntToStr(pLibConfig.ProxyInfo.Porta);
+    ProxyUser := pLibConfig.ProxyInfo.Usuario;
+    ProxyPass := pLibConfig.ProxyInfo.Senha;
   end;
 end;
 

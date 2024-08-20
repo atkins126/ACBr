@@ -45,7 +45,7 @@ uses
    System.Contnrs,
   {$IFEND}
   ACBrBase,
-  pcnAuxiliar, pcnConversao, pcnLeitor, pgnreConversao;
+  pcnConversao, pcnLeitor, pgnreConversao;
 
 type
 
@@ -74,6 +74,25 @@ type
     function Add: TRejeicaoGuiaCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
     function New: TRejeicaoGuiaCollectionItem;
     property Items[Index: Integer]: TRejeicaoGuiaCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TDadosPagamento = class
+  private
+    Fdata: TDateTime;
+    Fautenticacao: string;
+    Fbanco: string;
+    Fagencia: string;
+    FtxId: string;
+    Fe2eId: string;
+    FpspPagador: string;
+  public
+    property data: TDateTime read Fdata write Fdata;
+    property autenticacao: string read Fautenticacao write Fautenticacao;
+    property banco: string read Fbanco write Fbanco;
+    property agencia: string read Fagencia write Fagencia;
+    property txId: string read FtxId write FtxId;
+    property e2eId: string read Fe2eId write Fe2eId;
+    property pspPagador: string read FpspPagador write FpspPagador;
   end;
 
   TGuiaCollectionItem = class(TObject)
@@ -107,6 +126,10 @@ type
     FAtualizacaoMonetaria: Currency;
     FJuros: Currency;
     FMulta: Currency;
+    FAtualizacaoMonetariaFCP: Currency;
+    FJurosFCP: Currency;
+    FMultaFCP: Currency;
+    FValorFCP: Currency;
     FRepresentacaoNumerica: string;
     FCodigoBarras: string;
     FQtdeVias: Integer;
@@ -121,7 +144,12 @@ type
     FXML: string;
     FNomeArq: string;
     FTXT: string;
+    FValorFECP: Currency;
+    FqrcodePayload: string;
+    FdadosPagamento: TDadosPagamento;
   public
+    constructor Create;
+    destructor Destroy; override;
     property Identificador: Integer read FIdentificador write FIdentificador;
     property SequencialGuia: Integer read FSequencialGuia write FSequencialGuia;
     property SituacaoGuia: string read FSituacaoGuia write FSituacaoGuia;
@@ -151,6 +179,10 @@ type
     property AtualizacaoMonetaria: Currency read FAtualizacaoMonetaria write FAtualizacaoMonetaria;
     property Juros: Currency read FJuros write FJuros;
     property Multa: Currency read FMulta write FMulta;
+    property AtualizacaoMonetariaFCP: Currency read FAtualizacaoMonetariaFCP write FAtualizacaoMonetariaFCP;
+    property JurosFCP: Currency read FJurosFCP write FJurosFCP;
+    property MultaFCP: Currency read FMultaFCP write FMultaFCP;
+    property ValorFCP: Currency read FValorFCP write FValorFCP;
     property RepresentacaoNumerica: string read FRepresentacaoNumerica write FRepresentacaoNumerica;
     property CodigoBarras: string read FCodigoBarras write FCodigoBarras;
     property QtdeVias: Integer read FQtdeVias write FQtdeVias;
@@ -165,6 +197,10 @@ type
     property XML: string read FXML write FXML;
     property NomeArq: string read FNomeArq write FNomeArq;
     property TXT: string read FTXT write FTXT;
+    property ValorFECP: Currency read FValorFECP write FValorFECP;
+    // Versao 2.10
+    property qrcodePayload: string read FqrcodePayload write FqrcodePayload;
+    property dadosPagamento: TDadosPagamento read FdadosPagamento;
   end;
 
   TGuiaCollection = class(TACBrObjectList)
@@ -204,6 +240,7 @@ type
     FresInfoCabec: TInfoCabec;
     FresGuia: TGuiaCollection;
     FresRejeicaoGuia: TRejeicaoGuiaCollection;
+    FpdfGuias: string;
   public
     constructor Create;
     destructor Destroy; override;
@@ -221,6 +258,7 @@ type
     property resInfoCabec: TInfoCabec read FresInfoCabec write FresInfoCabec;
     property resGuia: TGuiaCollection read FresGuia write FresGuia;
     property resRejeicaoGuia: TRejeicaoGuiaCollection read FresRejeicaoGuia write FresRejeicaoGuia;
+    property pdfGuias: string read FpdfGuias write FpdfGuias;
   end;
 
 implementation
@@ -442,7 +480,7 @@ end;
 function TTResultLote_GNRE.Ler_Versao_2: boolean;
 var
   i, j, k, l, m, Tipo: Integer;
-  aXML: string;
+  aXML, tipoValor: string;
 begin
   Result := False;
 
@@ -450,6 +488,8 @@ begin
   begin
     i := 0; // Utilizado para a leitura Guias
     m := 0; // Utilizado para a leitura das Rejeições
+
+    pdfGuias := Leitor.rCampo(tcStr, 'pdfGuias');
 
     while Leitor.rExtrai(3, 'guia', '', i + 1) <> '' do
     begin
@@ -472,6 +512,7 @@ begin
       resGuia.Items[i].NumeroControle        := Leitor.rCampo(tcStr, 'nossoNumero');
       resGuia.Items[i].RepresentacaoNumerica := Leitor.rCampo(tcStr, 'linhaDigitavel');
       resGuia.Items[i].CodigoBarras          := Leitor.rCampo(tcStr, 'codigoBarras');
+      resGuia.Items[i].qrcodePayload         := Leitor.rCampo(tcStr, 'qrcodePayload');
 
       if Leitor.rExtrai(4, 'contribuinteEmitente') <> '' then
       begin
@@ -543,20 +584,37 @@ begin
             51 - Valor Atualização Monetaria ICMS
             52 - Valor Atualização Monetaria FP
             }
-            if Leitor.rAtributo('tipo=', 'valor') = '11' then
+            tipoValor := Leitor.rAtributo('tipo=', 'valor');
+
+            if tipoValor = '11' then
               resGuia.Items[i].ValorPrincipal := Leitor.rCampo(tcDe2, 'valor');
 
-            if Leitor.rAtributo('tipo=', 'valor') = '21' then
+            if tipoValor = '12' then
+              resGuia.Items[i].ValorFECP := Leitor.rCampo(tcDe2, 'valor');
+
+            if tipoValor = '21' then
               resGuia.Items[i].ValorICMS := Leitor.rCampo(tcDe2, 'valor');
 
-            if Leitor.rAtributo('tipo=', 'valor') = '31' then
+            if tipoValor = '22' then
+              resGuia.Items[i].ValorFCP := Leitor.rCampo(tcDe2, 'valor');
+
+            if tipoValor = '31' then
               resGuia.Items[i].Multa := Leitor.rCampo(tcDe2, 'valor');
 
-            if Leitor.rAtributo('tipo=', 'valor') = '41' then
+            if tipoValor = '32' then
+              resGuia.Items[i].MultaFCP := Leitor.rCampo(tcDe2, 'valor');
+
+            if tipoValor = '41' then
               resGuia.Items[i].Juros := Leitor.rCampo(tcDe2, 'valor');
 
-            if Leitor.rAtributo('tipo=', 'valor') = '51' then
+            if tipoValor = '42' then
+              resGuia.Items[i].JurosFCP := Leitor.rCampo(tcDe2, 'valor');
+
+            if tipoValor = '51' then
               resGuia.Items[i].AtualizacaoMonetaria := Leitor.rCampo(tcDe2, 'valor');
+
+            if tipoValor = '52' then
+              resGuia.Items[i].AtualizacaoMonetariaFCP  := Leitor.rCampo(tcDe2, 'valor');
 
             Inc(k);
           end;
@@ -587,11 +645,36 @@ begin
       if Leitor.rExtrai(4, 'informacoesComplementares') <> '' then
         resGuia.Items[i].InfoComplementares := Leitor.rCampo(tcStr, 'informacao');
 
+      if Leitor.rExtrai(4, 'dadosPagamento') <> '' then
+      begin
+        resGuia.Items[i].dadosPagamento.data := Leitor.rCampo(tcDatHor, 'data');
+        resGuia.Items[i].dadosPagamento.autenticacao := Leitor.rCampo(tcStr, 'autenticacao');
+        resGuia.Items[i].dadosPagamento.banco := Leitor.rCampo(tcStr, 'banco');
+        resGuia.Items[i].dadosPagamento.agencia := Leitor.rCampo(tcStr, 'agencia');
+        resGuia.Items[i].dadosPagamento.txId := Leitor.rCampo(tcStr, 'txId');
+        resGuia.Items[i].dadosPagamento.e2eId := Leitor.rCampo(tcStr, 'e2eId');
+        resGuia.Items[i].dadosPagamento.pspPagador := Leitor.rCampo(tcStr, 'pspPagador');
+      end;
+
       Inc(i);
     end;
 
     Result := True;
   end
+end;
+
+{ TGuiaCollectionItem }
+
+constructor TGuiaCollectionItem.Create;
+begin
+  inherited Create;
+  FdadosPagamento := TDadosPagamento.Create;
+end;
+
+destructor TGuiaCollectionItem.Destroy;
+begin
+  FdadosPagamento.Free;
+  inherited Destroy;
 end;
 
 end.

@@ -42,6 +42,68 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+14/08/2024
+--- ACBrLibNFSeBase, ACBrLibNFSeST, ACBrLibNFSeMT,
+    ACBrLibNFSeStaticImportST, ACBrLibNFSeStaticImportMT, ACBrLibNFSeRespostas ---
+[*] Ajustes para usar 'PAnsiChar' no lugar de 'PChar' e 'Integer' ao inves de 'LongInt'
+[*] Ajustes para usar 'ConverterStringEntrada' e 'ConverterStringSaida'
+    Por: Antonio Carlos Junior
+
+15/07/2024
+-- ACBrLibNFSeRespostas --
+[*] Remove a Data das informações de identificação que foram adicionadas.
+    Por: Diego Folieni
+[*] Adiciona Numero da nota e mais algumas informações de identificação na resposta que recebe as informações do resumo.
+    Por: Diego Folieni
+
+31/05/2024
+-- ACBrLibNFSeRespostas --
+[*] Melhora a resposta do Cancelamento e do ObterInformacoesProvedor.
+    Por: Diego Folieni
+
+21/05/2024
+--- ACBrLibNFSeConfig ---
+[+] Implementado conversor para visar a correção da propriedade Produção na seção DANFSE - #TK-5453 
+    Por: Antonio Carlos Junior, Diego Folieni
+
+13/03/2024
+--- Diversos ---
+[+] Implementa o método NFSE_CarregarLoteXML
+    Por: Diego Folieni
+
+06/03/2024
+--- Diversos ---
+[+] Implementado método NFSE_ConsultarLinkNFSe e configurada chamada nos programas de exemplo em c# e java.
+    Por: Renato Rubinho
+--- ACBrLib.NFSeMT.csproj, ACBrLib.NFSe.csproj ---
+[*] Publicados novos pacotes nugets.
+    Por: Renato Rubinho
+
+07/02/2024
+--- ACBrLibNFSeStaticImport ---
+[*] Correção nome do método NFSE_ConsultaNFSePorFaixa para NFSE_ConsultarNFSePorFaixa
+    Por: Antonio Carlos Junior
+
+15/12/2023
+-- Diversos --
+[+] Adiciona o método NFSe_ObterInformacoesProvedor
+   Por: Diego Folieni
+
+27/11/2023
+-- ACBrNFSeLibConfig --
+[*] Corrige informação Tomador.Endereco da seção [DANFSe] que estava sendo salva incorretamente.
+    Por: Diego Folieni
+
+22/11/2023
+--- ACBrLibNFSeRespostas ---
+[*] Adicionado Lista de Resumos - #TK-4758
+    Por: Antonio Carlos Junior
+
+14/11/2023
+--- ACBrLibNFSeBase, ACBrLibNFSeST, ACBrLibNFSeMT, ACBrLibNFSeStaticImport, ACBrLibNFSeStaticImportMT ---
+[+] Inclusão novo método: NFSE_SalvarPDF
+    Por: Antonio Carlos Junior
+
 23/06/2023
 --- ACBrLibNFSeST, ACBrLibNFSeMT ---
 [*] Correção parametros dos métodos

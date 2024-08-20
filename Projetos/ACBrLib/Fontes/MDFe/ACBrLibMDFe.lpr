@@ -54,6 +54,7 @@ exports
   MDFE_Finalizar,
   MDFE_Nome,
   MDFE_Versao,
+  MDFE_OpenSSLInfo,
   MDFE_UltimoRetorno,
   MDFE_ConfigImportar,
   MDFE_ConfigExportar,
@@ -78,8 +79,10 @@ exports
   MDFE_EnviarEmailEvento,
   MDFE_Imprimir,
   MDFE_ImprimirPDF,
+  MDFE_SalvarPDF,
   MDFE_ImprimirEvento,
   MDFE_ImprimirEventoPDF,
+  MDFE_SalvarEventoPDF,
 
   // Arquivos
   MDFE_CarregarXML,

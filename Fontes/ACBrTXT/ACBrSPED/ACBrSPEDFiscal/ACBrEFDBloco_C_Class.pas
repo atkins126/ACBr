@@ -1469,32 +1469,29 @@ begin
   end;
 end;
 
-
 procedure TBloco_C.WriteRegistroC105(RegC100: TRegistroC100);
 var
   intFor: integer;
   strOPER: String;
+  vRegC105: TRegistroC105;
 begin
   if Assigned( RegC100.RegistroC105 ) then
   begin
-     for intFor := 0 to RegC100.RegistroC105.Count - 1 do
-     begin
-       with RegC100.RegistroC105.Items[intFor] do
-       begin
-         case OPER of
-           toCombustiveisLubrificantes: strOPER := '0';
-           toLeasingVeiculos:           strOPER := '1';
-         end;                                        
-         Check(funChecaUF(UF), '(C-C105) UF DESTINO: A UF "%s" informada é inválida!', [UF]);
-         ///
-         Add( LFill('C105') +
-              LFill( strOPER ) +
-              LFill( UF ) ) ;
-       end;
-       RegistroC990.QTD_LIN_C := RegistroC990.QTD_LIN_C + 1;
-     end;
-     /// Variável para armazenar a quantidade de registro do tipo.
-     FRegistroC105Count := FRegistroC105Count + RegC100.RegistroC105.Count;
+    for intFor := 0 to RegC100.RegistroC105.Count - 1 do
+    begin
+      vRegC105 := RegC100.RegistroC105.Items[intFor];
+
+      Check(funChecaUF(vRegC105.UF), '(C-C105) UF DESTINO: A UF "%s" informada é inválida!', [vRegC105.UF]);
+
+      strOPER := IndTipoOperacaoStToStr(vRegC105.OPER);
+      ///
+      Add( LFill('C105') +
+           LFill( strOPER ) +
+           LFill( vRegC105.UF ) ) ;
+      RegistroC990.QTD_LIN_C := RegistroC990.QTD_LIN_C + 1;
+    end;
+    /// Variável para armazenar a quantidade de registro do tipo.
+    FRegistroC105Count := FRegistroC105Count + RegC100.RegistroC105.Count;
   end;
 end;
 
@@ -3649,12 +3646,12 @@ begin
                LFill( SER,4 ) +
                LFill( SUB,3 ) +
                LFill( COD_CONS,2 ) +
-               LFill( QTD_CONS,0,2 ) +
-               LFill( QTD_CANC,0,2 ) +
+               LFill( QTD_CONS,0 ) +
+               LFill( QTD_CANC,0 ) +
                LFill( DT_DOC ) +
                LFill( VL_DOC,0,2 ) +
                LFill( VL_DESC,0,2 ) +
-               LFill( CONS,0,2 ) +
+               LFill( CONS,0 ) +
                LFill( VL_FORN,0,2 ) +
                LFill( VL_SERV_NT,0,2 ) +
                LFill( VL_TERC,0,2 ) +

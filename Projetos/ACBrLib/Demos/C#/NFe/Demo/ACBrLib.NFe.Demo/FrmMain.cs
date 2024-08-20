@@ -105,7 +105,7 @@ namespace ACBrLib.NFe.Demo
             notaFiscal.Identificacao.cNF = 1;
             notaFiscal.Identificacao.natOp = "Venda de Mercadoria";
             notaFiscal.Identificacao.indPag = IndicadorPagamento.ipVista;
-            notaFiscal.Identificacao.mod = cmbModeloDocumento.GetSelectedValue<ModeloNFe>();
+            notaFiscal.Identificacao.modelo = cmbModeloDocumento.GetSelectedValue<ModeloNFe>();
             notaFiscal.Identificacao.Serie = "1";
             notaFiscal.Identificacao.nNF = 000001401;
             notaFiscal.Identificacao.dhEmi = DateTime.Now;
@@ -467,6 +467,11 @@ namespace ACBrLib.NFe.Demo
         {
             var ret = ACBrNFe.ObterCertificados();
             rtbRespostas.AppendLine(ret.Select(x => x.ToString()).ToArray());
+        }
+        private void btnOpenSSLInfo_Click(object sender, EventArgs e)
+        {
+            var ret = ACBrNFe.OpenSSLInfo();
+            rtbRespostas.AppendText(ret);
         }
 
         private void btnArqNFe_Click(object sender, EventArgs e)

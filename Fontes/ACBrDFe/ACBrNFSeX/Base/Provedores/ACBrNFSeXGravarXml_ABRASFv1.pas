@@ -72,7 +72,7 @@ type
     FNrOcorrRespRetencao: Integer;
     FNrOcorrMunIncid: Integer;
     FNrOcorrIdCidade: Integer;
-    FNrOcorrCodPaisTomador: Integer;
+    FNrOcorrCodigoPaisTomador: Integer;
     FNrOcorrStatus: Integer;
     FNrOcorrValorPis: Integer;
     FNrOcorrValorInss: Integer;
@@ -138,7 +138,7 @@ type
     property NrOcorrValorISSRetido_1: Integer   read FNrOcorrValorISSRetido_1   write FNrOcorrValorISSRetido_1;
     property NrOcorrValorISSRetido_2: Integer   read FNrOcorrValorISSRetido_2   write FNrOcorrValorISSRetido_2;
     property NrOcorrInscEstTomador: Integer     read FNrOcorrInscEstTomador     write FNrOcorrInscEstTomador;
-    property NrOcorrCodPaisTomador: Integer     read FNrOcorrCodPaisTomador     write FNrOcorrCodPaisTomador;
+    property NrOcorrCodigoPaisTomador: Integer  read FNrOcorrCodigoPaisTomador  write FNrOcorrCodigoPaisTomador;
     property NrOcorrRazaoSocialInterm: Integer  read FNrOcorrRazaoSocialInterm  write FNrOcorrRazaoSocialInterm;
     property NrOcorrInscMunTomador: Integer     read FNrOcorrInscMunTomador     write FNrOcorrInscMunTomador;
 
@@ -149,7 +149,6 @@ type
 implementation
 
 uses
-  pcnConsts,
   ACBrUtil.Strings,
   ACBrXmlBase,
   ACBrNFSeXConversao, ACBrNFSeXConsts;
@@ -192,6 +191,7 @@ begin
   FNrOcorrCodTribMun := 0;
   FNrOcorrMunIncid := 0;
   FNrOcorrInscMunTomador := 0;
+  FNrOcorrCodigoPaisTomador := 0;
 
   FNrOcorrRazaoSocialInterm := 0;
   FNrOcorrValorDeducoes := 0;
@@ -213,7 +213,6 @@ begin
   FNrOcorrValorTotalRecebido := -1;
   FNrOcorrInscEstTomador := -1;
   FNrOcorrOutrasInformacoes := -1;
-  FNrOcorrCodPaisTomador := -1;
 
   FNrOcorrInformacoesComplemetares := -1;
 end;
@@ -237,11 +236,8 @@ begin
 
   FDocument.Root := NFSeNode;
 
-  {
-    O ConsolidarVariosItensServicosEmUmSo esta comentado pois requer varios
-    testes.
-  }
-//  ConsolidarVariosItensServicosEmUmSo;
+  if FormatoDiscriminacao <> fdNenhum then
+    ConsolidarVariosItensServicosEmUmSo;
 
   xmlNode := GerarInfRps;
   NFSeNode.AppendChild(xmlNode);
@@ -262,7 +258,7 @@ begin
   Result.AppendChild(GerarIdentificacaoRPS);
 
   Result.AppendChild(AddNode(FormatoEmissao, '#4', 'DataEmissao', 19, 19, 1,
-                                                   NFSe.DataEmissao, DSC_DEMI));
+                                                  NFSe.DataEmissao, DSC_DHEMI));
 
   Result.AppendChild(AddNode(tcStr, '#5', 'NaturezaOperacao', 1, 3, NrOcorrNaturezaOperacao,
                    NaturezaOperacaoToStr(NFSe.NaturezaOperacao), DSC_INDNATOP));
@@ -278,10 +274,11 @@ begin
    FpAOwner.SimNaoToStr(NFSe.IncentivadorCultural), DSC_INDINCCULT));
 
   Result.AppendChild(AddNode(tcStr, '#9', 'Status', 1, 1, NrOcorrStatus,
-                                   StatusRPSToStr(NFSe.StatusRps), DSC_INDSTATUS));
+                       FpAOwner.StatusRPSToStr(NFSe.StatusRps), DSC_INDSTATUS));
 
   Result.AppendChild(AddNode(tcStr, '#11', 'OutrasInformacoes', 1, 255, NrOcorrOutrasInformacoes,
-                                        NFSe.OutrasInformacoes, DSC_OUTRASINF));
+    StringReplace(NFSe.OutrasInformacoes, ';', FpAOwner.ConfigGeral.QuebradeLinha,
+                                 [rfReplaceAll, rfIgnoreCase]), DSC_OUTRASINF));
 
   Result.AppendChild(GerarRPSSubstituido);
   Result.AppendChild(GerarServico);
@@ -354,7 +351,8 @@ begin
                                      [rfReplaceAll, rfIgnoreCase]), DSC_DISCR));
 
   Result.AppendChild(AddNode(tcStr, '#', 'InformacoesComplementares', 1, 255, NrOcorrInformacoesComplemetares,
-                                           NFSe.InformacoesComplementares, ''));
+    StringReplace(NFSe.InformacoesComplementares, ';', FpAOwner.ConfigGeral.QuebradeLinha,
+                                            [rfReplaceAll, rfIgnoreCase]), ''));
 
   Result.AppendChild(GerarServicoCodigoMunicipio);
 
@@ -451,8 +449,8 @@ begin
                                               NFSe.Tomador.Endereco.UF, DSC_UF);
 
   if (OnlyNumber(NFSe.Tomador.Endereco.CodigoMunicipio) = '9999999') or
-     (NrOcorrCodPaisTomador = 1) then
-    Result[2] := AddNode(tcStr, '#45', 'CodigoPais', 4, 4, NrOcorrCodPaisTomador,
+     (NrOcorrCodigoPaisTomador = 1) then
+    Result[2] := AddNode(tcInt, '#45', 'CodigoPais', 4, 4, NrOcorrCodigoPaisTomador,
                                    NFSe.Tomador.Endereco.CodigoPais, DSC_CPAIS);
 end;
 
@@ -486,9 +484,8 @@ begin
   begin
     Result := CreateElement('Tomador');
 
-    if ((NFSe.Tomador.Endereco.UF <> 'EX') and
-        ((NFSe.Tomador.IdentificacaoTomador.CpfCnpj <> '') or
-         (NFSe.Tomador.IdentificacaoTomador.InscricaoMunicipal <> ''))) then
+    if (NFSe.Tomador.IdentificacaoTomador.CpfCnpj <> '') or
+       (NFSe.Tomador.IdentificacaoTomador.InscricaoMunicipal <> '') then
     begin
       Result.AppendChild(GerarIdentificacaoTomador);
     end;

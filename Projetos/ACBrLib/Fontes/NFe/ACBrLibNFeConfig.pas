@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 {                                                                              }
@@ -37,11 +37,17 @@ unit ACBrLibNFeConfig;
 interface
 
 uses
-  Classes, Graphics, SysUtils, IniFiles,
-  pcnConversao, pcnConversaoNFe, ACBrLibComum,
+  Classes,
+  SysUtils, IniFiles,
+  {$IfNDef NOREPORT}
+  Graphics,
+  ACBrNFeDANFeRLClass,
+  {$EndIf}
+  ACBrLibComum, pcnConversao, pcnConversaoNFe,
   ACBrNFeConfiguracoes, ACBrDFeReport, ACBrDFeDANFeReport,
-  ACBrNFeDANFEClass, ACBrNFeDANFeRLClass, ACBrLibConfig,
-  ACBrIntegradorConfig, DFeReportConfig;
+  ACBrNFeDANFEClass,
+  ACBrLibConfig,
+  DFeReportConfig;
 
 type
   TTipoRelatorioBobina = (tpFortes, tpEscPos, tpFortesA4);
@@ -69,12 +75,16 @@ type
     FTributosPercentualPersonalizado: Double;
     FMarcadagua: String;
     FLarguraCodProd: Integer;
+    {$IfNDef NOREPORT}
     FFonte: TFonte;
+    {$EndIf}
     FExibeEAN: Boolean;
     FAltLinhaComun: Integer;
     FEspacoEntreProdutos: Integer;
     FAlternaCoresProdutos: Boolean;
+    {$IfNDef NOREPORT}
     FCorDestaqueProdutos: TColor;
+    {$EndIf}
     FTamanhoLogoHeight: Integer;
     FTamanhoLogoWidth: Integer;
     FRecuoEndereco: Integer;
@@ -87,7 +97,7 @@ type
     FImprimeInscSuframa: Boolean;
     FImprimeXPedNitemPed: Boolean;
     FImprimeDescAcrescItemNFe: TpcnImprimeDescAcrescItem;
-
+    FImprimeNNFFormatadoNFe: Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -95,8 +105,9 @@ type
     procedure DefinirValoresPadroes;
     procedure LerIni(const AIni: TCustomIniFile);
     procedure GravarIni(const AIni: TCustomIniFile);
+    {$IfNDef NOREPORT}
     procedure Apply(const DFeReport: TACBrNFeDANFeRL);
-
+    {$EndIf}
   published
     property FormularioContinuo: Boolean read FFormularioContinuo write FFormularioContinuo;
     property ImprimeValor: TImprimirUnidQtdeValor read FImprimeValor write FImprimeValor;
@@ -117,12 +128,16 @@ type
     property TributosPercentualPersonalizado: Double read FTributosPercentualPersonalizado write FTributosPercentualPersonalizado;
     property MarcadAgua: String read FMarcadagua write FMarcadagua;
     property LarguraCodProd: Integer read FLarguraCodProd write FLarguraCodProd;
+    {$IfNDef NOREPORT}
     property Fonte: TFonte read FFonte;
+    {$EndIf}
     property ExibeEAN: Boolean read FExibeEAN write FExibeEAN;
     property AltLinhaComun: Integer read FAltLinhaComun write FAltLinhaComun;
     property EspacoEntreProdutos: Integer read FEspacoEntreProdutos write FEspacoEntreProdutos;
     property AlternaCoresProdutos: Boolean read FAlternaCoresProdutos write FAlternaCoresProdutos;
+    {$IfNDef NOREPORT}
     property CorDestaqueProdutos: TColor read FCorDestaqueProdutos write FCorDestaqueProdutos;
+    {$EndIf}
     property TamanhoLogoHeight: Integer read FTamanhoLogoHeight write FTamanhoLogoHeight;
     property TamanhoLogoWidth: Integer read FTamanhoLogoWidth write FTamanhoLogoWidth;
     property RecuoEndereco: Integer read FRecuoEndereco write FRecuoEndereco;
@@ -135,7 +150,7 @@ type
     property ImprimeInscSuframa: Boolean read FImprimeInscSuframa write FImprimeInscSuframa;
     property ImprimeXPedNitemPed: Boolean read FImprimeXPedNitemPed write FImprimeXPedNitemPed;
     property ImprimeDescAcrescItemNFe: TpcnImprimeDescAcrescItem read FImprimeDescAcrescItemNFe write FImprimeDescAcrescItemNFe;
-
+    property ImprimeNNFFormatadoNFe: Boolean read FImprimeNNFFormatadoNFe write FImprimeNNFFormatadoNFe;
   end;
 
   { TDANFeNFCeConfig }
@@ -160,8 +175,10 @@ type
     FMargemSuperior: Double;
     FMargemEsquerda: Double;
     FMargemDireita: Double;
+    {$IfNDef NOREPORT}
     FFonteLinhaItem: TFont;
-
+    {$EndIf}
+    FImprimeNNFFormatadoNFCe : Boolean;
     procedure setImprimeEmUmaLinha(const Value: Boolean);
     procedure setImprimeEmDuasLinhas(const Value: Boolean);
 
@@ -192,7 +209,10 @@ type
     property MargemSuperior: Double read FMargemSuperior write FMargemSuperior;
     property MargemEsquerda: Double read FMargemEsquerda write FMargemEsquerda;
     property MargemDireita: Double read FMargemDireita write FMargemDireita;
+    {$IfNDef NOREPORT}
     property FonteLinhaItem: TFont read FFonteLinhaItem write FFonteLinhaItem;
+    {$EndIf}
+    property ImprimeNNFFormatadoNFCe: Boolean read FImprimeNNFFormatadoNFCe write FImprimeNNFFormatadoNFCe;
 
   end;
 
@@ -252,7 +272,6 @@ type
   private
     FDANFeConfig: TDANFeReportConfig;
     FNFeConfig: TConfiguracoesNFe;
-    FIntegradorConfig: TIntegradorConfig;
 
   protected
     procedure Travar; override;
@@ -268,7 +287,6 @@ type
 
     property NFe: TConfiguracoesNFe read FNFeConfig;
     property DANFe: TDANFeReportConfig read FDANFeConfig;
-    property Integrador: TIntegradorConfig read FIntegradorConfig;
 
   end;
 
@@ -277,7 +295,10 @@ implementation
 uses
   typinfo, strutils, synacode, blcksock, pcnAuxiliar,
   ACBrLibNFeBase, ACBrLibNFeConsts, ACBrLibConsts,
-  ACBrDANFCeFortesFr, ACBrNFeDANFeESCPOS, ACBrDFeConfiguracoes,
+  {$IfNDef NOREPORT}
+  ACBrDANFCeFortesFr,
+  {$EndIf}
+  ACBrNFeDANFeESCPOS, ACBrDFeConfiguracoes,
   ACBrUtil.FilesIO, ACBrUtil.Strings;
 
 { TDANFeNFeConfig }
@@ -289,7 +310,10 @@ end;
 
 destructor TDANFeNFeConfig.Destroy;
 begin
-  if Assigned(FFonte) then FFonte.Destroy;
+  {$IfNDef NOREPORT}
+  if Assigned(FFonte) then
+    FFonte.Destroy;
+  {$EndIf}
 
   inherited Destroy;
 end;
@@ -318,7 +342,6 @@ begin
   FAltLinhaComun := 30;
   FEspacoEntreProdutos := 7;
   FAlternaCoresProdutos := False;
-  FCorDestaqueProdutos := clWhite;
   FTamanhoLogoHeight := 0;
   FTamanhoLogoWidth := 0;
   FRecuoEndereco := 0;
@@ -331,10 +354,14 @@ begin
   FImprimeInscSuframa:= True;
   FImprimeXPedNitemPed:= False;
   FImprimeDescAcrescItemNFe:= idaiSempre;
+  FImprimeNNFFormatadoNFe:=True;
 
-  if Assigned(FFonte) then FFonte.Free;
+  {$IfNDef NOREPORT}
+  FCorDestaqueProdutos := clWhite;
+  if Assigned(FFonte) then
+    FFonte.Free;
   FFonte := TFonte.Create(nil);
-
+  {$EndIf}
 end;
 
 procedure TDANFeNFeConfig.LerIni(const AIni: TCustomIniFile);
@@ -365,7 +392,6 @@ begin
   AltLinhaComun := AIni.ReadInteger(CSessaoDANFENFE, CChaveAltLinhaComun, AltLinhaComun);
   EspacoEntreProdutos := AIni.ReadInteger(CSessaoDANFENFE, CChaveEspacoEntreProdutos, EspacoEntreProdutos);
   AlternaCoresProdutos := AIni.ReadBool(CSessaoDANFENFE, CChaveAlternaCoresProdutos, AlternaCoresProdutos);
-  CorDestaqueProdutos := StringToColorDef(AIni.ReadString(CSessaoDANFENFE, CChaveCorDestaqueProdutos, ''), CorDestaqueProdutos);
   TamanhoLogoHeight := AIni.ReadInteger(CSessaoDANFENFE, CChaveTamanhoLogoHeight, TamanhoLogoHeight);
   TamanhoLogoWidth := AIni.ReadInteger(CSessaoDANFENFE, CChaveTamanhoLogoWidth, TamanhoLogoWidth);
   RecuoEndereco := AIni.ReadInteger(CSessaoDANFENFE, CChaveRecuoEndereco, RecuoEndereco);
@@ -378,7 +404,10 @@ begin
   ImprimeInscSuframa:= AIni.ReadBool(CSessaoDANFENFE, CChaveImprimeInscSuframa, ImprimeInscSuframa);
   ImprimeXPedNitemPed:= AIni.ReadBool(CSessaoDANFENFE, CChaveImprimeXPedNitemPed, ImprimeXPedNitemPed);
   ImprimeDescAcrescItemNFe:= TpcnImprimeDescAcrescItem(AIni.ReadInteger(CSessaoDANFENFE, CChaveImprimeDescAcrescItemNFe, Integer(ImprimeDescAcrescItemNFe)));
+  ImprimeNNFFormatadoNFe := AIni.ReadBool(CSessaoDANFENFE, CChaveImprimeNNFFormatadoNFe, ImprimeNNFFormatadoNFe);
 
+  {$IfNDef NOREPORT}
+  CorDestaqueProdutos := StringToColorDef(AIni.ReadString(CSessaoDANFENFE, CChaveCorDestaqueProdutos, ''), CorDestaqueProdutos);
   with Fonte do
   begin
     Nome := TNomeFonte(AIni.ReadInteger(CSessaoDANFENFE, CChaveFonteNome, Integer(Nome)));
@@ -388,6 +417,7 @@ begin
     TamanhoFonteInformacoesComplementares := AIni.ReadInteger(CSessaoDANFENFE, CChaveFonteTamanhoFonteInformacoesComplementares, TamanhoFonteInformacoesComplementares);
     TamanhoFonteDemaisCampos := AIni.ReadInteger(CSessaoDANFENFE, CChaveFonteTamanhoFonteDemaisCampos, TamanhoFonteDemaisCampos);
   end;
+  {$EndIf}
 end;
 
 procedure TDANFeNFeConfig.GravarIni(const AIni: TCustomIniFile);
@@ -418,7 +448,6 @@ begin
   AIni.WriteInteger(CSessaoDANFENFE, CChaveAltLinhaComun, AltLinhaComun);
   AIni.WriteInteger(CSessaoDANFENFE, CChaveEspacoEntreProdutos, EspacoEntreProdutos);
   AIni.WriteBool(CSessaoDANFENFE, CChaveAlternaCoresProdutos, AlternaCoresProdutos);
-  AIni.WriteString(CSessaoDANFENFE, CChaveCorDestaqueProdutos, ColorToString(CorDestaqueProdutos));
   AIni.WriteInteger(CSessaoDANFENFE, CChaveTamanhoLogoHeight, TamanhoLogoHeight);
   AIni.WriteInteger(CSessaoDANFENFE, CChaveTamanhoLogoWidth, TamanhoLogoWidth);
   AIni.WriteInteger(CSessaoDANFENFE, CChaveRecuoEndereco, RecuoEndereco);
@@ -431,7 +460,10 @@ begin
   AIni.WriteBool(CSessaoDANFENFE, CChaveImprimeInscSuframa, ImprimeInscSuframa);
   AIni.WriteBool(CSessaoDANFENFE, CChaveImprimeXPedNitemPed, ImprimeXPedNitemPed);
   AIni.WriteInteger(CSessaoDANFENFE, CChaveImprimeDescAcrescItemNFe, Integer(ImprimeDescAcrescItemNFe));
+  AIni.WriteBool(CSessaoDANFENFE, CChaveImprimeNNFFormatadoNFe, ImprimeNNFFormatadoNFe);
 
+  {$IfNDef NOREPORT}
+  AIni.WriteString(CSessaoDANFENFE, CChaveCorDestaqueProdutos, ColorToString(CorDestaqueProdutos));
   with Fonte do
   begin
     AIni.WriteInteger(CSessaoDANFENFE, CChaveFonteNome, Integer(Nome));
@@ -441,8 +473,10 @@ begin
     AIni.WriteInteger(CSessaoDANFENFE, CChaveFonteTamanhoFonteInformacoesComplementares, TamanhoFonteInformacoesComplementares);
     AIni.WriteInteger(CSessaoDANFENFE, CChaveFonteTamanhoFonteDemaisCampos, TamanhoFonteDemaisCampos);
   end;
+  {$EndIf}
 end;
 
+{$IfNDef NOREPORT}
 procedure TDANFeNFeConfig.Apply(const DFeReport: TACBrNFeDANFeRL);
 begin
 
@@ -486,6 +520,7 @@ begin
     ImprimeInscSuframa:= FImprimeInscSuframa;
     ImprimeXPedNItemPed:= FImprimeXPedNitemPed;
     ImprimeDescAcrescItemNFe:= FImprimeDescAcrescItemNFe;
+    FormatarNumeroDocumento := FImprimeNNFFormatadoNFe;
 
     with Fonte do
     begin
@@ -498,6 +533,7 @@ begin
     end;
   end;
 end;
+{$EndIf}
 
 { TDANFeNFCeConfig }
 
@@ -549,9 +585,12 @@ begin
   FMargemSuperior := 0;
   FMargemEsquerda := 0;
   FMargemDireita := 0;
+  {$IfNDef NOREPORT}
   FFonteLinhaItem := TFont.Create;
   FFonteLinhaItem.Name := 'Lucida Console';
   FFonteLinhaItem.Size := 7;
+  {$EndIf}
+  FImprimeNNFFormatadoNFCe:=True;
 end;
 
 procedure TDANFeNFCeConfig.LerIni(const AIni: TCustomIniFile);
@@ -575,6 +614,8 @@ begin
   MargemSuperior := AIni.ReadFloat(CSessaoDANFENFCE, CChaveMargemSuperior, MargemSuperior);
   MargemEsquerda := AIni.ReadFloat(CSessaoDANFENFCE, CChaveMargemEsquerda, MargemEsquerda);
   MargemDireita := AIni.ReadFloat(CSessaoDANFENFCE, CChaveMargemDireita, MargemDireita);
+
+  {$IfNDef NOREPORT}
   FonteLinhaItem.Name    :=  AIni.ReadString( CSessaoDANFENFCE, CChaveFonteLinhaItemName, FonteLinhaItem.Name );
   FonteLinhaItem.Color   :=  TColor(AIni.ReadInteger( CSessaoDANFENFCE, CChaveFonteLinhaItemColor, FonteLinhaItem.Color ));
   FonteLinhaItem.Size    :=  AIni.ReadInteger( CSessaoDANFENFCE, CChaveFonteLinhaItemSize, FonteLinhaItem.Size );
@@ -587,6 +628,9 @@ begin
     FonteLinhaItem.Style := FonteLinhaItem.Style + [fsUnderline];
   if AIni.ReadBool( CSessaoDANFENFCE,   CChaveFonteLinhaItemStrikeOut , False ) then
     FonteLinhaItem.Style := FonteLinhaItem.Style + [fsStrikeOut];
+  {$EndIf}
+
+  ImprimeNNFFormatadoNFCe := AIni.ReadBool(CSessaoDANFENFCE, CChaveImprimeNNFFormatadoNFCe, ImprimeNNFFormatadoNFCe);
 end;
 
 procedure TDANFeNFCeConfig.GravarIni(const AIni: TCustomIniFile);
@@ -610,6 +654,8 @@ begin
   AIni.WriteFloat(CSessaoDANFENFCE, CChaveMargemSuperior, FMargemSuperior);
   AIni.WriteFloat(CSessaoDANFENFCE, CChaveMargemEsquerda, FMargemEsquerda);
   AIni.WriteFloat(CSessaoDANFENFCE, CChaveMargemDireita, FMargemDireita);
+
+  {$IfNDef NOREPORT}
   AIni.WriteString( CSessaoDANFENFCE,   CChaveFonteLinhaItemName   , FonteLinhaItem.Name );
   AIni.WriteInteger( CSessaoDANFENFCE,  CChaveFonteLinhaItemColor , FonteLinhaItem.Color );
   AIni.WriteInteger( CSessaoDANFENFCE,  CChaveFonteLinhaItemSize  , FonteLinhaItem.Size );
@@ -617,11 +663,16 @@ begin
   AIni.WriteBool( CSessaoDANFENFCE,   CChaveFonteLinhaItemItalic , fsItalic in FonteLinhaItem.Style );
   AIni.WriteBool( CSessaoDANFENFCE,   CChaveFonteLinhaItemUnderline , fsUnderline in FonteLinhaItem.Style );
   AIni.WriteBool( CSessaoDANFENFCE,   CChaveFonteLinhaItemStrikeOut , fsStrikeOut in FonteLinhaItem.Style );
+  {$EndIf}
+
+  AIni.WriteBool(CSessaoDANFENFCE,    CChaveImprimeNNFFormatadoNFCe, ImprimeNNFFormatadoNFCe);
 end;
 
 procedure TDANFeNFCeConfig.Apply(const DFeReport: TACBrNFeDANFCEClass);
+{$IfNDef NOREPORT}
 Var
   DANFeFortes: TACBrNFeDANFCeFortes;
+{$EndIf}
 begin
   if not Assigned(DFeReport) then Exit;
 
@@ -643,8 +694,10 @@ begin
     MargemSuperior := FMargemSuperior;
     MargemEsquerda := FMargemEsquerda;
     MargemDireita := FMargemDireita;
+    FormatarNumeroDocumento:= FImprimeNNFFormatadoNFCe;
   end;
 
+  {$IfNDef NOREPORT}
   if DFeReport is TACBrNFeDANFCeFortes then
   begin
     DANFeFortes := TACBrNFeDANFCeFortes(DFeReport);
@@ -656,6 +709,7 @@ begin
     DANFeFortes.FonteLinhaItem.Style := FFonteLinhaItem.Style;
     DANFeFortes.FormularioContinuo := True;
   end;
+  {$EndIf}
 end;
 
 { TDANFeReportConfig }
@@ -768,9 +822,12 @@ begin
     QuebraLinhaEmDetalhamentos := FQuebraLinhaEmDetalhamentos;
   end;
 
+  {$IfNDef NOREPORT}
   if DFeReport is TACBrNFeDANFeRL then
-    NFe.Apply(TACBrNFeDANFeRL(DFeReport))
-  else if DFeReport is TACBrNFeDANFCEClass then
+    NFe.Apply(TACBrNFeDANFeRL(DFeReport));
+  {$EndIf}
+
+  if DFeReport is TACBrNFeDANFCEClass then
     NFCe.Apply(TACBrNFeDANFCEClass(DFeReport));
 end;
 
@@ -784,14 +841,12 @@ begin
   FNFeConfig.ChaveCryptINI := AChaveCrypt;
 
   FDANFeConfig := TDANFeReportConfig.Create;
-  FIntegradorConfig := TIntegradorConfig.Create;
 end;
 
 destructor TLibNFeConfig.Destroy;
 begin
   FNFeConfig.Free;
   FDANFeConfig.Free;
-  FIntegradorConfig.Free;
 
   inherited Destroy;
 end;
@@ -803,7 +858,6 @@ begin
   FNFeConfig.ChaveCryptINI := ChaveCrypt;
   FNFeConfig.LerIni(Ini);
   FDANFeConfig.LerIni(Ini);
-  FIntegradorConfig.LerIni(Ini);
 end;
 
 procedure TLibNFeConfig.ClasseParaINI;
@@ -813,7 +867,6 @@ begin
   FNFeConfig.ChaveCryptINI := ChaveCrypt;
   FNFeConfig.GravarIni(Ini);
   FDANFeConfig.GravarIni(Ini);
-  FIntegradorConfig.GravarIni(Ini);
 end;
 
 procedure TLibNFeConfig.ClasseParaComponentes;

@@ -48,16 +48,16 @@ type
   private
     function GetDadosUsuario: string;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -76,8 +76,11 @@ type
 implementation
 
 uses
-  synacode, DateUtils, pcnAuxiliar,
-  ACBrDFeException, ACBrUtil.Math, ACBrUtil.XMLHTML,
+  synacode, DateUtils,
+  ACBrDFeException,
+  ACBrUtil.DateTime,
+  ACBrUtil.Math, 
+  ACBrUtil.XMLHTML,
   ACBrNFSeX,
   SSInformatica.GravarXml, SSInformatica.LerXml;
 
@@ -87,20 +90,9 @@ procedure TACBrNFSeProviderSSInformatica203.Configuracao;
 begin
   inherited Configuracao;
 
-  with ConfigAssinar do
-  begin
-    Rps               := True;
-    LoteRps           := False;
-    ConsultarSituacao := False;
-    ConsultarLote     := False;
-    ConsultarNFSeRps  := False;
-    ConsultarNFSe     := False;
-    CancelarNFSe      := False;
-    RpsGerarNFSe      := False;
-    LoteGerarNFSe     := False;
-    RpsSubstituirNFSe := False;
-    SubstituirNFSe    := False;
-  end;
+  ConfigGeral.Autenticacao.RequerLogin := True;
+
+  ConfigAssinar.Rps := True;
 
   with ConfigWebServices do
   begin
@@ -188,7 +180,7 @@ begin
   end;
 end;
 
-function TACBrNFSeXWebserviceSSInformatica203.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceSSInformatica203.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -206,7 +198,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSSInformatica203.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceSSInformatica203.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -224,7 +216,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSSInformatica203.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSSInformatica203.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -242,7 +234,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSSInformatica203.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceSSInformatica203.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -260,7 +252,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSSInformatica203.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceSSInformatica203.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -278,7 +270,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSSInformatica203.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceSSInformatica203.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -296,7 +288,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSSInformatica203.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceSSInformatica203.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -314,7 +306,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSSInformatica203.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceSSInformatica203.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -332,7 +324,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSSInformatica203.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSSInformatica203.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -349,7 +341,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSSInformatica203.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSSInformatica203.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -372,8 +364,11 @@ function TACBrNFSeXWebserviceSSInformatica203.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
 end;
+
+initialization
+  Randomize;
 
 end.

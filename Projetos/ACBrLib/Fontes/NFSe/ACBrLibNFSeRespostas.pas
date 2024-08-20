@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa-  }
 { mentos de Automação Comercial utilizados no Brasil                            }
 {                                                                               }
-{ Direitos Autorais Reservados (c) 2018 Daniel Simoes de Almeida                }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida                }
 {                                                                               }
 { Colaboradores nesse arquivo: Antonio Carlos Junior                            }
 {                                                                               }
@@ -40,7 +40,7 @@ interface
 uses
   SysUtils, Classes, contnrs, ACBrLibResposta, ACBrNFSeXNotasFiscais,
   ACBrNFSeX, ACBrNFSeXWebservicesResponse, ACBrNFSeXWebserviceBase,
-  ACBrNFSeXConversao, ACBrBase;
+  ACBrNFSeXConversao, ACBrNFSeXConfiguracoes, ACBrBase, ACBrLibConfig;
 
 type
 
@@ -78,8 +78,17 @@ type
 
   TNFSeArquivoItem = class(TACBrLibArquivosResposta)
   private
+    FNumeroNota: String;
+    FCodigoVerificacao: String;
+    FNumeroRPS: String;
+    FSerieRPS: String;
   public
     procedure Processar(const Resumo: TNFSeResumoCollectionItem);
+  published
+    property NumeroNota: String read FNumeroNota write FNumeroNota;
+    property CodigoVerificacao: String read FCodigoVerificacao write FCodigoVerificacao;
+    property NumeroRPS: String read FNumeroRPS write FNumeroRPS;
+    property SerieRPS: String read FSerieRPS write FSerieRPS;
   end;
 
   { TLibNFSeServiceResposta }
@@ -89,6 +98,7 @@ type
     FXmlRetorno: string;
     FErros: TACBrObjectList;
     FAlertas: TACBrObjectList;
+    FResumos: TACBrObjectList;
 
   public
     constructor Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
@@ -101,6 +111,7 @@ type
     property XmlRetorno: String read FXmlRetorno write FXmlRetorno;
     property Erros: TACBrObjectList read FErros write FErros;
     property Alertas: TACBrObjectList read FAlertas write FAlertas;
+    property Resumos: TACBrObjectList read FResumos write FResumos;
 
   end;
 
@@ -264,12 +275,90 @@ type
     property InfConsultaNFSe: TInfConsultaNFSe read FInfConsultaNFSe write FInfConsultaNFSe;
   end;
 
+  { TConsultarLinkNFSeResposta }
+  TConsultarLinkNFSeResposta = class(TLibNFSeServiceResposta)
+  private
+    FNumeroNota: string;
+    FNumeroRps: string;
+    FSerieRps: string;
+    FLink: string;
+  public
+    constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
+    destructor Destroy; override;
+
+    procedure Processar(const Response: TNFSeConsultaLinkNFSeResponse); reintroduce;
+
+  published
+    property NumeroNota: string read FNumeroNota write FNumeroNota;
+    property NumeroRps: string read FNumeroRps write FNumeroRps;
+    property SerieRps: string read FSerieRps write FSerieRps;
+    property Link: string read FLink write FLink;
+  end;
+
+  TInfCancelamentoNFSeResposta = class(TACBrLibRespostaBase)
+  private
+    FNumeroNFSe: string;
+    FSerieNFSe: string;
+    FChaveNFSe: string;
+    FDataEmissaoNFSe: TDateTime;
+    FCodCancelamento: string;
+    FMotCancelamento: string;
+    FNumeroLote: string;
+    FNumeroRps: Integer;
+    FSerieRps: string;
+    FValorNFSe: Double;
+    FCodVerificacao: string;
+    Femail: string;
+    FNumeroNFSeSubst: string;
+    FSerieNFSeSubst: string;
+    FCodServ: string;
+  public
+    procedure Processar(const InfCancelamento: TInfCancelamento); reintroduce;
+  published
+    property NumeroNFSe: string read FNumeroNFSe;
+    property SerieNFSe: string read FSerieNFSe;
+    property ChaveNFSe: string read FChaveNFSe;
+    property DataEmissaoNFSe: TDateTime read FDataEmissaoNFSe;
+    property CodCancelamento: string read FCodCancelamento;
+    property MotCancelamento: string read FMotCancelamento;
+    property NumeroLote: string read FNumeroLote;
+    property NumeroRps: Integer read FNumeroRps;
+    property SerieRps: string read FSerieRps;
+    property ValorNFSe: Double read FValorNFSe;
+    property CodVerificacao: string read FCodVerificacao;
+    property Email: string read FEmail;
+    property NumeroNFSeSubst: string read FNumeroNFSeSubst;
+    property SerieNFSeSubst: string read FSerieNFSeSubst;
+    property CodServ: string read FCodServ;
+  end;
+
+  TRetCancelamentoNFSeResposta = class(TACBrLibRespostaBase)
+  private
+    FNumeroLote: string;
+    FSituacao: string;
+    FDataHora: TDateTime;
+    FMsgCanc: string;
+    FSucesso: string;
+    FLink: string;
+    FNumeroNota: string;
+  public
+    procedure Processar(const RetCancelamento: TRetCancelamento); reintroduce;
+  published
+    property NumeroLote: string read FNumeroLote;
+    property Situacao: string read FSituacao;
+    property DataHora: TDateTime read FDataHora;
+    property MSgCanc: string read FMsgCanc;
+    property Sucesso: string read FSucesso;
+    property Link: string read FLink;
+    property NumeroNota: string read FNumeroNota;
+  end;
+
   { TCancelarNFSeResposta }
   TCancelarNFSeResposta = class(TLibNFSeServiceResposta)
   private
     FCodVerificacao: string;
-    FInfCancelamento: TInfCancelamento;
-    FRetCancelamento: TRetCancelamento;
+    FInfCancelamento: TInfCancelamentoNFSeResposta;
+    FRetCancelamento: TRetCancelamentoNFSeResposta;
 
   public
     constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
@@ -279,8 +368,8 @@ type
 
   published
     property CodVerificacao: string read FCodVerificacao write FCodVerificacao;
-    property InfCancelamento: TInfCancelamento read FInfCancelamento write FInfCancelamento;
-    property RetCancelamento: TRetCancelamento read FRetCancelamento write FRetCancelamento;
+    property InfCancelamento: TInfCancelamentoNFSeResposta read FInfCancelamento write FInfCancelamento;
+    property RetCancelamento: TRetCancelamentoNFSeResposta read FRetCancelamento write FRetCancelamento;
   end;
 
   { TLinkNFSeResposta }
@@ -395,10 +484,142 @@ type
       property Parametros: TStrings read FParametros write FParametros;
   end;
 
+  { TObterInformacoesProvedorResposta }
+
+  TObterInformacoesProvedorResposta = class(TACBrLibRespostaBase)
+  private
+    FIdentificacaoProvedor: string;
+    FAutenticacoesRequeridas: string;
+    FServicosDisponibilizados: string;
+    FParticularidades: string;
+  public
+    constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
+    destructor Destroy; override;
+
+    procedure Processar(const Response: TGeralConfNFSe); reintroduce;
+
+  published
+    property IdentificacaoProvedor: String read FIdentificacaoProvedor;
+    property AutenticacoesRequeridas: String read FAutenticacoesRequeridas;
+    property ServicosDisponibilizados: String read FServicosDisponibilizados;
+    property Particularidades: String read FParticularidades;
+  end;
+
 implementation
 
 uses
   pcnAuxiliar, pcnConversao, ACBrUtil, ACBrLibNFSeConsts, ACBrLibConsts;
+
+{ TObterInformacoesProvedorResposta }
+
+constructor TObterInformacoesProvedorResposta.Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+begin
+  FIdentificacaoProvedor := '';
+  FAutenticacoesRequeridas := '';
+  FServicosDisponibilizados := '';
+
+  inherited Create(CSessaoObterInformacoesProvedor, ATipo, AFormato);
+end;
+
+destructor TObterInformacoesProvedorResposta.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TObterInformacoesProvedorResposta.Processar(const Response: TGeralConfNFSe);
+begin
+  FIdentificacaoProvedor := 'Nome:'+ Response.xProvedor +
+                            '|Versão:' + VersaoNFSeToStr(Response.Versao);
+  if Response.Layout = loABRASF then
+    FIdentificacaoProvedor := FIdentificacaoProvedor + '|Layout: ABRASF'
+  else
+    FIdentificacaoProvedor := FIdentificacaoProvedor + '|Layout: Próprio';
+
+  if Response.Autenticacao.RequerCertificado then
+    FAutenticacoesRequeridas := FAutenticacoesRequeridas + 'RequerCertificado|';
+
+  if Response.Autenticacao.RequerLogin then
+    FAutenticacoesRequeridas := FAutenticacoesRequeridas + 'RequerLogin|';
+
+  if Response.Autenticacao.RequerChaveAcesso then
+    FAutenticacoesRequeridas := FAutenticacoesRequeridas + 'RequerChaveAcesso|';
+
+  if Response.Autenticacao.RequerChaveAutorizacao then
+    FAutenticacoesRequeridas := FAutenticacoesRequeridas + 'RequerChaveAutorizacao|';
+
+  if Response.Autenticacao.RequerFraseSecreta then
+    FAutenticacoesRequeridas := FAutenticacoesRequeridas + 'RequerFraseSecreta|';
+
+  if Response.ServicosDisponibilizados.EnviarLoteAssincrono then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'EnviarLoteAssincrono|';
+
+  if Response.ServicosDisponibilizados.EnviarLoteSincrono then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'EnviarLoteSincrono|';
+
+  if Response.ServicosDisponibilizados.EnviarUnitario then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'EnviarUnitario|';
+
+  if Response.ServicosDisponibilizados.ConsultarSituacao then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarSituacao|';
+
+  if Response.ServicosDisponibilizados.ConsultarLote then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarLote|';
+
+  if Response.ServicosDisponibilizados.ConsultarRps then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarRps|';
+
+  if Response.ServicosDisponibilizados.ConsultarNfse then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarNfse|';
+
+  if Response.ServicosDisponibilizados.ConsultarFaixaNfse then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarFaixaNfse|';
+
+  if Response.ServicosDisponibilizados.ConsultarServicoPrestado then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarServicoPrestado|';
+
+  if Response.ServicosDisponibilizados.ConsultarServicoTomado then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarServicoTomado|';
+
+  if Response.ServicosDisponibilizados.CancelarNfse then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'CancelarNfse|';
+
+  if Response.ServicosDisponibilizados.SubstituirNfse then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'SubstituirNfse|';
+
+  if Response.ServicosDisponibilizados.GerarToken then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'GerarToken|';
+
+  if Response.ServicosDisponibilizados.EnviarEvento then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'EnviarEvento|';
+
+  if Response.ServicosDisponibilizados.ConsultarEvento then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarEvento|';
+
+  if Response.ServicosDisponibilizados.ConsultarDFe then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarDFe|';
+
+  if Response.ServicosDisponibilizados.ConsultarParam then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarParam|';
+
+  if Response.ServicosDisponibilizados.ConsultarSeqRps then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarSeqRps|';
+
+  if Response.ServicosDisponibilizados.ConsultarLinkNfse then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarLinkNfse|';
+
+  if Response.ServicosDisponibilizados.ConsultarNfseChave then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'ConsultarNfseChave|';
+
+  if Response.ServicosDisponibilizados.TestarEnvio then
+    FServicosDisponibilizados := FServicosDisponibilizados + 'TestarEnvio|';
+
+  if Response.Particularidades.PermiteMaisDeUmServico then
+    FParticularidades := FParticularidades + 'PermiteMaisDeUmServico|';
+
+  if Response.Particularidades.PermiteTagOutrasInformacoes then
+    FParticularidades := FParticularidades + 'PermiteTagOutrasInformacoes|';
+
+end;
 
 { TNFSeArquivoItem }
 
@@ -406,6 +627,10 @@ procedure TNFSeArquivoItem.Processar(const Resumo: TNFSeResumoCollectionItem);
 begin
   Self.NomeArquivo := ExtractFileName(Resumo.NomeArq);
   Self.CaminhoCompleto := Resumo.NomeArq;
+  Self.NumeroNota := Resumo.NumeroNota;
+  Self.CodigoVerificacao := Resumo.CodigoVerificacao;
+  Self.NumeroRPS := Resumo.NumeroRps;
+  Self.SerieRPS := Resumo.SerieRps;
 end;
 
 { TNFSeEventoItem }
@@ -430,12 +655,14 @@ begin
 
   FErros := TACBrObjectList.Create(True);
   FAlertas := TACBrObjectList.Create(True);
+  FResumos := TACBrObjectList.Create(True);
 end;
 
 destructor TLibNFSeServiceResposta.Destroy;
 begin
   FErros.Destroy;
   FAlertas.Destroy;
+  FResumos.Destroy;
   inherited Destroy;
 end;
 
@@ -452,7 +679,7 @@ begin
   begin
     for i := 0 to Response.Erros.Count -1 do
     begin
-      Item := TNFSeEventoItem.Create(CSessaoRespErro + IntToStr(i + 1), Tipo, Formato);
+      Item := TNFSeEventoItem.Create(CSessaoRespErro + IntToStr(i + 1), Tipo, Codificacao);
       Item.Processar(Response.Erros.Items[i]);
       FErros.Add(Item);
     end;
@@ -462,7 +689,7 @@ begin
   begin
     for i := 0 to Response.Alertas.Count -1 do
     begin
-      Item := TNFSeEventoItem.Create(CSessaoRespAlerta + IntToStr(i + 1), Tipo, Formato);
+      Item := TNFSeEventoItem.Create(CSessaoRespAlerta + IntToStr(i + 1), Tipo, Codificacao);
       Item.Processar(Response.Alertas.Items[i]);
       FAlertas.Add(Item);
     end;
@@ -472,7 +699,7 @@ begin
   begin
     for i := 0 to Response.Resumos.Count - 1 do
     begin
-      Arq := TNFSeArquivoItem.Create(CSessaoRespArquivo + IntToStr(i + 1), Tipo, Formato);
+      Arq := TNFSeArquivoItem.Create(CSessaoRespArquivo + IntToStr(i + 1), Tipo, Codificacao);
       Arq.Processar(Response.Resumos.Items[i]);
       InformacoesArquivo.Add(Arq);
     end;
@@ -632,14 +859,73 @@ begin
   InfConsultaNFSe:= Response.InfConsultaNFSe;
 end;
 
+{ TConsultarLinkNFSeResposta }
+
+constructor TConsultarLinkNFSeResposta.Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+begin
+  inherited Create(CSessaoRespConsultaLinkNFSe, ATipo, AFormato);
+end;
+
+destructor TConsultarLinkNFSeResposta.Destroy;
+begin
+ inherited Destroy;
+end;
+
+procedure TConsultarLinkNFSeResposta.Processar(const Response: TNFSeConsultaLinkNFSeResponse);
+begin
+  inherited Processar(Response);
+
+  NumeroNota := Response.NumeroNota;
+  NumeroRps := Response.NumeroRps;
+  SerieRps := Response.SerieRps;
+  Link := Response.Link;
+end;
+
+{ TInfCancelamentoNFSeResposta }
+
+procedure TInfCancelamentoNFSeResposta.Processar(const InfCancelamento: TInfCancelamento);
+begin
+  FNumeroNFSe := InfCancelamento.NumeroNFSe;
+  FSerieNFSe := InfCancelamento.SerieNFSe;
+  FChaveNFSe := InfCancelamento.ChaveNFSe;
+  FDataEmissaoNFSe := InfCancelamento.DataEmissaoNFSe;
+  FCodCancelamento := InfCancelamento.CodCancelamento;
+  FMotCancelamento := InfCancelamento.MotCancelamento;
+  FNumeroLote := InfCancelamento.NumeroLote;
+  FNumeroRps := InfCancelamento.NumeroRps;
+  FSerieRps := InfCancelamento.SerieRps;
+  FValorNFSe := InfCancelamento.ValorNFSe;
+  FCodVerificacao := InfCancelamento.CodVerificacao;
+  Femail := InfCancelamento.email;
+  FNumeroNFSeSubst := InfCancelamento.NumeroNFSeSubst;
+  FSerieNFSeSubst := InfCancelamento.SerieNFSeSubst;
+  FCodServ := InfCancelamento.CodServ;
+end;
+
+{ TRetCancelamentoNFSeResposta }
+procedure TRetCancelamentoNFSeResposta.Processar(const RetCancelamento: TRetCancelamento);
+begin
+  FNumeroLote := RetCancelamento.NumeroLote;
+  FSituacao := RetCancelamento.Situacao;
+  FDataHora := RetCancelamento.DataHora;
+  FMsgCanc := RetCancelamento.MsgCanc;
+  FSucesso := RetCancelamento.Sucesso;
+  FLink := RetCancelamento.Link;
+  FNumeroNota := RetCancelamento.NumeroNota;
+end;
+
 { TCancelarNFSeResposta }
 constructor TCancelarNFSeResposta.Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
 begin
   inherited Create(CSessaoRespCancelarNFSe, ATipo, AFormato);
+  InfCancelamento := TInfCancelamentoNFSeResposta.Create(CSessaoRespInformacaoCancelamento, ATipo, AFormato);
+  RetCancelamento := TRetCancelamentoNFSeResposta.Create(CSessaoRespRetornoCancelamento, ATipo, AFormato);
 end;
 
 destructor TCancelarNFSeResposta.Destroy;
 begin
+  InfCancelamento.Free;
+  RetCancelamento.Free;
   inherited Destroy;
 end;
 
@@ -648,8 +934,8 @@ begin
   inherited Processar(Response);
 
   CodVerificacao:= Response.CodigoVerificacao;
-  InfCancelamento:= Response.InfCancelamento;
-  RetCancelamento:= Response.RetCancelamento;
+  InfCancelamento.Processar(Response.InfCancelamento);
+  RetCancelamento.Processar(Response.RetCancelamento);
 end;
 
 { TLinkNFSeResposta }

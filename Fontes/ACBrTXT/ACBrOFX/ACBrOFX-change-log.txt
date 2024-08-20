@@ -47,6 +47,26 @@ Símbolo : Significado
 [+]     : Novo recurso
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
+
+
+10/07/2024
+[*]TK-5713 ACBrOFX - Alteração pois não esta tratando a tag <TRNTYPE> adequadamente,
+   conforme Manual de Especificações do OFX. 
+  por Nelson Santos
+
+31/05/2024
+[*]TK-5436 ACBrOFX - Alteração na leitura de valores de ponto flutuante, visando
+   atender a configuração do sistema operacional. 
+  por Nelson Santos/Italo Giurizzato Junior
+
+12/01/2024
+[*]TK-4979 ACBrOFX - Incluído no Import a inicialização do campo BankName.
+  por Pablo Cerbaro
+
+01/11/2023
+[*]TK-4638 ACBrOFX - O arquivo OFX do Santander está apresentando problema na leitura da Data.
+  por Software Amigo / Victor H Gonzales - Pandaaa
+
 10/07/2023
 [+]TK-4085 ACBrOFX - A tag TRNTYPE do arquivo OFX com valores IN e OUT
   por : Jhoni Conzatti

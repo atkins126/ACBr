@@ -43,7 +43,8 @@ uses
   ACBrNFeConfiguracoes, ACBrNFeWebServices, ACBrNFeNotasFiscais,
   ACBrDFeDANFeReport,
   pcnNFe, pcnConversao, pcnConversaoNFe,
-  pcnEnvEventoNFe, pcnInutNFe, 
+  ACBrNFe.EnvEvento,
+  ACBrNFe.Inut,
   ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.Math, ACBrUtil.FilesIO;
 
 const
@@ -180,7 +181,9 @@ implementation
 
 uses
   strutils, dateutils, math,
-  pcnAuxiliar, synacode;
+  ACBrDFeUtil,
+  ACBrUtil.DateTime,
+  synacode;
 
 {$IFDEF FPC}
  {$R ACBrNFeServicos.rc}
@@ -380,7 +383,7 @@ function TACBrNFe.GerarNomeArqSchemaEvento(ASchemaEventoNFe: TSchemaNFe;
 var
   xComplemento: string;
 begin
-  if VersaoServico = 0.0 then
+  if VersaoServico = 0 then
     Result := ''
   else
   begin
@@ -557,7 +560,7 @@ begin
 
   // Passo 1
   sdhEmi_HEX := AsciiToHex(DateTimeTodh(DataHoraEmissao) +
-    GetUTC(CodigoParaUF(CUF), DataHoraEmissao));
+    GetUTC(CodigoUFparaUF(CUF), DataHoraEmissao));
   sdigVal_HEX := AsciiToHex(DigestValue);
 
   if (CUF in [35, 41, 50]) then
@@ -621,11 +624,11 @@ end;
 
 function TACBrNFe.GravarStream(AStream: TStream): Boolean;
 begin
-  if EstaVazio(FEventoNFe.Gerador.ArquivoFormatoXML) then
+//  if EstaVazio(FEventoNFe.Gerador.ArquivoFormatoXML) then
     FEventoNFe.GerarXML;
 
   AStream.Size := 0;
-  WriteStrToStream(AStream, AnsiString(FEventoNFe.Gerador.ArquivoFormatoXML));
+  WriteStrToStream(AStream, AnsiString(FEventoNFe.XmlEnvio));
   Result := True;
 end;
 

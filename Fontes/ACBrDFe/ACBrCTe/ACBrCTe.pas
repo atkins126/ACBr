@@ -44,7 +44,7 @@ uses
   ACBrCTeConfiguracoes, ACBrCTeWebServices, ACBrCTeConhecimentos,
   ACBrCTeDACTEClass, ACBrDFeException,
   pcteCTe, pcnConversao, pcteConversaoCTe,
-  pcteEnvEventoCTe, pcteInutCTe, 
+  ACBrCTe.EnvEvento, pcteInutCTe,
   ACBrDFeUtil;
 
 const
@@ -144,6 +144,7 @@ type
 
     procedure ImprimirEvento;
     procedure ImprimirEventoPDF;
+
     procedure ImprimirInutilizacao;
     procedure ImprimirInutilizacaoPDF;
 
@@ -162,7 +163,6 @@ implementation
 
 uses
   dateutils,
-  pcnAuxiliar,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.FilesIO,
@@ -350,11 +350,11 @@ end;
 
 function TACBrCTe.GravarStream(AStream: TStream): Boolean;
 begin
-  if EstaVazio(FEventoCTe.Gerador.ArquivoFormatoXML) then
+  if EstaVazio(FEventoCTe.XmlEnvio) then
     FEventoCTe.GerarXML;
 
   AStream.Size := 0;
-  WriteStrToStream(AStream, AnsiString(FEventoCTe.Gerador.ArquivoFormatoXML));
+  WriteStrToStream(AStream, AnsiString(FEventoCTe.XmlEnvio));
   Result := True;
 end;
 
@@ -541,7 +541,7 @@ end;
 function TACBrCTe.GerarNomeArqSchemaModal(const AXML: String;
   VersaoServico: Double): String;
 begin
-  if VersaoServico = 0.0 then
+  if VersaoServico = 0 then
     Result := ''
   else
     Result := PathWithDelim( Configuracoes.Arquivos.PathSchemas ) +
@@ -552,7 +552,7 @@ end;
 function TACBrCTe.GerarNomeArqSchemaEvento(ASchemaEventoCTe: TSchemaCTe;
   VersaoServico: Double): String;
 begin
-  if VersaoServico = 0.0 then
+  if VersaoServico = 0 then
     Result := ''
   else
     Result := PathWithDelim( Configuracoes.Arquivos.PathSchemas ) +
@@ -1011,7 +1011,7 @@ begin
   if not Assigned(DACTE) then
     raise EACBrCTeException.Create('Componente DACTE não associado.')
   else
-    DACTE.ImprimirEVENTOPDF(nil);
+    DACTE.ImprimirEVENTOPDF;
 end;
 
 procedure TACBrCTe.ImprimirInutilizacao;

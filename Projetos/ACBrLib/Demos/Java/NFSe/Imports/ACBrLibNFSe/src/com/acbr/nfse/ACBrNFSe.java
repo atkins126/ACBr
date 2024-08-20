@@ -10,9 +10,6 @@ import com.sun.jna.ptr.IntByReference;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public final class ACBrNFSe extends ACBrLibBase {
 
@@ -72,6 +69,8 @@ public final class ACBrNFSe extends ACBrLibBase {
         int NFSE_ConfigGravarValor(String eArquivoOuXML);
         
         int NFSE_CarregarXML(String eArquivoOuXml);
+        
+        int NFSE_CarregarLoteXML(String eArquivoOuXml);
 
         int NFSE_CarregarINI(String eArquivoOuINI);
 
@@ -107,11 +106,13 @@ public final class ACBrNFSe extends ACBrLibBase {
         
         int NFSE_ConsultarNFSePorNumero(String aNumero, Integer aPagina, ByteBuffer buffer, IntByReference bufferSize);
         
-        int NFSE_ConsultarNFSePorPeriodo(Date aDataInicial, Date aDataFinal, Integer aPagina, String aNumeroLote, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
+        int NFSE_ConsultarNFSePorPeriodo(double aDataInicial, double aDataFinal, Integer aPagina, String aNumeroLote, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
         
         int NFSE_ConsultarNFSePorFaixa(String aNumeroInicial, String aNumeroFinal, Integer aPagina, ByteBuffer buffer, IntByReference bufferSize);
         
         int NFSE_ConsultarNFSeGenerico(String aInfConsultaNFSe, ByteBuffer buffer, IntByReference bufferSize);
+        
+        int NFSE_ConsultarLinkNFSe(String aInfConsultaLinkNFSe, ByteBuffer buffer, IntByReference bufferSize);
         
         int NFSE_EnviarEmail(String ePara, String eXmlNFSe, boolean aEnviaPDF, String eAssunto, String eCc, String eAnexos, String eMensagem);
         
@@ -119,23 +120,25 @@ public final class ACBrNFSe extends ACBrLibBase {
         
         int NFSE_ImprimirPDF();
         
-        int NFSE_ConsultarNFSeServicoPrestadoPorNumero(String aNumero, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
+        int NFSE_SalvarPDF(ByteBuffer buffer, IntByReference bufferSize);
         
-        int NFSE_ConsultarNFSeServicoPrestadoPorPeriodo(Date aDataInicial, Date aDataFinal, Integer aPagina, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
+        int NFSE_ConsultarNFSeServicoPrestadoPorNumero(String aNumero, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
         
-        int NFSE_ConsultarNFSeServicoPrestadoPorTomador(String aCNPJ, String aInscMun, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
+        int NFSE_ConsultarNFSeServicoPrestadoPorPeriodo(double aDataInicial, double aDataFinal, Integer aPagina, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
         
-        int NFSE_ConsultarNFSeServicoPrestadoPorIntermediario(String aCNPJ, String aInscMun, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
+        int NFSE_ConsultarNFSeServicoPrestadoPorTomador(String aCNPJ, String aInscMun, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
         
-        int NFSE_ConsultarNFSeServicoTomadoPorNumero(String aNumero, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
+        int NFSE_ConsultarNFSeServicoPrestadoPorIntermediario(String aCNPJ, String aInscMun, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
         
-        int NFSE_ConsultarNFSeServicoTomadoPorPrestador(String aCNPJ, String aInscMun, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
+        int NFSE_ConsultarNFSeServicoTomadoPorNumero(String aNumero, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
         
-        int NFSE_ConsultarNFSeServicoTomadoPorTomador(String aCNPJ, String aInscMun, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
+        int NFSE_ConsultarNFSeServicoTomadoPorPrestador(String aCNPJ, String aInscMun, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
         
-        int NFSE_ConsultarNFSeServicoTomadoPorPeriodo(Date aDataInicial, Date aDataFinal, Integer aPagina, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
+        int NFSE_ConsultarNFSeServicoTomadoPorTomador(String aCNPJ, String aInscMun, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
         
-        int NFSE_ConsultarNFSeServicoTomadoPorIntermediario(String aCNPJ, String aInscMun, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
+        int NFSE_ConsultarNFSeServicoTomadoPorPeriodo(double aDataInicial, double aDataFinal, Integer aPagina, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
+        
+        int NFSE_ConsultarNFSeServicoTomadoPorIntermediario(String aCNPJ, String aInscMun, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo, ByteBuffer buffer, IntByReference bufferSize);
         
         int NFSE_EnviarEvento(String aInfEvento, ByteBuffer buffer, IntByReference bufferSize);
         
@@ -149,7 +152,9 @@ public final class ACBrNFSe extends ACBrLibBase {
         
         int NFSE_ObterDANFSE(String aChaveNFSe, ByteBuffer buffer, IntByReference bufferSize);
         
-        int NFSE_ConsultarParametros(Integer aTipoParametroMunicipio, String aCodigoServico, Date aCompetencia, String aNumeroBeneficio, ByteBuffer buffer, IntByReference bufferSize);
+        int NFSE_ConsultarParametros(Integer aTipoParametroMunicipio, String aCodigoServico, double aCompetencia, String aNumeroBeneficio, ByteBuffer buffer, IntByReference bufferSize);
+        
+        int NFSE_ObterInformacoesProvedor(ByteBuffer buffer, IntByReference buffSize);
         
     }
 
@@ -233,6 +238,11 @@ public final class ACBrNFSe extends ACBrLibBase {
         int ret = ACBrNFSeLib.INSTANCE.NFSE_CarregarXML(toUTF8(eArquivoOuXML));
         checkResult(ret);
     }
+    
+    public void carregarLoteXml(String eArquivoOuXML) throws Exception {
+        int ret = ACBrNFSeLib.INSTANCE.NFSE_CarregarLoteXML(toUTF8(eArquivoOuXML));
+        checkResult(ret);
+    }    
 
     public String obterXml(int AIndex) throws Exception {
         ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
@@ -387,7 +397,7 @@ public final class ACBrNFSe extends ACBrLibBase {
         return processResult(buffer, bufferLen);
     }
     
-    public String consultarNFSePorPeriodo(Date aDataInicial, Date aDataFinal, Integer aPagina, String aNumeroLote, Integer aTipoPeriodo) throws Exception {
+    public String consultarNFSePorPeriodo(double aDataInicial, double aDataFinal, Integer aPagina, String aNumeroLote, Integer aTipoPeriodo) throws Exception {
         ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
         IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
                 
@@ -410,6 +420,15 @@ public final class ACBrNFSe extends ACBrLibBase {
         IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
         
         int ret = ACBrNFSeLib.INSTANCE.NFSE_ConsultarNFSeGenerico(toUTF8(aInfConsultaNFSe), buffer, bufferLen);
+        checkResult(ret);
+        return processResult(buffer, bufferLen);
+    }
+    
+    public String consultarLinkNFSe(String aInfConsultaLinkNFSe) throws Exception {
+        ByteBuffer buffer = ByteBuffer.allocate(8192);
+        IntByReference bufferLen = new IntByReference(8192);
+        
+        int ret = ACBrNFSeLib.INSTANCE.NFSE_ConsultarLinkNFSe(toUTF8(aInfConsultaLinkNFSe), buffer, bufferLen);
         checkResult(ret);
         return processResult(buffer, bufferLen);
     }
@@ -441,7 +460,16 @@ public final class ACBrNFSe extends ACBrLibBase {
         checkResult(ret);
     }
     
-    public String consultarNFSeServicoPrestadoPorNumero(String aNumero, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo) throws Exception {
+    public String salvarPDF() throws Exception {
+        ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
+        IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
+        
+        int ret = ACBrNFSeLib.INSTANCE.NFSE_SalvarPDF(buffer, bufferLen);
+        checkResult(ret);
+        return processResult(buffer, bufferLen);
+    }
+    
+    public String consultarNFSeServicoPrestadoPorNumero(String aNumero, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo) throws Exception {
         ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
         IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
         
@@ -450,7 +478,7 @@ public final class ACBrNFSe extends ACBrLibBase {
         return processResult(buffer, bufferLen);
     }
     
-    public String consultarNFSeServicoPrestadoPorPeriodo(Date aDataInicial, Date aDataFinal, Integer aPagina, Integer aTipoPeriodo) throws Exception {
+    public String consultarNFSeServicoPrestadoPorPeriodo(double aDataInicial, double aDataFinal, Integer aPagina, Integer aTipoPeriodo) throws Exception {
         ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
         IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
         
@@ -459,7 +487,7 @@ public final class ACBrNFSe extends ACBrLibBase {
         return processResult(buffer, bufferLen);
     }
     
-    public String consultarNFSeServicoPrestadoPorTomador(String aCNPJ, String aInscMun, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo) throws Exception {
+    public String consultarNFSeServicoPrestadoPorTomador(String aCNPJ, String aInscMun, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo) throws Exception {
         ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
         IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
         
@@ -468,7 +496,7 @@ public final class ACBrNFSe extends ACBrLibBase {
         return processResult(buffer, bufferLen);
     }
         
-    public String consultarNFSeServicoPrestadoPorIntermediario(String aCNPJ, String aInscMun, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo) throws Exception {
+    public String consultarNFSeServicoPrestadoPorIntermediario(String aCNPJ, String aInscMun, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo) throws Exception {
         ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
         IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
         
@@ -477,7 +505,7 @@ public final class ACBrNFSe extends ACBrLibBase {
         return processResult(buffer, bufferLen);
     }
         
-    public String consultarNFSeServicoTomadoPorNumero(String aNumero, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo) throws Exception {
+    public String consultarNFSeServicoTomadoPorNumero(String aNumero, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo) throws Exception {
         ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
         IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
         
@@ -486,7 +514,7 @@ public final class ACBrNFSe extends ACBrLibBase {
         return processResult(buffer, bufferLen);
     }
         
-    public String consultarNFSeServicoTomadoPorPrestador(String aCNPJ, String aInscMun, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo) throws Exception {
+    public String consultarNFSeServicoTomadoPorPrestador(String aCNPJ, String aInscMun, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo) throws Exception {
         ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
         IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
         
@@ -495,7 +523,7 @@ public final class ACBrNFSe extends ACBrLibBase {
         return processResult(buffer, bufferLen);
     }
         
-    public String consultarNFSeServicoTomadoPorTomador(String aCNPJ, String aInscMun, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo) throws Exception {
+    public String consultarNFSeServicoTomadoPorTomador(String aCNPJ, String aInscMun, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo) throws Exception {
         ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
         IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
         
@@ -504,7 +532,7 @@ public final class ACBrNFSe extends ACBrLibBase {
         return processResult(buffer, bufferLen);
     }
         
-    public String consultarNFSeServicoTomadoPorPeriodo(Date aDataInicial, Date aDataFinal, Integer aPagina, Integer aTipoPeriodo) throws Exception {
+    public String consultarNFSeServicoTomadoPorPeriodo(double aDataInicial, double aDataFinal, Integer aPagina, Integer aTipoPeriodo) throws Exception {
         ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
         IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
         
@@ -513,7 +541,7 @@ public final class ACBrNFSe extends ACBrLibBase {
         return processResult(buffer, bufferLen);
     }
         
-    public String consultarNFSeServicoTomadoPorIntermediario(String aCNPJ, String aInscMun, Integer aPagina, Date aDataInicial, Date aDataFinal, Integer aTipoPeriodo) throws Exception {
+    public String consultarNFSeServicoTomadoPorIntermediario(String aCNPJ, String aInscMun, Integer aPagina, double aDataInicial, double aDataFinal, Integer aTipoPeriodo) throws Exception {
         ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
         IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
         
@@ -576,13 +604,22 @@ public final class ACBrNFSe extends ACBrLibBase {
         return processResult(buffer, bufferLen);
     }
     
-    public String consultarParametros(Integer aTipoParametroMunicipio, String aCodigoServico, Date aCompetencia, String aNumeroBeneficio) throws Exception {
+    public String consultarParametros(Integer aTipoParametroMunicipio, String aCodigoServico, double aCompetencia, String aNumeroBeneficio) throws Exception {
         ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
         IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
         
         int ret = ACBrNFSeLib.INSTANCE.NFSE_ConsultarParametros(aTipoParametroMunicipio, toUTF8(aCodigoServico), aCompetencia, toUTF8(aNumeroBeneficio), buffer, bufferLen);
         checkResult(ret);
         return processResult(buffer, bufferLen);
+    }
+    
+    public String obterInformacoesProvedor() throws Exception {
+        ByteBuffer buffer = ByteBuffer.allocate(STR_BUFFER_LEN);
+        IntByReference bufferLen = new IntByReference(STR_BUFFER_LEN);
+        int ret = ACBrNFSeLib.INSTANCE.NFSE_ObterInformacoesProvedor(buffer, bufferLen);
+        checkResult(ret);
+
+        return processResult(buffer, bufferLen);       
     }
     
     public void ConfigImportar(String eArqConfig) throws Exception {

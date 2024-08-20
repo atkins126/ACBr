@@ -44,6 +44,205 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+
+29/07/2024
+-- DoBoletoUnit.pas  --
+[+] TK-5795 ajustado para calcular o nome do arquivo individual da lista de boletos antes de gerar o pdf para email.
+   Por: Daniel Morais InfoCotidiano
+
+26/07/2024
+-- DoSATUnit, ACBrMonitorConsts  --
+[+] Adiciona o método ObterIniCFe
+   Por: Diego Folieni
+
+24/07/2024
+-- ACBrMonitor1 --
+[*] Alteração para atualizar a cidade do cedente nos metodos de configuraçãoCedente
+#TK-5641 https://www.projetoacbr.com.br/forum/topic/78380-n%C3%A3o-esta-alterando-cidade-e-c%C3%B3digo-cidade-em-benefici%C3%A1rio-boleto/
+    Por: Daniel Morais Infocotidiano / Panda
+
+15/07/2024
+-- DoACBrCTeUnit, ACBrMonitorConfig --
+[*] Alteração VersaoCTe para 4.00 #TK-5740
+    Por: Antonio Carlos Junior
+
+02/07/2024
+-- DoACBrMDFeUnit, ACBrMonitor1, ACBrMonitorConsts --
+[*] Adiciona o comando MDFe.EnviarEmailEvento e remove o parâmetro IsUTF8 do IBGE que foi removido em refactoring.
+Por: Diego Folieni
+
+18/06/2024
+-- DoACBrBPeUnit/DoACBrCTeUnit/DoACBrNFeUnit --
+[*] Alteração os métodos de envio de e-mail de evento e inutilização.
+Por: Diego Folieni/Italo Giurizzato Junior/Elton Barbosa
+
+17/05/2024
+-- DoACBrNFSeUnit --
+[*] Altera a resposta do comando ImprimirPDFNFSe para devolver o caminho correto do PDF.
+Por: Diego Folieni
+
+14/05/24
+-- ACBrMonitor1.pas, DoCNPJUnit, ACBrMonitorConsts   --
+[*] TK-5422 - Retornar IE apos consulta CNPJ qdo retornado pelo provedor.
+https://www.projetoacbr.com.br/forum/topic/77714-usando-por-exemplo-o-cnpjconsultar52651232000103-a-resposta-n%C3%A3o-retorna-a-ie-em-nenhum-dos-provedores-inclusive-o-cwscnpjws
+Por: Victor Gonzales Pandaaa
+
+13/05/24
+-- DoETQUnitm, ACBrMonitorConsts   --
+[*] TK-5390 - Criado novo metodo ETQ_GerarStreamBase64
+https://www.projetoacbr.com.br/forum/topic/77507-implementa%C3%A7%C3%A3o-do-retorno-da-etiqueta-em-base64-na-acbrlibetq/
+Por: Daniel Morais Infocotidiano
+
+17/04/24
+-- DoACBrUnit.pas  --
+[*] #TK-5303 Adicionado as chamadas Descarregar e Carregar certificados no metodo SetCertificado
+https://www.projetoacbr.com.br/forum/topic/76796-rejeicao-cnpj-base-consultado-difere-do-cnpj-base-do-certificado-digital/#comment-499716
+Daniel de Morais InfoCotidiano
+
+02/04/24
+-- ACBrMonitor1, DoBoletoUnit   --
+[*] #TK-5115 Adicionado parametro Senha no metodo BOLETO.EnviarEmailBoleto. (funciona apenas em FPDF)
+Daniel de Morais InfoCotidiano
+
+01/04/24
+-- ACBrMonitor1.lfm, ACBrMonitor1.pas, ACBrMonitorConfig, ACBrMonitorConsts   --
+[*] #TK-5277 Adicionado a propriedade para parametrização NomeLongoNFSe que estava hardcoded no componente;
+https://www.projetoacbr.com.br/forum/topic/77059-como-saber-onde-est%C3%A1-o-xml-da-nfse-aprovada/
+Daniel de Morais InfoCotidiano
+
+01/04/24
+-- DoSATUnit, ACBrMonitor1 --
+[-] #TK-5278 Removido raise integrador validador de estados;
+[*] #TK-4789 Removido a mensagem q estava hardcoded no componente, corrigido MetodoGerarImpressaoFiscalMFe
+Daniel de Morais InfoCotidiano
+
+26/03/24
+[*] #TK-5264 Removido a mensagem q estava hardcoded no componente. por isso nao passava pela validacao da msg por UF
+https://www.projetoacbr.com.br/forum/topic/76979-impress%C3%A3o-mfe-ceara-sua-nota-tem-valor/
+Daniel de Morais InfoCotidiano
+
+25/03/24
+[*] #TK-4789 Removido Integrador (CE) do monitor 
+Daniel de Morais InfoCotidiano
+
+22/03/2024
+-- DoACBrCTeUnit --
+[*] Adiciona validação do parâmetro de Impressão para imprimir no comando EnviarCTe.
+  Por: Diego Folieni
+
+13/03/2024
+--- DoACBrBPeUnit --
+[*] Comenta as menções a DistribuicaoDFe, visto que o serviço não é disponibilizado pelo Web Service.
+   Por: Diego Folieni
+
+06/03/2024
+--- Diversos ---
+[+] Implementado método NFSE_ConsultarLinkNFSe
+    Por: Renato Rubinho
+
+05/03/2024
+-- ACBrMonitor1.lfm, ACBrMonitorConfig.pas, ACBrMonitor1.pas,  --
+[*] TK-5131-1  Ajuste para uso de Proxy na consulta CNPJ 
+  Por: Daniel Morais InfoCotidiano
+
+04/03/2024
+-- DoACBrCTeUnit --
+[*] Faz um Refactoring nos comandos CriarEnviarCTe e EnviarCTe adicionando o caminho dos arquivos gerados no retorno e tornando a geração do PDF independente a impressão.
+  Por: Diego Folieni
+
+27/02/2024
+-- DoACBrCTeUnit --
+[*] Corrige a rotina do comando EnviarCTe que estava consultando recibo independente do modo de envio.
+  Por: Diego Folieni
+
+26/02/2024
+-- AsciiToHex --
+[*] TK-5014-1  Ajuste para utilizar função existente em math AsciiToHex para exibir a criptografia
+  Por: Daniel Morais InfoCotidiano
+
+26/02/2024
+-- ACBrMonitor1 --
+[*] TK-5014-1  Ajuste para não ser exibidos na tela ou log senhas de métodos / comando 
+  Por: Daniel Morais InfoCotidiano
+
+21/02/2024
+-- DoACBrBpeUnit, ACBrMonitor1 --
+[*] Alterações visando compatibilização com o refactory feito no componente ACBrBPe.
+  Por: Diego Folieni / Italo Giurizzato Junior
+
+19/02/2024
+-- ACBrMonitorConfig, ACBrMonitor1 (pas, lfm), ACBrMonitorConsts, DoCNPJUnit--
+[*] TK-5014 Ajustado para funcionar com a nova consulta CNPJ
+  Por: Daniel Morais InfoCotidiano
+-- ACBrMonitor.hnd, Diversos inis --
+[+] Enviados arquivos ini de modelo da versão 1.2 do e-Social e configurado help do monitor
+  Por: Renato Rubinho
+
+02/02/2024
+-- DoBoletoUnit, ACBrMonitor.hnd --
+[*] Ajustado o metodo BOLETO.EnviarEmailBoleto para tambem receber parametro de assunto e mensagem
+  Atualizado o manual  
+  Por: Daniel Morais /Validado: Victor H Gonzales - Pandaaa
+
+29/01/2024
+-- ACBrLibReinfRespostas --
+[-] Corrigido preenchimento do grupo dadosRecepcaoLote no retorno da consulta de protocolo do Reinf
+  Por: Renato Rubinho
+
+22/01/2024
+-- ACBrLibReinfConsts.pas, ACBrLibReinfRespostas.pas --
+[*] Corrigida seção "ideContribuinte" no início dos dados de retorno da consulta de protocolo
+  Por: Renato Rubinho
+
+04/01/2024
+-- ACBrMonitor.hnd --
+[*] Atualizado documentação da nova consulta CNPJ, removido captcha
+  Por: Daniel Morais InfoCotidiano
+
+04/01/2024
+--- DoCNPJUnit, ACBrMonitorConfig, ACBrMonitor1, ACBrMonitor1.lfm, ACBrMonitorConsts  ---
+[*] Ajustado para utilizar novo componente de consulta CNPJ
+  Por: Daniel Morais InfoCotidiano
+
+26/12/2023
+-- ACBrMonitor.hnd --
+[+] Documenta os novos métodos SetLayoutNFSe, SetCodigoMunicipio, SetEmitente e SetAutenticacaoNFSe.
+  Por: Diego Folieni
+  
+-- DoACBrNFSeUnit, ACBrMonitorConsts --
+[+] Adiciona os métodos SetLayoutNFSe, SetCodigoMunicipio, SetEmitente e SetAutenticacaoNFSe
+  Por: Diego Folieni
+
+19/12/2023
+-- ACBrMonitor.hnd --
+[*] Ajustes na documentação do Reinf
+  Por: Renato Rubinho
+
+15/12/2023
+-- DoACBrNFSeUnit, ACBrMonitorConsts --
+[+] Adiciona o método NFSe.ObterInformacoesProvedor
+  Por: Diego Folieni
+
+07/12/2023
+-- ACBrMonitor1 --
+[*] Ajuste visando impedir que salve uma cidade sem provedor atribuído na configuração de NFSe
+  Por: Diego Folieni
+
+16/11/2023
+-- ACBrMonitor.hnd --
+[*] Adicionado método SetTipoContribuinte na documentação
+   Por: Renato Rubinho
+
+14/11/2023
+-- ACBrMonitorConsts, DoACBrReinfUnit, pcnConversaoReinf --
+[+] Implementado método SetTipoContribuinte para setar o valor no monitor e criadas funções de conversão para o enumerado
+   Por: Renato Rubinho
+
+27/10/2023
+--- DoACBrReinfUnit ---
+[*] Centralizadas classes e métodos de respostas com a ACBrLibReinf
+   Por: Renato Rubinho
+
 09/10/2023
 -- ACBrMonitorConsts, DoACBrReinfUnit --
 [+] Implementado método setVersaoDF, para alterar a versão do leiaute

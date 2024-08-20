@@ -51,6 +51,10 @@ type
 
 implementation
 
+uses
+  ACBrUtil.Strings,
+  ACBrNFSeXConsts;
+
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
 //     SystemPro
@@ -73,6 +77,9 @@ begin
   NrOcorrQuantDiarias := 0;
 
   GerarTagRps := False;
+
+  if FpAOwner.ConfigGeral.Params.TemParametro('GerarGrupoRps') then
+    GerarTagRps := True;
 end;
 
 end.

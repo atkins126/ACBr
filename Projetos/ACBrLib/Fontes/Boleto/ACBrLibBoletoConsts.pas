@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: José M. S. Junior                               }
 {                                                                              }
@@ -125,7 +125,8 @@ const
   CChaveIndicadorPix= 'IndicadorPix';
 
   CSessaoBoletoWebService = 'BoletoWebSevice';
-  CChaveLogRegistro = 'LogRegistro';
+  CChaveLogNivel = 'LogNivel';
+  CChaveNomeArquivoLog = 'NomeArquivoLog';
   CChavePathGravarRegistro = 'PathGravarRegistro';
   CChaveAmbiente = 'Ambiente';
   CChaveArquivoCRT = 'ArquivoCRT';

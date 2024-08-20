@@ -48,9 +48,9 @@ uses
 type
   TACBrNFSeXWebserviceGoverna = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -106,6 +106,16 @@ begin
     ConsultaLote := False;
     ConsultaNFSe := False;
     DetalharServico := True;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerChaveAcesso := True;
+
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+
+    Particularidades.PermiteTagOutrasInformacoes := True;
+    Particularidades.PermiteMaisDeUmServico := True;
 
     FpVersaoArquivo := Params.ValorParametro('VersaoArquivo');
   end;
@@ -174,11 +184,11 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Codigo;
-      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('tsDesOco'), tcStr));
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('tsDesOco'), tcStr);
       AErro.Correcao := '';
 
       if AErro.Descricao = '' then
-        AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+        AErro.Descricao := ANodeArray[I].AsString;
     end;
   end;
 end;
@@ -544,7 +554,7 @@ end;
 
 { TACBrNFSeXWebserviceGoverna }
 
-function TACBrNFSeXWebserviceGoverna.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceGoverna.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -560,7 +570,7 @@ begin
                      ['xmlns:tem="http://tempuri.org/"']);
 end;
 
-function TACBrNFSeXWebserviceGoverna.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceGoverna.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -576,7 +586,7 @@ begin
                      ['xmlns:tem="http://tempuri.org/"']);
 end;
 
-function TACBrNFSeXWebserviceGoverna.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceGoverna.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -596,7 +606,7 @@ function TACBrNFSeXWebserviceGoverna.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
 end;
 
 end.

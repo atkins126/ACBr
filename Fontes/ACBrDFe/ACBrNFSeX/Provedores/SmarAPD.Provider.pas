@@ -48,10 +48,10 @@ type
   private
     function GetDadosUsuario: string;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarLinkNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLinkNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -89,16 +89,16 @@ type
 
   TACBrNFSeXWebserviceSmarAPD203 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -115,16 +115,16 @@ type
 
   TACBrNFSeXWebserviceSmarAPD204 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -138,6 +138,9 @@ type
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
   end;
+
+var
+  SubVersao: Integer;
 
 implementation
 
@@ -162,6 +165,16 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
     DetalharServico := True;
+
+    Autenticacao.RequerLogin := True;
+
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarLinkNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+
+    Particularidades.PermiteTagOutrasInformacoes := True;
+    Particularidades.PermiteMaisDeUmServico := True;
   end;
 
   with ConfigAssinar do
@@ -175,18 +188,12 @@ begin
 
   with ConfigMsgDados do
   begin
-    with LoteRps do
-    begin
-      InfElemento := 'nfd';
-      DocElemento := 'tbnfd';
-    end;
+    LoteRps.InfElemento := 'nfd';
+    LoteRps.DocElemento := 'tbnfd';
 
-    with CancelarNFSe do
-    begin
-      xmlns := '';
-      InfElemento := 'nfdEntradaCancelar';
-      DocElemento := 'nfd';
-    end;
+    CancelarNFSe.xmlns := '';
+    CancelarNFSe.InfElemento := 'nfdEntradaCancelar';
+    CancelarNFSe.DocElemento := 'nfd';
   end;
 
   // Os schemas que se encontram na pasta SmarAPD/Proprio não é padrão para
@@ -261,11 +268,11 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := '';
-      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('return'), tcStr));
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('return'), tcStr);
       AErro.Correcao := '';
 
       if AErro.Descricao = '' then
-        AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+        AErro.Descricao := ANodeArray[I].AsString;
     end
     else
     begin
@@ -276,11 +283,11 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Codigo;
-        AErro.Descricao := ACBrStr(Descricao);
+        AErro.Descricao := Descricao;
         AErro.Correcao := '';
 
         if AErro.Descricao = '' then
-          AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+          AErro.Descricao := ANodeArray[I].AsString;
       end;
     end;
   end;
@@ -661,23 +668,23 @@ begin
   end;
 end;
 
-function TACBrNFSeXWebserviceSmarAPD.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
-  Request: string;
+  Request, AMSGaux: string;
 begin
   FPMsgOrig := AMSG;
-  AMSG := StringReplace(AMSG, '&amp;', '&amp;amp;',[rfReplaceAll]);
+  AMSGaux := StringReplace(AMSG, '&amp;', '&amp;amp;',[rfReplaceAll]);
 
   Request := '<sil:nfdEntrada xmlns:sil="http://webservices.sil.com/">';
   Request := Request + DadosUsuario;
-  Request := Request + '<nfd>' + XmlToStr(AMSG) + '</nfd>';
+  Request := Request + '<nfd>' + XmlToStr(AMSGaux) + '</nfd>';
   Request := Request + '</sil:nfdEntrada>';
 
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebserviceSmarAPD.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request, IM: string;
@@ -695,7 +702,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebserviceSmarAPD.ConsultarLinkNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD.ConsultarLinkNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -709,7 +716,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebserviceSmarAPD.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSmarAPD.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -729,7 +736,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;
@@ -750,10 +757,11 @@ begin
     }
 //    Rps := True;
     LoteRps := True;
+    ConsultarLote := True; // Incluido para a cidade de Serra/ES em 26/03/2024
+    ConsultarNFSeRps := True;
     CancelarNFSe := True;
     RpsGerarNFSe := True;
     RpsSubstituirNFSe := True;
-    ConsultarNFSeRps := True;
 
     IncluirURI := False;
   end;
@@ -799,7 +807,7 @@ end;
 
 { TACBrNFSeXWebserviceSmarAPD203 }
 
-function TACBrNFSeXWebserviceSmarAPD203.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD203.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -815,7 +823,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSmarAPD203.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD203.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -831,7 +839,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSmarAPD203.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD203.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -847,7 +855,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSmarAPD203.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD203.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -863,7 +871,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSmarAPD203.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD203.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -879,7 +887,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSmarAPD203.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD203.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -895,7 +903,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSmarAPD203.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD203.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -911,7 +919,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSmarAPD203.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD203.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -927,7 +935,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSmarAPD203.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSmarAPD203.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -942,7 +950,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSmarAPD203.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD203.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -964,7 +972,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;
@@ -975,13 +983,19 @@ procedure TACBrNFSeProviderSmarAPD204.Configuracao;
 begin
   inherited Configuracao;
 
+  SubVersao := StrToIntDef(ConfigGeral.Params.ValorParametro('SubVersao'), 0);
+
   with ConfigAssinar do
   begin
-    Rps := True;
+    Rps := (SubVersao = 0);
     LoteRps := True;
+    ConsultarLote := True;
+    ConsultarNFSeRps := True;
     CancelarNFSe := True;
     RpsGerarNFSe := True;
     RpsSubstituirNFSe := True;
+
+    IncluirURI := Rps and LoteRps;
   end;
 
   with ConfigWebServices do
@@ -1032,173 +1046,303 @@ end;
 
 { TACBrNFSeXWebserviceSmarAPD204 }
 
-function TACBrNFSeXWebserviceSmarAPD204.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD204.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<nfse:RecepcionarLoteRpsRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
-  Request := Request + '</nfse:RecepcionarLoteRpsRequest>';
+  if SubVersao = 1 then
+  begin
+    Request := '<nfse:recepcionarLoteRps>';
+    Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
+    Request := Request + '</nfse:recepcionarLoteRps>';
 
-  Result := Executar('http://nfse.abrasf.org.br/RecepcionarLoteRps', Request,
-                     ['outputXML', 'EnviarLoteRpsResposta'],
-                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+    Result := Executar('', Request,
+                       ['return', 'EnviarLoteRpsResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end
+  else
+  begin
+    Request := '<nfse:RecepcionarLoteRpsRequest>';
+    Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+    Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+    Request := Request + '</nfse:RecepcionarLoteRpsRequest>';
+
+    Result := Executar('http://nfse.abrasf.org.br/RecepcionarLoteRps', Request,
+                       ['outputXML', 'EnviarLoteRpsResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end;
 end;
 
-function TACBrNFSeXWebserviceSmarAPD204.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD204.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<nfse:RecepcionarLoteRpsSincronoRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
-  Request := Request + '</nfse:RecepcionarLoteRpsSincronoRequest>';
+  if SubVersao = 1 then
+  begin
+    Request := '<nfse:recepcionarLoteRpsSincrono>';
+    Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
+    Request := Request + '</nfse:recepcionarLoteRpsSincrono>';
 
-  Result := Executar('http://nfse.abrasf.org.br/RecepcionarLoteRpsSincrono', Request,
-                     ['outputXML', 'EnviarLoteRpsSincronoResposta'],
-                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+    Result := Executar('', Request,
+                       ['return', 'EnviarLoteRpsSincronoResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end
+  else
+  begin
+    Request := '<nfse:RecepcionarLoteRpsSincronoRequest>';
+    Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+    Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+    Request := Request + '</nfse:RecepcionarLoteRpsSincronoRequest>';
+
+    Result := Executar('http://nfse.abrasf.org.br/RecepcionarLoteRpsSincrono', Request,
+                       ['outputXML', 'EnviarLoteRpsSincronoResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end;
 end;
 
-function TACBrNFSeXWebserviceSmarAPD204.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD204.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<nfse:GerarNfseRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
-  Request := Request + '</nfse:GerarNfseRequest>';
+  if SubVersao = 1 then
+  begin
+    Request := '<nfse:gerarNfse>';
+    Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
+    Request := Request + '</nfse:gerarNfse>';
 
-  Result := Executar('http://nfse.abrasf.org.br/GerarNfse', Request,
-                     ['outputXML', 'GerarNfseResposta'],
-                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+    Result := Executar('', Request,
+                       ['return', 'GerarNfseResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end
+  else
+  begin
+    Request := '<nfse:GerarNfseRequest>';
+    Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+    Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+    Request := Request + '</nfse:GerarNfseRequest>';
+
+    Result := Executar('http://nfse.abrasf.org.br/GerarNfse', Request,
+                       ['outputXML', 'GerarNfseResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end;
 end;
 
-function TACBrNFSeXWebserviceSmarAPD204.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD204.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<nfse:ConsultarLoteRpsRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
-  Request := Request + '</nfse:ConsultarLoteRpsRequest>';
+  if SubVersao = 1 then
+  begin
+    Request := '<nfse:consultarLoteRps>';
+    Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
+    Request := Request + '</nfse:consultarLoteRps>';
 
-  Result := Executar('http://nfse.abrasf.org.br/ConsultarLoteRps', Request,
-                     ['outputXML', 'ConsultarLoteRpsResposta'],
-                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+    Result := Executar('', Request,
+                       ['return', 'ConsultarLoteRpsResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end
+  else
+  begin
+    Request := '<nfse:ConsultarLoteRpsRequest>';
+    Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+    Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+    Request := Request + '</nfse:ConsultarLoteRpsRequest>';
+
+    Result := Executar('http://nfse.abrasf.org.br/ConsultarLoteRps', Request,
+                       ['outputXML', 'ConsultarLoteRpsResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end;
 end;
 
-function TACBrNFSeXWebserviceSmarAPD204.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD204.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<nfse:ConsultarNfsePorFaixaRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
-  Request := Request + '</nfse:ConsultarNfsePorFaixaRequest>';
+  if SubVersao = 1 then
+  begin
+    Request := '<nfse:consultarNfsePorFaixa>';
+    Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
+    Request := Request + '</nfse:consultarNfsePorFaixa>';
 
-  Result := Executar('http://nfse.abrasf.org.br/ConsultarNfsePorFaixa', Request,
-                     ['outputXML', 'ConsultarNfseFaixaResposta'],
-                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+    Result := Executar('', Request,
+                       ['return', 'ConsultarNfseFaixaResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end
+  else
+  begin
+    Request := '<nfse:ConsultarNfsePorFaixaRequest>';
+    Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+    Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+    Request := Request + '</nfse:ConsultarNfsePorFaixaRequest>';
+
+    Result := Executar('http://nfse.abrasf.org.br/ConsultarNfsePorFaixa', Request,
+                       ['outputXML', 'ConsultarNfseFaixaResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end;
 end;
 
-function TACBrNFSeXWebserviceSmarAPD204.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD204.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<nfse:ConsultarNfsePorRpsRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
-  Request := Request + '</nfse:ConsultarNfsePorRpsRequest>';
+  if SubVersao = 1 then
+  begin
+    Request := '<nfse:consultarNfsePorRps>';
+    Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
+    Request := Request + '</nfse:consultarNfsePorRps>';
 
-  Result := Executar('http://nfse.abrasf.org.br/ConsultarNfsePorRps', Request,
-                     ['outputXML', 'ConsultarNfseRpsResposta'],
-                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+    Result := Executar('', Request,
+                       ['return', 'ConsultarNfseRpsResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end
+  else
+  begin
+    Request := '<nfse:ConsultarNfsePorRpsRequest>';
+    Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+    Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+    Request := Request + '</nfse:ConsultarNfsePorRpsRequest>';
+
+    Result := Executar('http://nfse.abrasf.org.br/ConsultarNfsePorRps', Request,
+                       ['outputXML', 'ConsultarNfseRpsResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end;
 end;
 
-function TACBrNFSeXWebserviceSmarAPD204.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD204.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<nfse:ConsultarNfseServicoPrestadoRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
-  Request := Request + '</nfse:ConsultarNfseServicoPrestadoRequest>';
+  if SubVersao = 1 then
+  begin
+    Request := '<nfse:consultarNfseServicoPrestado>';
+    Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
+    Request := Request + '</nfse:consultarNfseServicoPrestado>';
 
-  Result := Executar('http://nfse.abrasf.org.br/ConsultarNfseServicoPrestado', Request,
-                     ['outputXML', 'ConsultarNfseServicoPrestadoResposta'],
-                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+    Result := Executar('', Request,
+                       ['return', 'ConsultarNfseServicoPrestadoResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end
+  else
+  begin
+    Request := '<nfse:ConsultarNfseServicoPrestadoRequest>';
+    Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+    Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+    Request := Request + '</nfse:ConsultarNfseServicoPrestadoRequest>';
+
+    Result := Executar('http://nfse.abrasf.org.br/ConsultarNfseServicoPrestado', Request,
+                       ['outputXML', 'ConsultarNfseServicoPrestadoResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end;
 end;
 
-function TACBrNFSeXWebserviceSmarAPD204.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD204.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<nfse:ConsultarNfseServicoTomadoRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
-  Request := Request + '</nfse:ConsultarNfseServicoTomadoRequest>';
+  if SubVersao = 1 then
+  begin
+    Request := '<nfse:consultarNfseServicoTomado>';
+    Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
+    Request := Request + '</nfse:consultarNfseServicoTomado>';
 
-  Result := Executar('http://nfse.abrasf.org.br/ConsultarNfseServicoTomado', Request,
-                     ['outputXML', 'ConsultarNfseServicoTomadoResposta'],
-                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+    Result := Executar('', Request,
+                       ['return', 'ConsultarNfseServicoTomadoResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end
+  else
+  begin
+    Request := '<nfse:ConsultarNfseServicoTomadoRequest>';
+    Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+    Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+    Request := Request + '</nfse:ConsultarNfseServicoTomadoRequest>';
+
+    Result := Executar('http://nfse.abrasf.org.br/ConsultarNfseServicoTomado', Request,
+                       ['outputXML', 'ConsultarNfseServicoTomadoResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end;
 end;
 
-function TACBrNFSeXWebserviceSmarAPD204.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSmarAPD204.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<nfse:CancelarNfseRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
-  Request := Request + '</nfse:CancelarNfseRequest>';
+  if SubVersao = 1 then
+  begin
+    Request := '<nfse:cancelarNfse>';
+    Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
+    Request := Request + '</nfse:cancelarNfse>';
 
-  Result := Executar('http://nfse.abrasf.org.br/CancelarNfse', Request,
-                     ['outputXML', 'CancelarNfseResposta'],
-                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+    Result := Executar('', Request,
+                       ['return', 'CancelarNfseResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end
+  else
+  begin
+    Request := '<nfse:CancelarNfseRequest>';
+    Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+    Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+    Request := Request + '</nfse:CancelarNfseRequest>';
+
+    Result := Executar('http://nfse.abrasf.org.br/CancelarNfse', Request,
+                       ['outputXML', 'CancelarNfseResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end;
 end;
 
-function TACBrNFSeXWebserviceSmarAPD204.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSmarAPD204.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<nfse:SubstituirNfseRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
-  Request := Request + '</nfse:SubstituirNfseRequest>';
+  if SubVersao = 1 then
+  begin
+    Request := '<nfse:substituirNfse>';
+    Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
+    Request := Request + '</nfse:substituirNfse>';
 
-  Result := Executar('http://nfse.abrasf.org.br/SubstituirNfse', Request,
-                     ['outputXML', 'SubstituirNfseResposta'],
-                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+    Result := Executar('', Request,
+                       ['return', 'SubstituirNfseResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end
+  else
+  begin
+    Request := '<nfse:SubstituirNfseRequest>';
+    Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+    Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+    Request := Request + '</nfse:SubstituirNfseRequest>';
+
+    Result := Executar('http://nfse.abrasf.org.br/SubstituirNfse', Request,
+                       ['outputXML', 'SubstituirNfseResposta'],
+                       ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+  end;
 end;
 
 function TACBrNFSeXWebserviceSmarAPD204.TratarXmlRetornado(
@@ -1207,7 +1351,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result));
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;

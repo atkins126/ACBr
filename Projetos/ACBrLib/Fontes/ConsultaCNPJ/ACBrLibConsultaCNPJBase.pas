@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 
 { Colaboradores nesse arquivo: Antonio Carlos Junior                           }
 
@@ -37,8 +37,10 @@ unit ACBrLibConsultaCNPJBase;
 interface
 
 uses
-  Classes, SysUtils, ACBrUtil.FilesIO, ACBrUtil.Strings,
-  ACBrLibComum, ACBrLibConsultaCNPJDataModule, ACBrTCP;
+  Classes, SysUtils,
+  ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings,
+  ACBrConsultaCNPJ,
+  ACBrLibComum, ACBrLibConsultaCNPJDataModule;
 
 Const
   CCAPTCHA_CNPJ = 'CaptchaCNPJ';
@@ -46,7 +48,6 @@ Const
 type
 
   { TACBrLibConsultaCNPJ }
-
   TACBrLibConsultaCNPJ = class (TACBrLib)
     private
       FConsultaCNPJDM: TLibConsultaCNPJDM;
@@ -61,8 +62,9 @@ type
 
       property ConsultaCNPJDM: TLibConsultaCNPJDM read FConsultaCNPJDM;
 
-      function ConsultarCaptcha (ePathDownload: PChar; const sResposta: PChar; var esTamanho: longint): longint;
-      function Consultar (eCNPJ: PChar; eCaptcha: PChar; const sResposta: PChar; var esTamanho: longint):longint;
+      function ConsultarCaptcha (ePathDownload: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+      function Consultar (eCNPJ: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer):Integer;
+
 
   end;
 
@@ -100,14 +102,14 @@ begin
   FConsultaCNPJDM.AplicarConfiguracoes;
 end;
 
-function TACBrLibConsultaCNPJ.ConsultarCaptcha(ePathDownload: PChar; const sResposta: PChar; var esTamanho: longint):longint;
+function TACBrLibConsultaCNPJ.ConsultarCaptcha(ePathDownload: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer):Integer;
 var
   AStream: TMemoryStream;
   Resposta, Path: String;
 
 begin
   try
-    Path:= ConverterAnsiParaUTF8(ePathDownload);
+    Path:= ConverterStringEntrada(ePathDownload);
 
     if Config.Log.Nivel > logNormal then
        GravarLog('CNPJ_ConsultarCaptcha ( ' + Path + ' )', logCompleto, True)
@@ -144,33 +146,33 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibConsultaCNPJ.Consultar(eCNPJ: PChar; eCaptcha: PChar; const sResposta: PChar; var esTamanho: longint):longint;
+function TACBrLibConsultaCNPJ.Consultar(eCNPJ: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   AResposta: String;
   CNPJ: AnsiString;
-  Captcha: AnsiString;
   Resp: TLibConsultaCNPJConsulta;
 begin
   try
-    Captcha:= ConverterAnsiParaUTF8(eCaptcha);
-    CNPJ:= ConverterAnsiParaUTF8(eCNPJ);
+    //Captcha:= ConverterAnsiParaUTF8(eCaptcha);
+    CNPJ:= ConverterStringEntrada(eCNPJ);
 
     if Config.Log.Nivel > logNormal then
-       GravarLog('CNPJ_Consultar ( ' + CNPJ + ',' + Captcha + ' )', logCompleto, True)
+       GravarLog('CNPJ_Consultar (' + CNPJ + ' - Provedor:' + IntToStr(integer(ConsultaCNPJDM.ACBrConsultaCNPJ1.Provedor)) + ' )', logCompleto, True)
     else
        GravarLog('CNPJ_Consultar', logNormal);
 
     ConsultaCNPJDM.Travar;
     try
+  
 
-      ConsultaCNPJDM.ACBrConsultaCNPJ1.Consulta(CNPJ, Captcha);
+      ConsultaCNPJDM.ACBrConsultaCNPJ1.Consulta(CNPJ);
       AResposta:= '';
 
       Resp := TLibConsultaCNPJConsulta.Create(Config.TipoResposta, Config.CodResposta);
@@ -190,10 +192,10 @@ begin
 
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 

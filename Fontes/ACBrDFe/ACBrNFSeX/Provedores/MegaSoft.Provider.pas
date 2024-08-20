@@ -46,8 +46,8 @@ uses
 type
   TACBrNFSeXWebserviceMegaSoft200 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -80,6 +80,16 @@ begin
   begin
     ModoEnvio := meUnitario;
     ConsultaNFSe := False;
+    ImprimirOptanteSN := False;
+
+    ServicosDisponibilizados.EnviarLoteAssincrono := False;
+    ServicosDisponibilizados.EnviarLoteSincrono := False;
+    ServicosDisponibilizados.ConsultarLote := False;
+    ServicosDisponibilizados.ConsultarFaixaNfse := False;
+    ServicosDisponibilizados.ConsultarServicoPrestado := False;
+    ServicosDisponibilizados.ConsultarServicoTomado := False;
+    ServicosDisponibilizados.CancelarNfse := False;
+    ServicosDisponibilizados.SubstituirNfse := False;
   end;
 
   ConfigAssinar.RpsGerarNFSe := True;
@@ -162,7 +172,7 @@ end;
 
 { TACBrNFSeXWebserviceMegaSoft200 }
 
-function TACBrNFSeXWebserviceMegaSoft200.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceMegaSoft200.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -179,7 +189,7 @@ begin
                      ['xmlns:ws="http://ws.megasoftarrecadanet.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceMegaSoft200.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceMegaSoft200.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -201,7 +211,7 @@ function TACBrNFSeXWebserviceMegaSoft200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := RemoverIdentacao(Result);

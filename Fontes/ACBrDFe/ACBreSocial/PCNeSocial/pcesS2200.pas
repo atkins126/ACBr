@@ -54,7 +54,7 @@ uses
   {$ELSE}
    Contnrs,
   {$IFEND}
-  ACBrBase, pcnConversao, pcnConsts,
+  ACBrBase, pcnConversao,
   pcesCommon, pcesConversaoeSocial, pcesGerador, pcnLeitor;
 
 type
@@ -491,7 +491,7 @@ begin
         vinculo.InfoRegimeTrab.infoEstatutario.DtNomeacao  := StringToDateTime(INIRec.ReadString(sSecao, 'dtNomeacao', '0'));
         vinculo.InfoRegimeTrab.infoEstatutario.DtPosse     := StringToDateTime(INIRec.ReadString(sSecao, 'dtPosse', '0'));
         vinculo.InfoRegimeTrab.infoEstatutario.DtExercicio := StringToDateTime(INIRec.ReadString(sSecao, 'dtExercicio', '0'));
-        vinculo.InfoRegimeTrab.infoEstatutario.tpPlanRP    := eSStrToTpPlanRP(Ok, INIRec.ReadString(sSecao, 'tpPlanRP', '1'));
+        vinculo.InfoRegimeTrab.infoEstatutario.tpPlanRP    := eSStrToTpPlanRP(Ok, INIRec.ReadString(sSecao, 'tpPlanRP', '-1'));
         vinculo.InfoRegimeTrab.infoEstatutario.infoDecJud.nrProcJud := INIRec.ReadString(sSecao, 'nrProcJud', '');
         vinculo.InfoRegimeTrab.infoEstatutario.indTetoRGPS := eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'indTetoRGPS', ''));
         vinculo.InfoRegimeTrab.infoEstatutario.indAbonoPerm:= eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'indAbonoPerm', ''));
@@ -518,9 +518,9 @@ begin
       vinculo.infoContrato.remuneracao.DscSalVar  := INIRec.ReadString(sSecao, 'dscSalVar', '');
 
       sSecao := 'duracao';
-      if INIRec.ReadString(sSecao, 'tpContr', '1') <> '3' then
+      if INIRec.ReadString(sSecao, 'tpContr', '4') <> '4' then
       begin
-      vinculo.infoContrato.duracao.TpContr   := eSStrToTpContr(Ok, INIRec.ReadString(sSecao, 'tpContr', '1'));
+      vinculo.infoContrato.duracao.TpContr   := eSStrToTpContr(Ok, INIRec.ReadString(sSecao, 'tpContr', '4'));
       vinculo.infoContrato.duracao.dtTerm    := StringToDateTime(INIRec.ReadString(sSecao, 'dtTerm', '0'));
       vinculo.infoContrato.duracao.clauAssec := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'clauAssec', 'S'));
       vinculo.infoContrato.duracao.objDet    := INIRec.ReadString(sSecao, 'objDet', '');
@@ -723,7 +723,8 @@ begin
 
     if Leitor.rExtrai(1, 'evtAdmissao') <> '' then
     begin
-      Id := Leitor.rCampo(tcStr, 'Id');
+      if Self.Id = '' then
+        Self.Id := Leitor.rAtributo('Id=');
 
       if Leitor.rExtrai(2, 'ideEvento') <> '' then
       begin

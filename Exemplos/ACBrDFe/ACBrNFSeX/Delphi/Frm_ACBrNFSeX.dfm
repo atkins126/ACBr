@@ -141,10 +141,10 @@ object frmACBrNFSe: TfrmACBrNFSe
               ParentColor = False
             end
             object gbCertificado: TGroupBox
-              Left = 2
-              Top = 118
+              Left = 3
+              Top = 116
               Width = 263
-              Height = 144
+              Height = 246
               Caption = 'Certificado'
               TabOrder = 4
               object Label1: TLabel
@@ -253,104 +253,60 @@ object frmACBrNFSe: TfrmACBrNFSe
                 Height = 21
                 TabOrder = 2
               end
-            end
-            object btnDataValidade: TButton
-              Left = 8
-              Top = 266
-              Width = 99
-              Height = 25
-              Caption = 'Data de Validade'
-              TabOrder = 5
-              OnClick = btnDataValidadeClick
-            end
-            object btnNumSerie: TButton
-              Left = 112
-              Top = 266
-              Width = 73
-              Height = 25
-              Caption = 'Num.S'#233'rie'
-              TabOrder = 6
-              OnClick = btnNumSerieClick
-            end
-            object btnSubName: TButton
-              Left = 8
-              Top = 298
-              Width = 99
-              Height = 25
-              Caption = 'Subject Name'
-              TabOrder = 7
-              OnClick = btnSubNameClick
-            end
-            object btnCNPJ: TButton
-              Left = 112
-              Top = 298
-              Width = 73
-              Height = 25
-              Caption = 'CNPJ'
-              TabOrder = 8
-              OnClick = btnCNPJClick
-            end
-            object btnIssuerName: TButton
-              Left = 188
-              Top = 298
-              Width = 76
-              Height = 25
-              Caption = 'Issuer Name'
-              TabOrder = 9
-              OnClick = btnIssuerNameClick
-            end
-            object grpCalculo: TGroupBox
-              Left = 2
-              Top = 328
-              Width = 263
-              Height = 69
-              Caption = 'Calculo de Hash e assinatura'
-              TabOrder = 10
-              object edtTexto: TEdit
-                Left = 3
-                Top = 14
-                Width = 249
-                Height = 21
-                TabOrder = 0
-                Text = '0548133600013704583493000190'
-              end
-              object btnSha256: TButton
+              object btnDataValidade: TButton
                 Left = 8
-                Top = 41
-                Width = 99
+                Top = 148
+                Width = 118
                 Height = 25
-                Caption = 'SHA256+RSA'
-                TabOrder = 1
-                OnClick = btnSha256Click
+                Caption = 'Data de Validade'
+                TabOrder = 3
+                OnClick = btnDataValidadeClick
               end
-              object cbAssinar: TCheckBox
-                Left = 144
-                Top = 41
-                Width = 54
-                Height = 19
-                Caption = 'Assinar'
-                Checked = True
-                State = cbChecked
-                TabOrder = 2
+              object btnNumSerie: TButton
+                Left = 130
+                Top = 148
+                Width = 124
+                Height = 25
+                Caption = 'Numero de S'#233'rie'
+                TabOrder = 4
+                OnClick = btnNumSerieClick
               end
-            end
-            object btnHTTPS: TButton
-              Left = 8
-              Top = 403
-              Width = 128
-              Height = 25
-              Caption = 'HTTPS sem Certificado'
-              TabOrder = 11
-              OnClick = btnHTTPSClick
-            end
-            object btnLeituraX509: TButton
-              Left = 144
-              Top = 403
-              Width = 115
-              Height = 25
-              Caption = 'Leitura de X509'
-              TabOrder = 12
-              OnClick = btnLeituraX509Click
+              object btnSubName: TButton
+                Left = 8
+                Top = 180
+                Width = 118
+                Height = 25
+                Caption = 'Subject Name'
+                TabOrder = 5
+                OnClick = btnSubNameClick
+              end
+              object btnIssuerName: TButton
+                Left = 130
+                Top = 180
+                Width = 124
+                Height = 25
+                Caption = 'Issuer Name'
+                TabOrder = 6
+                OnClick = btnIssuerNameClick
+              end
+              object btnCNPJ: TButton
+                Left = 8
+                Top = 212
+                Width = 118
+                Height = 25
+                Caption = 'CNPJ'
+                TabOrder = 7
+                OnClick = btnCNPJClick
+              end
+              object btnLeituraX509: TButton
+                Left = 130
+                Top = 212
+                Width = 124
+                Height = 25
+                Caption = 'Leitura de X509'
+                TabOrder = 8
+                OnClick = btnLeituraX509Click
+              end
             end
             object cbSSLLib: TComboBox
               Left = 80
@@ -570,6 +526,15 @@ object frmACBrNFSe: TfrmACBrNFSe
                 Style = csDropDownList
                 TabOrder = 11
               end
+            end
+            object btnInformacoes: TButton
+              Left = 12
+              Top = 396
+              Width = 247
+              Height = 25
+              Caption = 'Informa'#231#245'es sobre o Provedor'
+              TabOrder = 1
+              OnClick = btnInformacoesClick
             end
           end
           object TabSheet7: TTabSheet
@@ -1027,6 +992,13 @@ object frmACBrNFSe: TfrmACBrNFSe
               Font.Style = [fsBold]
               ParentFont = False
             end
+            object Label50: TLabel
+              Left = 149
+              Top = 328
+              Width = 107
+              Height = 13
+              Caption = 'Cidades com Provedor'
+            end
             object edtEmitCNPJ: TEdit
               Left = 8
               Top = 20
@@ -1130,7 +1102,7 @@ object frmACBrNFSe: TfrmACBrNFSe
             object edtTotalCidades: TEdit
               Left = 167
               Top = 304
-              Width = 89
+              Width = 93
               Height = 21
               TabStop = False
               Font.Charset = DEFAULT_CHARSET
@@ -1348,6 +1320,21 @@ object frmACBrNFSe: TfrmACBrNFSe
               Width = 123
               Height = 21
               TabOrder = 15
+            end
+            object edtCidComProv: TEdit
+              Left = 149
+              Top = 344
+              Width = 111
+              Height = 21
+              TabStop = False
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clRed
+              Font.Height = -11
+              Font.Name = 'MS Sans Serif'
+              Font.Style = [fsBold]
+              ParentFont = False
+              ReadOnly = True
+              TabOrder = 16
             end
           end
           object TabSheet13: TTabSheet
@@ -2117,7 +2104,9 @@ object frmACBrNFSe: TfrmACBrNFSe
               Font.Name = 'Tahoma'
               Font.Style = [fsBold]
               Lines.Strings = (
-                'Somente para os provedores: ISSDSF, Siat e ISSSaoPaulo.')
+                
+                  'Somente para os provedores: ISSDSF, NFSeBrasil, Siat e ISSSaoPau' +
+                  'lo.')
               ParentFont = False
               ReadOnly = True
               TabOrder = 1
@@ -2143,6 +2132,15 @@ object frmACBrNFSe: TfrmACBrNFSe
               Caption = 'Ler Arq. INI e Gerar Rps'
               TabOrder = 1
               OnClick = btnLerINIClick
+            end
+            object btnGerarArqINI: TButton
+              Left = 3
+              Top = 72
+              Width = 177
+              Height = 25
+              Caption = 'Gerar Arq. INI'
+              TabOrder = 2
+              OnClick = btnGerarArqINIClick
             end
           end
         end
@@ -2385,6 +2383,28 @@ object frmACBrNFSe: TfrmACBrNFSe
               Caption = 'Beneficio'
               TabOrder = 5
               OnClick = btnConsultarParamMunicBeneficioClick
+            end
+          end
+          object tsOutrosPN: TTabSheet
+            Caption = 'Outros'
+            ImageIndex = 4
+            object btnLerINIPN: TButton
+              Left = 11
+              Top = 17
+              Width = 134
+              Height = 25
+              Caption = 'Ler Arq. INI e Gerar Lote'
+              TabOrder = 0
+              OnClick = btnLerINIPNClick
+            end
+            object btnGerarArqINIPN: TButton
+              Left = 11
+              Top = 64
+              Width = 134
+              Height = 25
+              Caption = 'Gerar Arq. INI'
+              TabOrder = 1
+              OnClick = btnGerarArqINIPNClick
             end
           end
         end

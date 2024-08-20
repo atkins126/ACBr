@@ -21,7 +21,7 @@ namespace ACBrLib.CTe
             Tomador4 = new Tomador4CTe();
             Complemento = new ComplementoCTe();
             Fluxo = new FluxoCTe();
-            Entrega = new EntregaCTe();            
+            Entrega = new EntregaCTe();
             Emitente = new EmitenteCTe();
             Remetente = new RemetenteCTe();
             Expedidor = new ExpedidorCTe();
@@ -114,8 +114,8 @@ namespace ACBrLib.CTe
         {
             var iniData = new ACBrIniFile();
 
-            iniData.WriteToIni(InfCTe, "InfCTe");
-            iniData.WriteToIni(Identificacao, "Ide");
+            iniData.WriteToIni(InfCTe, "infCTe");
+            iniData.WriteToIni(Identificacao, "ide");
 
             for (var i = 0; i < Identificacao.infPercurso.Count; i++)
             {
@@ -125,9 +125,8 @@ namespace ACBrLib.CTe
 
             iniData.WriteToIni(Tomador3, "toma3");
             iniData.WriteToIni(Tomador4, "toma4");
-            iniData.WriteToIni(Complemento, "Compl");
+            iniData.WriteToIni(Complemento, "compl");
             iniData.WriteToIni(Fluxo, "fluxo");
-            iniData.WriteToIni(Entrega, "Entrega");
 
             for (var i = 0; i < ObsCont.Count; i++)
             {
@@ -141,7 +140,7 @@ namespace ACBrLib.CTe
                 iniData.WriteToIni(obsFisco, $"ObsFisco{i + 1:000}");
             }
 
-            iniData.WriteToIni(Emitente, "Emit");
+            iniData.WriteToIni(Emitente, "emit");
             iniData.WriteToIni(Remetente, "Rem");
             iniData.WriteToIni(Expedidor, "Exped");
             iniData.WriteToIni(Recebedor, "Receb");
@@ -464,8 +463,8 @@ namespace ACBrLib.CTe
 
         private void ReadFromIni(ACBrIniFile iniData)
         {
-            iniData.ReadFromIni(InfCTe, "InfCTe");
-            iniData.ReadFromIni(Identificacao, "Ide");
+            iniData.ReadFromIni(InfCTe, "infCTe");
+            iniData.ReadFromIni(Identificacao, "ide");
 
             var i = 0;
             if (Identificacao != null)
@@ -481,9 +480,8 @@ namespace ACBrLib.CTe
 
             iniData.ReadFromIni(Tomador3, "toma3");
             iniData.ReadFromIni(Tomador4, "toma4");
-            iniData.ReadFromIni(Complemento, "Compl");
+            iniData.ReadFromIni(Complemento, "compl");
             iniData.ReadFromIni(Fluxo, "fluxo");
-            iniData.ReadFromIni(Entrega, "Entrega");
 
             i = 0;
             ObsContCTe obsCont;
@@ -507,7 +505,7 @@ namespace ACBrLib.CTe
 
             } while (obsFisco != null);
                        
-            iniData.ReadFromIni(Emitente, "Emit");
+            iniData.ReadFromIni(Emitente, "emit");
             iniData.ReadFromIni(Remetente, "Rem");
             iniData.ReadFromIni(Expedidor, "Exped");
             iniData.ReadFromIni(Recebedor, "Receb");
@@ -962,7 +960,7 @@ namespace ACBrLib.CTe
                 if (autXMLDistDFe != null) autXML.Add(autXMLDistDFe);
             }while(autXMLDistDFe != null);
 
-            iniData.ReadFromIni(InfRespTec, "InfRespTec");
+            iniData.ReadFromIni(InfRespTec, "infRespTec");
             iniData.ReadFromIni(ProtCTe, "procCTe");
 
             //CTe-OS

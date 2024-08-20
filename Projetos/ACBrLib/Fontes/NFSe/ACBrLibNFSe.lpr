@@ -53,6 +53,7 @@ exports
   NFSE_Finalizar,
   NFSE_Nome,
   NFSE_Versao,
+  NFSE_OpenSSLInfo,
   NFSE_UltimoRetorno,
   NFSE_ConfigImportar,
   NFSE_ConfigExportar,
@@ -63,6 +64,7 @@ exports
 
   // Arquivos
   NFSE_CarregarXML,
+  NFSE_CarregarLoteXML,
   NFSE_CarregarINI,
   NFSE_ObterXml,
   NFSE_GravarXml,
@@ -85,9 +87,12 @@ exports
   NFSE_ConsultarNFSePorPeriodo,
   NFSE_ConsultarNFSePorFaixa,
   NFSE_ConsultarNFSeGenerico,
+  NFSE_ConsultarLinkNFSe,
   NFSE_EnviarEmail,
   NFSE_Imprimir,
   NFSE_ImprimirPDF,
+  NFSE_SalvarPDF,
+  NFSE_ObterInformacoesProvedor,
 
   // Servico Prestado
   NFSE_ConsultarNFSeServicoPrestadoPorNumero,

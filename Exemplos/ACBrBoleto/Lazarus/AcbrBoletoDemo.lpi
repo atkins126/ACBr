@@ -27,9 +27,6 @@
     </RunParams>
     <RequiredPackages>
       <Item>
-        <PackageName Value="ACBr_BoletoFC_FPDF"/>
-      </Item>
-      <Item>
         <PackageName Value="PCNComum"/>
       </Item>
       <Item>
@@ -45,7 +42,7 @@
         <PackageName Value="ACBr_Boleto"/>
       </Item>
       <Item>
-        <PackageName Value="ACBr_BoletoFC_Fortes"/>
+        <PackageName Value="ACBr_BoletoFC_FPDF"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>
@@ -59,7 +56,7 @@
       <Unit>
         <Filename Value="uDemoBoleto.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmDemo"/>
+        <ComponentName Value="frmDemoBoleto"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit>
@@ -78,15 +75,15 @@
       </SyntaxOptions>
     </Parsing>
     <Linking>
+      <Debugging>
+        <DebugInfoType Value="dsDwarf3"/>
+      </Debugging>
       <Options>
         <Win32>
           <GraphicApplication Value="True"/>
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions>

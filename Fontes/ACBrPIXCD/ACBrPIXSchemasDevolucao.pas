@@ -87,6 +87,7 @@ type
     procedure Clear; override;
     function IsEmpty: Boolean; override;
     procedure Assign(Source: TACBrPIXDevolucaoSolicitada);
+    function LoadFromIni(aIniStr: String): Boolean;
 
     property valor: Currency read fvalor write fvalor;
     property natureza: TACBrPIXNaturezaDevolucao read fnatureza write fnatureza;
@@ -141,8 +142,9 @@ type
 implementation
 
 uses
-  ACBrPIXUtil,
+  ACBrPIXUtil, Math, IniFiles,
   ACBrUtil.Base,
+  ACBrUtil.FilesIO,
   ACBrUtil.Strings,
   ACBrUtil.DateTime;
 
@@ -233,12 +235,31 @@ begin
             (fvalor = 0);
 end;
 
-procedure TACBrPIXDevolucaoSolicitada.Assign(Source: TACBrPIXDevolucaoSolicitada
-  );
+procedure TACBrPIXDevolucaoSolicitada.Assign(Source: TACBrPIXDevolucaoSolicitada);
 begin
   fdescricao := Source.descricao;
   fnatureza := Source.natureza;
   fvalor := Source.valor;
+end;
+
+function TACBrPIXDevolucaoSolicitada.LoadFromIni(aIniStr: String): Boolean;
+var
+  wSecao: String;
+  wIni: TMemIniFile;
+begin
+  Result := False;
+
+  wIni := TMemIniFile.Create('');
+  try
+    LerIniArquivoOuString(aIniStr, wIni);
+
+    wSecao := 'DevolucaoSolicitada';
+    fdescricao := wIni.ReadString(wSecao, 'descricao', EmptyStr);
+    fnatureza := TACBrPIXNaturezaDevolucao(wIni.ReadInteger(wSecao, 'naturezaDevolucao', 0));
+    fvalor := wIni.ReadFloat(wSecao, 'valor', 0);
+  finally
+    wIni.Free;
+  end;
 end;
 
 procedure TACBrPIXDevolucaoSolicitada.SetDescricao(AValue: String);
@@ -355,16 +376,20 @@ end;
 
 procedure TACBrPIXDevolucao.Setid(AValue: String);
 var
-  e: String;
+  e, s: String;
 begin
   if fid = AValue then
     Exit;
 
-  e := ValidarTxId(AValue, 35, 1);
-  if (e <> '') then
-    raise EACBrPixException.Create(ACBrStr(e));
+  s := Trim(AValue);
+  if (s <> '') and fIsBacen then
+  begin
+    e := ValidarTxId(s, 35, 1);
+    if (e <> '') then
+      raise EACBrPixException.Create(ACBrStr(e));
+  end;
 
-  fId := AValue;
+  fId := s;
 end;
 
 procedure TACBrPIXDevolucao.Setmotivo(AValue: String);

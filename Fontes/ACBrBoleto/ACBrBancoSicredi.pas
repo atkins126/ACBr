@@ -59,6 +59,9 @@ type
     procedure GerarRegistroTransacao400(ACBrTitulo : TACBrTitulo; aRemessa: TStringList); override;
     procedure GerarRegistroTrailler400(ARemessa:TStringList);  override;
     procedure LerRetorno400(ARetorno: TStringList); override;
+    function DefinePosicaoNossoNumeroRetorno: Integer; override;
+    function DefineNossoNumeroRetorno(const Retorno: String): String; override;
+
     function DefineDataDesconto(const ACBrTitulo: TACBrTitulo; AFormat: String = 'ddmmyyyy'): String; override;
 
     function GerarRegistroHeader240(NumeroRemessa : Integer): String; override;
@@ -101,7 +104,7 @@ begin
    fpTamanhoConta          := 5;
    fpTamanhoCarteira       := 1;
    fpCodigosMoraAceitos    := 'AB0123';
-   fpCodigosGeracaoAceitos := '23456789';
+   fpCodigosGeracaoAceitos := '023456789';
    fpLayoutVersaoArquivo   := 81;
    fpLayoutVersaoLote      := 40;
 end;
@@ -111,9 +114,19 @@ begin
    Modulo.CalculoPadrao;
    Modulo.Documento := ACBrTitulo.ACBrBoleto.Cedente.Agencia +
                        PadLeft(ACBrTitulo.ACBrBoleto.Cedente.AgenciaDigito, 2, '0') +
-                       PadLeft(ACBrTitulo.ACBrBoleto.Cedente.CodigoCedente, 5, '0') +
+                       PadLeft(ACBrTitulo.ACBrBoleto.Cedente.CodigoCedente, 5, '0');
+
+  if ( (ACBrBanco.ACBrBoleto.Cedente.ResponEmissao = tbBancoEmite) and (Length(ACBrTitulo.CodigoGeracao) = 3)) then
+    Modulo.Documento := Modulo.Documento +
+                        copy(ACBrTitulo.CodigoGeracao,1,2) + //60    AA
+                        copy(ACBrTitulo.CodigoGeracao,3,1) + //0     B
+                        RightStr(ACBrTitulo.NossoNumero,5)   //00000 NNNNN
+  else
+    Modulo.Documento := Modulo.Documento +
                        FormatDateTime('yy',ACBrTitulo.DataDocumento) +
                        ACBrTitulo.CodigoGeracao + RightStr(ACBrTitulo.NossoNumero,5);
+
+
    Modulo.Calcular;
 
    if (Modulo.DigitoFinal > 9) then
@@ -173,6 +186,14 @@ function TACBrBancoSicredi.MontarCampoNossoNumero (const ACBrTitulo: TACBrTitulo
 begin
   if ( (ACBrBanco.ACBrBoleto.Cedente.ResponEmissao = tbBancoEmite) and ( (Trim(ACBrTitulo.NossoNumero) = '') or (Trim(ACBrTitulo.NossoNumero) = '00000') ) ) then
     Result := ''
+  else
+  if ( (ACBrBanco.ACBrBoleto.Cedente.ResponEmissao = tbBancoEmite) and (Length(ACBrTitulo.CodigoGeracao) = 3)) then
+    Result:= copy(ACBrTitulo.CodigoGeracao,1,2) + //60    AA
+             '/'+
+             copy(ACBrTitulo.CodigoGeracao,3,1) + //0     B
+             RightStr(ACBrTitulo.NossoNumero,5) +  //00000 NNNNN
+             '-' +
+             CalcularDigitoVerificador(ACBrTitulo)
   else
     Result:= FormatDateTime('yy',ACBrTitulo.DataDocumento) + '/' +
              ACBrTitulo.CodigoGeracao + RightStr(ACBrTitulo.NossoNumero,5) + '-' +
@@ -427,8 +448,10 @@ begin
                      Space(1)                                                           +  // 326 a 326 - Filler - Brancos
                      PadRight( OnlyNumber(Sacado.CEP), 8 )                              +  // 327 a 334 - CEP do sacado
                      PadRight('', 5, '0')                                               +  // 335 a 339 - Código do sacado junto ao cliente (zeros quando inexistente)
-                     PadRight(OnlyNumber(Sacado.SacadoAvalista.CNPJCPF), 14, ' ')       +  // 340 a 353 - CIC/CGC do sacador avalista
-                     PadRight(TiraAcentos(Sacado.Avalista), 41, ' ')                                    // 354 a 394 - Nome do sacador avalista ---Anderson
+                     ifthen(NaoEstaVazio(Sacado.SacadoAvalista.CNPJCPF),
+                          PadLeft(OnlyNumber(Sacado.SacadoAvalista.CNPJCPF), 14, '0'),
+                          Space(14))                                                     +  // 340 a 353 - CIC/CGC do sacador avalista
+                     PadRight(TiraAcentos(Sacado.Avalista), 41, ' ')                        // 354 a 394 - Nome do sacador avalista ---Anderson
          else
             wLinha:= wLinha +
                      PadRight(TiraAcentos(Sacado.Logradouro + ',' + Sacado.Numero + ',' +
@@ -614,7 +637,7 @@ end;
 
 function TACBrBancoSicredi.GetLocalPagamento: String;
 begin
-  Result := Format(ACBrStr(CInstrucaoPagamentoCooperativa), [fpNome]);
+  Result := ACBrStr(Format(CInstrucaoPagamentoCooperativa, [fpNome]));
 end;
 
 procedure TACBrBancoSicredi.GerarRegistroTrailler400( ARemessa:TStringList );
@@ -706,7 +729,9 @@ begin
         Carteira             := Copy(Linha,14,1);
         if (Carteira = '1') or (Carteira = 'A') then //Cobrança com Registro
         begin
-          NossoNumero          := Copy(Linha,48,15);
+
+          NossoNumero          := DefineNossoNumeroRetorno(Linha);
+
           Vencimento     := StringToDateTimeDef(Copy(Linha,147,2)+'/'+
                                                 Copy(Linha,149,2)+'/'+
                                                 Copy(Linha,151,2),0, 'DD/MM/YY' );
@@ -838,6 +863,19 @@ begin
 
   end;
 
+end;
+
+function TACBrBancoSicredi.DefineNossoNumeroRetorno(const Retorno: String): String;
+begin
+  if ACBrBanco.ACBrBoleto.LerNossoNumeroCompleto then
+    Result := Copy(Retorno,DefinePosicaoNossoNumeroRetorno,TamanhoMaximoNossoNum)
+  else
+    Result := Copy(Retorno,DefinePosicaoNossoNumeroRetorno,Pred(TamanhoMaximoNossoNum));
+end;
+
+function TACBrBancoSicredi.DefinePosicaoNossoNumeroRetorno: Integer;
+begin
+  Result := 48;
 end;
 
 function TACBrBancoSicredi.CodMotivoRejeicaoToDescricao(
@@ -1000,6 +1038,7 @@ begin
         end;
         toRetornoLiquidado,
         toRetornoBaixado,
+        toRetornoBaixadoViaArquivo,
         toRetornoLiquidadoAposBaixaouNaoRegistro:
         begin
           case StrToIntDef(CodMotivo,0) of
@@ -1017,7 +1056,8 @@ begin
           else
             Result := PadLeft(CodMotivo,2,'0') + ' - Outros motivos';
           end;
-          if (TipoOcorrencia = toRetornoBaixado) then begin
+          if (TipoOcorrencia in [toRetornoBaixado,toRetornoBaixadoViaArquivo])then
+          begin
             case StrToIntDef(CodMotivo,0) of
               09: Result := '09 - Comandada banco';
               10: Result := '10 - Comandada cliente arquivo';
@@ -1483,7 +1523,7 @@ begin
          end;
 
          NomeFixo := DirArqRemessa + PathDelim +
-                     Copy(Cedente.CodigoCedente,1,5)+ codMesSicredi +
+                     PadLeft(Copy(Cedente.CodigoCedente, 1, 5), 5, '0')  + codMesSicredi +
                      FormatDateTime( 'dd', Now );
 
          NomeArq := NomeFixo + '.crm';
@@ -1865,6 +1905,7 @@ var
     Especie, EndSacado, Ocorrencia: String;
     TipoAvalista: Char;
     lDataDesconto: String;
+    LCodigoMoraJuros : String;
 begin
   with ACBrBanco.ACBrBoleto.Cedente, ACBrTitulo do
   begin
@@ -1967,6 +2008,9 @@ begin
        tbBancoNaoReemite : ATipoBoleto := '5' + '2';
      end;
 
+    {Codigo Mora Juros}
+    LCodigoMoraJuros := DefineCodigoMoraJuros(ACBrTitulo);
+
     {Tipo Documento}
     ATipoDoc:= DefineTipoDocumento;
 
@@ -2000,7 +2044,7 @@ begin
              PadLeft(Especie, 2, '0')                                         + // 107 a 108 - Espécie do título
              AceiteStr                                                        + // 109 a 109 - Identificação de título aceito/não aceito
              FormatDateTime('ddmmyyyy', DataDocumento)                        + // 110 a 117 - Data da emissão do título
-             IfThen( (ValorMoraJuros > 0) and (CodigoMora= ''), '1', PadRight(CodigoMora, 1, '3') )   + // 118 a 118 - Código do juro de mora
+             LCodigoMoraJuros                                                 + // 118 a 118 - Código do juro de mora
              IfThen((DataMoraJuros > 0),
                      FormatDateTime('ddmmyyyy', DataMoraJuros),
                                     '00000000')                               + // 119 a 126 - Data do juro de mora
@@ -2014,7 +2058,7 @@ begin
              CodProtestoNegativacao                                           + // 221 a 221 - Código para protesto
              DiasProtestoNegativacao                                          + // 222 a 223 - Número de dias para protesto
              '1'                                                              + // 224 a 224 - Código para baixa/devolução
-             '060'                                                            + // 225 a 227 - Nº de dias para baixa/devolução
+             '000'                                                            + // 225 a 227 - Nº de dias para baixa/devolução (O Sicredi não utiliza esse campo)
              '09'                                                             + // 228 a 229 - Código da moeda = "09"
              PadRight('', 10, '0')                                            + // 230 a 239 - Nº do contrato da operação de crédito
              Space(1);                                                          // 240 a 240 - Uso exclusivo FEBRABAN/CNAB
@@ -2030,7 +2074,9 @@ begin
              Space(1)                                                       + // 015 a 015 - Uso exclusivo FEBRABAN/CNAB
              Ocorrencia                                                     + // 016 a 017 - Código de movimento de remessa
              TipoSacado                                                     + // 018 a 018 - Tipo de inscrição
-             PadLeft(OnlyNumber(Sacado.CNPJCPF), 15, '0')                   + // 019 a 033 - Número de inscrição
+             ifthen(NaoEstaVazio(Sacado.CNPJCPF),
+                  PadLeft(OnlyNumber(Sacado.CNPJCPF), 15, '0'),
+                  Space(15))                                                + // 019 a 033 - Número de inscrição
              PadRight(TiraAcentos(Sacado.NomeSacado), 40)                   + // 034 a 073 - Nome
              EndSacado                                                      + // 074 a 113 - Endereço
              PadRight(TiraAcentos(Sacado.Bairro), 15)                       + // 114 a 128 - Bairro
@@ -2039,7 +2085,9 @@ begin
              PadRight(TiraAcentos(Sacado.Cidade), 15)                       + // 137 a 151 - Cidade
              PadLeft(Sacado.UF, 2)                                          + // 152 a 153 - Unidade da Federação
              TipoAvalista                                                   + // 154 a 154 - Tipo de inscrição
-             PadLeft(OnlyNumber(Sacado.SacadoAvalista.CNPJCPF), 15, '0')    + // 155 a 169 - Número de inscrição
+             ifthen(NaoEstaVazio(Sacado.SacadoAvalista.CNPJCPF),
+                  PadLeft(OnlyNumber(Sacado.SacadoAvalista.CNPJCPF), 15, '0'),
+                  Space(15))                                                + // 155 a 169 - Número de inscrição
              PadRight(TiraAcentos(Sacado.SacadoAvalista.NomeAvalista),40,' ')            + // 170 a 209 - Nome do sacador/avalista
              PadRight('', 3, '0')                                           + // 210 a 212 - Cód. bco corresp. na compensação
              Space(20)                                                      + // 213 a 232 - Nosso nº no banco correspondente
@@ -2071,26 +2119,14 @@ begin
                IfThen((PercentualMulta > 0),
                       IntToStrZero(round(PercentualMulta * 100), 15),
                       PadLeft('', 15, '0'))                                + // 75 - 89 Percentual de multa. Informar zeros se não cobrar
-               space(10);                                                   // 90-99 Informações do sacado
-
-               if Mensagem.Count > 0 then
-               begin
-                 Result :=  Result + PadRight(Copy(Mensagem[0],1,40),40);    // 100-139 Menssagem livre
-
-                 if Mensagem.Count > 1 then
-                   Result := Result + PadRight(Copy(Mensagem[1],1,40),40)    // 140-179 Menssagem livre
-                 else
-                   Result := Result + Space(40);
-               end
-               else
-                 Result := Result + Space(80);
-
-               Result := Result +
+               space(10)                                                   + // 90-99 Informações do sacado
+  			   space(40)    											   + // 100-139 Menssagem livre
+               space(40)    											   + // 140-179 Menssagem livre
                space(20)                                                   + // 180-199 Uso da FEBRABAN "Brancos"
                PadLeft('0', 08, '0')                                       + // 200-207 Código oco. sacado "0000000"
                PadLeft('0', 3, '0')                                        + // 208-210 Código do banco na conta de débito "000"
                PadLeft('0', 5, '0')                                        + // 211-215 Código da ag. debito
-               ' '                                                         + // 216 Digito da agencia
+               '0'                                                         + // 216 Digito da agencia (O Sicredi não usa esse campo, preencher com zeros)
                PadLeft('0', 12, '0')                                       + // 217-228 Conta corrente para debito
                ' '                                                         + // 229 Digito conta de debito
                ' '                                                         + // 230 Dv agencia e conta

@@ -17,7 +17,9 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
-      <BuildNr Value="27"/>
+      <MajorVersionNr Value="1"/>
+      <RevisionNr Value="1"/>
+      <BuildNr Value="65"/>
       <Language Value="0416"/>
       <StringTable Comments="Projeto ACBr" CompanyName="ACBrConsultaCNPJ - Biblioteca para consulta CNPJ" FileDescription="ACBrLibConsultaCNPJ" InternalName="ACBrLibConsultaCNPJ" LegalCopyright="Projeto ACBr" LegalTrademarks="Projeto ACBr" ProductName="ConsultaCNPJ" ProductVersion="0.0.0.0"/>
     </VersionInfo>
@@ -528,10 +530,13 @@
     <RunParams>
       <FormatVersion Value="2"/>
     </RunParams>
-    <RequiredPackages Count="1">
+    <RequiredPackages Count="2">
       <Item1>
-        <PackageName Value="ACBrTCP"/>
+        <PackageName Value="ACBrOpenSSL"/>
       </Item1>
+      <Item2>
+        <PackageName Value="ACBrTCP"/>
+      </Item2>
     </RequiredPackages>
     <Units Count="13">
       <Unit0>

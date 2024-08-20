@@ -2910,8 +2910,7 @@ begin
           tipoEvento := ACBrNFe.EventoNFe.Evento[0].InfEvento.tpEvento;
           ArqEvento  := ACBrNFe.EventoNFe.ObterNomeArquivo(tipoEvento);
           ArqEvento  := PathWithDelim(ACBrNFe.Configuracoes.Arquivos.GetPathEvento(tipoEvento))+ArqEvento;
-          ACBrNFe.EventoNFe.Gerador.ArquivoFormatoXML := APathXMLEvento;
-          ACBrNFe.EventoNFe.Gerador.SalvarArquivo(ArqEvento);
+          WriteToTxt(ArqEvento, ACBrNFe.EventoNFe.Evento[0].RetInfEvento.XML, False, False);
           slAnexos.Add(ArqEvento)
         end
         else
@@ -3018,8 +3017,7 @@ begin
         begin
           ArqInut  := ACBrNFe.InutNFe.ObterNomeArquivo;
           ArqInut  := PathWithDelim(ACBrNFe.Configuracoes.Arquivos.GetPathInu()) + ArqInut;
-          ACBrNFe.EventoNFe.Gerador.ArquivoFormatoXML := APathXML;
-          ACBrNFe.EventoNFe.Gerador.SalvarArquivo(ArqInut);
+          WriteToTxt(ArqInut, APathXML, False, False);
           slAnexos.Add(ArqInut)
         end
         else

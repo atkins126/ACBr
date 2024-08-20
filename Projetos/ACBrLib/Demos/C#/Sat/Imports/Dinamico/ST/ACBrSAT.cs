@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.IO;
+using System.Text;
 using ACBrLib.Core;
 
 namespace ACBrLib.Sat
@@ -246,6 +248,14 @@ namespace ACBrLib.Sat
             return ConsultarSessaoSatResposta.LerResposta(ProcessResult(buffer, bufferLen));
         }
 
+        public void SetNumeroSessao(string cNumeroDeSessao)
+        {
+            var method = GetMethod<SAT_SetNumeroSessao>();
+            var ret = ExecuteMethod(() => method(cNumeroDeSessao));
+
+            CheckResult(ret);           
+        }
+
         public ConsultarUltimaSessaoFiscalResposta ConsultarUltimaSessaoFiscal()
         {
             var bufferLen = BUFFER_LEN;
@@ -334,12 +344,33 @@ namespace ACBrLib.Sat
             return CFeResposta.LerResposta(ProcessResult(buffer, bufferLen));
         }
 
+        public void CarregarXML(string eArquivo)
+        {
+            var method = GetMethod<SAT_CarregarXML>();
+            var ret = ExecuteMethod(() => method(ToUTF8(eArquivo)));
+
+            CheckResult(ret);
+        }
+
         public void validarCFe(string eArquivoXml)
         {
             var method = GetMethod<SAT_ValidarCFe>();
             var ret = ExecuteMethod(() => method(ToUTF8(eArquivoXml)));
 
             CheckResult(ret);
+        }
+
+        public string ObterIni()
+        {
+            var bufferLen = BUFFER_LEN;
+            var buffer = new StringBuilder(bufferLen);
+
+            var method = GetMethod<SAT_ObterIni>();
+            var ret = ExecuteMethod(() => method(buffer, ref bufferLen));
+
+            CheckResult(ret);
+
+            return ProcessResult(buffer, bufferLen);
         }
 
         public EnvioResposta CriarEnviarCFe(CupomFiscal CFe) => CriarEnviarCFe(CFe.ToString());
@@ -455,6 +486,24 @@ namespace ACBrLib.Sat
 
             CheckResult(ret);
         }
+
+        public async void SalvarPDF(Stream aStream)
+        {
+            if (aStream == null) throw new ArgumentNullException(nameof(aStream));
+
+            var bufferLen = BUFFER_LEN;
+            var buffer = new StringBuilder(bufferLen);
+
+            var method = GetMethod<SAT_SalvarPDF>();
+            var ret = ExecuteMethod(() => method(buffer, ref bufferLen));
+
+            CheckResult(ret);
+
+            var pdf = ProcessResult(buffer, bufferLen);
+            Base64ToStream(pdf, aStream);
+        }
+
+        public CupomFiscal ObterCFe() => CupomFiscal.Load(ObterIni());
 
         #region Private Methods
 

@@ -54,6 +54,7 @@ exports
   CTE_Finalizar,
   CTE_Nome,
   CTE_Versao,
+  CTE_OpenSSLInfo,
   CTE_UltimoRetorno,
   CTE_ConfigImportar,
   CTE_ConfigExportar,
@@ -79,11 +80,12 @@ exports
   CTE_EnviarEmailEvento,
   CTE_Imprimir,
   CTE_ImprimirPDF,
+  CTE_SalvarPDF,
   CTE_ImprimirEvento,
   CTE_ImprimirEventoPDF,
+  CTE_SalvarEventoPDF,
   CTE_ImprimirInutilizacao,
   CTE_ImprimirInutilizacaoPDF,
-
 
   // Arquivos
   CTE_CarregarXML,

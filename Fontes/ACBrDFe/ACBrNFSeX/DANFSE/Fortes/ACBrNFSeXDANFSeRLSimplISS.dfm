@@ -2609,6 +2609,7 @@ inherited frlXDANFSeRLSimplISS: TfrlXDANFSeRLSimplISS
     end
   end
   inherited RLPDFFilter1: TRLPDFFilter
-    Left = 112
+    Left = 136
+    Top = 16
   end
 end

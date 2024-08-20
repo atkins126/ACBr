@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Reflection;
 using System.Runtime.ConstrainedExecution;
@@ -29,9 +30,13 @@ namespace ACBrLib.Core
         {
             MinusOne = new IntPtr(-1);
 
-            var uri = new Uri(Assembly.GetEntryAssembly().CodeBase);
-            var path = Path.GetDirectoryName(!uri.IsFile ? uri.ToString() : uri.LocalPath + Uri.UnescapeDataString(uri.Fragment));
-            LibraryPath = Path.Combine(path, "ACBrLib", Environment.Is64BitProcess ? "x64" : "x86");
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            if (!string.IsNullOrEmpty(baseDir))
+            {
+                var uri = new Uri(baseDir);
+                var path = Path.GetDirectoryName(!uri.IsFile ? uri.ToString() : uri.LocalPath + Uri.UnescapeDataString(uri.Fragment));
+                LibraryPath = Path.Combine(path, "ACBrLib", Environment.Is64BitProcess ? "x64" : "x86");
+            }
         }
 
         protected ACBrLibHandle(string dllName64, string dllName32) :
@@ -47,10 +52,101 @@ namespace ACBrLib.Core
 
             var pNewSession = LibLoader.LoadLibrary(dllName);
             if (pNewSession == IntPtr.Zero || pNewSession == MinusOne)
+            {
                 pNewSession = LibLoader.LoadLibrary(Path.Combine(LibraryPath, dllName));
 
-            if (pNewSession == IntPtr.Zero || pNewSession == MinusOne)
-                throw CreateException("Não foi possivel carregar a biblioteca.");
+                // Localizar dependências em pacotes nuget
+                if (pNewSession == IntPtr.Zero || pNewSession == MinusOne)
+                {
+                    DirectoryInfo directoryInfo;
+                    string pastaPackage = "";
+                    string libraryNuget = "";
+                    string libraryPathParent = LibraryPath;
+
+                    // Navega nas pastas anteriores até localizar a pasta onde está a Packages
+                    while (Directory.GetParent(libraryPathParent) != null)
+                    {
+                        if (String.IsNullOrEmpty(libraryPathParent))
+                            break;
+
+                        directoryInfo = Directory.GetParent(libraryPathParent);
+
+                        if (directoryInfo == null)
+                            break;
+
+                        libraryPathParent = directoryInfo.FullName;
+
+                        if (Directory.Exists(libraryPathParent))
+                        {
+                            libraryNuget = libraryPathParent;
+                            string[] pastas = Directory.GetDirectories(libraryNuget);
+
+                            // Varre o caminho para verificar se existe a pasta Packages onde os nugets distribuem as dependências
+                            foreach (string pasta in pastas)
+                            {
+                                pastaPackage = Path.GetFileName(pasta);
+
+                                if (pastaPackage.ToLower() == "packages")
+                                    break;
+
+                                pastaPackage = "";
+                            }
+
+                            if (!String.IsNullOrEmpty(pastaPackage))
+                            {
+                                libraryNuget = Path.Combine(libraryNuget, pastaPackage);
+                                string pastaPackagesNugets = libraryNuget;
+
+                                pastas = Directory.GetDirectories(libraryNuget);
+                                pastaPackage = "";
+
+                                // Varre a pasta Packages para localizar a pasta da lib
+                                foreach (string dir in pastas)
+                                {
+                                    libraryNuget = pastaPackagesNugets;
+                                    pastaPackage = Path.GetFileName(dir);
+
+                                    if (pastaPackage.Substring(0, 8).ToLower() == "acbrlib.")
+                                    {
+                                        // Ao localizar a pasta da lib, completa o caminho com a arquitetura da aplicação para pegar as dependências
+                                        if (!String.IsNullOrEmpty(pastaPackage))
+                                        {
+                                            // Concatena a pasta do pacote
+                                            libraryNuget = Path.Combine(libraryNuget, pastaPackage, "ACBrLib");
+
+                                            // Concatena a pasta das dependências
+                                            libraryNuget = Path.Combine(libraryNuget, Environment.Is64BitProcess ? "x64" : "x86");
+
+                                            if (Directory.Exists(libraryNuget))
+                                            {
+                                                if (!String.IsNullOrEmpty(libraryNuget))
+                                                    pNewSession = LibLoader.LoadLibrary(Path.Combine(libraryNuget, dllName));
+
+                                                if (pNewSession == IntPtr.Zero || pNewSession == MinusOne)
+                                                    pastaPackage = ""; 
+                                                else
+                                                    break;
+                                            }
+                                            else
+                                                pastaPackage = "";
+                                        }
+                                    }
+                                    else
+                                        pastaPackage = "";
+                                }
+
+                                if (!String.IsNullOrEmpty(pastaPackage))
+                                    break;
+                            }
+                        }
+                    }
+
+                    if (String.IsNullOrEmpty(pastaPackage))
+                        throw CreateException("Não foi possivel carregar a biblioteca na pasta da aplicação ou no caminho padrão: " + LibraryPath);
+
+                    LibraryPath = libraryNuget;
+                }
+            }
 
             SetHandle(pNewSession);
             InitializeMethods();
@@ -66,7 +162,11 @@ namespace ACBrLib.Core
             set
             {
                 if (value != libraryPath)
-                    Environment.SetEnvironmentVariable("PATH", value);
+                {
+                    var currentPath = Environment.GetEnvironmentVariable("PATH");
+                    var updatedPath = string.Concat(currentPath, ";", value);
+                    Environment.SetEnvironmentVariable("PATH", updatedPath);
+                }
 
                 libraryPath = value;
             }

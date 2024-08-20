@@ -42,6 +42,32 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+13/08/2024
+--- ACBrLibeSocialBase, ACBrLibeSocialST, ACBrLibeSocialMT,
+    ACBrLibeSocialStaticImportST, ACBrLibeSocialStaticImportMT, ACBrLibeSocialRespostas ---
+[*] Ajustes para usar 'PAnsiChar' no lugar de 'PChar' e 'Integer' ao inves de 'LongInt'
+[*] Ajustes para usar 'ConverterStringEntrada' e 'ConverterStringSaida'
+    Por: Antonio Carlos Junior
+
+23/07/2024
+--- ACBrLibeSocialRespostas ---
+[-] Removido um end a mais que estava impedindo a compilação ACBrMonitorPlus
+    Por: Daniel Morais InfoCotidiano
+
+19/07/2024
+--- ACBrLibeSocialRespostas ---
+[*]TK-5360-1 - Configurada lib e monitor para retornar na chave PathNome o nome do xml gerado
+--- FrmMain ---
+[*] Corrigidos métodos de Consulta Identificadores, no programa de exemplo em C# - https://www.projetoacbr.com.br/forum/topic/77459-esocial-dll-pathnome/
+    Por: Renato Rubinho
+
+24/06/2024
+--- ACBrLibeSocialBase ---
+[*] Configurada lib para retornar os dados de envio no método CriarEnviareSocial
+--- Diversos C# ---
+[*] Adicionados novos leiautes na combo de versões, tratado retorno do método CriarEnviareSocial
+    Por: Renato Rubinho
+
 11/01/2023
 --- ACBrLibeSocialBase ---
 [-] Correção para conversão das respostas com Erros, em ANSI, se assim estiver configurado

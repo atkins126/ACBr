@@ -4,7 +4,6 @@ inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
   Caption = 'frlDANFeRLRetrato'
   ClientHeight = 703
   Font.Height = -18
-  PixelsPerInch = 96
   TextHeight = 24
   inherited RLNFe: TRLReport
     Left = 10

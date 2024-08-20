@@ -62,11 +62,11 @@ type
 
   TACBrNFSeXWebserviceISSBarueri = class(TACBrNFSeXWebserviceSoap12)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
   end;
 
   { TACBrNFSeProviderISSBarueri }
@@ -101,8 +101,8 @@ type
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
-    function AplicarXMLtoUTF8(AXMLRps: String): String; override;
-    function AplicarLineBreak(AXMLRps: String; const ABreak: String): String; override;
+    function AplicarXMLtoUTF8(const AXMLRps: String): String; override;
+    function AplicarLineBreak(const AXMLRps: String; const ABreak: String): String; override;
 
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
@@ -360,6 +360,14 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
     FormatoArqRecibo := tfaTxt;
+
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarSituacao := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarServicoTomado := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+
+    Particularidades.PermiteMaisDeUmServico := True;
   end;
 
   with ConfigMsgDados do
@@ -823,9 +831,12 @@ begin
           Response.Data := EncodeDataHora(Trim(Copy(Dados[1], 13, 8)), 'YYYYMMDD');
 
         if (FAOwner.Configuracoes.WebServices.AmbienteCodigo = 1) then
-        begin
-          Response.Link := 'https://www.barueri.sp.gov.br/nfe/xmlNFe.ashx?codigoautenticidade=' + Response.Protocolo + '&numdoc=' + Trim(Copy(Dados[1], 94, 14));
-        end;
+          Response.Link := 'https://www.barueri.sp.gov.br/nfe/xmlNFe.ashx'
+        else
+          Response.Link := 'https://testeeiss.barueri.sp.gov.br/nfe/xmlNFe.ashx';
+
+        Response.Link := Response.Link + '?codigoautenticidade=' +
+                 Response.Protocolo + '&numdoc=' + Trim(Copy(Dados[1], 94, 14));
 
         if NaoEstaVazio(Response.Link) then
         begin
@@ -999,8 +1010,8 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr));
-    AErro.Correcao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr);
+    AErro.Correcao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr);
   end;
   {
     As tag que contem o código, mensagem e correção do erro são diferentes do padrão
@@ -1020,12 +1031,12 @@ begin
   }
 end;
 
-function TACBrNFSeProviderISSBarueri.AplicarXMLtoUTF8(AXMLRps: String): String;
+function TACBrNFSeProviderISSBarueri.AplicarXMLtoUTF8(const AXMLRps: String): String;
 begin
   Result := string(NativeStringToUTF8(AXMLRps));
 end;
 
-function TACBrNFSeProviderISSBarueri.AplicarLineBreak(AXMLRps: String;
+function TACBrNFSeProviderISSBarueri.AplicarLineBreak(const AXMLRps: String;
   const ABreak: String): String;
 begin
   Result := AXMLRps;
@@ -1077,7 +1088,7 @@ end;
 
 { TACBrNFSeXWebserviceISSBarueri }
 
-function TACBrNFSeXWebserviceISSBarueri.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceISSBarueri.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1097,7 +1108,7 @@ begin
                      ['xmlns:nfe="http://www.barueri.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSBarueri.ConsultarSituacao(ACabecalho,
+function TACBrNFSeXWebserviceISSBarueri.ConsultarSituacao(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1117,7 +1128,7 @@ begin
                      ['xmlns:nfe="http://www.barueri.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSBarueri.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceISSBarueri.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1137,7 +1148,7 @@ begin
                      ['xmlns:nfe="http://www.barueri.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSBarueri.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceISSBarueri.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1158,7 +1169,7 @@ begin
                      ['xmlns:nfe="http://www.barueri.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSBarueri.Cancelar(ACabecalho,
+function TACBrNFSeXWebserviceISSBarueri.Cancelar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;

@@ -46,6 +46,183 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+09/08/2024
+-- ACBrTEFAPI --
+[*] "TACBrTEFAPIValidacaoDado", adicionado enumerado, "valdQuantidadeParcelas"
+    Evento "QuandoPerguntarCampoAPI", permite indicar que a pergunta é
+    referente a um parcelamento
+
+-- ACBrTEFPayGoWebComum, ACBrTEFAPIPaygoWeb --
+[*] "TACBrTEFPGWebAPIValidacaoDado", adicionado enumerado "pgvQuantidadeParcelas = 102"
+[*] método "PW_GetDataToDefinicaoCampo" alterado para mapear PWINFO_INSTALLMENTS para
+    pgvQuantidadeParcelas
+(por: Guilherme Geraldo - GPlus)
+
+10/07/2024
+-- ACBrTEFAPI --
+[-] Ajueste em "ObterDadoPinPad", para permitir valores maiores
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=78687
+    (por: datilas)
+
+04/07/2024
+-- ACBrTEFAPICliSiTef --
+[*] Ajuste para não perguntar campos, que foram informados anteriormente por
+    "RespostasPorTipo"
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=78597
+    (por: DataCamp)
+
+25/06/2024
+-- ACBrTEFPayGoComum --
+[*] Workaround, para situações onde a VERO / BANRICOMPRAS não retorna o 
+    CodigoAutorizacaoTransacao ou PWINFO_AUTHCODE (0x46), para considerar
+    CodigoAutorizacaoTransacao = NSU
+    (por: DSA)
+  
+27/05/2024
+-- ACBrTEFAPI --
+[*] Modificada a assintura do método "ObterDadoPinPad" para permitir informar
+    o Tamanho Mínimo e Máximo do Campo
+    function ObterDadoPinPad(TipoDado: TACBrTEFAPIDadoPinPad;
+      TimeOut: SmallInt = 30000; MinLen: SmallInt = 0; MaxLen: SmallInt = 0): String;
+[*] Novos enumerados adicionados em TACBrTEFAPIDadoPinPad
+[+] Adicionado o método Protected
+    procedure CalcularTamanhosCampoDadoPinPad( TipoDado: TACBrTEFAPIDadoPinPad;
+      out MinLen: SmallInt; out MaxLen: SmallInt);
+   (por: DSA)
+
+-- ACBrTEFAPIPayGoWeb --
+[*] Refatoração do método "ObterDadoPinPad" para processar os novos parâmetros
+
+-- ACBrTEFAPICliSiTef --
+[*] Nova Implememtação do método "ObterDadoPinPad", baseado nas sugestões da
+    nova versão da CliSiTef
+    https://www.projetoacbr.com.br/forum/topic/73829-problema-em-obter-dados-pinpad/
+    (por: DataCamp)
+
+26/05/2024
+-- ACBrTEFAPICliSiTef --
+[*] Adicionada Restrição em "RestricoesParcela", para não exibir o Menu de
+    Parcelamento pela Administradora/Crediário
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=77855
+    (por: DataCamp)
+
+21/05/2024
+-- ACBrTEFAPI, ACBrTEFAPIElgin, ACBrTEFAPIElginComum --
+[+] Adicionado suporte novo TEF por API (DLL) TED Elgin
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=74662
+    (por: MuriloS.A e Fernando Pasqueto e DSA)
+
+-- ACBrTEFAPIComum, ACBrTEFAPICliSiTef --
+[*] Removendo propriedade "PathDLL" que passou para a classe mãe "TACBrTEFAPIComumClass"
+    (por: DSA)
+
+--ACBrTEFPayGoWebComum --
+[*] Adicionado Log em "LibFullName", para informar qual Path será considerado na carga da DLL
+    (por: DSA)
+
+26/02/2024
+-- ACBrTEFPayGoWebComum --
+[*] Ajuste para que a Carga da DLL não use o valor definido na variável de ambiente
+    "PathPGWebLib", caso o valor dessa varável, aponte para uma DLL inexistente
+    (por: DSA)
+
+25/02/2024
+-- ACBrTEFPayGoWebComum --
+[*] Reversão da Modificação aplicada em 08/03/24
+    TACBrTEFPGWebAPI.ObterDadoPinPad, chamar  xPW_iPPAbort, antes de chamar xPW_iPPGetUserData
+    (por: DSA)
+
+17/04/2024
+-- ACBrTEFPayGoWebComum --
+[*] Ajuste para que propriedade IsDebug, mude o valor da váriável de ambiente,
+    "PathPGWebLib" que aponta para a PGWebLib, para o Path com a DLL a ser
+    carregada.
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=77321
+    (por: DSA)
+
+21/03/2024
+-- ACBrTEFAPICliSiTef --
+[*] Ajuste para permitir Voltar e Interromper o fluxo de perguntas, baseado em
+    Conteúdo da "Resposta": Interromper := (Resposta = '-1')
+                            Voltar      := (Resposta = '-2')
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=74988
+    (por: joão vitor de fraga venancio)
+
+20/03/2024
+-- ACBrTEFPayGoWebComum --
+[*] Applicado workaround para quando Transações de PIX é recebida, sem o flag de
+    confirmação PWINFO_CNFREQ = 0
+    (por: DSA)
+
+08/03/2024
+-- ACBrTEFPayGoWebComum --
+[+] Adicionada a propriedade "IsDebug: Boolean".
+    Se for modificada para True, a TACBrTEFPGWebAPI tentará carregar a DLL de
+    versão DEBUG, para evitar erros com a Proteção ativa do Warsaw
+[-] Correção na acentuação de Msg em Log na chamada de TACBrTEFPGWebAPI.Inicializar
+[*] Modificação em TACBrTEFPGWebAPI.ObterDadoPinPad, após sugestão da Setis, para
+    chamar  xPW_iPPAbort, antes de chamar xPW_iPPGetUserData
+    (por: DSA)
+
+22/02/2024
+-- ACBrTEFPayGoWebComum --
+[*] Tratamento de Mensagens de retorno, e Opções de Menu, para converter de ANSI
+    para a String Nativa da IDE (AnsiToNativeString)
+    (por: DSA)
+
+20/02/2024
+-- ACBrTEFPayGoWebComum --
+[*] TACBrTEFPGWebAPI.AjustarTempoOcioso, melhoria para evitar "Range Error",
+    quando PWINFO_IDLEPROCTIME contém um valor inválido
+    (por: DSA)
+
+25/01/2024
+-- ACBrTEFPayGoWebComum --
+[*] Modificações para suportar nova DLL 4.1.25.3, PayGo Windows no modo atualizador da
+    PGWebLib.
+[+] Adicionado mapeamento para o comando "PW_End".
+    Esta função tem como finalidade encerrar alguns serviços e remover a proteção
+    do Warsaw da automação, possibilitando a realização da atualização.
+[*] Estrutura "TPW_GetData", modificada, removendo campo "bIndice: Byte" que não
+    fazia parte da Estrutura original
+[*] Métodos "ObterDadoCartao", "RealizarOperacaoPinPad", "LogPWGetData", modificados
+    para receber o indice do Parâmetro sendo processado na estrutura TPW_GetData
+[+] Adicionado o método:
+    "function GetPathPGWebLib: String;"
+    Retorna o valor da variável de ambiente "PathPGWebLib" (32 bits) ou
+    "PathPGWebLib_x64" (64 bits), e que contem o Path completo da DLL PGWebLib,
+    com proteção, e que deve ser carregada pela aplicação
+[+] Adicionado o método:
+    "function GetPGWebLibAtualiza: Boolean;"
+    Que Verifica o conteúdo da Variável de Ambiente "PGWebLibAtualiza".
+    Essa variável de ambiente fica com o Valor "TRUE", quando há atualizações
+    disponíveis para a PGWebLib.
+[+] Adicionado o método:
+    "function SetPGWebLibPermiteAtualiza(PermiteAtualizacao: Boolean): Boolean;"
+    Permite que a aplicação configure a variável de ambiente "PGWebLibPermiteAtualiza"
+    Quando a aplicação grava nela o valor "TRUE", permite que o Cliente Windows
+    da Paygo, baixe e atualize a PGWebLib da pasta "PathPGWebLib"
+[+] Adicionada a propriedade: "AtualizaPGWebLibAutomaticamente: Boolean default True"
+    Quando essa propriedade é True (padrão), o valor de "PGWebLibPermiteAtualiza"
+    será ajustado para True, sempre que TACBrTEFPGWebAPI.DesInicializar for chamado
+[*] Método "TACBrTEFPGWebAPI.Destroy", modificado para chamar "DesInicializar"
+[*] Método "TACBrTEFPGWebAPI.Inicializar" mmodificado para configurar a variável
+    de ambiente "PontoDeCaptura", se a propriedade "PontoCaptura" estiver com
+    valor definido
+    a variável de ambiente "CPFCNPJ" se a propriedade "CNPJEstabelecimento"
+    estiver com valor definido.
+[*] Método "TACBrTEFPGWebAPI.Inicializar", grava no Log o estado da variável de
+    ambiente "PGWebLibAtualiza"
+[*] Método "TACBrTEFPGWebAPI.DesInicializar" passa a chamar "PW_End", para
+    encerrar o processo de proteção, e "SetPGWebLibPermiteAtualiza", para
+    permitir a atualização da PGWebLib, conforme o valor da propridade
+     "AtualizaPGWebLibAutomaticamente"
+[*] Método "TACBrTEFPGWebAPI.LibFullName" modificado para usar o Path definido na
+    variável de ambiente "PathPGWebLib", caso a propriedade "PathLib" esteja vazia.
+[*] Método "TACBrTEFPGWebAPI.LoadLibFunctions" modificado para gravar no log,
+    o caminho completo da DLL PGWebLib que está sendo carregada
+    (por: DSA)
+
 28/09/2023
 -- ACBrTEFAPIComum --
 [*] Melhorias quando estiver Trantando Transações Pendentes durante a inicializaçao

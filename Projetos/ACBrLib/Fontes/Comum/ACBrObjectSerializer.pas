@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 {                                                                              }
@@ -81,9 +81,6 @@ begin
     else
       Result := TACBrObjectSerializer.GerarIni(Item);
   end;
-
-  if Formato = codANSI then
-    Result := ACBrUTF8ToAnsi(Result);
 end;
 
 class function TACBrObjectSerializer.Gerar<T>(const Items: TArray<T>; Tipo: TACBrLibRespostaTipo;
@@ -113,9 +110,6 @@ begin
     resXML: Result := '<Items>' + Result + '</Items>';
     resJSON: Result := '[' + Result + ']';
   end;
-
-  if Formato = codANSI then
-    Result := ACBrUTF8ToAnsi(Result);
 end;
 
 class function TACBrObjectSerializer.GerarXml(Item: TACBrLibRespostaBase): Ansistring;

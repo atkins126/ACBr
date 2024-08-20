@@ -52,12 +52,12 @@ type
     procedure SetHeaders(aHeaderReq: THTTPHeader); override;
 
   public
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function GerarToken(ACabecalho, AMSG: String): string; override;
-    function ConsultarDFe(ACabecalho, AMSG: string): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: string): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function GerarToken(const ACabecalho, AMSG: String): string; override;
+    function ConsultarDFe(const ACabecalho, AMSG: string): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: string): string; override;
 
   end;
 
@@ -79,8 +79,7 @@ type
                                      const AMessageTag: string = ''); override;
 
     procedure ProcessarMensagemDeErros(LJson: TACBrJSONObject;
-                                     Response: TNFSeWebserviceResponse;
-                                     const AListTag: string = 'erros');
+                                     Response: TNFSeWebserviceResponse);
 
     procedure PrepararEmitir(Response: TNFSeEmiteResponse); override;
     procedure TratarRetornoEmitir(Response: TNFSeEmiteResponse); override;
@@ -120,6 +119,22 @@ begin
     ModoEnvio := meUnitario;
     ConsultaNFSe := False;
     Identificador := '';
+    DetalharServico := True;
+
+    Autenticacao.RequerLogin := True;
+    Autenticacao.RequerFraseSecreta := True;
+    Autenticacao.RequerChaveAutorizacao := True;
+    Autenticacao.RequerChaveAcesso := True;
+
+    ServicosDisponibilizados.EnviarUnitario := True;
+    ServicosDisponibilizados.ConsultarNfse := True;
+    ServicosDisponibilizados.ConsultarDFe := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+    ServicosDisponibilizados.SubstituirNFSe := True;
+    ServicosDisponibilizados.GerarToken := True;
+
+    Particularidades.PermiteTagOutrasInformacoes := True;
+    Particularidades.PermiteMaisDeUmServico := True;
   end;
 
   with ConfigAssinar do
@@ -130,23 +145,14 @@ begin
 
   with ConfigMsgDados do
   begin
-    with XmlRps do
-    begin
-      InfElemento := 'xmlProcessamentoNfpse';
-      DocElemento := 'xmlProcessamentoNfpse';
-    end;
+    XmlRps.InfElemento := 'xmlProcessamentoNfpse';
+    XmlRps.DocElemento := 'xmlProcessamentoNfpse';
 
-    with CancelarNFSe do
-    begin
-      InfElemento := 'xmlCancelamentoNfpse';
-      DocElemento := 'xmlCancelamentoNfpse';
-    end;
+    CancelarNFSe.InfElemento := 'xmlCancelamentoNfpse';
+    CancelarNFSe.DocElemento := 'xmlCancelamentoNfpse';
 
-    with SubstituirNFSe do
-    begin
-      InfElemento := 'xmlProcessamentoNfpseSubstituta';
-      DocElemento := 'xmlProcessamentoNfpseSubstituta';
-    end;
+    SubstituirNFSe.InfElemento := 'xmlProcessamentoNfpseSubstituta';
+    SubstituirNFSe.DocElemento := 'xmlProcessamentoNfpseSubstituta';
   end;
 
   ConfigSchemas.Validar := False;
@@ -192,9 +198,7 @@ procedure TACBrNFSeProviderSoftPlan.ProcessarMensagemErros(
   RootNode: TACBrXmlNode; Response: TNFSeWebserviceResponse; const AListTag,
   AMessageTag: string);
 var
-//  I: Integer;
   ANode: TACBrXmlNode;
-//  ANodeArray: TACBrXmlNodeArray;
   AErro: TNFSeEventoCollectionItem;
 begin
   ANode := RootNode.Childrens.FindAnyNs(AListTag);
@@ -203,30 +207,13 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := '';
-    AErro.Descricao := ACBrStr(ANode.AsString);
+    AErro.Descricao := ANode.AsString;
     AErro.Correcao := '';
   end;
-  {
-  if (ANode = nil) then
-    ANode := RootNode;
-
-  ANodeArray := ANode.Childrens.FindAllAnyNs(AMessageTag);
-
-  if not Assigned(ANodeArray) then Exit;
-
-  for I := Low(ANodeArray) to High(ANodeArray) do
-  begin
-    AErro := Response.Erros.New;
-    AErro.Codigo := '';
-    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('ERRO'), tcStr);
-    AErro.Correcao := '';
-  end;
-  }
 end;
 
 procedure TACBrNFSeProviderSoftPlan.ProcessarMensagemDeErros(
-  LJson: TACBrJSONObject; Response: TNFSeWebserviceResponse;
-  const AListTag: string);
+  LJson: TACBrJSONObject; Response: TNFSeWebserviceResponse);
 var
   Codigo, Descricao: string;
   AErro: TNFSeEventoCollectionItem;
@@ -238,7 +225,7 @@ begin
 
   AErro := Response.Erros.New;
   AErro.Codigo := Codigo;
-  AErro.Descricao := ACBrStr(Descricao);
+  AErro.Descricao := Descricao;
   AErro.Correcao := '';
 end;
 
@@ -289,7 +276,7 @@ begin
        (ConfigAssinar.RpsGerarNFSe and (Response.ModoEnvio = meUnitario)) then
     begin
       Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
-                                         PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
+                                         ConfigMsgDados.XmlRps.DocElemento,
                                          ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
 
       Response.ArquivoEnvio := Nota.XmlRps;
@@ -857,7 +844,7 @@ begin
       Nota.XmlRps := AplicarLineBreak(Nota.XmlRps, '');
 
       Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
-                                         PrefixoTS + ConfigMsgDados.SubstituirNFSe.DocElemento,
+                                         ConfigMsgDados.SubstituirNFSe.DocElemento,
                                          ConfigMsgDados.SubstituirNFSe.InfElemento, '', '', '', IdAttr);
 
       Response.ArquivoEnvio := Nota.XmlRps;
@@ -995,7 +982,7 @@ begin
   end;
 end;
 
-function TACBrNFSeXWebserviceSoftPlan.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSoftPlan.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1008,7 +995,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebserviceSoftPlan.ConsultarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSoftPlan.ConsultarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1021,7 +1008,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebserviceSoftPlan.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSoftPlan.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -1033,7 +1020,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebserviceSoftPlan.GerarToken(ACabecalho,
+function TACBrNFSeXWebserviceSoftPlan.GerarToken(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1046,7 +1033,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebserviceSoftPlan.ConsultarDFe(ACabecalho, AMSG: string): string;
+function TACBrNFSeXWebserviceSoftPlan.ConsultarDFe(const ACabecalho, AMSG: string): string;
 var
   Request: string;
 begin
@@ -1058,7 +1045,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebserviceSoftPlan.SubstituirNFSe(ACabecalho, AMSG: string): string;
+function TACBrNFSeXWebserviceSoftPlan.SubstituirNFSe(const ACabecalho, AMSG: string): string;
 var
   Request: string;
 begin

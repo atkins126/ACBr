@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa-  }
 { mentos de Automação Comercial utilizados no Brasil                            }
 {                                                                               }
-{ Direitos Autorais Reservados (c) 2018 Daniel Simoes de Almeida                }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida                }
 {                                                                               }
 { Colaboradores nesse arquivo: José M S Junior                                  }
 {                                                                               }
@@ -38,8 +38,9 @@ unit ACBrLibBoletoRespostas;
 interface
 
 uses
-  SysUtils, Classes,
-  ACBrLibResposta, ACBrBoleto, ACBrBoletoRetorno, ACBrBoletoConversao, contnrs;
+  SysUtils, Classes, contnrs,
+  ACBrLibResposta, ACBrLibConfig,
+  ACBrBoleto, ACBrBoletoRetorno, ACBrBoletoConversao;
 
 type
 
@@ -75,6 +76,10 @@ type
     FNumeroCorrespondente : Integer;
     FVersaoArquivo : Integer;
     FVersaoLote : Integer;
+    FNumeroArquivo: Integer;
+    FNomeArqRetorno: String;
+    FDensidadeGravacao: String;
+    FCIP: String;
 
   public
     constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
@@ -87,6 +92,10 @@ type
     property NumeroCorrespondente : Integer read FNumeroCorrespondente write FNumeroCorrespondente;
     property VersaoArquivo : Integer read FVersaoArquivo write FVersaoArquivo;
     property VersaoLote : Integer read FVersaoLote write FVersaoLote;
+    property NumeroArquivo: Integer read FNumeroArquivo write FNumeroArquivo;
+    property NomeArqRetorno: String read FNomeArqRetorno write FNomeArqRetorno;
+    property DensidadeGravacao: String read FDensidadeGravacao write FDensidadeGravacao;
+    property CIP: String read FCIP write FCIP;
 
   end;
 
@@ -140,6 +149,7 @@ type
     FNumeroDocumento: String;
     FDataProcessamento: TDateTime;
     FNossoNumero: String;
+    FNossoNumeroCorrespondente:String;
     FCarteira: String;
     FValorDocumento: Currency;
     FDataOcorrencia: TDateTime;
@@ -155,6 +165,7 @@ type
     FValorOutrasDespesas: Currency;
     FValorOutrosCreditos: Currency;
     FValorRecebido: Currency;
+    FValorPago: Currency;
     FSeuNumero: String;
     FCodTipoOcorrencia: String;
     FDescricaoTipoOcorrencia: String;
@@ -177,6 +188,7 @@ type
     property NumeroDocumento: String read FNumeroDocumento write FNumeroDocumento;
     property DataProcessamento: TDateTime read FDataProcessamento write FDataProcessamento;
     property NossoNumero: String read FNossoNumero write FNossoNumero;
+    property NossoNumeroCorrespondente: String read FNossoNumeroCorrespondente write FNossoNumeroCorrespondente;
     property Carteira: String read FCarteira write FCarteira;
     property DataOcorrencia: TDateTime read FDataOcorrencia write FDataOcorrencia;
     property DataCredito: TDateTime read FDataCredito write FDataCredito;
@@ -192,6 +204,7 @@ type
     property ValorOutrasDespesas: Currency read FValorOutrasDespesas write FValorOutrasDespesas;
     property ValorOutrosCreditos: Currency read FValorOutrosCreditos write FValorOutrosCreditos;
     property ValorRecebido: Currency read FValorRecebido write FValorRecebido;
+    property ValorPago: Currency read FValorPago write FValorPago;
     property SeuNumero: String read FSeuNumero write FSeuNumero;
     property CodTipoOcorrencia: String read FCodTipoOcorrencia write FCodTipoOcorrencia;
     property DescricaoTipoOcorrencia: String read FDescricaoTipoOcorrencia write FDescricaoTipoOcorrencia;
@@ -303,6 +316,7 @@ type
     FAceite: TACBrAceiteTitulo;
     FDataProcessamento: TDateTime;
     FNossoNumero: String;
+    FNossoNumeroCorrespondente: String;
     FUsoBanco: String;
     FCarteira: String;
     FEspecieMod: String;
@@ -352,6 +366,7 @@ type
     Furl_Pix: String;
     FTx_ID: String;
     FCodigoCanalTituloCobranca: String;
+    FCodigoEstadoTituloCobranca: string;
     FEstadoTituloCobranca: String;
 
   public
@@ -378,6 +393,7 @@ type
     property Aceite: TACBrAceiteTitulo read FAceite write FAceite ;
     property DataProcessamento: TDateTime read FDataProcessamento write FDataProcessamento ;
     property NossoNumero: String read FNossoNumero write FNossoNumero ;
+    property NossoNumeroCorrespondente: String read FNossoNumeroCorrespondente write FNossoNumeroCorrespondente;
     property UsoBanco: String read FUsoBanco write FUsoBanco ;
     property Carteira: String read FCarteira write FCarteira ;
     property EspecieMod: String read FEspecieMod write FEspecieMod ;
@@ -428,6 +444,7 @@ type
     property Tx_ID: String read FTx_ID write FTx_ID;
     property CodigoCanalTituloCobranca: String read FCodigoCanalTituloCobranca write FCodigoCanalTituloCobranca;
     property EstadoTituloCobranca: String read FEstadoTituloCobranca write FEstadoTituloCobranca;
+    property CodigoEstadoTituloCobranca: String read FCodigoEstadoTituloCobranca write FCodigoEstadoTituloCobranca;
 
 
 
@@ -712,6 +729,8 @@ begin
     PercentualMaxPagamento:= DadosRet.TituloRet.PercentualMaxPagamento;
     CodigoCanalTituloCobranca:=DadosRet.TituloRet.CodigoCanalTituloCobranca;
     EstadoTituloCobranca:=DadosRet.TituloRet.EstadoTituloCobranca;;
+    CodigoEstadoTituloCobranca:=DadosRet.TituloRet.CodigoEstadoTituloCobranca;
+
 
     if ( DadosRet.TituloRet.EMV  <> EmptyStr) then
     begin
@@ -719,6 +738,8 @@ begin
       url_Pix:= DadosRet.TituloRet.UrlPix;
       Tx_ID:= DadosRet.TituloRet.TxId;
     end;
+    NossoNumeroCorrespondente:=DadosRet.TituloRet.NossoNumeroCorrespondente;
+
 end;
 
 { TRetornoWebHeader }
@@ -787,16 +808,14 @@ begin
   IDNossoNum:= RetEnvio.DadosRet.IDBoleto.NossoNum;
   IDURL:= RetEnvio.DadosRet.IDBoleto.URL;
 
-
-
   for J:= 0 to  RetEnvio.ListaRejeicao.Count -1 do
   begin
-    Rejeicao := TRetornoRejeicoesWeb.Create(FID, J+1, Tipo, Formato);
+    Rejeicao := TRetornoRejeicoesWeb.Create(FID, J+1, Tipo, Codificacao);
     Rejeicao.Processar(RetEnvio.ListaRejeicao[J]);
     Rejeicoes.Add(Rejeicao);
   end;
 
-  TituloRetorno := TRetornoTituloWeb.Create(FID, Tipo, Formato);
+  TituloRetorno := TRetornoTituloWeb.Create(FID, Tipo, Codificacao);
   TituloRetorno.Processar(RetEnvio.DadosRet);
 end;
 
@@ -847,19 +866,19 @@ var
   I: Integer;
   Item: TRetornoDadosTitulo;
 begin
-  Cedente := TRetornoDadosCedente.Create(Tipo, Formato);
+  Cedente := TRetornoDadosCedente.Create(Tipo, Codificacao);
   Cedente.Processar(ACBrBoleto);
 
-  Banco := TRetornoDadosBanco.Create(Tipo, Formato);
+  Banco := TRetornoDadosBanco.Create(Tipo, Codificacao);
   Banco.Processar(ACBrBoleto);
 
-  Conta := TRetornoDadosConta.Create(Tipo, Formato);
+  Conta := TRetornoDadosConta.Create(Tipo, Codificacao);
   Conta.Processar(ACBrBoleto);
 
   FTitulo.Clear;
   for I:= 0 to  ACBrBoleto.ListadeBoletos.Count-1 do
   begin
-    Item := TRetornoDadosTitulo.Create(I, Tipo, Formato);
+    Item := TRetornoDadosTitulo.Create(I, Tipo, Codificacao);
     Item.Processar(ACBrBoleto);
     FTitulo.Add(Item);
   end;
@@ -896,6 +915,7 @@ begin
     NumeroDocumento := ACBrBoleto.ListadeBoletos[FID].NumeroDocumento;
     DataProcessamento := ACBrBoleto.ListadeBoletos[FID].DataProcessamento;
     NossoNumero := ACBrBoleto.ListadeBoletos[FID].NossoNumero;
+    NossoNumeroCorrespondente:=ACBrBoleto.ListadeBoletos[FID].NossoNumeroCorrespondente;
     Carteira := ACBrBoleto.ListadeBoletos[FID].Carteira;
     ValorDocumento := ACBrBoleto.ListadeBoletos[FID].ValorDocumento;
     DataOcorrencia := ACBrBoleto.ListadeBoletos[FID].DataOcorrencia;
@@ -911,6 +931,7 @@ begin
     ValorOutrasDespesas := ACBrBoleto.ListadeBoletos[FID].ValorOutrasDespesas;
     ValorOutrosCreditos := ACBrBoleto.ListadeBoletos[FID].ValorOutrosCreditos;
     ValorRecebido := ACBrBoleto.ListadeBoletos[FID].ValorRecebido;
+    ValorPago := ACBrBoleto.ListadeBoletos[FID].ValorPago;
     SeuNumero := ACBrBoleto.ListadeBoletos[FID].SeuNumero;
     CodTipoOcorrencia := GetEnumName( TypeInfo(TACBrTipoOcorrencia),
                                              Integer(ACBrBoleto.ListadeBoletos[FID].OcorrenciaOriginal.Tipo));
@@ -918,7 +939,7 @@ begin
 
     for I:= 0 to  ACBrBoleto.ListadeBoletos[FID].DescricaoMotivoRejeicaoComando.Count-1 do
     begin
-      Item := TRetornoRejeicoesTitulo.Create( I, FID , Tipo, Formato);
+      Item := TRetornoRejeicoesTitulo.Create( I, FID , Tipo, Codificacao);
       Item.Processar(ACBrBoleto);
       Rejeicoes.Add(Item);
     end;
@@ -971,9 +992,11 @@ begin
     NumeroCorrespondente := ACBrBoleto.Banco.NumeroCorrespondente;
     VersaoArquivo := ACBrBoleto.Banco.LayoutVersaoArquivo;
     VersaoLote := ACBrBoleto.Banco.LayoutVersaoLote;
-
+    NumeroArquivo := ACBrBoleto.NumeroArquivo;
+    NomeArqRetorno := ACBrBoleto.NomeArqRetorno;
+    DensidadeGravacao := ACBrBoleto.Banco.DensidadeGravacao;
+    CIP := ACBrBoleto.Banco.CIP;
   end;
-
 end;
 
 { TRetornoDadosCedente }

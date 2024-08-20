@@ -45,8 +45,10 @@ unit ACBrTEFAPIComum;
 interface
 
 uses
-  Classes, SysUtils,
-  ACBrBase, ACBrTEFComum;
+  Classes,
+  SysUtils,
+  ACBrBase,
+  ACBrTEFComum;
 
 resourcestring
   sACBrTEFAPIIdentificadorVendaVazioException = 'IdentificadorVenda não pode ser vazio';
@@ -177,6 +179,7 @@ type
     fpInicializado: Boolean;
     fpMetodoOperacao: TACBrTEFAPIMetodo;
     fpTEFRespClass: TACBrTEFRespClass;
+    fpPathDll : String;
 
     procedure ErroAbstract(const NomeProcedure: String);
     procedure VerificarIdentificadorVendaInformado;
@@ -229,6 +232,7 @@ type
 
     property Inicializado: Boolean read fpInicializado;
     property OperacaoEmAndamento: TACBrTEFAPIMetodo read fpMetodoOperacao;
+    property PathDLL: string read fpPathDll write fpPathDll;
 
     property TEFRespClass: TACBrTEFRespClass read fpTEFRespClass;
   end;
@@ -426,7 +430,8 @@ type
 implementation
 
 uses
-  StrUtils, TypInfo,
+  StrUtils,
+  TypInfo,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.DateTime,
@@ -674,8 +679,8 @@ begin
 end;
 
 procedure TACBrTEFAPIRespostas.LimparRespostasTEF;
-var
-  i: Integer;
+//var
+//  i: Integer;
 begin
   while (fTEFRespList.Count > 0) do
     ApagarRespostaTEF(0);

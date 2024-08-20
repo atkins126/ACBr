@@ -48,14 +48,14 @@ type
     function GetSoapAction: string;
     function GetNameSpace: string;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -95,6 +95,12 @@ begin
   end;
 
   ConfigGeral.UseCertificateHTTP := False;
+
+  with ConfigGeral.ServicosDisponibilizados do
+  begin
+    ConsultarServicoPrestado := False;
+    ConsultarServicoTomado := False;
+  end;
 
   with ConfigWebServices do
   begin
@@ -159,7 +165,7 @@ begin
 //    Result := 'https://www3.ereceita.net.br/ereceita/rpp/';
 end;
 
-function TACBrNFSeXWebserviceeReceita202.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceeReceita202.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -175,7 +181,7 @@ begin
                      ['outputXML', 'EnviarLoteRpsResposta'], [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceeReceita202.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceeReceita202.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -191,7 +197,7 @@ begin
                      ['outputXML', 'EnviarLoteRpsSincronoResposta'], [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceeReceita202.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceeReceita202.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -207,7 +213,7 @@ begin
                      ['outputXML', 'GerarNfseResposta'], [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceeReceita202.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceeReceita202.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -223,7 +229,7 @@ begin
                      ['outputXML', 'ConsultarLoteRpsResposta'], [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceeReceita202.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceeReceita202.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -239,7 +245,7 @@ begin
                      ['outputXML', 'ConsultarNfseFaixaResposta'], [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceeReceita202.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceeReceita202.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -255,7 +261,7 @@ begin
                      ['outputXML', 'ConsultarNfseRpsResposta'], [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceeReceita202.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceeReceita202.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -270,7 +276,7 @@ begin
                      ['outputXML', 'CancelarNfseResposta'], [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceeReceita202.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceeReceita202.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -291,7 +297,7 @@ function TACBrNFSeXWebserviceeReceita202.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 

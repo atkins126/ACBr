@@ -70,7 +70,11 @@ begin
   FormatoCompetencia := tcDatHor;
 
   NrOcorrCodTribMun_2 := 0;
+  NrOcorrInfAdicional := 0;
+  NrOcorrCepTomador_2 := 0;
+
   NrOcorrDiscriminacao_2 := 1;
+
   NrOcorrSerieRPS := -1;
   NrOcorrTipoRPS := -1;
   NrOcorrUFTomador := -1;

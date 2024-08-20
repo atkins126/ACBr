@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ACBrLib.Core;
+using ACBrLib.Core.DFe;
 
 namespace ACBrLib.Sat
 {
@@ -35,6 +37,8 @@ namespace ACBrLib.Sat
 
         public TotalSat Total { get; } = new TotalSat();
 
+        public TotalISSQN ISSQNtot {  get; } = new TotalISSQN();
+
         public List<PagamentoSat> Pagamentos { get; } = new List<PagamentoSat>();
 
         public DadosAdicionaisSat DadosAdicionais { get; } = new DadosAdicionaisSat();
@@ -62,6 +66,9 @@ namespace ACBrLib.Sat
             if (!string.IsNullOrEmpty(Entrega.xCpl))
                 iniData.WriteToIni(Entrega, "Entrega");
 
+            CSTPIS[] onlyCSTPISValues = {CSTPIS.pis04, CSTPIS.pis06, CSTPIS.pis07, CSTPIS.pis08, CSTPIS.pis09, CSTPIS.pis49};
+            CSTCofins[] onlyCSTCOFINsValues = { CSTCofins.cof04, CSTCofins.cof06, CSTCofins.cof07, CSTCofins.cof08, CSTCofins.cof09, CSTCofins.cof49 };
+
             for (var i = 0; i < Produtos.Count; i++)
             {
                 iniData.WriteToIni(Produtos[i], $"Produto{i + 1:000}");
@@ -69,16 +76,16 @@ namespace ACBrLib.Sat
                 for (var j = 0; j < Produtos[i].ObsFisco.Count; j++)
                     iniData.WriteToIni(Produtos[i].ObsFisco[j], $"OBSFISCODET{i + 1:000}{j + 1:000}");
 
-                if (Produtos[i].ICMS.CST.HasValue || Produtos[i].ICMS.CSOSN.HasValue)
+                if (Produtos[i].ICMS.CST != Core.DFe.CSTIcms.cstVazio || Produtos[i].ICMS.CSOSN != Core.DFe.CSOSNIcms.csosnVazio)
                     iniData.WriteToIni(Produtos[i].ICMS, $"ICMS{i + 1:000}");
 
-                if (Produtos[i].PIS.CST.HasValue)
+                if ((Produtos[i].PIS.pPIS > 0) || (onlyCSTPISValues.Contains(Produtos[i].PIS.CST)))  
                     iniData.WriteToIni(Produtos[i].PIS, $"PIS{i + 1:000}");
 
                 if (Produtos[i].PISST.vBC > 0)
                     iniData.WriteToIni(Produtos[i].PISST, $"PISST{i + 1:000}");
 
-                if (Produtos[i].COFINS.CST.HasValue)
+                if ((Produtos[i].COFINS.pCOFINS > 0) || (onlyCSTCOFINsValues.Contains(Produtos[i].COFINS.CST)))
                     iniData.WriteToIni(Produtos[i].COFINS, $"COFINS{i + 1:000}");
 
                 if (Produtos[i].COFINSST.vBC > 0)
@@ -139,6 +146,7 @@ namespace ACBrLib.Sat
             } while (produto != null);
 
             iniData.ReadFromIni(Total, "Total");
+            iniData.ReadFromIni(ISSQNtot, "ISSQNtot");
 
             i = 0;
             PagamentoSat pagamento;

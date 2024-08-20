@@ -45,13 +45,15 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrPIXCD, ACBrBase;
+  {$IFDEF RTL230_UP}ACBrBase,{$ENDIF RTL230_UP}
+  ACBrPIXCD;
 
 const
-  cSantanderPathApiPIX = '/api/v1';
-  cSantanderURLSandbox = 'https://pix.santander.com.br'+cSantanderPathApiPIX+'/sandbox';
-  cSantanderURLPreProducao = 'https://trust-pix-h.santander.com.br'+cSantanderPathApiPIX;
-  cSantanderURLProducao = 'https://trust-pix.santander.com.br'+cSantanderPathApiPIX;
+  cSantanderPathApiPIXv1 = '/api/v1';
+  cSantanderPathApiPIXv2 = '/api/v2';
+  cSantanderURLSandbox = 'https://pix.santander.com.br' + cSantanderPathApiPIXv1 + '/sandbox';
+  cSantanderURLPreProducao = 'https://trust-pix-h.santander.com.br' + cSantanderPathApiPIXv1;
+  cSantanderURLProducao = 'https://trust-pix.santander.com.br' + cSantanderPathApiPIXv1;
 
   cSantanderURLAuthTeste = 'https://pix.santander.com.br/sandbox/oauth/token';
   cSantanderURLAuthPreProducao = 'https://trust-pix-h.santander.com.br/oauth/token';
@@ -186,11 +188,13 @@ end;
 procedure TACBrPSPSantander.SetConsumerKey(AValue: String);
 begin
   ClientID := AValue;
+  fpAutenticado := False;  // Força uma nova autenticação
 end;
 
 procedure TACBrPSPSantander.SetConsumerSecret(AValue: String);
 begin
   ClientSecret := AValue;
+  fpAutenticado := False;  // Força uma nova autenticação
 end;
 
 procedure TACBrPSPSantander.QuandoReceberRespostaEndPoint(const aEndPoint,
@@ -201,15 +205,18 @@ begin
     AResultCode := HTTP_CREATED;
 end;
 
-procedure TACBrPSPSantander.QuandoAcessarEndPoint(const aEndPoint: String;
-  var aURL: String; var aMethod: String);
+procedure TACBrPSPSantander.QuandoAcessarEndPoint(const aEndPoint: String; var aURL: String; var aMethod: String);
 begin
   // Santander não possui POST para endpoint /cob
-   if (LowerCase(aEndPoint) = cEndPointCob) and (UpperCase(aMethod) = ChttpMethodPOST) then
+  if (LowerCase(aEndPoint) = cEndPointCob) and (UpperCase(aMethod) = ChttpMethodPOST) then
   begin
     aMethod := ChttpMethodPUT;
     aURL := URLComDelimitador(aURL) + CriarTxId;
   end;
+  
+  // Santander usa v2 para Revisar Cobrança (metodo PATCH)
+  if (aMethod = ChttpMethodPATCH) and ((aEndPoint = cEndPointCob) or (aEndPoint = cEndPointCobV)) then
+    aURL := StringReplace(aURL, cSantanderPathApiPIXv1, cSantanderPathApiPIXv2, [rfReplaceAll]);
 end;
 
 procedure TACBrPSPSantander.ConfigurarQueryParameters(const Method,
@@ -237,7 +244,7 @@ end;
 
 function TACBrPSPSantander.VerificarSeIncluiPFX(const Method, AURL: String): Boolean;
 begin
-  Result := (inherited VerificarSeIncluiPFX(Method, AURL)) and (ACBrPixCD.Ambiente = ambProducao);
+  Result := (inherited VerificarSeIncluiPFX(Method, AURL));
 end;
 
 end.

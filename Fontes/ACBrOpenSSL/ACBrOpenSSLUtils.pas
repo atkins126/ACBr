@@ -72,6 +72,8 @@ const
   CEndCertificate = 'END CERTIFICATE';
   CBeginRSA = 'BEGIN RSA';
   CEndRSA = 'END RSA';
+  CBeginPK = 'BEGIN PRIVATE';
+  CEndPK = 'END PRIVATE';
 
 type
   TACBrOpenSSLAlgorithm = ( algMD2, algMD4, algMD5, algRMD160, algSHA, algSHA1,
@@ -194,6 +196,7 @@ type
     procedure LoadPublicKeyFromString(const APublicKey: AnsiString);
     procedure LoadPublicKeyFromModulusAndExponent(const Modulus, Exponent: String);
     function ExtractModulusAndExponentFromPublicKey(out Modulus: String; out Exponent: String): Boolean;
+    function ExtractModulusAndExponentFromPrivateKey(out Modulus: String; out Exponent: String): Boolean;
     function GeneratePublicKeyFromPrivateKey: String;
 
     function CreateCertificateSignRequest(const CN_CommonName: String;
@@ -207,6 +210,8 @@ type
       L_Locality: String = ''; ST_StateOrProvinceName: String = '';
       C_CountryName: String = ''; EMAIL_EmailAddress: String = '';
       Algorithm: TACBrOpenSSLAlgorithm = algSHA512): String;
+
+    procedure CreatePFX(AStrem: TStream; const Senha: AnsiString; const FriendlyName: String);
 
     property PrivateKeyAsString: AnsiString read GetPrivateKeyAsString;
     property PublicKeyAsString: AnsiString read GetPublicKeyAsString;
@@ -224,7 +229,6 @@ procedure InitOpenSSL;
 procedure FreeOpenSSL;
 
 // Genreral auxiliary functions
-function OpenSSLFullVersion: String;
 function BioToStr(ABio: pBIO): AnsiString;
 
 // Key functions
@@ -291,35 +295,6 @@ begin
 end;
 
 // Genreral auxiliary functions
-
-function OpenSSLFullVersion: String;
-var
-  n: LongInt;
-  s: String;
-  ps, pe: Integer;
-begin
-  InitOpenSSL;
-  Result := '';
-  n := OpenSSLExt.OpenSSLVersionNum;
-  if (n > 0) then
-  begin
-    s := IntToHex(n, 9);
-    Result := copy(s, 1, 2) + '.' + copy(s, 3, 2) + '.' + copy(s, 5, 2) + '.' + copy(s, 7, 10);
-  end
-  else
-  begin
-    s := String(OpenSSLExt.OpenSSLVersion(0));
-    ps := pos(' ', s);
-    if (ps > 0) then
-    begin
-      pe := PosEx(' ', s, ps + 1);
-      if (pe = 0) then
-        pe := Length(s);
-      Result := Trim(copy(s, ps, pe - ps));
-    end;
-  end;
-end;
-
 function BioToStr(ABio: pBIO): AnsiString;
 Var
   n: Integer ;
@@ -465,7 +440,7 @@ begin
       ul := UpperCase(l);
       if b64 then
       begin
-        if ((Pos(CEndCertificate, ul) > 0) or (Pos(CEndRSA, ul) > 0)) then
+        if ((Pos(CEndCertificate, ul) > 0) or (Pos(CEndRSA, ul) > 0) or (Pos(CEndPK, ul) > 0)) then
           Break;
 
         if (Trim(l) = '') then    // 3.x insere informações da Chave no inicio, após o -- BEGIN --
@@ -474,7 +449,7 @@ begin
           Result := Result + l;
       end
       else
-        b64 := (Pos(CBeginCertificate, ul) > 0) or (Pos(CBeginRSA, ul) > 0);
+        b64 := (Pos(CBeginCertificate, ul) > 0) or (Pos(CBeginRSA, ul) > 0) or (Pos(CBeginPK, ul) > 0);
     end;
 
     Result := DecodeBase64(Result);
@@ -1410,6 +1385,13 @@ begin
   Result := ExtractModulusAndExponentFromKey(fEVP_PublicKey, Modulus, Exponent);
 end;
 
+function TACBrOpenSSLUtils.ExtractModulusAndExponentFromPrivateKey(out
+  Modulus: String; out Exponent: String): Boolean;
+begin
+  CheckPrivateKeyIsLoaded;
+  Result := ExtractModulusAndExponentFromKey(fEVP_PrivateKey, Modulus, Exponent);
+end;
+
 function TACBrOpenSSLUtils.GeneratePublicKeyFromPrivateKey: String;
 begin
   CheckPrivateKeyIsLoaded;
@@ -1532,6 +1514,29 @@ begin
     end;
   finally
     X509Free(x);
+  end;
+end;
+
+procedure TACBrOpenSSLUtils.CreatePFX(AStrem: TStream; const Senha: AnsiString;
+  const FriendlyName: String);
+var
+  s: AnsiString;
+  pfx: SslPtr;
+  bio: PBIO;
+begin
+  CheckPrivateKeyIsLoaded;
+  CheckCertificateIsLoaded;
+
+  pfx := PKCS12create(Senha, FriendlyName, fEVP_PrivateKey, fCertX509, nil, 0, 0, 0, 0, 0);
+  bio := BioNew(BioSMem);
+  try
+    if (i2dPKCS12bio(bio, pfx) <> 1) then
+      raise EACBrOpenSSLException.Create('i2d_PKCS12_bio' + sLineBreak + GetLastOpenSSLError);
+    s := BioToStr(bio);
+    AStrem.Size := 0;
+    WriteStrToStream(AStrem, s);
+  finally
+    BioFreeAll(bio);
   end;
 end;
 
@@ -1691,7 +1696,6 @@ initialization
 finalization
   FreeOpenSSL;
 
-end.
 
 (*
 
@@ -1779,3 +1783,4 @@ begin
 end;
 *)
 
+end.

@@ -42,6 +42,23 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+15/08/2024
+--- ACBrLibMDFeBase, ACBrLibMDFeST, ACBrLibMDFeMT,
+    ACBrLibMDFeStaticImportST, ACBrLibMDFeStaticImportMT, ACBrLibMDFeRespostas ---
+[*] Ajustes para usar 'PAnsiChar' no lugar de 'PChar' e 'Integer' ao inves de 'LongInt'
+[*] Ajustes para usar 'ConverterStringEntrada' e 'ConverterStringSaida'
+    Por: Antonio Carlos Junior
+
+16/04/2024
+-- ACBrLibMDFeDataModule -- 
+[*] Correção da nomenclatura da classe Manifesto para TManifesto.
+    Por: Diego Folieni
+
+14/11/2023
+--- ACBrLibMDFeBase, ACBrLibMDFeST, ACBrLibMDFeMT, ACBrLibMDFeStaticImport, ACBrLibMDFeStaticImportMT ---
+[+] Inclusão novos métodos: MDFE_SalvarPDF e MDFE_SalvarEventoPDF
+    Por: Antonio Carlos Junior	
+
 10/01/2023
 --- ACBrLibMDFeBase ---
 [-] Correção para conversão das respostas com Erros, em ANSI, se assim estiver configurado

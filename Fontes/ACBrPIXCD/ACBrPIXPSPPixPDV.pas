@@ -45,8 +45,8 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrPIXCD, ACBrPIXSchemasPixPDV,
-  ACBrPIXBase, ACBrPIXSchemasProblema;
+  {$IFDEF RTL230_UP}ACBrBase,{$ENDIF RTL230_UP}
+  ACBrPIXCD, ACBrPIXSchemasPixPDV, ACBrPIXBase;
 
 const
 
@@ -71,6 +71,9 @@ type
 
   { TACBrPSPPixPDV }
 
+  {$IFDEF RTL230_UP}
+  [ComponentPlatformsAttribute(piacbrAllPlatforms)]
+  {$ENDIF RTL230_UP}
   TACBrPSPPixPDV = class(TACBrPSP)
   private
     fCNPJ: String;
@@ -129,9 +132,8 @@ type
 implementation
 
 uses
-  StrUtils, synautil, ACBrUtil.DateTime, ACBrUtil.Strings, ACBrUtil.Base,
-  ACBrUtil.FilesIO, ACBrPIXUtil, ACBrPIXSchemasCob, ACBrPIXBRCode,
-  ACBrPIXSchemasCobsConsultadas, ACBrOpenSSLUtils, ACBrJSON, DateUtils;
+  synautil, DateUtils, ACBrJSON, ACBrUtil.Strings, ACBrUtil.Base,
+  ACBrUtil.FilesIO, ACBrOpenSSLUtils;
 
 { TACBrPSPPixPDV }
 

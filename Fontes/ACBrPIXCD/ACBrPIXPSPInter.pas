@@ -45,6 +45,7 @@ interface
 
 uses
   Classes, SysUtils,
+  {$IFDEF RTL230_UP}ACBrBase,{$ENDIF RTL230_UP}
   ACBrPIXCD, ACBrOpenSSLUtils;
 
 const
@@ -76,8 +77,7 @@ type
 implementation
 
 uses
-  synacode, synautil, DateUtils, ACBrJSON,
-  ACBrUtil.Base, ACBrUtil.Strings, ACBrPIXUtil;
+  synautil, DateUtils, ACBrJSON, ACBrUtil.Strings;
 
 { TACBrPSPInter }
 

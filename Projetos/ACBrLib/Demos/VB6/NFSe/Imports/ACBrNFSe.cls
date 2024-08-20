@@ -60,6 +60,9 @@ Private Declare Function NFSE_ConfigGravarValor _
 Private Declare Function NFSE_CarregarXML _
                 Lib "ACBrNFSe32.dll" (ByVal eArquivoOuXml As String) As Long
                 
+Private Declare Function NFSE_CarregarLoteXML _
+                Lib "ACBrNFSe32.dll" (ByVal eArquivoOuXml As String) As Long
+                
 Private Declare Function NFSE_CarregarINI _
                 Lib "ACBrNFSe32.dll" (ByVal eArquivoOuIni As String) As Long
                 
@@ -196,6 +199,9 @@ Private Declare Function NFSE_Imprimir _
                                       
 Private Declare Function NFSE_ImprimirPDF Lib "ACBrNFSe32.dll" () As Long
 
+Private Declare Function NFSE_SalvarPDF Lib "ACBrNFSe32.dll" (ByVal buffer As String, _
+                                                              ByRef bufferLen As Long) As Long
+
 Private Declare Function NFSE_ConsultarNFSeServicoPrestadoPorNumero _
                 Lib "ACBrNFSe32.dll" (ByVal aNumero As String, _
                                       ByVal aPagina As Long, _
@@ -319,6 +325,10 @@ Private Declare Function NFSE_ConsultarParametros _
                                      ByVal aNumeroBeneficio As String, _
                                      ByVal buffer As String, _
                                      ByRef bufferLen As Long) As Long
+                                     
+Private Declare Function NFSE_ObterInformacoesProvedor _
+                Lib "ACBrNFSe32.dll" (ByVal buffer As String, _
+                                      ByRef bufferLen As Long) As Long
                                                                           
 Public Sub InicializarLib(Optional ByVal eArqConfig As String = "", _
                           Optional ByVal eChaveCrypt As String = "")
@@ -439,6 +449,12 @@ End Function
 Public Sub CarregarXML(ByVal eArquivoOuXml As String)
     Dim retorno   As Long
     retorno = NFSE_CarregarXML(eArquivoOuXml)
+    CheckResult retorno
+End Sub
+
+Public Sub CarregarLoteXML(ByVal eArquivoOuXml As String)
+    Dim retorno As Long
+    retorno = NFSE_CarregarLoteXML(eArquivoOuXml)
     CheckResult retorno
 End Sub
 
@@ -751,6 +767,22 @@ Public Sub ImprimirPDF()
     
 End Sub
 
+Public Function SalvarPDF() As String
+
+    Dim retorno   As Long
+    Dim buffer    As String
+    Dim bufferLen As Long
+    
+    bufferLen = BUFFER_LENGTH
+    buffer = String$(bufferLen, " ")
+    
+    retorno = NFSE_SalvarPDF(buffer, bufferLen)
+    CheckResult retorno
+    
+    SalvarPDF = processResult(buffer, bufferLen)
+
+End Function
+
 Public Function ConsultarNFSeServicoPrestadoPorNumero(ByVal aNumero As String, ByVal aPagina As Long, ByVal aDataInicial As Date, ByVal aDataFinal As Date, ByVal aTipoPeriodo As Long) As String
 
     Dim retorno   As Long
@@ -1004,6 +1036,22 @@ Public Function ConsultarParametros(ByVal aTipoParametroMunicipio As Long, ByVal
     CheckResult retorno
     
     ConsultarParametros = processResult(buffer, bufferLen)
+
+End Function
+
+Public Function ObterInformacoesProvedor() As String
+    
+    Dim retorno   As Long
+    Dim buffer    As String
+    Dim bufferLen As Long
+    
+    bufferLen = BUFFER_LENGTH
+    buffer = String$(bufferLen, " ")
+    
+    retorno = NFSE_ObterInformacoesProvedor(buffer, bufferLen)
+    CheckResult retorno
+    
+    ObterInformacoesProvedor = processResult(buffer, bufferLen)
 
 End Function
 

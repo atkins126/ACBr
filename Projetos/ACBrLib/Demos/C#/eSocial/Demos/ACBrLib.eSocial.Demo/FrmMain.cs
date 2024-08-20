@@ -48,7 +48,7 @@ namespace ACBrLibeSocial.Demo
                 cmbXmlSign.EnumDataSource(SSLXmlSignLib.xsLibXml2);
                 cmbTipoEmpregador.EnumDataSource(TipoEmpregador.tePessoaJuridica);
                 cmbFormaEmissao.EnumDataSource(TipoEmissao.teNormal);
-                cmbVersaoDF.SelectedItem = "02_04_01";
+                cmbVersaoDF.SelectedItem = "S01_02_00";
 
                 // Altera as config de log
                 ACBreSocial.Config.Principal.LogNivel = NivelLog.logParanoico;
@@ -262,7 +262,7 @@ namespace ACBrLibeSocial.Demo
         {
             try
             {
-                var protocolo = 123456789;
+                var protocolo = "123456789";
                 if (InputBox.Show("Consultar eSocial", "Consultar", ref protocolo) != DialogResult.OK) return;
 
                 var ret = ACBreSocial.ConsultareSocial(protocolo.ToString());
@@ -284,8 +284,8 @@ namespace ACBrLibeSocial.Demo
                 var grupo = 1;
                 if (InputBox.Show("Enviar eSocial", "Grupo", ref grupo) != DialogResult.OK) return;
 
-                ACBreSocial.CriarEnviareSocial(arquivoIni, grupo);
-
+                string ret = ACBreSocial.CriarEnviareSocial(arquivoIni, grupo);
+                rtbRespostas.AppendText(ret);
             }
             catch (Exception ex)
             {
@@ -377,7 +377,9 @@ namespace ACBrLibeSocial.Demo
                 if (InputBox.Show("Consulta Empregador eSocial", "Informe o Tipo do Evento", ref tipoEvento) != DialogResult.OK) return;
 
                 var dataApuracao = DateTime.Now;
-                if (InputBox.Show("Consulta Empregador eSocial", "Informe a Data de Apuração - 01/MM/AAAA", ref dataApuracao) != DialogResult.OK) return;
+                string strDataApuracao = dataApuracao.ToString();
+                if (InputBox.Show("Consulta Empregador eSocial", "Informe a Data de Apuração - 01/MM/AAAA", ref strDataApuracao) != DialogResult.OK) return;
+                DateTime.TryParse(strDataApuracao, out dataApuracao);
 
                 var ret = ACBreSocial.ConsultaIdentificadoresEventosEmpregador(txtEmpregador.Text, tipoEvento, dataApuracao);
                 rtbRespostas.AppendText(ret);
@@ -399,10 +401,14 @@ namespace ACBrLibeSocial.Demo
                 if (InputBox.Show("Consulta Tabela eSocial", "Informe a Chave", ref chave) != DialogResult.OK) return;
 
                 var dataInicial = DateTime.Now;
-                if (InputBox.Show("Consulta Tabela eSocial", "Informe a Data Inicial - 01/MM/AAAA", ref dataInicial) != DialogResult.OK) return;
+                string strDataInicial = dataInicial.ToString();
+                if (InputBox.Show("Consulta Tabela eSocial", "Informe a Data Inicial - 01/MM/AAAA", ref strDataInicial) != DialogResult.OK) return;
+                DateTime.TryParse(strDataInicial, out dataInicial);
 
                 var dataFinal = DateTime.Now;
-                if (InputBox.Show("Consulta Tabela eSocial", "Informe a Data Final - 01/MM/AAAA", ref dataFinal) != DialogResult.OK) return;
+                string strDataFinal = dataFinal.ToString();
+                if (InputBox.Show("Consulta Tabela eSocial", "Informe a Data Final - 01/MM/AAAA", ref strDataFinal) != DialogResult.OK) return;
+                DateTime.TryParse(strDataFinal, out dataFinal);
 
                 var ret = ACBreSocial.ConsultaIdentificadoresEventosTabela(txtEmpregador.Text, tipoEvento, chave, dataInicial, dataFinal);
                 rtbRespostas.AppendText(ret);
@@ -421,10 +427,14 @@ namespace ACBrLibeSocial.Demo
                 if (InputBox.Show("Consulta Trabalhador eSocial", "Informe o CPF do Trabalhador", ref cpfTrabalhador) != DialogResult.OK) return;
 
                 var dataInicial = DateTime.Now;
-                if (InputBox.Show("Consulta Trabalhador eSocial", "Informe a Data Inicial - 01/MM/AAAA", ref dataInicial) != DialogResult.OK) return;
+                string strDataInicial = dataInicial.ToString();
+                if (InputBox.Show("Consulta Trabalhador eSocial", "Informe a Data Inicial - 01/MM/AAAA", ref strDataInicial) != DialogResult.OK) return;
+                DateTime.TryParse(strDataInicial, out dataInicial);
 
                 var dataFinal = DateTime.Now;
-                if (InputBox.Show("Consulta Trabalhador eSocial", "Informe a Data Final - 01/MM/AAAA", ref dataFinal) != DialogResult.OK) return;
+                string strDataFinal = dataFinal.ToString();
+                if (InputBox.Show("Consulta Trabalhador eSocial", "Informe a Data Final - 01/MM/AAAA", ref strDataFinal) != DialogResult.OK) return;
+                DateTime.TryParse(strDataFinal, out dataFinal);
 
                 var ret = ACBreSocial.ConsultaIdentificadoresEventosTrabalhador(txtEmpregador.Text, cpfTrabalhador, dataInicial, dataFinal);
                 rtbRespostas.AppendText(ret);
@@ -461,6 +471,11 @@ namespace ACBrLibeSocial.Demo
         {
             var ret = ACBreSocial.ObterCertificados();
             rtbRespostas.AppendLine(ret.Select(x => x.ToString()).ToArray());
+        }
+        private void btnOpenSSLInfo_Click(object sender, EventArgs e)
+        {
+            var ret = ACBreSocial.OpenSSLInfo();
+            rtbRespostas.AppendText(ret);
         }
 
         private void btnSelectLog_Click(object sender, EventArgs e)

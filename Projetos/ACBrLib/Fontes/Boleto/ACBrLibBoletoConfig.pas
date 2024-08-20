@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: José M. S. Junior                               }
 {                                                                              }
@@ -39,7 +39,9 @@ interface
 
 uses
   Classes, SysUtils, IniFiles,
-  ACBrBoleto, ACBrBoletoConversao, ACBrLibConfig, ACBrLibComum, pcnConversao, ACBrDFeConfiguracoes, ACBrPIXBase;
+  ACBrBoleto, ACBrBoletoConversao, pcnConversao, ACBrDFeConfiguracoes, ACBrPIXBase,
+  ACBrUtil.FilesIO,
+  ACBrLibConfig, ACBrLibComum;
 
 type
 
@@ -260,7 +262,8 @@ type
   { TBoletoConfigWS }
   TBoletoConfigWS = class
   private
-    FLogRegistro: Boolean;
+    FLogNivel: TNivelLog;
+    FNomeArquivoLog: String;
     FPathGravarRegistro: String;
     FOperacao: TOperacao;
     FVersaoDF: String;
@@ -274,7 +277,8 @@ type
     procedure LerIni(const AIni: TCustomIniFile);
     procedure GravarIni(const AIni: TCustomIniFile);
 
-    property LogRegistro: Boolean read FLogRegistro write FLogRegistro;
+    property LogNivel: TNivelLog read FLogNivel write FLogNivel;
+    property NomeArquivoLog: String read FNomeArquivoLog write FNomeArquivoLog;
     property PathGravarRegistro: String read FPathGravarRegistro write FPathGravarRegistro;
     property Operacao: TOperacao read FOperacao write FOperacao;
     property VersaoDF: String read FVersaoDF write FVersaoDF;
@@ -342,15 +346,17 @@ type
 implementation
 
 uses
-  typinfo, strutils, synacode, blcksock, ACBrLibBoletoConsts,
-  ACBrUtil.FilesIO, ACBrUtil.Strings,
-  ACBrConsts, ACBrLibConsts, ACBrLibBoletoBase;
+  typinfo, strutils,
+  synacode, blcksock,
+  ACBrUtil.Strings, ACBrConsts,
+  ACBrLibConsts, ACBrLibBoletoConsts, ACBrLibBoletoBase;
 
 { TBoletoConfigWS }
 
 constructor TBoletoConfigWS.Create;
 begin
-  FLogRegistro:= True;
+  FLogNivel := logNenhum;
+  FNomeArquivoLog:= '';
   FPathGravarRegistro:= '';
   FOperacao:= tpInclui;
   FVersaoDF:= '1.2';
@@ -362,7 +368,8 @@ end;
 
 procedure TBoletoConfigWS.LerIni(const AIni: TCustomIniFile);
 begin
-  LogRegistro:= AIni.ReadBool(CSessaoBoletoWebService, CChaveLogRegistro, LogRegistro );
+  LogNivel := TNivelLog(AIni.ReadInteger(CSessaoBoletoWebService, CChaveLogNivel, Integer(LogNivel)));
+  NomeArquivoLog:= AIni.ReadString(CSessaoBoletoWebService, CChaveNomeArquivoLog, NomeArquivoLog);
   PathGravarRegistro:= AIni.ReadString(CSessaoBoletoWebService, CChavePathGravarRegistro, PathGravarRegistro );
   Operacao:= TOperacao( AIni.ReadInteger(CSessaoBoletoWebService, CChaveOperacao, integer(Operacao) ) );
   VersaoDF:= AIni.ReadString(CSessaoBoletoWebService, CChaveVersaoDF, VersaoDF );
@@ -373,7 +380,8 @@ end;
 
 procedure TBoletoConfigWS.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteBool(CSessaoBoletoWebService, CChaveLogRegistro, LogRegistro );
+  AIni.WriteInteger(CSessaoBoletoWebService, CChaveLogNivel, Integer(LogNivel));
+  AIni.WriteString(CSessaoBoletoWebService, CChaveNomeArquivoLog, NomeArquivoLog);
   AIni.WriteString(CSessaoBoletoWebService, CChavePathGravarRegistro, PathGravarRegistro );
   AIni.WriteInteger(CSessaoBoletoWebService, CChaveOperacao, integer(Operacao) );
   AIni.WriteString(CSessaoBoletoWebService, CChaveVersaoDF, VersaoDF );
@@ -622,14 +630,25 @@ begin
 end;
 
 procedure TBoletoCedenteConfig.LerIni(const AIni: TCustomIniFile);
+var
+  LTipoInscricao: integer;
 begin
+
+  CNPJCPF:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveCNPJCPF, CNPJCPF );
+
+  LTipoInscricao:= AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveTipoInscricao, 1);
+
+  if (TACBrPessoaCedente(LTipoInscricao) >= Low(TACBrPessoaCedente)) and (TACBrPessoaCedente(LTipoInscricao) <= High(TACBrPessoaCedente)) then
+     TipoInscricao := TACBrPessoaCedente( LTipoInscricao )
+  else
+    TipoInscricao := pJuridica;
+
   Agencia:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveAgencia, Agencia);
   AgenciaDigito:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveAgenciaDigito, AgenciaDigito );
   Bairro:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveBairro, Bairro );
   CaracTitulo:= TACBrCaracTitulo( AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveCaracTitulo, integer(CaracTitulo) ));
   CEP:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveCEP, CEP );
   Cidade:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveCidade, Cidade );
-  CNPJCPF:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveCNPJCPF, CNPJCPF );
   CodigoCedente:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveCodigoCedente, CodigoCedente );
   CodigoTransmissao:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveCodigoTransmissao, CodigoTransmissao );
   Complemento:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveComplemento, Complemento );
@@ -644,7 +663,6 @@ begin
   Telefone:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveTelefone, Telefone);
   TipoCarteira:= TACBrTipoCarteira( AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveTipoCarteira, integer(TipoCarteira) ));
   TipoDocumento:= TACBrTipoDocumento( AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveTipoDocumento, integer(TipoDocumento) ));
-  TipoInscricao:= TACBrPessoaCedente( AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveTipoInscricao, integer(TipoInscricao) ));
   UF:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveUF, UF );
   DigitoVerificadorAgenciaConta:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveDigitoVerificadorAgenciaConta, DigitoVerificadorAgenciaConta);
   IdentDistribuicao:= TACBrIdentDistribuicao(AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveIdentDistribuicao, integer(FIdentDistribuicao)));
@@ -706,7 +724,7 @@ begin
   LocalPagamento:= AIni.ReadString(CSessaoBoletoBancoConfig, CChaveLocalPagamento, LocalPagamento);
   Numero:= AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveNumero, Numero);
   NumeroCorrespondente:= AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveNumeroCorrespondente, NumeroCorrespondente);
-  OrientacaoBanco:= AIni.ReadString(CSessaoBoletoBancoConfig, CChaveOrientacaoBanco, OrientacaoBanco);
+  OrientacaoBanco:= StringReplace(AIni.ReadString(CSessaoBoletoBancoConfig, CChaveOrientacaoBanco, OrientacaoBanco), '|', sLineBreak, [rfReplaceAll]);
   TipoCobranca:= TACBrTipoCobranca( AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveTipoCobranca, integer(TipoCobranca)));
   CasasDecimaisMoraJuros:= AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveCasasDecimaisMoraJuros, CasasDecimaisMoraJuros);
   //DensidadeGravacao:= AIni.ReadString(CSessaoBoletoBancoConfig, CChaveDensidadeGravacao, DensidadeGravacao);
@@ -721,7 +739,7 @@ begin
   AIni.WriteString(CSessaoBoletoBancoConfig, CChaveLocalPagamento, LocalPagamento);
   AIni.WriteInteger(CSessaoBoletoBancoConfig, CChaveNumero, Numero );
   AIni.WriteInteger(CSessaoBoletoBancoConfig, CChaveNumeroCorrespondente, NumeroCorrespondente );
-  AIni.WriteString(CSessaoBoletoBancoConfig, CChaveOrientacaoBanco, OrientacaoBanco );
+ // AIni.WriteString(CSessaoBoletoBancoConfig, CChaveOrientacaoBanco, OrientacaoBanco );
   AIni.WriteInteger(CSessaoBoletoBancoConfig, CChaveTipoCobranca, integer(TipoCobranca) );
   AIni.WriteInteger(CSessaoBoletoBancoConfig, CChaveCasasDecimaisMoraJuros, CasasDecimaisMoraJuros);
   //AIni.WriteString(CSessaoBoletoBancoConfig, CChaveDensidadeGravacao, DensidadeGravacao);

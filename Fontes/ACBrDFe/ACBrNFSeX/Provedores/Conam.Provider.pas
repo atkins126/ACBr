@@ -54,11 +54,11 @@ uses
 type
   TACBrNFSeXWebserviceConam = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarLinkNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLinkNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -121,16 +121,20 @@ begin
     UseCertificateHTTP := False;
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerLogin := True;
+
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarSituacao := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.ConsultarLinkNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
   end;
 
   SetXmlNameSpace('');
-{
-  with ConfigMsgDados do
-  begin
-    Prefixo := 'nfe';
-    PrefixoTS := 'nfe';
-  end;
-}
+
   ConfigSchemas.Validar := False;
 end;
 
@@ -194,7 +198,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := xId;
-      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Description'), tcStr));
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Description'), tcStr);
       AErro.Correcao := '';
     end;
 
@@ -202,7 +206,7 @@ begin
     begin
       AAlerta := Response.Alertas.New;
       AAlerta.Codigo := xId;
-      AAlerta.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Description'), tcStr));
+      AAlerta.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Description'), tcStr);
       AAlerta.Correcao := '';
     end;
   end;
@@ -432,6 +436,8 @@ begin
 
       exiExportacao:
         xOptante := '<TipoTrib>5</TipoTrib>';
+    else
+      xOptante := '';
     end;
   end;
 {
@@ -1204,7 +1210,7 @@ end;
 
 { TACBrNFSeXWebserviceConam }
 
-function TACBrNFSeXWebserviceConam.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceConam.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1220,7 +1226,7 @@ begin
                      ['xmlns:nfe="NFe"']);
 end;
 
-function TACBrNFSeXWebserviceConam.ConsultarSituacao(ACabecalho,
+function TACBrNFSeXWebserviceConam.ConsultarSituacao(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1236,7 +1242,7 @@ begin
                      ['xmlns:nfe="NFe"']);
 end;
 
-function TACBrNFSeXWebserviceConam.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceConam.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1252,7 +1258,7 @@ begin
                      ['xmlns:nfe="NFe"']);
 end;
 
-function TACBrNFSeXWebserviceConam.ConsultarLinkNFSe(ACabecalho,
+function TACBrNFSeXWebserviceConam.ConsultarLinkNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1268,7 +1274,7 @@ begin
                      ['xmlns:nfe="NFe"']);
 end;
 
-function TACBrNFSeXWebserviceConam.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceConam.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -1288,7 +1294,7 @@ function TACBrNFSeXWebserviceConam.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);

@@ -39,7 +39,8 @@ interface
 uses
   SysUtils, Classes, StrUtils, variants,
   ACBrUtil.Base, ACBrUtil.XMLHTML, ACBrUtil.Strings,
-  pcnGerador, pcnLeitor, pcnConversao, pcnAuxiliar, pcnConsts,
+  pcnGerador, pcnLeitor, pcnConversao,
+  ACBrDFeConsts,
   pcnCommonReinf, pcnConversaoReinf;
 
 type
@@ -239,7 +240,10 @@ begin
   begin
     NomeEvento := TipoEventoToStrEvento(StringXMLToTipoEvento(Ok, FXML));
     FXML := Assinar(FXML, NomeEvento);
+  end;
 
+  if ((not XmlEstaAssinado(FXML)) or (Self.Id = '')) then
+  begin
     Leitor := TLeitor.Create;
     try
       Leitor.Grupo := FXML;
@@ -247,9 +251,10 @@ begin
     finally
       Leitor.Free;
     end;
-
-    Validar(TipoEventiToSchemaReinf(StringXMLToTipoEvento(Ok, FXML)));
   end;
+
+  if not XmlEstaAssinado(FXML) then
+    Validar(TipoEventiToSchemaReinf(StringXMLToTipoEvento(Ok, FXML)));
 end;
 
 procedure TReinfEvento.Validar(Schema: TReinfSchema);

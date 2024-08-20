@@ -47,8 +47,8 @@ uses
 type
   TACBrNFSeXWebserviceCTAConsult = class(TACBrNFSeXWebserviceSoap11)
   public
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -104,6 +104,12 @@ begin
     DetalharServico := True;
     ConsultaLote := False;
     ConsultaNFSe := False;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerChaveAutorizacao := True;
+
+    ServicosDisponibilizados.EnviarUnitario := True;
+    ServicosDisponibilizados.CancelarNfse := True;
   end;
 
   ConfigMsgDados.UsarNumLoteConsLote := True;
@@ -183,7 +189,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('codigo'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('descricao'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('descricao'), tcStr);
     AErro.Correcao := '';
   end;
 end;
@@ -251,6 +257,9 @@ begin
 
       Response.Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('protocolo'), tcStr);
       Response.Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoStatus'), tcStr);
+      Response.NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroNota'), tcStr);
+      Response.Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('linkPdfNota'), tcStr);
+      Response.CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('chaveSeguranca'), tcStr);
 
       ProcessarMensagemErros(ANode, Response);
 
@@ -415,7 +424,7 @@ end;
 
 { TACBrNFSeXWebserviceCTAConsult }
 
-function TACBrNFSeXWebserviceCTAConsult.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceCTAConsult.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -431,7 +440,7 @@ begin
                      ['xmlns:wsn="http://wsnfselote.ctaconsult.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceCTAConsult.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceCTAConsult.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request, xCabecalho: string;
 begin
@@ -453,7 +462,7 @@ function TACBrNFSeXWebserviceCTAConsult.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result));
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := RemoverPrefixosDesnecessarios(Result);

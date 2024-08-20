@@ -53,7 +53,9 @@ type
     function PreencherNotaRespostaConsultaNFSe(Node, parentNode: TACBrXmlNode;
       Response: TNFSeConsultaNFSeResponse): Boolean;
     procedure LerCancelamento(ANode: TACBrXmlNode;
-      Response: TNFSeConsultaNFSeporRpsResponse);
+      Response: TNFSeWebserviceResponse);
+
+    procedure LerSubstituicao(const ANode: TACBrXmlNode; const Response: TNFSeWebServiceResponse);
 
     procedure Configuracao; override;
 
@@ -161,6 +163,13 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaSitLote := True;
     ConsultaPorFaixa := False;
+
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarSituacao := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.ConsultarNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
   end;
 
   SetXmlNameSpace(NameSpace);
@@ -170,6 +179,9 @@ begin
     VersaoDados := '1.00';
     VersaoAtrib := '1.00';
   end;
+
+  ConfigMsgDados.ConsultarNFSePorFaixa.InfElemento := '';
+  ConfigMsgDados.ConsultarNFSePorFaixa.DocElemento := 'ConsultarNfseEnvio';
 
   ConfigMsgDados.DadosCabecalho := GetCabecalho('');
 end;
@@ -188,7 +200,7 @@ begin
   if Node <> nil then
   begin
     Node := Node.Childrens.FindAnyNs('InfNfse');
-    if not Assigned(Node) or (Node = nil) then Exit;
+    if not Assigned(Node) then Exit;
 
     NumNFSe := ObterConteudoTag(Node.Childrens.FindAnyNs('Numero'), tcStr);
     CodVerif := ObterConteudoTag(Node.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
@@ -211,13 +223,10 @@ begin
     AResumo.NumeroRps := NumRps;
     AResumo.SerieRps := SerieRps;
 
-    with Response do
-    begin
-      NumeroNota := NumNFSe;
-      CodigoVerificacao := CodVerif;
-      NumeroRps := NumRps;
-      SerieRps := SerieRps;
-    end;
+    Response.NumeroNota := NumNFSe;
+    Response.CodigoVerificacao := CodVerif;
+    Response.NumeroRps := NumRps;
+    Response.SerieRps := SerieRps;
 
     if NumeroRps > 0 then
       ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps)
@@ -247,7 +256,7 @@ begin
   if Node <> nil then
   begin
     Node := Node.Childrens.FindAnyNs('InfNfse');
-    if not Assigned(Node) or (Node = nil) then Exit;
+    if not Assigned(Node) then Exit;
 
     NumNFSe := ObterConteudoTag(Node.Childrens.FindAnyNs('Numero'), tcStr);
     CodVerif := ObterConteudoTag(Node.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
@@ -270,13 +279,10 @@ begin
     AResumo.NumeroRps := NumRps;
     AResumo.SerieRps := SerieRps;
 
-    with Response do
-    begin
-      NumeroNota := NumNFSe;
-      CodigoVerificacao := CodVerif;
-      NumeroRps := NumRps;
-      SerieRps := SerieRps;
-    end;
+    Response.NumeroNota := NumNFSe;
+    Response.CodigoVerificacao := CodVerif;
+    Response.NumeroRps := NumRps;
+    Response.SerieRps := SerieRps;
 
     if NumeroRps > 0 then
       ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps)
@@ -297,7 +303,7 @@ var
   AErro: TNFSeEventoCollectionItem;
   aParams: TNFSeParamsResponse;
   Nota: TNotaFiscal;
-  Versao, IdAttr, NameSpace, NameSpaceLote, ListaRps, xRps,
+  Versao, IdAttr, NameSpace, NameSpaceLote, ListaRps, xRps, IdAttrSig,
   TagEnvio, Prefixo, PrefixoTS: string;
   I: Integer;
 begin
@@ -306,6 +312,13 @@ begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod001;
     AErro.Descricao := ACBrStr(Desc001);
+  end;
+
+  if EstaVazio(Response.NumeroLote) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod111;
+    AErro.Descricao := ACBrStr(Desc111);
   end;
 
   if TACBrNFSeX(FAOwner).NotasFiscais.Count <= 0 then
@@ -417,9 +430,13 @@ begin
 
     if ConfigAssinar.Rps then
     begin
+      IdAttrSig := SetIdSignatureValue(Nota.XmlRps,
+                                     ConfigMsgDados.XmlRps.DocElemento, IdAttr);
+
       Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
                                          PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
-                                         ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
+                                         ConfigMsgDados.XmlRps.InfElemento, '', '', '',
+                                         IdAttr, IdAttrSig);
     end;
 
     SalvarXmlRps(Nota);
@@ -513,8 +530,6 @@ begin
       Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response);
-
-      Response.Sucesso := (Response.Erros.Count = 0);
 
       ANode := Document.Root;
 
@@ -824,6 +839,10 @@ begin
 
           if AuxNode = nil then
           begin
+            LerCancelamento(ANode, Response);
+
+            LerSubstituicao(ANode, Response);
+
             AuxNode := ANode.Childrens.FindAnyNs('Nfse');
 
             if PreencherNotaRespostaConsultaLoteRps(AuxNode, ANode, Response) then
@@ -843,6 +862,11 @@ begin
             for J := Low(AuxNodeArray) to High(AuxNodeArray) do
             begin
               ANode2 := AuxNodeArray[J];
+
+              LerCancelamento(ANode2, Response);
+
+              LerSubstituicao(ANode2, Response);
+
               AuxNode := ANode2.Childrens.FindAnyNs('Nfse');
 
               if PreencherNotaRespostaConsultaLoteRps(AuxNode, ANode2, Response) then
@@ -1021,11 +1045,15 @@ begin
         begin
           LerCancelamento(ANode, Response);
 
+          LerSubstituicao(ANode, Response);
+
           AuxNode := ANode.Childrens.FindAnyNs('Nfse')
         end
         else
         begin
           LerCancelamento(AuxNode, Response);
+
+          LerSubstituicao(AuxNode, Response);
 
           AuxNode := AuxNode.Childrens.FindAnyNs('Nfse');
         end;
@@ -1033,7 +1061,7 @@ begin
         if AuxNode <> nil then
         begin
           AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
-          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+          if not Assigned(AuxNode) then Exit;
 
           InfNfseID := ObterConteudoTag(AuxNode.Attributes.Items['Id']);
           NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
@@ -1241,8 +1269,6 @@ begin
 
       ProcessarMensagemErros(Document.Root, Response);
 
-      Response.Sucesso := (Response.Erros.Count = 0);
-
       ANode := Document.Root.Childrens.FindAnyNs('ListaNfse');
 
       if not Assigned(ANode) then
@@ -1272,6 +1298,10 @@ begin
 
         if AuxNode = nil then
         begin
+          LerCancelamento(ANode, Response);
+
+          LerSubstituicao(ANode, Response);
+
           AuxNode := ANode.Childrens.FindAnyNs('Nfse');
 
           if PreencherNotaRespostaConsultaNFSe(AuxNode, ANode, Response) then
@@ -1291,6 +1321,11 @@ begin
           for J := Low(AuxNodeArray) to High(AuxNodeArray) do
           begin
             ANode2 := AuxNodeArray[J];
+
+            LerCancelamento(ANode2, Response);
+
+            LerSubstituicao(ANode2, Response);
+
             AuxNode := ANode2.Childrens.FindAnyNs('Nfse');
 
             if PreencherNotaRespostaConsultaNFSe(AuxNode, ANode2, Response) then
@@ -1484,8 +1519,6 @@ begin
 
       ProcessarMensagemErros(Document.Root, Response);
 
-      Response.Sucesso := (Response.Erros.Count = 0);
-
       ANode := Document.Root.Childrens.FindAnyNs('Cancelamento');
 
       if ANode = nil then
@@ -1520,22 +1553,27 @@ begin
       if Ret.DataHora = 0 then
         Ret.DataHora := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataHora'), FpFormatoDataHora);
 
+      if Ret.DataHora > 0 then
+        Ret.Situacao := 'Cancelado'
+      else
+        Ret.Situacao := '';
+
       if ConfigAssinar.IncluirURI then
         IdAttr := ConfigGeral.Identificador
       else
         IdAttr := 'ID';
 
       ANodePed := ANode.Childrens.FindAnyNs('Pedido');
-      if not Assigned(ANodePed) or (ANodePed = nil) then Exit;
+      if not Assigned(ANodePed) then Exit;
 
       ANodePed := ANodePed.Childrens.FindAnyNs('InfPedidoCancelamento');
-      if not Assigned(ANodePed) or (ANodePed = nil) then Exit;
+      if not Assigned(ANodePed) then Exit;
 
       Ret.Pedido.InfID.ID := ObterConteudoTag(ANodePed.Attributes.Items[IdAttr]);
       Ret.Pedido.CodigoCancelamento := ObterConteudoTag(ANodePed.Childrens.FindAnyNs('CodigoCancelamento'), tcStr);
 
       ANodePed := ANodePed.Childrens.FindAnyNs('IdentificacaoNfse');
-      if not Assigned(ANodePed) or (ANodePed = nil) then Exit;
+      if not Assigned(ANodePed) then Exit;
 
       with Ret.Pedido.IdentificacaoNfse do
       begin
@@ -1551,6 +1589,11 @@ begin
       begin
         Ret.Sucesso := ObterConteudoTag(ANodeInfCon.Childrens.FindAnyNs('Sucesso'), tcStr);
         Ret.DataHora := ObterConteudoTag(ANodeInfCon.Childrens.FindAnyNs('DataHora'), FpFormatoDataHora);
+
+        if Ret.DataHora > 0 then
+          Ret.Situacao := 'Cancelado'
+        else
+          Ret.Situacao := '';
       end;
     except
       on E:Exception do
@@ -1585,37 +1628,57 @@ begin
 end;
 
 procedure TACBrNFSeProviderABRASFv1.LerCancelamento(ANode: TACBrXmlNode;
-  Response: TNFSeConsultaNFSeporRpsResponse);
+      Response: TNFSeWebserviceResponse);
 var
-  AuxNodeCanc: TACBrXmlNode;
+  AuxNodeCanc, ANodeNfseCancelamento: TACBrXmlNode;
 begin
-  AuxNodeCanc := ANode.Childrens.FindAnyNs('NfseCancelamento');
+  ANodeNfseCancelamento := ANode.Childrens.FindAnyNs('NfseCancelamento');
 
-  if AuxNodeCanc <> nil then
+  if ANodeNfseCancelamento <> nil then
   begin
-    AuxNodeCanc := AuxNodeCanc.Childrens.FindAnyNs('Confirmacao');
+    AuxNodeCanc := ANodeNfseCancelamento.Childrens.FindAnyNs('Confirmacao');
 
     if AuxNodeCanc = nil then
-      AuxNodeCanc := ANode.Childrens.FindAnyNs('ConfirmacaoCancelamento');
+      AuxNodeCanc := ANodeNfseCancelamento.Childrens.FindAnyNs('ConfirmacaoCancelamento');
 
     if AuxNodeCanc <> nil then
     begin
       AuxNodeCanc := AuxNodeCanc.Childrens.FindAnyNs('InfConfirmacaoCancelamento');
 
       if AuxNodeCanc <> nil then
+      begin
         Response.DataCanc := ObterConteudoTag(AuxNodeCanc.Childrens.FindAnyNs('DataHora'), FpFormatoDataHora);
 
-      if Response.DataCanc = 0 then
-        Response.DataCanc := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataHoraCancelamento'), FpFormatoDataHora);
+        if Response.DataCanc = 0 then
+          Response.DataCanc := ObterConteudoTag(AuxNodeCanc.Childrens.FindAnyNs('DataHoraCancelamento'), FpFormatoDataHora);
 
-      if Response.DataCanc = 0 then
-        Response.DataCanc := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataHora'), FpFormatoDataHora);
+        Response.SucessoCanc := ObterConteudoTag(AuxNodeCanc.Childrens.FindAnyNs('Sucesso'), tcBool);
+      end;
     end;
 
     Response.DescSituacao := '';
 
-    if Response.DataCanc > 0 then
+    if (Response.DataCanc > 0) and (Response.SucessoCanc) then
       Response.DescSituacao := 'Nota Cancelada';
+  end;
+end;
+
+procedure TACBrNFSeProviderABRASFv1.LerSubstituicao(const ANode: TACBrXmlNode;
+  const Response: TNFSeWebServiceResponse);
+var
+  AuxNode, AuxNodeSubs: TACBrXmlNode;
+begin
+  AuxNode := ANode.Childrens.FindAnyNs('NfseSubstituicao');
+
+  if AuxNode <> nil then
+  begin
+    AuxNodeSubs := AuxNode.Childrens.FindAnyNs('SubstituicaoNfse');
+
+    if AuxNodeSubs <> nil then
+      Response.NumNotaSubstituidora := ObterConteudoTag(AuxNodeSubs.Childrens.FindAnyNs('NfseSubstituidora'), tcStr);
+
+    if Response.NumNotaSubstituidora <> '' then
+      Response.DescSituacao := 'Nota Substituida';
   end;
 end;
 
@@ -1808,8 +1871,8 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-      AErro.Descricao := ACBrStr(Mensagem);
-      AErro.Correcao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr));
+      AErro.Descricao := Mensagem;
+      AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr);
     end;
   end;
 end;

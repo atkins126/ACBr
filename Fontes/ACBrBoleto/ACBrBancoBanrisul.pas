@@ -97,7 +97,7 @@ begin
   fpTamanhoCarteira       := 1;
   fpLayoutVersaoArquivo   := 40;
   fpLayoutVersaoLote      := 20;
-  fpCodigosMoraAceitos    :='01';
+  fpCodigosMoraAceitos    :='0123';
   fpOrientacoesBanco.Clear;
   fpOrientacoesBanco.Add(ACBrStr('SAC       BANRISUL - 0800 646 1515'+sLineBreak+
                                  'OUVIDORIA BANRISUL - 0800 644 2200'));
@@ -632,6 +632,7 @@ function TACBrBanrisul.GerarRegistroTransacao240(
 var
     aAceite, DiasProt, Juros, TipoInscSacado, Ocorrencia: String;
     sDiasBaixaDevol, ACaracTitulo, ATipoBoleto, AEspecieCobranca : String;
+    LTipoMoraJuros : byte;
 begin
    with ACBrTitulo do begin
       case Aceite of
@@ -668,11 +669,35 @@ begin
         end;
       // Número de dias para baixa/devolução
       sDiasBaixaDevol:= ifThen(DataBaixa > 0, IntToStrZero(DaysBetween(Vencimento,DataBaixa),3), '   ');
-
-      if (DataMoraJuros > 0) then
-         Juros := '1'+ FormatDateTime('ddmmyyyy', DataMoraJuros) + PadLeft(StringReplace(FormatFloat('#####0.00', ValorMoraJuros), ',', '', []), 15, '0')
-      else
-         Juros := DupeString('0', 24);
+      {quando latyout >= 103}
+      if (fpLayoutVersaoArquivo >= 103) then
+      begin
+       if (CaracTitulo = tcDescontada) then
+         Juros := '3'+DupeString('0', 23)
+       else
+         begin
+          case StrToIntDef(CodigoMora,0) of
+          1 : LTipoMoraJuros := 1;
+          2 : LTipoMoraJuros := 2;
+          else
+            LTipoMoraJuros := 3;
+          end;
+          if ((ValorMoraJuros > 0) and (LTipoMoraJuros in [1,2])) then
+           begin
+             if (LTipoMoraJuros = 2) then
+               if ValorMoraJuros > 99.99 then
+                  raise Exception.Create('Percentual ValorMoraJuros não pode ser maior que 99,99% !');
+             Juros := IntToStr(LTipoMoraJuros) + FormatDateTime('ddmmyyyy', DataMoraJuros) + PadLeft(StringReplace(FormatFloat('#####0.00', ValorMoraJuros), ',', '', []), 15, '0')
+           end
+          else
+             Juros := '3'+DupeString('0', 23)
+         end;
+      end
+      else  {quando latyout < 103}
+        if (DataMoraJuros > 0) then
+           Juros := '1'+ FormatDateTime('ddmmyyyy', DataMoraJuros) + PadLeft(StringReplace(FormatFloat('#####0.00', ValorMoraJuros), ',', '', []), 15, '0')
+        else
+           Juros := DupeString('0', 24);
 
       case Sacado.Pessoa of
          pFisica:   TipoInscSacado := '1';
@@ -685,6 +710,8 @@ begin
          toRemessaCancelarAbatimento: Ocorrencia := '05'; {Cancelamento de Abatimento concedido}
          toRemessaAlterarVencimento:  Ocorrencia := '06'; {Alteração de vencimento}
          toRemessaProtestar:          Ocorrencia := '09'; {Pedido de protesto}
+         toRemessaAlterarJurosMora:   Ocorrencia := '12'; {Alteração de Juros}
+         toRemessaAlterarMulta:       Ocorrencia := '14'; {Alteração de Multa}
          toRemessaCancelarInstrucaoProtestoBaixa: Ocorrencia := '18'; {Sustar protesto e baixar}
          toRemessaCancelarInstrucaoProtesto:     Ocorrencia := '19'; {Sustar protesto e manter na carteira}
          toRemessaOutrasOcorrencias:  Ocorrencia := '31'; {Alteração de Outros Dados}
@@ -843,7 +870,10 @@ begin
                    DupeString('0', 15) +                                                                                                              //  51-65  VALOR DESCONTO 3
                    ifthen(MultaValorFixo, '1', '2') +                                                                                                 //  66-66  CODIGO DA MULTA
                    FormatDateTime('ddmmyyyy', DataMulta) +                                                                                                   //  67-74  DATA DA MULTA
-                     PadLeft(OnlyNumber(FloatToStr(CalcularPadraoMulta(ACBrTitulo))), 15, '0') +                                                                  //  75-89  VALOR/PERCENTUAL MULTA
+
+                   PadLeft(OnlyNumber(IfThen(MultaValorFixo,FloatToIntStr(PercentualMulta,2),
+                                                            FloatToIntStr(PercentualMulta,1) + '0') )
+                                        , 15, '0') +                                                                  //  75-89  VALOR/PERCENTUAL MULTA
                    DupeString(' ', 10) +                                                                                                              //  90-99  INFORMAÇÃO DO BANCO PAGADOR
                    DupeString(' ', 40) +                                                                                                              // 100-139 MENSAGEM 3
                    DupeString(' ', 40);                                                                                                               // 140-179 MENSAGEM 4

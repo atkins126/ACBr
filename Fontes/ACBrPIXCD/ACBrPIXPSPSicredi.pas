@@ -45,7 +45,8 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrPIXCD, ACBrBase, ACBrOpenSSLUtils;
+  {$IFDEF RTL230_UP}ACBrBase,{$ENDIF RTL230_UP}
+  ACBrPIXCD, ACBrOpenSSLUtils;
 
 const
   cSicrediURLSandbox = 'https://api-pix-h.sicredi.com.br';
@@ -97,7 +98,7 @@ implementation
 
 uses
   synautil, synacode, DateUtils,
-  ACBrUtil.Strings, ACBrJSON;
+  ACBrUtil.Strings, ACBrJSON, ACBrPIXSchemasProblema;
 
 { TACBrPSPItau }
 

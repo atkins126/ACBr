@@ -6,7 +6,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 {                                                                              }
@@ -39,7 +39,7 @@ unit ACBrLibeSocialRespostas;
 interface
 
 uses
-  Classes, SysUtils, contnrs, ACBrLibResposta, ACBrLibeSocialConsts, ACBreSocial,
+  Classes, SysUtils, contnrs, ACBrLibResposta, ACBrLibConfig, ACBrLibeSocialConsts, ACBreSocial,
   pcnAuxiliar, pcesConversaoeSocial;
 
 type
@@ -101,6 +101,7 @@ type
     FDhRecepcao: TDateTime;
     FVersaoAplic: String;
     FProtocolo: String;
+    FPathNome: String;
     FItemOcorrencia: TObjectList;
 
   public
@@ -117,6 +118,7 @@ type
     property DhRecepcao: TDateTime read FDhRecepcao write FDhRecepcao;
     property VersaoAplic: String read FVersaoAplic write FVersaoAplic;
     property Protocolo: String read FProtocolo write FProtocolo;
+    property PathNome: String read FPathNome write FPathNome;
     property ItemOcorrencia: TObjectList read FItemOcorrencia;
 
   end;
@@ -250,6 +252,7 @@ type
   private
     FQtdeTotal : Integer;
     FDhUltimoEvento : TDateTime;
+    FPathNome: String;
     FItemIdent: TObjectList;
 
   public
@@ -261,6 +264,7 @@ type
   published
     property QtdeTotal: Integer read FQtdeTotal write FQtdeTotal;
     property DhUltimoEvento: TDateTime read FDhUltimoEvento write FDhUltimoEvento;
+    property PathNome: String read FPathNome write FPathNome;
     property ItemIdent: TObjectList read FItemIdent;
 
   end;
@@ -276,6 +280,7 @@ type
     FDhRecepcao: TDateTime;
     FVersaoAplic: String;
     FProtocolo: String;
+    FPathNome: String;
     FItemConsulta: TObjectList;
     FItemOcorrencia: TObjectList;
 
@@ -293,6 +298,7 @@ type
     property DhRecepcao: TDateTime read FDhRecepcao write FDhRecepcao;
     property VersaoAplic: String read FVersaoAplic write FVersaoAplic;
     property Protocolo: String read FProtocolo write FProtocolo;
+    property PathNome: String read FPathNome write FPathNome;
     property ItemConsulta: TObjectList read FItemConsulta;
     property ItemOcorrencia: TObjectList read FItemOcorrencia;
 
@@ -323,6 +329,7 @@ type
 
   TConsultaEventos = class(TPadraoeSocialResposta)
   private
+    FPathNome: String;
     FItem: TObjectList;
 
   public
@@ -332,6 +339,7 @@ type
     destructor Destroy; override;
 
   published
+    property PathNome: String read FPathNome write FPathNome;
     property Item: TObjectList read FItem;
 
   end;
@@ -355,9 +363,11 @@ var
   i: Integer;
   Item : TConsultaIdentEvento;
 begin
+  PathNome := ACBreSocial.WebServices.DownloadEventos.PathNome;
+
   for i := 0 to ACBreSocial.WebServices.ConsultaLote.RetConsultaLote.Status.Ocorrencias.Count - 1 do
   begin
-    Item := TConsultaIdentEvento.Create(i+1, Tipo, Formato);
+    Item := TConsultaIdentEvento.Create(i+1, Tipo, Codificacao);
     Item.Processar(ACBreSocial, i);
     FItem.Add(Item);
 
@@ -474,12 +484,13 @@ begin
     DhRecepcao   := dadosRecLote.dhRecepcao;
     VersaoAplic  := dadosRecLote.versaoAplicRecepcao;
     Protocolo    := dadosRecLote.Protocolo;
+    PathNome     := ACBreSocial.WebServices.ConsultaLote.PathNome;
 
     if Status.cdResposta in [201, 202] then
     begin
       for i := 0 to ACBreSocial.WebServices.ConsultaLote.RetConsultaLote.RetEventos.Count - 1 do
       begin
-        ItemCons := TConsultaResposta.Create(i+1, Tipo, Formato);
+        ItemCons := TConsultaResposta.Create(i+1, Tipo, Codificacao);
         ItemCons.Processar(ACBreSocial, i);
         FItemConsulta.Add(ItemCons);
       end;
@@ -488,7 +499,7 @@ begin
     begin
       for i := 0 to ACBreSocial.WebServices.ConsultaLote.RetConsultaLote.Status.Ocorrencias.Count - 1 do
       begin
-        ItemOcor := TOcorrenciaConsultaLote.Create(i+1, Tipo, Formato);
+        ItemOcor := TOcorrenciaConsultaLote.Create(i+1, Tipo, Codificacao);
         ItemOcor.Processar(ACBreSocial, i);
         FItemOcorrencia.Add(ItemOcor);
       end;
@@ -539,10 +550,11 @@ begin
     Mensagem:= Status.descResposta;
     QtdeTotal:= RetIdentEvts.qtdeTotEvtsConsulta;
     DhUltimoEvento:= RetIdentEvts.dhUltimoEvtRetornado;
+    PathNome := ACBreSocial.WebServices.ConsultaIdentEventos.PathNome;
 
     for i := 0 to RetIdentEvts.Count - 1 do
     begin
-      ItemRec :=  TConsultaIdentRecibo.Create(i+1, Tipo, Formato);
+      ItemRec :=  TConsultaIdentRecibo.Create(i+1, Tipo, Codificacao);
       ItemRec.Processar(ACBreSocial, i);
       FItemIdent.Add(itemRec);
     end;
@@ -647,14 +659,14 @@ begin
 
     for i := 0 to Processamento.Ocorrencias.Count - 1 do
     begin
-      Item := TOcorrenciaConsulta.Create(i+1, Tipo, Formato);
+      Item := TOcorrenciaConsulta.Create(i+1, Tipo, Codificacao);
       Item.Processar(ACBreSocial, ACont, i);
       FItemOcorrenciaConsulta.Add(Item);
     end;
 
     for i := 0 to tot.Count - 1 do
     begin
-      ItemTot := TConsultaTotResposta.Create(i+1, Tipo, Formato);
+      ItemTot := TConsultaTotResposta.Create(i+1, Tipo, Codificacao);
       ItemTot.Processar(ACBreSocial, ACont, i);
       FItemTotais.Add(ItemTot);
     end;
@@ -726,11 +738,12 @@ begin
     DhRecepcao   := dadosRecLote.dhRecepcao;
     VersaoAplic  := dadosRecLote.versaoAplicRecepcao;
     Protocolo    := dadosRecLote.Protocolo;
-
+    PathNome     := ACBreSocial.WebServices.EnvioLote.PathNome;
   end;
+
   for i := 0 to ACBreSocial.WebServices.EnvioLote.RetEnvioLote.Status.Ocorrencias.Count - 1 do
   begin
-    Item := TOcorrenciaResposta.Create(i+1, Tipo, Formato);
+    Item := TOcorrenciaResposta.Create(i+1, Tipo, Codificacao);
     Item.Processar(ACBreSocial, i);
     FItemOcorrencia.Add(Item);
   end;

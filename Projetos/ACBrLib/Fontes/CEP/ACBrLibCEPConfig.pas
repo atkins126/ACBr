@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Jurisato Junior                           }
 {                                                                              }
@@ -38,7 +38,7 @@ interface
 
 uses
   Classes, SysUtils, IniFiles, SynaChar,
-  ACBrLibConfig, ACBrCEP;
+  ACBrLibConfig, ACBrCEP, blcksock;
 
 type
 
@@ -50,6 +50,7 @@ type
     FSenha: String;
     FUsuario: String;
     FWebService: TACBrCEPWebService;
+    FSSLType: TSSLType;
 
   public
     constructor Create;
@@ -62,6 +63,7 @@ type
     property Usuario: String read FUsuario write FUsuario;
     property Senha: String read FSenha write FSenha;
     property PesquisarIBGE: Boolean read FPesquisarIBGE write FPesquisarIBGE; // Válido somente para wsCorreios e TACBrWSCorreiosSIGEP
+    property SSLType: TSSLType read FSSLType write FSSLType;
   end;
 
   { TLibCEPConfig }
@@ -89,7 +91,7 @@ type
 implementation
 
 uses
-  ACBrLibCEPBase, ACBrLibCEPConsts, ACBrLibConsts, ACBrLibComum, ACBrUtil.FilesIO;
+  ACBrLibCEPBase, ACBrLibCEPConsts, ACBrLibConsts, ACBrUtil.FilesIO;
 
 { TCEPConfig }
 
@@ -100,6 +102,7 @@ begin
   FUsuario       := '';
   FSenha         := '';
   FPesquisarIBGE := False;
+  FSSLType       := LT_all;
 end;
 
 destructor TCEPConfig.Destroy;
@@ -114,6 +117,7 @@ begin
   FUsuario       := AIni.ReadString(CSessaoCEP, CChaveUsuario, FUsuario);
   FSenha         := AIni.ReadString(CSessaoCEP, CChaveSenha, FSenha);
   FPesquisarIBGE := AIni.ReadBool(CSessaoCEP, CChavePesquisarIBGE, FPesquisarIBGE);
+  FSSLType       := TSSLType(AIni.ReadInteger(CSessaoCEP, CChaveSSLType, Integer(FSSLType)));
 end;
 
 procedure TCEPConfig.GravarIni(const AIni: TCustomIniFile);
@@ -123,6 +127,7 @@ begin
   AIni.WriteString(CSessaoCEP, CChaveUsuario, FUsuario);
   AIni.WriteString(CSessaoCEP, CChaveSenha, FSenha);
   AIni.WriteBool(CSessaoCEP, CChavePesquisarIBGE, FPesquisarIBGE);
+  AIni.WriteInteger(CSessaoCEP, CChaveSSLType, Integer(FSSLType));
 end;
 
 { TLibCEPConfig }

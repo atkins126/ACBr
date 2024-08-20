@@ -157,7 +157,9 @@ type
 
   TpIndConstr             = (iconNaoeConstrutora, iconEmpresaConstrutora);
 
-  TpIndDesFolha           = (idfNaoAplicavel, idfEmpresaenquadradanosArt7_9);
+  TpIndDesFolha           = (idfNaoAplicavel,
+                             idfEmpresaenquadradanosArt7_9,
+                             idfMunEnquadrado);
 
   TpIndOptRegEletron      = (iorNaooptou, iorOptoupeloregistro);
 
@@ -315,9 +317,9 @@ type
 
   type
 
-  tpCodIncFGTS            = (cdfNaoeBasedeCalculo, cdfBasedeCalculoFGTS, cdfBasedeCalculoFGTS13Sal, cdfBasedeCalculoFGTSRescisorio, cdfIncidenciadecisaoJudicialFGTSMensal, cdfIncidenciadecisaoJudicialFGTS13Sal, cdfIncidenciadecisaoJudicial);
+  tpCodIncFGTS            = (cdfNaoeBasedeCalculo, cdfBasedeCalculoFGTS, cdfBasedeCalculoFGTS13Sal, cdfBasedeCalculoFGTSRescisorio, cdfDescontoeConsignado, cdfIncidenciadecisaoJudicialFGTSMensal, cdfIncidenciadecisaoJudicialFGTS13Sal, cdfIncidenciadecisaoJudicial);
   const
-  tpCodIncFGTSArrayStrings: array[tpCodIncFGTS] of string = ( '00', '11', '12', '21', '91', '92', '93' );
+  tpCodIncFGTSArrayStrings: array[tpCodIncFGTS] of string = ( '00', '11', '12', '21', '31', '91', '92', '93' );
 
   type
 
@@ -376,7 +378,8 @@ type
   tpLocalAmb              = (laEstabProprioEmpregador, laEstabTerceiro, laPrestInstalacaoTerceiro);
 
   tpTpAcConv              = (tacAcordoColTrab, tacLegislacaoFederalEstadualMunicipalDistrital, tacConvencaoColTrab,
-                             tacSetencNormativa, tacConversaoLicenSaudeAcidTrabalho, tacOutrasVerbas, tacAntecipacaoDif);
+                             tacSetencNormativa, tacConversaoLicenSaudeAcidTrabalho, tacOutrasVerbas, tacAntecipacaoDif,
+                             tacDeclaracaoBaseCalcFGTSAntAoInicFGTSDigital, tacSentencJudicial, tacParcelasComplementares);
 
   tpIndSusp               = (siLiminarMandadoSeguranca, siDepositoJudicial, siDepositoAdministrativo, siAntecipacaoTutela, siLiminarMedidaCautelar,
                              siSentencaMandadoSegurancaFavoravelContribuinte, siSentencaAcaoOrdinariaFavContribuinteConfirmadaPeloTRF,
@@ -420,9 +423,9 @@ type
                              relSogro,
                              relAgregadoOutros);
 
-  tpTpRegTrab             = (trCLT, trEstatutario);
+  tpTpRegTrab             = (trNenhum, trCLT, trEstatutario);
 
-  tpTpRegPrev             = (rpRGPS, rpRPPS, rpRPPE);
+  tpTpRegPrev             = (rpNenhum, rpRGPS, rpRPPS, rpRPPE, rpSPSMFA);
 
   tpTpRegPrevFacultativo  = (rpfNenhum, rpfRGPS, rpfRPPS, rpfRPPE2);
 
@@ -510,7 +513,11 @@ type
   tpTpReint               = (trReintegracaoDecisaoJudicial, trReintegracaoAnistiaLegal, trReversaoServidorPublico, trReconducaoServidorPublico,
                              trReinclusoMilitar, trOutros);
 
-  tpIndSubstPatr          = (spVazio, spIntegralmenteSubstituida, spParcialmenteSubstituida);
+  tpIndSubstPatr          = (spVazio,
+                             spIntegralmenteSubstituida,
+                             spParcialmenteSubstituida,
+                             spAnexoI_MP1202,
+                             spAnexoII_MP1202);
 
   tpIdAquis               = (iaAquiProducaoProdutorRuralPessoaFisSegEspGeral, iaAquiProducaoProdutorRuralPessoaFisSegEspGeralEntPAA,
                              iaAquiProducaoProdutorRuralPessoaJurEntPAA, iaAquiProducaoProdutorRuralPessoaFisSegEspGeralProdIsenta,
@@ -521,16 +528,44 @@ type
 
   tpTpPgto                = (tpPgtoRemun1200, tpPgtoResc2299, tpPgtoResc2399, tpPgtoRemun1202, tpPgtoBenefPrev1207);
 
-  tpMotivosAfastamento    = (mtvAcidenteDoencaTrabalho, mtvAcidenteDoencaNaoTrabalho, mtvAfastLicencaRegimeProprioSemRemuneracao,
-                             mtvAposentadoriaInvalidez, mtvAcompanhamentoFamiliaEnfermo, mtvAfastamentoEmpregadoConCuradorFGTS,
-                             mtvAfastLicencaRegimeProprioComRemuneracao, mtvCarcere, mtvCargoEletivoCeletistasGeral,
-                             mtvCargoEletivoServidorPublico, mtvCessaoRequisicao, mtvGozoFeriasRecesso, mtvLicencaRemunerada,
-                             mtvLicencaMaternidade120Dias, mtvLicencaMaternidadeEmpresaCidada, mtvLicencaMaternidadeAbortoNaoCriminoso,
-                             mtvLicencaMaternidadeAdocaoGuardaJudicial, mtvLicencaNaoRemunerada, mtvMandatoEleitoralSemRemuneracao,
-                             mtvMandatoEleitoralComRemuneracao, mtvMandatoSindical, mtvMulherVitimaViolencia, mtvParticipacaoCNPS,
-                             mtvQualificacao, mtvRepresentanteSindical, mtvServicoMilitar, mtvSuspensaoDisciplinar, mtvServidorPublicoDisponibilidade,
-                             mtvLicencaMaternidade180Dias, mtvInatividadetrabalhadorAvulso90Dias, mtvLicencaMaternidadeAntecipacaoProrrogacao,
-                             mtvSuspensaoTemporariaContratoTrabalhoNosTermosMP936_2020, mtvImpedimentoConcorrenciaEscalaTrabalhoAvulso);
+  tpMotivosAfastamento    = ( mtvAcidenteDoencaTrabalho,                                  // 01
+                              mtvAcidenteDoencaNaoTrabalho,                               // 03
+                              mtvAfastLicencaRegimeProprioSemRemuneracao,                 // 05
+                              mtvAposentadoriaInvalidez,                                  // 06
+                              mtvAcompanhamentoFamiliaEnfermo,                            // 07
+                              mtvAfastamentoEmpregadoConCuradorFGTS,                      // 08
+                              mtvAfastLicencaRegimeProprioComRemuneracao,                 // 10
+                              mtvCarcere,                                                 // 11
+                              mtvCargoEletivoCeletistasGeral,                             // 12
+                              mtvCargoEletivoServidorPublico,                             // 13
+                              mtvCessaoRequisicao,                                        // 14
+                              mtvGozoFeriasRecesso,                                       // 15
+                              mtvLicencaRemunerada,                                       // 16
+                              mtvLicencaMaternidade120Dias,                               // 17
+                              mtvLicencaMaternidadeEmpresaCidada,                         // 18
+                              mtvLicencaMaternidadeAbortoNaoCriminoso,                    // 19
+                              mtvLicencaMaternidadeAdocaoGuardaJudicial,                  // 20
+                              mtvLicencaNaoRemunerada,                                    // 21
+                              mtvMandatoEleitoralSemRemuneracao,                          // 22
+                              mtvMandatoEleitoralComRemuneracao,                          // 23
+                              mtvMandatoSindical,                                         // 24
+                              mtvMulherVitimaViolencia,                                   // 25
+                              mtvParticipacaoCNPS,                                        // 26
+                              mtvQualificacao,                                            // 27
+                              mtvRepresentanteSindical,                                   // 28
+                              mtvServicoMilitar,                                          // 29
+                              mtvSuspensaoDisciplinar,                                    // 30
+                              mtvServidorPublicoDisponibilidade,                          // 31
+                              mtvLicencaMaternidade180Dias,                               // 33
+                              mtvInatividadetrabalhadorAvulso90Dias,                      // 34
+                              mtvLicencaMaternidadeAntecipacaoProrrogacao,                // 35
+                              mtvAfastamentoTemporarioMandatoCargoComissao,               // 36
+                              mtvSuspensaoTemporariaContratoTrabalhoNosTermosMP936_2020,  // 37
+                              mtvImpedimentoConcorrenciaEscalaTrabalhoAvulso,             // 38
+                              mtvSuspensaoPagamentoServidorNaoRecadastrado,               // 39
+                              mtvExercicioOutroOrgaoEmpregadoCedido,                      // 40
+                              mtvQualificacaoAfastamentoSuspencaoArt17_MP1116_2022,       // 41
+                              mtvQualificacaoAfastamentoSuspencaoArt19_MP1116_2022);      // 42
 
   tpTpAcidTransito        = (tpatAtropelamento, tpatColisao, tpatOutros, tpatNao);
 
@@ -591,7 +626,8 @@ type
   tpTmpParc               = (tpNaoeTempoParcial,
                              tpLimitado25HorasSemanais,
                              tpLimitado30HorasSemanais,
-                             tpLimitado26HorasSemanais);
+                             tpLimitado26HorasSemanais,
+                             tpNenhum);
 
   // ct00 não consta no manual mas consta no manual do desenvolvedor pg 85, é usado para zerar a base de teste.
   tpClassTrib             = (ct00, ct01, ct02, ct03, ct04, ct06, ct07, ct08, ct09, ct10, ct11,
@@ -600,8 +636,11 @@ type
   tpConsulta              = (tcEmpregador, tcTabela, tcTrabalhador);
 
   tpSimNaoFacultativo     = (snfNada, snfSim, snfNao);
+  tpSimFacultativo        = (sfNada, sfSim);
+
   const
   TSimNaoFacultativoString  : array[0..2] of string = ('', 'S','N');
+  TSimFacultativoString     : array[0..1] of string = ('', 'S');
 
   type
 
@@ -698,7 +737,7 @@ type
   end;
 
 const
-  TEventoString: array[0..52] of String =('evtInfoEmpregador', 'evtTabEstab',
+  TEventoString: array[0..53] of String =('evtInfoEmpregador', 'evtTabEstab',
                                           'evtTabRubrica', 'evtTabLotacao',
                                           'evtTabCargo', 'evtTabCarreira',
                                           'evtTabFuncao', 'evtTabHorTur',
@@ -724,7 +763,7 @@ const
                                           'evtCessao', 'evtCdBenAlt',
                                           'evtReativBen','evtCdBenTerm',
                                           'evtProcTrab', 'evtContProc',
-                                          'evtExcProcTrab');
+                                          'evtExcProcTrab', 'evtToxic');
 
   EventoStringNova: array[0..58] of String =
       ('evtInfoEmpregador', 'evtTabEstab', 'evtTabRubrica', 'evtTabLotacao', 'evtTabCargo', 'evtTabCarreira',
@@ -746,7 +785,7 @@ const
                                           751, 761, 771, 781, 901, 902, 903, 904);
 
 const
-  __ARRAY_MATRIX_EVENTO_INFO: array [1 .. 161] of TRecMatrixEventoInfo =
+  __ARRAY_MATRIX_EVENTO_INFO: array [1 .. 162] of TRecMatrixEventoInfo =
     (
     // Leiaute S-1.2.0
     (TipoEvento: teS1000                   ; TipoEventoString: 'S-1000'                    ; VersaoeSocial: veS01_02_00; Versao: 'vS1_02'; EventoString: 'evtInfoEmpregador'          ; Schema: schevtInfoEmpregador       ; StrEventoToTipoEvento: 'evtInfoEmpregador'          ; Observacao: ''),
@@ -769,6 +808,7 @@ const
     (TipoEvento: teS2206                   ; TipoEventoString: 'S-2206'                    ; VersaoeSocial: veS01_02_00; Versao: 'vS1_02'; EventoString: 'evtAltContratual'           ; Schema: schevtAltContratual        ; StrEventoToTipoEvento: 'evtAltContratual'           ; Observacao: ''),
     (TipoEvento: teS2210                   ; TipoEventoString: 'S-2210'                    ; VersaoeSocial: veS01_02_00; Versao: 'vS1_02'; EventoString: 'evtCAT'                     ; Schema: schevtCAT                  ; StrEventoToTipoEvento: 'evtCAT'                     ; Observacao: ''),
     (TipoEvento: teS2220                   ; TipoEventoString: 'S-2220'                    ; VersaoeSocial: veS01_02_00; Versao: 'vS1_02'; EventoString: 'evtMonit'                   ; Schema: schevtMonit                ; StrEventoToTipoEvento: 'evtMonit'                   ; Observacao: ''),
+    (TipoEvento: teS2221                   ; TipoEventoString: 'S-2221'                    ; VersaoeSocial: veS01_02_00; Versao: 'vS1_02'; EventoString: 'evtToxic'                   ; Schema: schevtToxic                ; StrEventoToTipoEvento: 'evtToxic'                   ; Observacao: ''),
     (TipoEvento: teS2230                   ; TipoEventoString: 'S-2230'                    ; VersaoeSocial: veS01_02_00; Versao: 'vS1_02'; EventoString: 'evtAfastTemp'               ; Schema: schevtAfastTemp            ; StrEventoToTipoEvento: 'evtAfastTemp'               ; Observacao: ''),
     (TipoEvento: teS2231                   ; TipoEventoString: 'S-2231'                    ; VersaoeSocial: veS01_02_00; Versao: 'vS1_02'; EventoString: 'evtCessao'                  ; Schema: schevtCessao               ; StrEventoToTipoEvento: 'evtCessao'                  ; Observacao: ''),
     (TipoEvento: teS2240                   ; TipoEventoString: 'S-2240'                    ; VersaoeSocial: veS01_02_00; Versao: 'vS1_02'; EventoString: 'evtExpRisco'                ; Schema: schevtExpRisco             ; StrEventoToTipoEvento: 'evtExpRisco'                ; Observacao: ''),
@@ -1134,6 +1174,9 @@ function eSStrToSimNao(var ok: boolean; const s: string): tpSimNao;
 function eSSimNaoFacultativoToStr(const t: tpSimNaoFacultativo ): string;
 function eSStrToSimNaoFacultativo(var ok: boolean; const s: string): tpSimNaoFacultativo;
 
+function eSSimFacultativoToStr(const t: tpSimFacultativo ): string;
+function eSStrToSimFacultativo(var ok: boolean; const s: string): tpSimFacultativo;
+
 function eSIniciatCATToStr(const t: tpIniciatCAT ): string;
 function eSStrToIniciatCAT(var ok: boolean; const s: string): tpIniciatCAT;
 
@@ -1336,13 +1379,14 @@ const
 
   TMotivoAlteracaoCargoFuncao: array[0..3] of string = ('1', '2', '3', '9');
 
-  TMotivoAfastamento: array[0..32] of string = ('01', '03', '05', '06', '07',
+  TMotivoAfastamento: array[1..38] of string = ('01', '03', '05', '06', '07',
                                                 '08', '10', '11', '12', '13',
                                                 '14', '15', '16', '17', '18',
                                                 '19', '20', '21', '22', '23',
                                                 '24', '25', '26', '27', '28',
                                                 '29', '30', '31', '33', '34',
-                                                '35', '37', '38');
+                                                '35', '36', '37', '38', '39',
+                                                '40', '41', '42');
 
   TGenericosString0_1 : array[0..1] of string = ('0','1' );
   TGenericosString0_2 : array[0..2] of string = ('0','1','2' );
@@ -1365,6 +1409,8 @@ const
   TGenericosStringA_E : array[0..4] of string = ('A','B','C','D','E');
 
   TGenericosStringA_G : array[0..6] of string = ('A','B','C','D','E','F','G');
+
+  TGenericosStringA_J : array[0..9] of string = ('A','B','C','D','E','F','G','H','I','J');
 
   TGenericosStringO_N : array[0..1] of string = ('O', 'N');
 
@@ -1505,7 +1551,7 @@ begin
      begin
       Result := schevtBenPrRP; // veS01_00_00
 
-       if (AVersaoeSocial <> veS01_00_00) then
+       if (AVersaoeSocial < veS01_00_00) then
         Result := schevtCdBenPrRP;
      end;
   else
@@ -1550,32 +1596,32 @@ end;
 
 function eStpPlanRPToStr(const t: tpPlanRP): string;
 begin
-  result := EnumeradoToStr2(t, [ '0', '1', '2', '3' ] );
+  result := EnumeradoToStr2(t, [ '-1', '0', '1', '2', '3' ] );
 end;
 
 function eSStrTotpPlanRP(var ok: Boolean; const s: string): tpPlanRP;
 begin
-  result := tpPlanRP( StrToEnumerado2(ok, s, [ '0', '1', '2', '3' ]) );
+  result := tpPlanRP( StrToEnumerado2(ok, s, [ '-1', '0', '1', '2', '3' ]) );
 end;
 
 function eSTpRegTrabToStr(const t: tpTpRegTrab ): string;
 begin
-  result := EnumeradoToStr2(t,TGenericosString1_2 );
+  result := EnumeradoToStr2(t,TGenericosString0_2 );
 end;
 
 function eSStrToTpRegTrab(var ok: boolean; const s: string): tpTpRegTrab;
 begin
-  result := tpTpRegTrab( StrToEnumerado2(ok , s, TGenericosString1_2 ) );
+  result := tpTpRegTrab( StrToEnumerado2(ok , s, TGenericosString0_2 ) );
 end;
 
 function eSTpRegPrevToStr(const t: tpTpRegPrev ): string;
 begin
-  result := EnumeradoToStr2(t,TGenericosString1_3 );
+  result := EnumeradoToStr2(t,TGenericosString0_3 );
 end;
 
 function eSStrTotpRegPrev(var ok: boolean; const s: string): tpTpRegPrev;
 begin
-  result := tpTpRegPrev( StrToEnumerado2(ok , s, TGenericosString1_3 ) );
+  result := tpTpRegPrev( StrToEnumerado2(ok , s, TGenericosString0_3 ) );
 end;
 
 function eSTpRegPrevFacultativoToStr(const t: tpTpRegPrevFacultativo ): string;
@@ -1670,12 +1716,12 @@ end;
 
 function eSTpContrToStr(const t: tpTpContr ): string;
 begin
-  result := EnumeradoToStr2(t,TGenericosString1_3 );
+  result := EnumeradoToStr2(t,TGenericosString1_4 );
 end;
 
 function eSStrToTpContr(var ok: boolean; const s: string): tpTpContr;
 begin
-  result := tpTpContr( StrToEnumerado2(ok , s, TGenericosString1_3 ) );
+  result := tpTpContr( StrToEnumerado2(ok , s, TGenericosString1_4 ) );
 end;
 
 function eSTpJornadaToStr(const t: tpTpJornada ): string;
@@ -1851,6 +1897,16 @@ begin
   result := tpSimNaoFacultativo( StrToEnumerado2(ok , s, TSimNaoFacultativoString ) );
 end;
 
+function eSSimFacultativoToStr(const t: tpSimFacultativo ): string;
+begin
+  result := EnumeradoToStr2(t,TSimFacultativoString );
+end;
+
+function eSStrToSimFacultativo(var ok: boolean; const s: string): tpSimFacultativo;
+begin
+  result := tpSimFacultativo( StrToEnumerado2(ok , s, TSimFacultativoString ) );
+end;
+
 function eStpTpInscAmbTabToStr(const t: tpTpInscAmbTab ): string;
 begin
   result := EnumeradoToStr2(t, tpTpInscAmbTabArrayStrings );
@@ -1893,12 +1949,12 @@ end;
 
 function eSIndDesFolhaToStr(const t:tpIndDesFolha ): string;
 begin
-  result := EnumeradoToStr2(t,TGenericosString0_1 );
+  result := EnumeradoToStr2(t,TGenericosString0_2 );
 end;
 
 function eSStrToIndDesFolha(var ok: boolean; const s: string): TpIndDesFolha;
 begin
-  result := TpIndDesFolha( StrToEnumerado2(ok , s, TGenericosString0_1 ) );
+  result := TpIndDesFolha( StrToEnumerado2(ok , s, TGenericosString0_2 ) );
 end;
 
 function eSIndOptRegEletronicoToStr(const t:TpIndOptRegEletron ): string;
@@ -2352,12 +2408,12 @@ end;
 
 function eSTpAcConvToStr(const t: tpTpAcConv): string;
 begin
-  result := EnumeradoToStr2(t, TGenericosStringA_G);
+  result := EnumeradoToStr2(t, TGenericosStringA_J);
 end;
 
 function eSStrToTpAcConv(var ok: Boolean; const s: string): tpTpAcConv;
 begin
-  result := tpTpAcConv( StrToEnumerado2(ok , s, TGenericosStringA_G ));
+  result := tpTpAcConv( StrToEnumerado2(ok , s, TGenericosStringA_J ));
 end;
 
 function eSTpNatEstagioToStr(const t: tpNatEstagio): string;
@@ -2593,16 +2649,16 @@ end;
 
 function tpTmpParcToStr(const t: tpTmpParc ): string;
 begin
-  result := EnumeradoToStr(t, ['0', '1', '2', '3'],
+  result := EnumeradoToStr(t, ['0', '1', '2', '3',''],
                            [tpNaoeTempoParcial, tpLimitado25HorasSemanais,
-                            tpLimitado30HorasSemanais, tpLimitado26HorasSemanais]);
+                            tpLimitado30HorasSemanais, tpLimitado26HorasSemanais, tpNenhum]);
 end;
 
 function StrTotpTmpParc(var ok: boolean; const s: string): tpTmpParc;
 begin
-  result := StrToEnumerado(ok, s, ['0', '1', '2', '3'],
+  result := StrToEnumerado(ok, s, ['0', '1', '2', '3', ''],
                            [tpNaoeTempoParcial, tpLimitado25HorasSemanais,
-                            tpLimitado30HorasSemanais, tpLimitado26HorasSemanais]);
+                            tpLimitado30HorasSemanais, tpLimitado26HorasSemanais, tpNenhum]);
 end;
 
 function tpClassTribToStr(const t: TpClassTrib ): string;
@@ -2691,7 +2747,10 @@ begin
   strSearchValue := EmptyStr;
 
   try
-    intLastPos := PosLast('Id="',s);
+    if PosLast('<Signature ', s) > 0 then
+      intLastPos := PosLast('Id="', Copy(s, 1, PosLast('<Signature ', s)))
+    else
+      intLastPos := PosLast('Id="', s);
 
     if intLastPos > 0 then
     begin

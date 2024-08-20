@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 {                                                                              }
@@ -38,7 +38,8 @@ interface
 
 uses
   Classes, SysUtils, contnrs,
-  ACBrLibResposta, pcnRetConsReciDFe;
+  ACBrLibResposta, ACBrLibConfig,
+  pcnRetConsReciDFe;
 
 type
   { TRetornoItemResposta }
@@ -54,6 +55,7 @@ type
     FcStat: Integer;
     FxMotivo: String;
     FXML: String;
+    FNomeArq: String;
 
   public
     constructor Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
@@ -71,6 +73,7 @@ type
     property cStat: Integer read FcStat write FcStat;
     property xMotivo: String read FxMotivo write FxMotivo;
     property XML: String read FXML write FXML;
+    property NomeArq: String read FNomeArq write FNomeArq;
 
   end;
 
@@ -215,7 +218,7 @@ begin
   begin
     for i := 0 to ProtDFe.Count - 1 do
     begin
-      Item := TRetornoItemResposta.Create(FPrefix + IntToStr(ExtrairNumeroChaveAcesso(ProtDFe.Items[i].chDFe)), Tipo, Formato);
+      Item := TRetornoItemResposta.Create(FPrefix + IntToStr(ExtrairNumeroChaveAcesso(ProtDFe.Items[i].chDFe)), Tipo, Codificacao);
       Item.Processar(ProtDFe.Items[i]);
       FItems.Add(Item);
     end;
@@ -258,7 +261,7 @@ begin
   begin
     for i := 0 to ProtDFe.Count - 1 do
     begin
-      Item := TRetornoItemResposta.Create(FPrefix + IntToStr(ExtrairNumeroChaveAcesso(ProtDFe.Items[i].chDFe)), Tipo, Formato);
+      Item := TRetornoItemResposta.Create(FPrefix + IntToStr(ExtrairNumeroChaveAcesso(ProtDFe.Items[i].chDFe)), Tipo, Codificacao);
       Item.Processar(ProtDFe.Items[i]);
       FItens.Add(Item);
     end;

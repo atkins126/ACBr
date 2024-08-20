@@ -35,7 +35,7 @@ unit ACBrMonitorConfig;
 interface
 
 uses
-  Classes, SysUtils, IniFiles, ACBrMonitorConsts, Graphics;
+  Classes, SysUtils, IniFiles, ACBrMonitorConsts, Graphics, ACBrUtil.FilesIO;
 
 type
 
@@ -159,7 +159,16 @@ type
     Proxy_User        : String;
     Proxy_Pass        : String;
     IBGEAcentos       : Boolean;
-    IBGEUTF8          : Boolean;
+  end;
+
+  TConsultaCNPJ = record
+    Provedor          : integer;
+    Usuario           : string;
+    Senha             : string;
+    Proxy_Host        : String;
+    Proxy_Port        : String;
+    Proxy_User        : String;
+    Proxy_Pass        : String;
   end;
 
   TTC = record
@@ -233,6 +242,7 @@ type
     MargemDir         : Double;
     MargemEsq         : Double;
     LarguraBobina     : Double;
+    ImprimeNNFFormatadoNFCe : Boolean;
   end;
 
   TDANFCeTipoPagto = record
@@ -355,6 +365,7 @@ type
     ImprimeContinuacaoDadosAdicionaisPrimeiraPagina: Boolean;
     ImprimirCampoFormaPagamento      : Integer;
     ImprimeXPedNitemPed              : boolean;
+    ImprimeNNFFormatadoNFe           : boolean;
   end;
 
   TDACTE = record
@@ -707,8 +718,9 @@ type
   end;
 
   TBoletoConfig = record
-    LogRegistro                : Boolean;
+    LogNivel                   : TNivelLog;
     PathGravarRegistro         : String;
+    NomeArquivoLog             : String;
     SSL                        : TBoletoSSL;
   end;
 
@@ -755,7 +767,11 @@ type
     ConsultarAposCancelar: Boolean;
     NomePrefeitura: string;
     CNPJPrefeitura: string;
+    NomeLongoNFSe : boolean;
   end;
+
+
+
 
   EDFeException = class(Exception);
   EDFeConfigException = class(EDFeException);
@@ -789,6 +805,7 @@ type
     FBoleto : TBOLETO;
     FFonteLinha: TFont;
     FNFSE: TNFSe;
+    FConsultaCNPJ :TConsultaCNPJ;
 
     FOnGravarConfig: TACBrOnGravarConfig;
     procedure DefinirValoresPadrao;
@@ -829,6 +846,7 @@ type
     property BOLETO : TBOLETO                read FBoleto;
     property FonteLinha: TFont               read FFonteLinha;
     property NFSE: TNFSe                     read FNFSE;
+    property ConsultaCNPJ :TConsultaCNPJ     read FConsultaCNPJ;
 
     property OnGravarConfig: TACBrOnGravarConfig read FOnGravarConfig write FOnGravarConfig;
   end;
@@ -989,8 +1007,19 @@ begin
       Ini.WriteString( CSecCEP, CKeyCEPProxy_Port, Proxy_Port );
       Ini.WriteString( CSecCEP, CKeyCEPProxy_User, Proxy_User );
       Ini.WriteBool( CSecCEP, CKeyCEPIBGEAcentos, IBGEAcentos );
-      Ini.WriteBool( CSecCEP, CKeyCEPIBGEUTF8, IBGEUTF8 );
       GravaINICrypt(Ini, CSecCEP, CKeyCEPProxy_Pass, Proxy_Pass, _C);
+    end;
+
+    with ConsultaCNPJ do
+    begin
+      ini.WriteInteger( CSecConsultaCNPJ,CKeyConsultaCNPJProvedor, Provedor);
+      GravaINICrypt(Ini,CSecConsultaCNPJ,CKeyConsultaCNPJUsuario , Usuario, _C);
+      GravaINICrypt(Ini,CSecConsultaCNPJ,CKeyConsultaCNPJSenha   , Senha  , _C);
+      Ini.WriteString( CSecConsultaCNPJ, CKeyCEPProxy_Host, Proxy_Host);
+      Ini.WriteString( CSecConsultaCNPJ, CKeyCEPProxy_Port, Proxy_Port );
+      Ini.WriteString( CSecConsultaCNPJ, CKeyCEPProxy_User, Proxy_User );
+      GravaINICrypt(Ini, CSecConsultaCNPJ, CKeyCEPProxy_Pass, Proxy_Pass, _C);
+
     end;
 
     with TC do
@@ -1185,6 +1214,7 @@ begin
       Ini.WriteFloat( CSecDANFCe,   CKeyDANFCeMargemDir      , MargemDir );
       Ini.WriteFloat( CSecDANFCe,   CKeyDANFCeMargemEsq      , MargemEsq );
       Ini.WriteFloat( CSecDANFCe,   CKeyDANFCeLarguraBobina  , LarguraBobina );
+      Ini.WriteBool(  CSecDANFCe,   CKeyDANFCEImprimeNNFFormatadoNFCe   , ImprimeNNFFormatadoNFCe );
     end;
 
     with DFE.Impressao.NFCe.Emissao.DANFCeTipoPagto do
@@ -1250,6 +1280,7 @@ begin
       Ini.WriteInteger (CSecDANFE, CKeyDANFEImprimeDescAcrescItemNFe     , ImprimeDescAcrescItemNFe);
       Ini.WriteBool( CSecDANFE,  CKeyDANFELogoEmCima                     , LogoEmCima );
       Ini.WriteBool( CSecDANFE, CKeyDANFEImprimeInscSuframa              , ImprimeInscSuframa);
+      Ini.WriteBool( CSecDANFE, CKeyDANFEImprimeNNFFormatadoNFe          , ImprimeNNFFormatadoNFe);
       Ini.WriteBool( CSecDANFE,  CKeyDANFEExpandirDadosAdicionaisAuto , ExpandirDadosAdicionaisAuto );
       Ini.WriteBool( CSecDANFE,  CKeyDANFEImprimeContinuacaoDadosAdicionaisPrimeiraPagina, ImprimeContinuacaoDadosAdicionaisPrimeiraPagina );
       Ini.WriteInteger (CSecDANFE, CKeyDANFEImprimirCampoFormaPagamento, ImprimirCampoFormaPagamento);
@@ -1547,8 +1578,9 @@ begin
 
     with BOLETO.WS.Config do
     begin
-      ini.WriteBool( CSecBOLETO, CKeyBOLETOLogRegistro, LogRegistro);
+      ini.WriteInteger( CSecBOLETO, CKeyBOLETOLogNivel, Integer(LogNivel));
       ini.WriteString( CSecBOLETO, CKeyBOLETOPathGravarRegistro, PathGravarRegistro);
+      ini.WriteString( CSecBOLETO, CKeyBOLETONomeArquivoLog, NomeArquivoLog);
     end;
 
     with BOLETO.WS.Config.SSL do
@@ -1589,6 +1621,8 @@ begin
       Ini.WriteBool( CSecNFSE, CKeyNFSeConsultarAposCancelar, ConsultarAposCancelar );
       Ini.WriteString( CSecNFSE, CKeyNFSeNomePrefeitura, NomePrefeitura );
       Ini.WriteString( CSecNFSE, CKeyNFSeCNPJPrefeitura, CNPJPrefeitura );
+      Ini.WriteBool( CSecNFSE, CKeyNFSeNomeLongoNFSe, NomeLongoNFSe );
+
     end;
 
     SL := TStringList.Create;
@@ -1771,9 +1805,20 @@ begin
       Proxy_Port                := Ini.ReadString( CSecCEP, CKeyCEPProxy_Port, Proxy_Port );
       Proxy_User                := Ini.ReadString( CSecCEP, CKeyCEPProxy_User, Proxy_User );
       IBGEAcentos               := Ini.ReadBool( CSecCEP, CKeyCEPIBGEAcentos, IBGEAcentos);
-      IBGEUTF8                  := Ini.ReadBool( CSecCEP, CKeyCEPIBGEUTF8, IBGEUTF8 );
       Proxy_Pass                := LeINICrypt(Ini, CSecCEP, CKeyCEPProxy_Pass, _C);
     end;
+
+    with ConsultaCNPJ do
+    begin
+      Provedor                  := Ini.ReadInteger( CSecConsultaCNPJ, CKeyConsultaCNPJProvedor, Provedor );
+      Usuario                   := LeINICrypt(Ini, CSecConsultaCNPJ, CKeyConsultaCNPJUsuario, _C );
+      Senha                     := LeINICrypt(Ini, CSecConsultaCNPJ, CKeyConsultaCNPJSenha, _C );
+      Proxy_Host                := Ini.ReadString( CSecCEP, CKeyCEPProxy_Host, Proxy_Host );
+      Proxy_Port                := Ini.ReadString( CSecCEP, CKeyCEPProxy_Port, Proxy_Port );
+      Proxy_User                := Ini.ReadString( CSecCEP, CKeyCEPProxy_User, Proxy_User );
+      Proxy_Pass                := LeINICrypt(Ini, CSecCEP, CKeyCEPProxy_Pass, _C);
+    end;
+
 
     with TC do
     begin
@@ -1947,6 +1992,7 @@ begin
       MargemDir                 :=  Ini.ReadFloat( CSecDANFCe,   CKeyDANFCEMargemDir,     MargemDir     );
       MargemEsq                 :=  Ini.ReadFloat( CSecDANFCe,   CKeyDANFCEMargemEsq,     MargemEsq     );
       LarguraBobina             :=  Ini.ReadFloat( CSecDANFCe,   CKeyDANFCeLarguraBobina, LarguraBobina );
+      ImprimeNNFFormatadoNFCe   :=  Ini.ReadBool( CSecDANFCE, CKeyDANFCEImprimeNNFFormatadoNFCe          , ImprimeNNFFormatadoNFCe);
     end;
 
     with DFE.Impressao.NFCe.Emissao.DANFCeTipoPagto do
@@ -2017,6 +2063,7 @@ begin
       ImprimeDescAcrescItemNFe   := Ini.ReadInteger( CSecDANFE, CKeyDANFEImprimeDescAcrescItemNFe        , ImprimeDescAcrescItemNFe );
       LogoEmCima                 := Ini.ReadBool( CSecDANFE,  CKeyDANFELogoEmCima                        , LogoEmCima );
       ImprimeInscSuframa         := Ini.ReadBool( CSecDANFE, CKeyDANFEImprimeInscSuframa                 , ImprimeInscSuframa);
+      ImprimeNNFFormatadoNFe     := Ini.ReadBool( CSecDANFE, CKeyDANFEImprimeNNFFormatadoNFe             , ImprimeNNFFormatadoNFe);
       ExpandirDadosAdicionaisAuto:= Ini.ReadBool( CSecDANFE,  CKeyDANFEExpandirDadosAdicionaisAuto      , ExpandirDadosAdicionaisAuto );
       ImprimeContinuacaoDadosAdicionaisPrimeiraPagina:= Ini.ReadBool( CSecDANFE,  CKeyDANFEImprimeContinuacaoDadosAdicionaisPrimeiraPagina,
                                                         ImprimeContinuacaoDadosAdicionaisPrimeiraPagina );
@@ -2334,8 +2381,9 @@ begin
 
     with BOLETO.WS.Config do
     begin
-      LogRegistro := ini.ReadBool( CSecBOLETO, CKeyBOLETOLogRegistro, LogRegistro);
+      LogNivel := TNivelLog(ini.ReadInteger( CSecBOLETO, CKeyBOLETOLogNivel, Integer(LogNivel)));
       PathGravarRegistro := ini.ReadString( CSecBOLETO, CKeyBOLETOPathGravarRegistro, PathGravarRegistro);
+      NomeArquivoLog := ini.ReadString( CSecBOLETO, CKeyBOLETONomeArquivoLog, NomeArquivoLog);
     end;
 
     with BOLETO.WS.Config.SSL do
@@ -2376,7 +2424,9 @@ begin
       ConsultarAposCancelar := ini.ReadBool( CSecBOLETO, CKeyNFSeConsultarAposCancelar, ConsultarAposCancelar);
       NomePrefeitura := ini.ReadString( CSecNFSE, CKeyNFSeNomePrefeitura, NomePrefeitura);
       CNPJPrefeitura := ini.ReadString( CSecNFSE, CKeyNFSeCNPJPrefeitura, CNPJPrefeitura);
+      NomeLongoNFSe  := ini.ReadBool( CSecNFSE, CKeyNFSeNomeLongoNFSe, NomeLongoNFSe);
     end;
+
   finally
     Ini.Free;
 
@@ -2536,7 +2586,17 @@ begin
     Proxy_User                := '';
     Proxy_Pass                := '';
     IBGEAcentos               := False;
-    IBGEUTF8                  := False;
+  end;
+
+  with ConsultaCNPJ do
+  begin
+    Provedor := 0;
+    Usuario:='';
+    Senha:='';
+    Proxy_Host                := '';
+    Proxy_Port                := '';
+    Proxy_User                := '';
+    Proxy_Pass                := '';
   end;
 
   with TC do
@@ -2627,7 +2687,7 @@ begin
   with DFe.WebService do
   begin
     Versao                    := '4.00';
-    VersaoCTe                 := '3.00';
+    VersaoCTe                 := '4.00';
     VersaoMDFe                := '3.00';
     VersaoeSocial             := 'S01_00_00';
     VersaoReinf               := '1_03_02';
@@ -2709,6 +2769,7 @@ begin
     MargemDir                 :=  0.51;
     MargemEsq                 :=  0.6;
     LarguraBobina             :=  302;
+    ImprimeNNFFormatadoNFCe    := True;
   end;
 
   with DFE.Impressao.NFCe.Emissao.DANFCeTipoPagto do
@@ -2772,6 +2833,7 @@ begin
     ImprimirCampoFormaPagamento:= 0;
     LogoEmCima                 := False;
     ImprimeInscSuframa         := True;
+    ImprimeNNFFormatadoNFe     := True;
     ExpandirDadosAdicionaisAuto := False;
     ImprimeContinuacaoDadosAdicionaisPrimeiraPagina:= False;
     ImprimeXPedNitemPed        := False;
@@ -3083,8 +3145,9 @@ begin
 
   with BOLETO.WS.Config do
   begin
-    LogRegistro := True;
+    LogNivel:= logNenhum;
     PathGravarRegistro := '';
+    NomeArquivoLog := '';
   end;
 
   with BOLETO.WS.Config.SSL do
@@ -3125,8 +3188,8 @@ begin
     ConsultarAposCancelar := True;
     NomePrefeitura := '';
     CNPJPrefeitura := '';
+    NomeLongoNFSe := True;
   end;
-
 end;
 
 procedure TMonitorConfig.ValidarNomeCaminho(Salvar: Boolean);

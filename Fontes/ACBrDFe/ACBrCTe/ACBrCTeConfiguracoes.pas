@@ -62,7 +62,7 @@ type
   published
     property ModeloDF: TModeloCTe read FModeloDF write SetModeloDF default moCTe;
     property ModeloDFCodigo: integer read FModeloDFCodigo;
-    property VersaoDF: TVersaoCTe read FVersaoDF write SetVersaoDF default ve300;
+    property VersaoDF: TVersaoCTe read FVersaoDF write SetVersaoDF default ve400;
   end;
 
   { TArquivosConfCTe }
@@ -178,7 +178,7 @@ begin
 
   FModeloDF := moCTe;
   FModeloDFCodigo := StrToInt(ModeloCTeToStr(FModeloDF));
-  FVersaoDF := ve300;
+  FVersaoDF := ve400;
 end;
 
 procedure TGeralConfCTe.GravarIni(const AIni: TCustomIniFile);
@@ -267,7 +267,7 @@ end;
 
 function TArquivosConfCTe.GetPathInu(Data: TDateTime = 0; const CNPJ: String = ''; const IE: String = ''): String;
 begin
-  Result := GetPath(FPathInu, 'Inu', CNPJ, IE);
+  Result := GetPath(FPathInu, 'Inu', CNPJ, IE, Data);
 end;
 
 function TArquivosConfCTe.GetPathEvento(tipoEvento: TpcnTpEvento;

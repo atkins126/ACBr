@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: José M. S. Junior                               }
 {                                                                              }
@@ -38,7 +38,9 @@ unit ACBrLibBoletoBase;
 interface
 
 uses
-  Classes, SysUtils, Forms, ACBrLibComum, ACBrLibBoletoDataModule, ACBrBoletoConversao;
+  Classes, SysUtils,
+  ACBrLibComum,
+  ACBrLibBoletoDataModule, ACBrBoletoConversao;
 
 type
 
@@ -63,45 +65,49 @@ type
 
     property BoletoDM: TLibBoletoDM read FBoletoDM;
 
-    function ConfigurarDados(eArquivoIni: PChar): longint;
-    function IncluirTitulos(eArquivoIni, eTpSaida: PChar): longint;
-    function LimparLista: longint;
-    function TotalTitulosLista: longint;
-    function Imprimir(eNomeImpressora: PChar): longint;
-    function ImprimirBoleto(eIndice: longint; eNomeImpressora: PChar): longint;
-    function GerarPDF: longint;
-    function SalvarPDF(const sResposta: PChar; var esTamanho: longint): longint;
-    function GerarPDFBoleto(eIndice: longint): longint;
-    function SalvarPDFBoleto(eIndice: longint; const sResposta: PChar; var esTamanho: longint): longint;
-    function GerarHTML: longint;
-    function GerarRemessa(eDir: PChar; eNumArquivo: longInt; eNomeArq: PChar): longint;
-    function LerRetorno(eDir, eNomeArq: PChar): longint;
-    function ObterRetorno(eDir, eNomeArq: PChar; const sResposta: PChar; var esTamanho: longint): longint;
-    function EnviarEmail(ePara, eAssunto, eMensagem, eCC: PChar): longint;
-    function EnviarEmailBoleto(eIndice: longint; ePara, eAssunto, eMensagem, eCC: PChar): longint;
-    function SetDiretorioArquivo(eDir, eArq: PChar): longint;
-    function ListaBancos(const sResposta: PChar; var esTamanho: longint): longint;
-    function ListaCaractTitulo(const sResposta: PChar; var esTamanho: longint): longint;
-    function ListaOcorrencias(const sResposta: PChar; var esTamanho: longint): longint;
-    function ListaOcorrenciasEX(const sResposta: PChar; var esTamanho: longint): longint;
-    function TamNossoNumero(eCarteira, enossoNumero, eConvenio: PChar): longint;
-    function CodigosMoraAceitos(const sResposta: PChar; var esTamanho: longint): longint;
-    function SelecionaBanco(eCodBanco: PChar): longint;
-    function MontarNossoNumero(eIndice: longint; const sResposta: PChar; var esTamanho: longint): longint;
-    function RetornaLinhaDigitavel(eIndice: longint; const sResposta: PChar; var esTamanho: longint): longint;
-    function RetornaCodigoBarras(eIndice: longint; const sResposta: PChar; var esTamanho: longint): longint;
-    function EnviarBoleto(eCodigoOperacao: longint; const sResposta: PChar; var esTamanho: longint): longint;
-    function ConsultarTitulosPorPeriodo(eArquivoIni: PChar; const sResposta: PChar; var esTamanho: longint): longint;
+    function ConfigurarDados(eArquivoIni: PAnsiChar): Integer;
+    function IncluirTitulos(eArquivoIni, eTpSaida: PAnsiChar): Integer;
+    function LimparLista: Integer;
+    function TotalTitulosLista: Integer;
+    function Imprimir(eNomeImpressora: PAnsiChar): Integer;
+    function ImprimirBoleto(eIndice: Integer; eNomeImpressora: PAnsiChar): Integer;
+    function GerarPDF: Integer;
+    function SalvarPDF(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function GerarPDFBoleto(eIndice: Integer): Integer;
+    function SalvarPDFBoleto(eIndice: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function GerarHTML: Integer;
+    function GerarRemessa(eDir: PAnsiChar; eNumArquivo: Integer; eNomeArq: PAnsiChar): Integer;
+    function GerarRemessaStream(eNumArquivo: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function LerRetorno(eDir, eNomeArq: PAnsiChar): Integer;
+    function LerRetornoStream(const ARetornoBase64: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function ObterRetorno(eDir, eNomeArq: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function EnviarEmail(ePara, eAssunto, eMensagem, eCC: PAnsiChar): Integer;
+    function EnviarEmailBoleto(eIndice: Integer; ePara, eAssunto, eMensagem, eCC: PAnsiChar): Integer;
+    function SetDiretorioArquivo(eDir, eArq: PAnsiChar): Integer;
+    function ListaBancos(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function ListaCaractTitulo(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function ListaOcorrencias(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function ListaOcorrenciasEX(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function TamNossoNumero(eCarteira, enossoNumero, eConvenio: PAnsiChar): Integer;
+    function CodigosMoraAceitos(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function SelecionaBanco(eCodBanco: PAnsiChar): Integer;
+    function MontarNossoNumero(eIndice: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function RetornaLinhaDigitavel(eIndice: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function RetornaCodigoBarras(eIndice: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function EnviarBoleto(eCodigoOperacao: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function ConsultarTitulosPorPeriodo(eArquivoIni: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 
   end;
 
 implementation
 
 uses
-  ACBrLibConsts, ACBrLibBoletoConsts, ACBrLibConfig, strutils, typinfo,
+  strutils, typinfo,
+  synacode,
   ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings,
-  ACBrLibResposta, ACBrBoleto, ACBrLibBoletoConfig, ACBrMail,
-  ACBrLibBoletoRespostas, ACBrObjectSerializer;
+  ACBrMail, ACBrBoleto,
+  ACBrLibConsts, ACBrLibBoletoConsts, ACBrLibConfig,
+  ACBrLibResposta, ACBrLibBoletoConfig, ACBrLibBoletoRespostas;
   
 constructor TACBrLibBoleto.Create(ArqConfig: string; ChaveCrypt: ansistring);
 begin
@@ -137,12 +143,12 @@ begin
   end;
 end;
 
-function TACBrLibBoleto.ConfigurarDados(eArquivoIni: PChar): longint;
+function TACBrLibBoleto.ConfigurarDados(eArquivoIni: PAnsiChar): Integer;
 var
   ArquivoIni: AnsiString;
 begin
   try
-    ArquivoIni := ConverterAnsiParaUTF8(eArquivoIni);
+    ArquivoIni := ConverterStringEntrada(eArquivoIni);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('Boleto_ConfigurarDados(' + ArquivoIni + ' )', logCompleto, True)
@@ -169,20 +175,20 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.IncluirTitulos(eArquivoIni, eTpSaida: PChar): longint;
+function TACBrLibBoleto.IncluirTitulos(eArquivoIni, eTpSaida: PAnsiChar): Integer;
 var
   ArquivoIni, TpSaida : AnsiString;
   Mensagem : TStringList;
 begin
   try
-    ArquivoIni := ConverterAnsiParaUTF8(eArquivoIni);
-    TpSaida := ConverterAnsiParaUTF8(eTpSaida);
+    ArquivoIni := ConverterStringEntrada(eArquivoIni);
+    TpSaida := ConverterStringEntrada(eTpSaida);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('Boleto_IncluirTitulos(' + ArquivoIni + ', ' + TpSaida + ' )', logCompleto, True)
@@ -247,13 +253,13 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.LimparLista: longint;  
+function TACBrLibBoleto.LimparLista: Integer;  
 begin
   try
     GravarLog('Boleto_LimparLista', logNormal);
@@ -267,14 +273,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.TotalTitulosLista: longint;
+function TACBrLibBoleto.TotalTitulosLista: Integer;
 var
   Resposta: AnsiString;
 begin
@@ -289,19 +295,19 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.Imprimir(eNomeImpressora: PChar): longint;  
+function TACBrLibBoleto.Imprimir(eNomeImpressora: PAnsiChar): Integer;  
 var
   NomeImpressora : AnsiString;
 begin
   try
-    NomeImpressora := ConverterAnsiParaUTF8(eNomeImpressora);
+    NomeImpressora := ConverterStringEntrada(eNomeImpressora);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('Boleto_Imprimir(' + NomeImpressora + ' )', logCompleto, True)
@@ -319,19 +325,19 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.ImprimirBoleto(eIndice: longint; eNomeImpressora: PChar): longint;  
+function TACBrLibBoleto.ImprimirBoleto(eIndice: Integer; eNomeImpressora: PAnsiChar): Integer;  
 var
   NomeImpressora : AnsiString;
 begin
   try
-    NomeImpressora := ConverterAnsiParaUTF8(eNomeImpressora);
+    NomeImpressora := ConverterStringEntrada(eNomeImpressora);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('Boleto_ImprimirBoleto(' + IntToStr(eIndice) + ', ' + NomeImpressora + ' )', logCompleto, True)
@@ -349,14 +355,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.GerarPDF: longint;  
+function TACBrLibBoleto.GerarPDF: Integer;  
 begin
   try
     GravarLog('Boleto_GerarPDF', logNormal);
@@ -372,14 +378,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.SalvarPDF(const sResposta: PChar; var esTamanho: longint): longint;
+function TACBrLibBoleto.SalvarPDF(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 Var
   AStream: TMemoryStream;
   Resposta: Ansistring;
@@ -405,14 +411,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.GerarPDFBoleto(eIndice: longint): longint;
+function TACBrLibBoleto.GerarPDFBoleto(eIndice: Integer): Integer;
 begin
   try
       if Config.Log.Nivel > logNormal then
@@ -431,14 +437,14 @@ begin
       end;
     except
       on E: EACBrLibException do
-        Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+        Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
       on E: Exception do
-        Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+        Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
     end;
 end;
 
-function TACBrLibBoleto.SalvarPDFBoleto(eIndice: longint; const sResposta: PChar; var esTamanho: longint): longint;
+function TACBrLibBoleto.SalvarPDFBoleto(eIndice: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 Var
   AStream: TMemoryStream;
   Resposta: Ansistring;
@@ -466,14 +472,14 @@ begin
       end;
     except
       on E: EACBrLibException do
-        Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+        Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
       on E: Exception do
-        Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+        Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
     end;
 end;
 
-function TACBrLibBoleto.GerarHTML: longint;  
+function TACBrLibBoleto.GerarHTML: Integer;  
 begin
   try
     GravarLog('Boleto_GerarHTML', logNormal);
@@ -489,22 +495,22 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.GerarRemessa(eDir: PChar; eNumArquivo: longInt; eNomeArq: PChar): longint;  
+function TACBrLibBoleto.GerarRemessa(eDir: PAnsiChar; eNumArquivo: Integer; eNomeArq: PAnsiChar): Integer;  
 var
   Dir, NomeArq: AnsiString;
   NumArquivo: Integer;
 begin
   try
-    Dir := ConverterAnsiParaUTF8(eDir);
+    Dir := ConverterStringEntrada(eDir);
     NumArquivo:= StrToIntDef(IntToStr(eNumArquivo ), 0);
-    NomeArq:= ConverterAnsiParaUTF8(eNomeArq);
+    NomeArq:= ConverterStringEntrada(eNomeArq);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('Boleto_GerarRemessa(' + Dir + ', ' + IntToStr(NumArquivo) + ', ' + NomeArq + ' )', logCompleto, True)
@@ -525,20 +531,56 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.LerRetorno(eDir, eNomeArq: PChar): longint;  
+function TACBrLibBoleto.GerarRemessaStream(eNumArquivo: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+var
+  NumArquivo: Integer;
+  AStream: TMemoryStream;
+  Resposta: Ansistring;
+begin
+  try
+    NumArquivo:= StrToIntDef(IntToStr(eNumArquivo ), 0);
+
+    if Config.Log.Nivel > logNormal then
+      GravarLog('Boleto_GerarRemessaStream(' + IntToStr(NumArquivo) + ' )', logCompleto, True)
+    else
+      GravarLog('Boleto_GerarRemessaStream', logNormal);
+
+    AStream := TMemoryStream.Create;
+    BoletoDM.Travar;
+
+    try
+      BoletoDM.ACBrBoleto1.GerarRemessaStream( NumArquivo, AStream );
+      Resposta := StreamToBase64(AStream);
+
+      MoverStringParaPChar(Resposta, sResposta, esTamanho);
+      Result := SetRetorno(ErrOK, Resposta);
+    finally
+      AStream.Free;
+      BoletoDM.Destravar;
+    end;
+  except
+    on E: EACBrLibException do
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
+
+    on E: Exception do
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
+  end;
+end;
+
+function TACBrLibBoleto.LerRetorno(eDir, eNomeArq: PAnsiChar): Integer;  
 var
   Dir, NomeArq: AnsiString;
 begin
   try
-    Dir := ConverterAnsiParaUTF8(eDir);
-    NomeArq:= ConverterAnsiParaUTF8(eNomeArq);
+    Dir := ConverterStringEntrada(eDir);
+    NomeArq:= ConverterStringEntrada(eNomeArq);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('Boleto_LerRetorno(' + Dir + ', ' + NomeArq + ' )', logCompleto, True)
@@ -560,22 +602,56 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.ObterRetorno(eDir, eNomeArq: PChar; const sResposta: PChar; var esTamanho: longint): longint;
+function TACBrLibBoleto.LerRetornoStream(const ARetornoBase64: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+var
+  Stream: TStringStream;
+  Base64, Resposta : Ansistring;
+begin
+  try
+    GravarLog('Boleto_LerRetornoStream', logNormal);
+    Base64 := ACBrUTF8ToAnsi(DecodeBase64(ARetornoBase64));
+    Stream := TStringStream.Create(Base64);
+    try
+      BoletoDM.Travar;
+      try
+        BoletoDM.ACBrBoleto1.LerRetorno(Stream);
+
+        Resposta := ACBrUTF8ToAnsi(BoletoDM.ACBrBoleto1.GravarArqIni('','',False));
+        Resposta := EncodeBase64(Resposta);
+
+        MoverStringParaPChar (Resposta, sResposta, esTamanho);
+        Result := SetRetorno(ErrOK, Resposta);
+      finally
+        BoletoDM.Destravar;
+      end;
+    finally
+      Stream.Free;
+    end;
+  except
+    on E: EACBrLibException do
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
+
+    on E: Exception do
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
+  end;
+end;
+
+function TACBrLibBoleto.ObterRetorno(eDir, eNomeArq: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   Dir, NomeArq: AnsiString;
   Resposta: AnsiString;
   RespRetorno : TRetornoBoleto;
 begin
   try
-    Dir := ConverterAnsiParaUTF8(eDir);
-    NomeArq:= ConverterAnsiParaUTF8(eNomeArq);
+    Dir := ConverterStringEntrada(eDir);
+    NomeArq:= ConverterStringEntrada(eNomeArq);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('Boleto_ObterRetorno(' + eDir + ', ' + eNomeArq + ')', logCompleto, True)
@@ -599,7 +675,6 @@ begin
         RespRetorno.Free;
       end;
 
-      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
       MoverStringParaPChar(Resposta, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Resposta);
 
@@ -608,24 +683,24 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 
 end;
 
-function TACBrLibBoleto.EnviarEmail(ePara, eAssunto, eMensagem, eCC: PChar): longint;  
+function TACBrLibBoleto.EnviarEmail(ePara, eAssunto, eMensagem, eCC: PAnsiChar): Integer;  
 var
   Para, Assunto, Mensagem, CC: AnsiString;
   slMensagem, slCC: TStrings;
 begin
   try
-    Para := ConverterAnsiParaUTF8(ePara);
-    Assunto := ConverterAnsiParaUTF8(eAssunto);
-    Mensagem := ConverterAnsiParaUTF8(eMensagem);
-    CC := ConverterAnsiParaUTF8(eCC);
+    Para := ConverterStringEntrada(ePara);
+    Assunto := ConverterStringEntrada(eAssunto);
+    Mensagem := ConverterStringEntrada(eMensagem);
+    CC := ConverterStringEntrada(eCC);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('Boleto_EnviarEmail(' + Para + ', ' + Assunto + ', ' + Mensagem + ', ' + CC +')', logCompleto, True)
@@ -655,23 +730,23 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.EnviarEmailBoleto(eIndice: longint; ePara, eAssunto, eMensagem, eCC: PChar): longint;
+function TACBrLibBoleto.EnviarEmailBoleto(eIndice: Integer; ePara, eAssunto, eMensagem, eCC: PAnsiChar): Integer;
 var
   Para, Assunto, Mensagem, CC: AnsiString;
   slMensagem, slCC: TStrings;
 begin
   try
-    Para := ConverterAnsiParaUTF8(ePara);
-    Assunto := ConverterAnsiParaUTF8(eAssunto);
-    Mensagem := ConverterAnsiParaUTF8(eMensagem);
-    CC := ConverterAnsiParaUTF8(eCC);
+    Para := ConverterStringEntrada(ePara);
+    Assunto := ConverterStringEntrada(eAssunto);
+    Mensagem := ConverterStringEntrada(eMensagem);
+    CC := ConverterStringEntrada(eCC);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('Boleto_EnviarEmailBoleto(' + IntToStr(eIndice) + ', ' + Para + ', ' + Assunto
@@ -705,20 +780,20 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.SetDiretorioArquivo(eDir, eArq: PChar): longint;
+function TACBrLibBoleto.SetDiretorioArquivo(eDir, eArq: PAnsiChar): Integer;
 var
   Dir, Arq : AnsiString;
 begin
    try
-     Dir := ConverterAnsiParaUTF8(eDir);
-     Arq := ConverterAnsiParaUTF8(eArq);
+     Dir := ConverterStringEntrada(eDir);
+     Arq := ConverterStringEntrada(eArq);
 
      if Config.Log.Nivel > logNormal then
        GravarLog('Boleto_SetDiretorioArquivo(' + Dir + ', ' + Arq + ' )', logCompleto, True)
@@ -743,13 +818,13 @@ begin
      end;
    except
      on E: EACBrLibException do
-       Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+       Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
      on E: Exception do
-       Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+       Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
    end;
 end;
 
-function TACBrLibBoleto.ListaBancos(const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibBoleto.ListaBancos(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;  
 var
    Resposta : AnsiString;
 begin
@@ -759,8 +834,7 @@ begin
     BoletoDM.Travar;
     try
       Resposta := '';
-      Resposta := ListaBancos;
-      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+      Resposta := ConverterStringSaida(ListaBancos);
       MoverStringParaPChar(Resposta, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Resposta);
     finally
@@ -768,13 +842,13 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.ListaCaractTitulo(const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibBoleto.ListaCaractTitulo(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;  
 var
    Resposta : AnsiString;
 begin
@@ -784,8 +858,7 @@ begin
     BoletoDM.Travar;
     try
       Resposta := '';
-      Resposta := ListaCaractTitulo();
-      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+      Resposta := ConverterStringSaida(ListaCaractTitulo());
       MoverStringParaPChar(Resposta, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Resposta);
     finally
@@ -793,13 +866,13 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.ListaOcorrencias(const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibBoleto.ListaOcorrencias(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;  
 var
    Resposta : AnsiString;
 begin
@@ -809,8 +882,7 @@ begin
     BoletoDM.Travar;
     try
       Resposta := '';
-      Resposta := ListaOcorrencias();
-      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+      Resposta := ConverterStringSaida(ListaOcorrencias());
       MoverStringParaPChar(Resposta, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Resposta);
     finally
@@ -818,13 +890,13 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.ListaOcorrenciasEX(const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibBoleto.ListaOcorrenciasEX(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;  
 var
    Resposta : AnsiString;
 begin
@@ -834,8 +906,7 @@ begin
     BoletoDM.Travar;
     try
       Resposta := '';
-      Resposta := ListaOcorrenciasEX();
-      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+      Resposta := ConverterStringSaida(ListaOcorrenciasEX());
       MoverStringParaPChar(Resposta, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Resposta);
     finally
@@ -843,20 +914,20 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.TamNossoNumero(eCarteira, enossoNumero, eConvenio: PChar): longint;
+function TACBrLibBoleto.TamNossoNumero(eCarteira, enossoNumero, eConvenio: PAnsiChar): Integer;
 var
    Carteira, NossoNumero, Convenio : AnsiString;
 begin
   try
-    Carteira := ConverterAnsiParaUTF8(eCarteira);
-    NossoNumero:= ConverterAnsiParaUTF8(enossoNumero);
-    Convenio:= ConverterAnsiParaUTF8(eConvenio);
+    Carteira := ConverterStringEntrada(eCarteira);
+    NossoNumero:= ConverterStringEntrada(enossoNumero);
+    Convenio:= ConverterStringEntrada(eConvenio);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('Boleto_TamNossoNumero(' + eCarteira + ', ' + enossoNumero + ', ' +  eConvenio + ')', logCompleto, True)
@@ -871,13 +942,13 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.CodigosMoraAceitos(const sResposta: PChar; var esTamanho: longint): longint;  
+function TACBrLibBoleto.CodigosMoraAceitos(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;  
 var
   Resposta : AnsiString;
 begin
@@ -887,8 +958,7 @@ begin
     BoletoDM.Travar;
     try
       Resposta := '';
-      Resposta := BoletoDM.ACBrBoleto1.Banco.CodigosMoraAceitos;
-      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+      Resposta := ConverterStringSaida(BoletoDM.ACBrBoleto1.Banco.CodigosMoraAceitos);
       MoverStringParaPChar(Resposta, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Resposta);
     finally
@@ -896,18 +966,18 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.SelecionaBanco(eCodBanco: PChar): longint;
+function TACBrLibBoleto.SelecionaBanco(eCodBanco: PAnsiChar): Integer;
 var
    CodBanco : AnsiString;
 begin
   try
-    CodBanco := ConverterAnsiParaUTF8(eCodBanco);
+    CodBanco := ConverterStringEntrada(eCodBanco);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('Boleto_SelecionaBanco(' + eCodBanco + ' )', logCompleto, True)
@@ -924,13 +994,13 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.MontarNossoNumero(eIndice: longint; const sResposta: PChar; var esTamanho: longint): longint;
+function TACBrLibBoleto.MontarNossoNumero(eIndice: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
    Resposta : AnsiString;
    Indice : Integer;
@@ -951,8 +1021,8 @@ begin
     BoletoDM.Travar;
     try
       Resposta := '';
-      Resposta := BoletoDM.ACBrBoleto1.Banco.MontarCampoNossoNumero(BoletoDM.ACBrBoleto1.ListadeBoletos[Indice]);
-      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+      Resposta := ConverterStringSaida(
+        BoletoDM.ACBrBoleto1.Banco.MontarCampoNossoNumero(BoletoDM.ACBrBoleto1.ListadeBoletos[Indice]) );
       MoverStringParaPChar(Resposta, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Resposta);
     finally
@@ -960,13 +1030,13 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.RetornaLinhaDigitavel(eIndice: longint; const sResposta: PChar; var esTamanho: longint): longint;
+function TACBrLibBoleto.RetornaLinhaDigitavel(eIndice: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
    Resposta : AnsiString;
    Indice : Integer;
@@ -990,8 +1060,8 @@ begin
     try
       Resposta := '';
       ABarras  := BoletoDM.ACBrBoleto1.Banco.MontarCodigoBarras(BoletoDM.ACBrBoleto1.ListadeBoletos[Indice]);
-      Resposta := BoletoDM.ACBrBoleto1.Banco.MontarLinhaDigitavel(ABarras, BoletoDM.ACBrBoleto1.ListadeBoletos[Indice]);
-      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+      Resposta := ConverterStringSaida(
+        BoletoDM.ACBrBoleto1.Banco.MontarLinhaDigitavel(ABarras, BoletoDM.ACBrBoleto1.ListadeBoletos[Indice]) );
       MoverStringParaPChar(Resposta, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Resposta);
     finally
@@ -999,13 +1069,13 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.RetornaCodigoBarras(eIndice: longint; const sResposta: PChar; var esTamanho: longint): longint;
+function TACBrLibBoleto.RetornaCodigoBarras(eIndice: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
    Resposta : AnsiString;
    Indice : Integer;
@@ -1026,8 +1096,8 @@ begin
     BoletoDM.Travar;
     try
       Resposta := '';
-      Resposta := BoletoDM.ACBrBoleto1.Banco.MontarCodigoBarras(BoletoDM.ACBrBoleto1.ListadeBoletos[Indice]);
-      Resposta := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Resposta), Resposta);
+      Resposta := ConverterStringSaida(
+        BoletoDM.ACBrBoleto1.Banco.MontarCodigoBarras(BoletoDM.ACBrBoleto1.ListadeBoletos[Indice]) );
       MoverStringParaPChar(Resposta, sResposta, esTamanho);
       Result := SetRetorno(ErrOK, Resposta);
     finally
@@ -1035,9 +1105,9 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
@@ -1063,7 +1133,7 @@ var
    ICaractTitulo : TACBrCaracTitulo;
    SCaractTitulo : String;
 begin
-
+   Result := '';
    for ICaractTitulo := Low(TACBrCaracTitulo) to high(TACBrCaracTitulo) do
    begin
      SCaractTitulo := GetEnumName( TypeInfo(TACBrCaracTitulo), Integer(ICaractTitulo) );
@@ -1080,6 +1150,7 @@ var
    ITipoOcorrencia : TACBrTipoOcorrencia;
    SOcorrencia     : String;
 begin
+  Result := '';
   for ITipoOcorrencia := Low(TACBrTipoOcorrencia) to High(TACBrTipoOcorrencia) do
   begin
     SOcorrencia := GetEnumName( TypeInfo(TACBrTipoOcorrencia), Integer(ITipoOcorrencia) ) ;
@@ -1096,7 +1167,7 @@ var
    SOcorrencia     : String;
    ValorIndice     : Integer;
 begin
-
+  Result := '';
   for ITipoOcorrencia := Low(TACBrTipoOcorrencia) to High(TACBrTipoOcorrencia) do
   begin
     ValorIndice := Integer(ITipoOcorrencia);
@@ -1109,7 +1180,7 @@ begin
     Result := copy(Result, 1, Length(Result)-1) ;
 end;
 
-function TACBrLibBoleto.EnviarBoleto(eCodigoOperacao: longint; const sResposta: PChar; var esTamanho: longint): longint;
+function TACBrLibBoleto.EnviarBoleto(eCodigoOperacao: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   Resposta: AnsiString;
   Titulo : TRetornoRegistroWeb;
@@ -1144,7 +1215,7 @@ begin
             Titulos[I] := Titulo;
           end;
 
-          Resposta := TACBrObjectSerializer.Gerar<TRetornoRegistroWeb>(Titulos, Config.TipoResposta, Config.CodResposta);
+          Resposta := GerarResposta<TRetornoRegistroWeb>(Titulos);
         finally
           for I:= 0 to High(Titulos) do
           begin
@@ -1164,14 +1235,14 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 end;
 
-function TACBrLibBoleto.ConsultarTitulosPorPeriodo(eArquivoIni: PChar; const sResposta: PChar; var esTamanho: longint): longint;
+function TACBrLibBoleto.ConsultarTitulosPorPeriodo(eArquivoIni: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 var
   ArquivoIni: AnsiString;
   Resposta: AnsiString;
@@ -1180,7 +1251,7 @@ var
   I: Integer;
 begin
   try
-    ArquivoIni := ConverterAnsiParaUTF8(eArquivoIni);
+    ArquivoIni := ConverterStringEntrada(eArquivoIni);
 
     if Config.Log.Nivel > logNormal then
       GravarLog('Boleto_ConsultarTitulosPeriodo(' + ArquivoIni + ' )', logCompleto, True)
@@ -1206,7 +1277,7 @@ begin
             Titulos[I] := Titulo;
           end;
 
-          Resposta := TACBrObjectSerializer.Gerar<TRetornoRegistroWeb>(Titulos, Config.TipoResposta, Config.CodResposta);
+          Resposta := GerarResposta<TRetornoRegistroWeb>(Titulos);
         finally
           for I:= 0 to High(Titulos) do
           begin
@@ -1228,9 +1299,9 @@ begin
 
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
 
 end;

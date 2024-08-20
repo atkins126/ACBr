@@ -51,7 +51,10 @@ const
   CSessaoRespSubstituirNFSe = 'SubstituirNFSe';
   CSessaoRespGerarToken = 'GerarToken';
   CSessaoRespConsultaNFSe = 'ConsultaNFSe';
+  CSessaoRespConsultaLinkNFSe = 'ConsultaLinkNFSe';
   CSessaoRespCancelarNFSe = 'CancelarNFSe';
+  CSessaoRespInformacaoCancelamento = 'InfCancelamento';
+  CSessaoRespRetornoCancelamento = 'RetCancelamento';
   CSessaoRespLinkNFSe = 'LinkNFSe';
   CSessaoRespGerarLote = 'GerarLote';
   CSessaoRespEnviarEvento = 'EnviarEvento';
@@ -59,6 +62,7 @@ const
   CSessaoRespConsultarDFe = 'ConsultarDFe';
   CSessaoRespConsultarParametros = 'ConsultarParametros';
   CSessaoRespConsultaNFSePorNumero = 'ConsultaNFSePorNumero';
+  CSessaoObterInformacoesProvedor = 'ObterInformacoesProvedor';
 
   CSessaoRespErro = 'Erro';
   CSessaoRespAlerta = 'Alerta';

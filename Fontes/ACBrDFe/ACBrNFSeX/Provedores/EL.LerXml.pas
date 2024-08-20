@@ -139,11 +139,8 @@ begin
       OptanteSimplesNacional   := FpAOwner.StrToSimNao(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('OptanteSimplesNacional'), tcStr));
       IncentivadorCultural     := FpAOwner.StrToSimNao(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('IncentivadorCultural'), tcStr));
 
-      with Prestador do
-      begin
-        RazaoSocial  := ObterConteudo(AuxNode.Childrens.FindAnyNs('RazaoSocial'), tcStr);
-        NomeFantasia := ObterConteudo(AuxNode.Childrens.FindAnyNs('NomeFantasia'), tcStr);
-      end;
+      Prestador.RazaoSocial  := ObterConteudo(AuxNode.Childrens.FindAnyNs('RazaoSocial'), tcStr);
+      Prestador.NomeFantasia := ObterConteudo(AuxNode.Childrens.FindAnyNs('NomeFantasia'), tcStr);
     end;
 
     LerIdentificacaoPrestador(AuxNode);
@@ -225,13 +222,14 @@ begin
 
   if AuxNode <> nil then
   begin
+    NFSe.Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+    NFSe.InfID.ID := NFSe.Numero;
+
     with NFSe.IdentificacaoRps do
     begin
-      Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+      Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('NumeroRps'), tcStr);
       Serie  := ObterConteudo(AuxNode.Childrens.FindAnyNs('Serie'), tcStr);
       Tipo   := FpAOwner.StrToTipoRPS(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('Tipo'), tcStr));
-
-      NFSe.InfID.ID := Numero;
     end;
   end;
 end;
@@ -320,6 +318,7 @@ var
   ANodes: TACBrXmlNodeArray;
   i: integer;
   aValorTotal: Double;
+  CodigoItemServico: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('Servicos');
 
@@ -327,9 +326,14 @@ begin
   begin
     ANodes := AuxNode.Childrens.FindAllAnyNs('Servico');
 
+    if ANodes = nil then
+      ANodes := ANode.Childrens.FindAllAnyNs('Servicos');
+
     for i := 0 to Length(ANodes) - 1 do
     begin
-      NFSe.Servico.ItemListaServico := OnlyNumber(ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoServico116'), tcStr));
+      CodigoItemServico := OnlyNumber(ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoServico116'), tcStr));
+      NFSe.Servico.ItemListaServico := NormatizarItemListaServico(CodigoItemServico);
+      NFSe.Servico.xItemListaServico := ItemListaServicoDescricao(NFSe.Servico.ItemListaServico);
       NFSe.Servico.CodigoCnae := ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoCnae'), tcStr);
 
       NFSe.Servico.ItemServico.New;
@@ -434,7 +438,7 @@ begin
   Result := True;
   NFSe.SituacaoNfse := snNormal;
 
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('notasFiscais');
 
@@ -459,20 +463,23 @@ begin
 
   AuxNode := ANode.Childrens.FindAnyNs('Nfse');
 
+  if AuxNode = nil then
+    AuxNode := ANode;
+
   if AuxNode <> nil then
   begin
     with NFSe do
     begin
-      CodigoVerificacao := ObterConteudo(ANode.Childrens.FindAnyNs('Id'), tcStr);
+      CodigoVerificacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('Id'), tcStr);
       Link := CodigoVerificacao;
       Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
-      DataEmissao := ObterConteudo(ANode.Childrens.FindAnyNs('DataEmissao'), tcDatHor);
-      OutrasInformacoes := ObterConteudo(ANode.Childrens.FindAnyNs('Observacao'), tcStr);
+      DataEmissao := ObterConteudo(AuxNode.Childrens.FindAnyNs('DataEmissao'), tcDatHor);
+      OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('Observacao'), tcStr);
       OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
                                       sLineBreak, [rfReplaceAll, rfIgnoreCase]);
-      SituacaoNfse := StrToStatusNFSe(Ok, ObterConteudo(ANode.Childrens.FindAnyNs('Status'), tcStr));
+      SituacaoNfse := StrToStatusNFSe(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('Status'), tcStr));
 
-      Servico.Valores.IssRetido := FpAOwner.StrToSituacaoTributaria(Ok, ObterConteudo(ANode.Childrens.FindAnyNs('IssRetido'), tcStr));
+      Servico.Valores.IssRetido := FpAOwner.StrToSituacaoTributaria(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('IssRetido'), tcStr));
     end;
 
     LerIdentificacaoNfse(AuxNode);

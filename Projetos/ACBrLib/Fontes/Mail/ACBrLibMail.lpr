@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Jurisato Junior                           }
 {                                                                              }
@@ -35,6 +35,10 @@
 library ACBrLibMail;
 
 uses
+  {$ifdef unix}
+    cthreads,
+    cmem, // the c memory manager is on some systems much faster for multi-threading
+  {$endif}
   Interfaces, sysutils, Classes,
   ACBrLibConfig, ACBrLibComum,
   {$IFDEF MT}ACBrLibMailMT{$ELSE}ACBrLibMailST{$ENDIF},
@@ -54,6 +58,7 @@ exports
   MAIL_Inicializada,
   MAIL_Nome,
   MAIL_Versao,
+  MAIL_OpenSSLInfo,
   MAIL_UltimoRetorno,
   MAIL_ConfigImportar,
   MAIL_ConfigExportar,

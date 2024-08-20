@@ -49,13 +49,13 @@ uses
 type
   TACBrNFSeXWebserviceAgili = class(TACBrNFSeXWebserviceNoSoap)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
   end;
 
@@ -133,6 +133,20 @@ begin
     ModoEnvio := meLoteAssincrono;
     DetalharServico := True;
     NumMinRpsEnviar := 2;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerChaveAcesso := True;
+
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.EnviarUnitario := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.ConsultarFaixaNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+    ServicosDisponibilizados.SubstituirNfse := True;
+
+    Particularidades.PermiteTagOutrasInformacoes := True;
+    Particularidades.PermiteMaisDeUmServico := True;
   end;
 
   SetXmlNameSpace('http://www.agili.com.br/nfse_v_1.00.xsd');
@@ -194,8 +208,8 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr));
-    AErro.Correcao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
+    AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr);
   end;
 end;
 
@@ -406,13 +420,13 @@ begin
 
         AuxNode := ANode;
         AuxNode := AuxNode.Childrens.FindAnyNs('DeclaracaoPrestacaoServico');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         AuxNode := AuxNode.Childrens.FindAnyNs('Rps');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
 
@@ -532,10 +546,10 @@ begin
             begin
               ANode := ANodeArray[i];
               AuxNode := ANode.Childrens.FindAnyNs('DeclaracaoPrestacaoServico');
-              if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+              if not Assigned(AuxNode) then Exit;
 
               AuxNode := AuxNode.Childrens.FindAnyNs('Rps');
-              if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+              if not Assigned(AuxNode) then Exit;
 
               AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
 
@@ -680,10 +694,10 @@ begin
           begin
             ANode := ANodeArray[i];
             AuxNode := ANode.Childrens.FindAnyNs('DeclaracaoPrestacaoServico');
-            if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+            if not Assigned(AuxNode) then Exit;
 
             AuxNode := AuxNode.Childrens.FindAnyNs('Rps');
-            if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+            if not Assigned(AuxNode) then Exit;
 
             AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
 
@@ -821,10 +835,10 @@ begin
             begin
               ANode := ANodeArray[i];
               AuxNode := ANode.Childrens.FindAnyNs('DeclaracaoPrestacaoServico');
-              if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+              if not Assigned(AuxNode) then Exit;
 
               AuxNode := AuxNode.Childrens.FindAnyNs('Rps');
-              if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+              if not Assigned(AuxNode) then Exit;
 
               AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
 
@@ -1046,10 +1060,10 @@ begin
             begin
               ANode := ANodeArray[i];
               AuxNode := ANode.Childrens.FindAnyNs('DeclaracaoPrestacaoServico');
-              if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+              if not Assigned(AuxNode) then Exit;
 
               AuxNode := AuxNode.Childrens.FindAnyNs('Rps');
-              if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+              if not Assigned(AuxNode) then Exit;
 
               AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
 
@@ -1081,7 +1095,7 @@ end;
 
 { TACBrNFSeXWebserviceAgili }
 
-function TACBrNFSeXWebserviceAgili.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceAgili.Recepcionar(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -1089,14 +1103,14 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceAgili.GerarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceAgili.GerarNFSe(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceAgili.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceAgili.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -1104,7 +1118,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceAgili.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceAgili.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -1112,7 +1126,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceAgili.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceAgili.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -1120,14 +1134,14 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceAgili.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceAgili.Cancelar(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceAgili.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceAgili.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;

@@ -49,8 +49,8 @@ uses
 type
   TACBrNFSeXWebserviceISSLencois = class(TACBrNFSeXWebserviceSoap12)
   public
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -98,17 +98,20 @@ begin
     UseCertificateHTTP := False;
     ModoEnvio := meUnitario;
     ConsultaNFSe := False;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerLogin := True;
+
+    ServicosDisponibilizados.EnviarUnitario := True;
+    ServicosDisponibilizados.CancelarNfse := True;
   end;
 
   SetXmlNameSpace('NotaFiscal-Geracao.xsd');
 
   with ConfigMsgDados do
   begin
-    with LoteRps do
-    begin
-      InfElemento := 'InfDeclaracaoPrestacaoServico';
-      DocElemento := 'Rps';
-    end;
+    LoteRps.InfElemento := 'InfDeclaracaoPrestacaoServico';
+    LoteRps.DocElemento := 'Rps';
 
     CancelarNFSe.xmlns := 'NotaFiscal-Cancelamento.xsd';
   end;
@@ -176,11 +179,11 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr));
-    AErro.Correcao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('AvisoTecnico'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr);
+    AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('AvisoTecnico'), tcStr);
 
     if AErro.Descricao = '' then
-      AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+      AErro.Descricao := ANodeArray[I].AsString;
   end;
 end;
 
@@ -453,7 +456,7 @@ end;
 
 { TACBrNFSeXWebserviceISSLencois }
 
-function TACBrNFSeXWebserviceISSLencois.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceISSLencois.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request, DadosUsuario: string;
@@ -477,7 +480,7 @@ begin
                      ['xmlns:apl2="http://apl2.lencoispaulista.sp.gov.br/"']);
 end;
 
-function TACBrNFSeXWebserviceISSLencois.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSLencois.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request, DadosUsuario: string;
 begin
@@ -505,7 +508,7 @@ function TACBrNFSeXWebserviceISSLencois.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);

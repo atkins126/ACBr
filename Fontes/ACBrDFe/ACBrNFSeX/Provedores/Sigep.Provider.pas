@@ -46,11 +46,11 @@ uses
 type
   TACBrNFSeXWebserviceSigep200 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -64,6 +64,13 @@ type
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
     procedure ValidarSchema(Response: TNFSeWebserviceResponse; aMetodo: TMetodo); override;
+
+  public
+    function TipoRPSToStr(const t:TTipoRPS): string; override;
+    function StrToTipoRPS(out ok: boolean; const s: string): TTipoRPS; override;
+
+    function StatusRPSToStr(const t: TStatusRPS): string; override;
+    function StrToStatusRPS(out ok: boolean; const s: string): TStatusRPS; override;
   end;
 
 implementation
@@ -85,6 +92,15 @@ begin
     ConsultaNFSe := False;
     CancPreencherMotivo := True;
     CancPreencherCodVerificacao := True;
+
+    Autenticacao.RequerLogin := True;
+    Autenticacao.RequerChaveAcesso := True;
+
+    ServicosDisponibilizados.EnviarLoteAssincrono := False;
+    ServicosDisponibilizados.ConsultarFaixaNfse := False;
+    ServicosDisponibilizados.ConsultarServicoPrestado := False;
+    ServicosDisponibilizados.ConsultarServicoTomado := False;
+    ServicosDisponibilizados.SubstituirNfse := False;
   end;
 
   with ConfigAssinar do
@@ -238,9 +254,39 @@ begin
   inherited ValidarSchema(Response, aMetodo);
 end;
 
+function TACBrNFSeProviderSigep200.TipoRPSToStr(const t: TTipoRPS): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['R1', 'R2', 'R3', ''],
+                           [trRPS, trNFConjugada, trCupom, trNone]);
+end;
+
+function TACBrNFSeProviderSigep200.StrToTipoRPS(out ok: boolean;
+  const s: string): TTipoRPS;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['R1', 'R2', 'R3', ''],
+                           [trRPS, trNFConjugada, trCupom, trNone]);
+end;
+
+function TACBrNFSeProviderSigep200.StatusRPSToStr(const t: TStatusRPS): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['CO', 'CA'],
+                           [srNormal, srCancelado]);
+end;
+
+function TACBrNFSeProviderSigep200.StrToStatusRPS(out ok: boolean;
+  const s: string): TStatusRPS;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['CO', 'CA'],
+                           [srNormal, srCancelado]);
+end;
+
 { TACBrNFSeXWebserviceSigep200 }
 
-function TACBrNFSeXWebserviceSigep200.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceSigep200.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -256,7 +302,7 @@ begin
                      ['xmlns:ws="http://ws.integration.pm.bsit.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceSigep200.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSigep200.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -272,7 +318,7 @@ begin
                      ['xmlns:ws="http://ws.integration.pm.bsit.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceSigep200.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceSigep200.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -288,7 +334,7 @@ begin
                      ['xmlns:ws="http://ws.integration.pm.bsit.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceSigep200.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceSigep200.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -304,7 +350,7 @@ begin
                      ['xmlns:ws="http://ws.integration.pm.bsit.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceSigep200.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSigep200.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -329,7 +375,6 @@ begin
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
-  Result := string(NativeStringToUTF8(Result));
 end;
 
 end.

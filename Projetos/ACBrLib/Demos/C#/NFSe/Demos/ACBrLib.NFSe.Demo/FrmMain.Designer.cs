@@ -35,6 +35,10 @@
             this.tbpConfiguracoes = new System.Windows.Forms.TabPage();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tbpGeral = new System.Windows.Forms.TabPage();
+            this.btnOpenSSLInfo = new System.Windows.Forms.Button();
+            this.txtServicosIni = new System.Windows.Forms.TextBox();
+            this.label54 = new System.Windows.Forms.Label();
+            this.btnServicosIni = new System.Windows.Forms.Button();
             this.label11 = new System.Windows.Forms.Label();
             this.cmbLayoutNFSe = new System.Windows.Forms.ComboBox();
             this.ckbConsultarAposCancelar = new System.Windows.Forms.CheckBox();
@@ -185,6 +189,7 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabControl3 = new System.Windows.Forms.TabControl();
             this.tbpEnvios = new System.Windows.Forms.TabPage();
+            this.btnSalvarPDFStream = new System.Windows.Forms.Button();
             this.btnLimparListaNFSe = new System.Windows.Forms.Button();
             this.btnImprimirNFSe = new System.Windows.Forms.Button();
             this.btnGravarXMLNFSe = new System.Windows.Forms.Button();
@@ -201,6 +206,7 @@
             this.btnGerarEnviarLoteAssincrono = new System.Windows.Forms.Button();
             this.btnEmitirNota = new System.Windows.Forms.Button();
             this.tbpConsultas = new System.Windows.Forms.TabPage();
+            this.btnConsultarLinkNFSe = new System.Windows.Forms.Button();
             this.btnConsultarNFSePorFaixa = new System.Windows.Forms.Button();
             this.btnConsultarNFSePorRPS = new System.Windows.Forms.Button();
             this.btnConsultarNFSePorPeriodo = new System.Windows.Forms.Button();
@@ -229,9 +235,7 @@
             this.btnConsultarNFSePorChave = new System.Windows.Forms.Button();
             this.btnConsultarDPSPorChave = new System.Windows.Forms.Button();
             this.btnEnviarEvento = new System.Windows.Forms.Button();
-            this.txtServicosIni = new System.Windows.Forms.TextBox();
-            this.label54 = new System.Windows.Forms.Label();
-            this.btnServicosIni = new System.Windows.Forms.Button();
+            this.btnInformacoesProvedor = new System.Windows.Forms.Button();
             this.groupBox2.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tbpConfiguracoes.SuspendLayout();
@@ -300,7 +304,7 @@
             this.tbpConfiguracoes.Controls.Add(this.tabControl2);
             this.tbpConfiguracoes.Location = new System.Drawing.Point(4, 22);
             this.tbpConfiguracoes.Name = "tbpConfiguracoes";
-            this.tbpConfiguracoes.Padding = new System.Windows.Forms.Padding(3);
+            this.tbpConfiguracoes.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.tbpConfiguracoes.Size = new System.Drawing.Size(303, 504);
             this.tbpConfiguracoes.TabIndex = 2;
             this.tbpConfiguracoes.Text = "Configurações";
@@ -322,6 +326,7 @@
             // 
             // tbpGeral
             // 
+            this.tbpGeral.Controls.Add(this.btnInformacoesProvedor);
             this.tbpGeral.Controls.Add(this.txtServicosIni);
             this.tbpGeral.Controls.Add(this.label54);
             this.tbpGeral.Controls.Add(this.btnServicosIni);
@@ -345,11 +350,48 @@
             this.tbpGeral.Controls.Add(this.btnSelectLog);
             this.tbpGeral.Location = new System.Drawing.Point(4, 22);
             this.tbpGeral.Name = "tbpGeral";
-            this.tbpGeral.Padding = new System.Windows.Forms.Padding(3);
+            this.tbpGeral.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.tbpGeral.Size = new System.Drawing.Size(289, 472);
             this.tbpGeral.TabIndex = 0;
             this.tbpGeral.Text = "Geral";
             this.tbpGeral.UseVisualStyleBackColor = true;
+            // 
+            // btnOpenSSLInfo
+            // 
+            this.btnOpenSSLInfo.Location = new System.Drawing.Point(13, 344);
+            this.btnOpenSSLInfo.Name = "btnOpenSSLInfo";
+            this.btnOpenSSLInfo.Size = new System.Drawing.Size(118, 23);
+            this.btnOpenSSLInfo.TabIndex = 22;
+            this.btnOpenSSLInfo.Text = "OpenSSLInfo";
+            this.btnOpenSSLInfo.UseVisualStyleBackColor = true;
+            this.btnOpenSSLInfo.Click += new System.EventHandler(this.btnOpenSSLInfo_Click);
+            // 
+            // txtServicosIni
+            // 
+            this.txtServicosIni.Location = new System.Drawing.Point(6, 288);
+            this.txtServicosIni.Name = "txtServicosIni";
+            this.txtServicosIni.Size = new System.Drawing.Size(238, 20);
+            this.txtServicosIni.TabIndex = 46;
+            // 
+            // label54
+            // 
+            this.label54.AutoSize = true;
+            this.label54.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label54.Location = new System.Drawing.Point(3, 272);
+            this.label54.Name = "label54";
+            this.label54.Size = new System.Drawing.Size(142, 13);
+            this.label54.TabIndex = 47;
+            this.label54.Text = "Arquivo .ini de Serviços";
+            // 
+            // btnServicosIni
+            // 
+            this.btnServicosIni.Location = new System.Drawing.Point(243, 287);
+            this.btnServicosIni.Name = "btnServicosIni";
+            this.btnServicosIni.Size = new System.Drawing.Size(27, 22);
+            this.btnServicosIni.TabIndex = 48;
+            this.btnServicosIni.Text = "...";
+            this.btnServicosIni.UseVisualStyleBackColor = true;
+            this.btnServicosIni.Click += new System.EventHandler(this.btnServicosIni_Click);
             // 
             // label11
             // 
@@ -546,8 +588,8 @@
             this.tbpWebServices.Controls.Add(this.label1);
             this.tbpWebServices.Location = new System.Drawing.Point(4, 22);
             this.tbpWebServices.Name = "tbpWebServices";
-            this.tbpWebServices.Padding = new System.Windows.Forms.Padding(3);
-            this.tbpWebServices.Size = new System.Drawing.Size(289, 472);
+            this.tbpWebServices.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tbpWebServices.Size = new System.Drawing.Size(291, 474);
             this.tbpWebServices.TabIndex = 1;
             this.tbpWebServices.Text = "Webservices";
             this.tbpWebServices.UseVisualStyleBackColor = true;
@@ -993,6 +1035,7 @@
             // 
             // tbpCertificados
             // 
+            this.tbpCertificados.Controls.Add(this.btnOpenSSLInfo);
             this.tbpCertificados.Controls.Add(this.btnObterCertificados);
             this.tbpCertificados.Controls.Add(this.groupBox4);
             this.tbpCertificados.Controls.Add(this.cmbXmlSign);
@@ -1219,8 +1262,8 @@
             this.tbpEmitente.Controls.Add(this.label12);
             this.tbpEmitente.Location = new System.Drawing.Point(4, 22);
             this.tbpEmitente.Name = "tbpEmitente";
-            this.tbpEmitente.Padding = new System.Windows.Forms.Padding(3);
-            this.tbpEmitente.Size = new System.Drawing.Size(289, 472);
+            this.tbpEmitente.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tbpEmitente.Size = new System.Drawing.Size(291, 474);
             this.tbpEmitente.TabIndex = 4;
             this.tbpEmitente.Text = "Emitente";
             this.tbpEmitente.UseVisualStyleBackColor = true;
@@ -1472,7 +1515,7 @@
             this.tbpArquivos.Controls.Add(this.ckbSalvarArqs);
             this.tbpArquivos.Location = new System.Drawing.Point(4, 22);
             this.tbpArquivos.Name = "tbpArquivos";
-            this.tbpArquivos.Size = new System.Drawing.Size(289, 472);
+            this.tbpArquivos.Size = new System.Drawing.Size(291, 474);
             this.tbpArquivos.TabIndex = 3;
             this.tbpArquivos.Text = "Arquivos";
             this.tbpArquivos.UseVisualStyleBackColor = true;
@@ -1570,7 +1613,7 @@
             this.tbpDocAuxiliar.Controls.Add(this.label39);
             this.tbpDocAuxiliar.Location = new System.Drawing.Point(4, 22);
             this.tbpDocAuxiliar.Name = "tbpDocAuxiliar";
-            this.tbpDocAuxiliar.Padding = new System.Windows.Forms.Padding(3);
+            this.tbpDocAuxiliar.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.tbpDocAuxiliar.Size = new System.Drawing.Size(303, 504);
             this.tbpDocAuxiliar.TabIndex = 3;
             this.tbpDocAuxiliar.Text = "Documento Auxiliar";
@@ -1680,7 +1723,7 @@
             this.tbpEmail.Controls.Add(this.groupBox6);
             this.tbpEmail.Location = new System.Drawing.Point(4, 22);
             this.tbpEmail.Name = "tbpEmail";
-            this.tbpEmail.Padding = new System.Windows.Forms.Padding(3);
+            this.tbpEmail.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.tbpEmail.Size = new System.Drawing.Size(303, 504);
             this.tbpEmail.TabIndex = 4;
             this.tbpEmail.Text = "Email";
@@ -1910,7 +1953,7 @@
             this.tabPage1.Controls.Add(this.tabControl3);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.tabPage1.Size = new System.Drawing.Size(431, 276);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Demais Provedores";
@@ -1931,6 +1974,7 @@
             // 
             // tbpEnvios
             // 
+            this.tbpEnvios.Controls.Add(this.btnSalvarPDFStream);
             this.tbpEnvios.Controls.Add(this.btnLimparListaNFSe);
             this.tbpEnvios.Controls.Add(this.btnImprimirNFSe);
             this.tbpEnvios.Controls.Add(this.btnGravarXMLNFSe);
@@ -1948,11 +1992,21 @@
             this.tbpEnvios.Controls.Add(this.btnEmitirNota);
             this.tbpEnvios.Location = new System.Drawing.Point(4, 22);
             this.tbpEnvios.Name = "tbpEnvios";
-            this.tbpEnvios.Padding = new System.Windows.Forms.Padding(3);
+            this.tbpEnvios.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.tbpEnvios.Size = new System.Drawing.Size(412, 241);
             this.tbpEnvios.TabIndex = 0;
             this.tbpEnvios.Text = "Envios";
             this.tbpEnvios.UseVisualStyleBackColor = true;
+            // 
+            // btnSalvarPDFStream
+            // 
+            this.btnSalvarPDFStream.Location = new System.Drawing.Point(189, 209);
+            this.btnSalvarPDFStream.Name = "btnSalvarPDFStream";
+            this.btnSalvarPDFStream.Size = new System.Drawing.Size(177, 23);
+            this.btnSalvarPDFStream.TabIndex = 18;
+            this.btnSalvarPDFStream.Text = "Salvar PDF (Stream)";
+            this.btnSalvarPDFStream.UseVisualStyleBackColor = true;
+            this.btnSalvarPDFStream.Click += new System.EventHandler(this.btnSalvarPDFStream_Click);
             // 
             // btnLimparListaNFSe
             // 
@@ -2106,6 +2160,7 @@
             // 
             // tbpConsultas
             // 
+            this.tbpConsultas.Controls.Add(this.btnConsultarLinkNFSe);
             this.tbpConsultas.Controls.Add(this.btnConsultarNFSePorFaixa);
             this.tbpConsultas.Controls.Add(this.btnConsultarNFSePorRPS);
             this.tbpConsultas.Controls.Add(this.btnConsultarNFSePorPeriodo);
@@ -2119,6 +2174,16 @@
             this.tbpConsultas.TabIndex = 1;
             this.tbpConsultas.Text = "Consultas";
             this.tbpConsultas.UseVisualStyleBackColor = true;
+            // 
+            // btnConsultarLinkNFSe
+            // 
+            this.btnConsultarLinkNFSe.Location = new System.Drawing.Point(189, 93);
+            this.btnConsultarLinkNFSe.Name = "btnConsultarLinkNFSe";
+            this.btnConsultarLinkNFSe.Size = new System.Drawing.Size(177, 23);
+            this.btnConsultarLinkNFSe.TabIndex = 15;
+            this.btnConsultarLinkNFSe.Text = "Consultar Link NFSe";
+            this.btnConsultarLinkNFSe.UseVisualStyleBackColor = true;
+            this.btnConsultarLinkNFSe.Click += new System.EventHandler(this.btnConsultarLinkNFSe_Click);
             // 
             // btnConsultarNFSePorFaixa
             // 
@@ -2338,7 +2403,7 @@
             this.tabPage2.Controls.Add(this.btnEnviarEvento);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.tabPage2.Size = new System.Drawing.Size(431, 276);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Provedor Padrão Nacional";
@@ -2414,32 +2479,15 @@
             this.btnEnviarEvento.UseVisualStyleBackColor = true;
             this.btnEnviarEvento.Click += new System.EventHandler(this.btnEnviarEvento_Click);
             // 
-            // txtServicosIni
+            // btnInformacoesProvedor
             // 
-            this.txtServicosIni.Location = new System.Drawing.Point(6, 288);
-            this.txtServicosIni.Name = "txtServicosIni";
-            this.txtServicosIni.Size = new System.Drawing.Size(238, 20);
-            this.txtServicosIni.TabIndex = 46;
-            // 
-            // label54
-            // 
-            this.label54.AutoSize = true;
-            this.label54.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label54.Location = new System.Drawing.Point(3, 272);
-            this.label54.Name = "label54";
-            this.label54.Size = new System.Drawing.Size(142, 13);
-            this.label54.TabIndex = 47;
-            this.label54.Text = "Arquivo .ini de Serviços";
-            // 
-            // btnServicosIni
-            // 
-            this.btnServicosIni.Location = new System.Drawing.Point(243, 287);
-            this.btnServicosIni.Name = "btnServicosIni";
-            this.btnServicosIni.Size = new System.Drawing.Size(27, 22);
-            this.btnServicosIni.TabIndex = 48;
-            this.btnServicosIni.Text = "...";
-            this.btnServicosIni.UseVisualStyleBackColor = true;
-            this.btnServicosIni.Click += new System.EventHandler(this.btnServicosIni_Click);
+            this.btnInformacoesProvedor.Location = new System.Drawing.Point(38, 512);
+            this.btnInformacoesProvedor.Name = "btnInformacoesProvedor";
+            this.btnInformacoesProvedor.Size = new System.Drawing.Size(238, 37);
+            this.btnInformacoesProvedor.TabIndex = 49;
+            this.btnInformacoesProvedor.Text = "Informações sobre o Provedor";
+            this.btnInformacoesProvedor.UseVisualStyleBackColor = true;
+            this.btnInformacoesProvedor.Click += new System.EventHandler(this.btnInformacoesProvedor_Click);
             // 
             // FrmMain
             // 
@@ -2711,6 +2759,10 @@
         private System.Windows.Forms.TextBox txtServicosIni;
         private System.Windows.Forms.Label label54;
         private System.Windows.Forms.Button btnServicosIni;
+        private System.Windows.Forms.Button btnSalvarPDFStream;
+        private System.Windows.Forms.Button btnConsultarLinkNFSe;
+        private System.Windows.Forms.Button btnInformacoesProvedor;
+        private System.Windows.Forms.Button btnOpenSSLInfo;
     }
 }
 

@@ -8,9 +8,9 @@ namespace ACBrLib.Sat
 
         public OrigemMercadoria orig { get; set; }
 
-        public CSTIcms? CST { get; set; }
+        public CSTIcms CST { get; set; }
 
-        public CSOSNIcms? CSOSN { get; set; }
+        public CSOSNIcms CSOSN { get; set; }
 
         public decimal pICMS { get; set; }
 

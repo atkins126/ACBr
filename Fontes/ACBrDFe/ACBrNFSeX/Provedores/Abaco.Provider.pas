@@ -47,12 +47,12 @@ type
   TACBrNFSeXWebserviceAbaco = class(TACBrNFSeXWebserviceSoap11)
 
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -60,14 +60,14 @@ type
   TACBrNFSeXWebserviceAbaco204 = class(TACBrNFSeXWebserviceSoap11)
 
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -106,7 +106,7 @@ uses
 
 { TACBrNFSeXWebserviceAbaco }
 
-function TACBrNFSeXWebserviceAbaco.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceAbaco.Recepcionar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -122,7 +122,7 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceAbaco.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceAbaco.ConsultarLote(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -138,7 +138,7 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceAbaco.ConsultarSituacao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceAbaco.ConsultarSituacao(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -154,7 +154,7 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceAbaco.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceAbaco.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -170,7 +170,7 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceAbaco.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceAbaco.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -186,7 +186,7 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceAbaco.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceAbaco.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -207,7 +207,7 @@ function TACBrNFSeXWebserviceAbaco.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverIdentacao(Result);
 end;
 
@@ -294,6 +294,9 @@ begin
   begin
     ModoEnvio := meLoteAssincrono;
     ConsultaPorFaixaPreencherNumNfseFinal := True;
+
+    ServicosDisponibilizados.EnviarLoteSincrono := False;
+    ServicosDisponibilizados.EnviarUnitario := False;
   end;
 
   with ConfigAssinar do
@@ -346,7 +349,7 @@ end;
 
 { TACBrNFSeXWebserviceAbaco204 }
 
-function TACBrNFSeXWebserviceAbaco204.Cancelar(ACabecalho,
+function TACBrNFSeXWebserviceAbaco204.Cancelar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -363,7 +366,7 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceAbaco204.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceAbaco204.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -380,7 +383,7 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceAbaco204.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceAbaco204.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -397,7 +400,7 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceAbaco204.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceAbaco204.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -414,7 +417,7 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceAbaco204.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceAbaco204.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -431,7 +434,7 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceAbaco204.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceAbaco204.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -448,7 +451,7 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceAbaco204.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceAbaco204.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -465,7 +468,7 @@ begin
                      ['xmlns:e="http://www.e-nfs.com.br"']);
 end;
 
-function TACBrNFSeXWebserviceAbaco204.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceAbaco204.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -488,7 +491,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverIdentacao(Result);
 end;
 

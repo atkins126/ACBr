@@ -110,6 +110,81 @@ type
    property DadosEmitente: TDadosEmitente read FDadosEmitente write FDadosEmitente;
  end;
 
+  { TAutenticacao }
+
+  TAutenticacao = Class
+  private
+    FRequerCertificado: Boolean;
+    FRequerLogin: Boolean;
+    FRequerChaveAcesso: Boolean;
+    FRequerChaveAutorizacao: Boolean;
+    FRequerFraseSecreta: Boolean;
+  public
+    property RequerCertificado: Boolean read FRequerCertificado write FRequerCertificado;
+    property RequerLogin: Boolean read FRequerLogin write FRequerLogin;
+    property RequerChaveAcesso: Boolean read FRequerChaveAcesso write FRequerChaveAcesso;
+    property RequerChaveAutorizacao: Boolean read FRequerChaveAutorizacao write FRequerChaveAutorizacao;
+    property RequerFraseSecreta: Boolean read FRequerFraseSecreta write FRequerFraseSecreta;
+  end;
+
+  { TServicosDispobilizados }
+
+  TServicosDispobilizados = Class
+  private
+    FEnviarLoteAssincrono: Boolean;
+    FEnviarLoteSincrono: Boolean;
+    FEnviarUnitario: Boolean;
+    FConsultarSituacao: Boolean;
+    FConsultarLote: Boolean;
+    FConsultarRps: Boolean;
+    FConsultarNfse: Boolean;
+    FConsultarFaixaNfse: Boolean;
+    FConsultarServicoPrestado: Boolean;
+    FConsultarServicoTomado: Boolean;
+    FCancelarNfse: Boolean;
+    FSubstituirNfse: Boolean;
+    FGerarToken: Boolean;
+    FEnviarEvento: Boolean;
+    FConsultarEvento: Boolean;
+    FConsultarDFe: Boolean;
+    FConsultarParam: Boolean;
+    FConsultarSeqRps: Boolean;
+    FConsultarLinkNfse: Boolean;
+    FConsultarNfseChave: Boolean;
+    FTestarEnvio: Boolean;
+  public
+    property EnviarLoteAssincrono: Boolean read FEnviarLoteAssincrono write FEnviarLoteAssincrono;
+    property EnviarLoteSincrono: Boolean read FEnviarLoteSincrono write FEnviarLoteSincrono;
+    property EnviarUnitario: Boolean read FEnviarUnitario write FEnviarUnitario;
+    property ConsultarSituacao: Boolean read FConsultarSituacao write FConsultarSituacao;
+    property ConsultarLote: Boolean read FConsultarLote write FConsultarLote;
+    property ConsultarRps: Boolean read FConsultarRps write FConsultarRps;
+    property ConsultarNfse: Boolean read FConsultarNfse write FConsultarNfse;
+    property ConsultarFaixaNfse: Boolean read FConsultarFaixaNfse write FConsultarFaixaNfse;
+    property ConsultarServicoPrestado: Boolean read FConsultarServicoPrestado write FConsultarServicoPrestado;
+    property ConsultarServicoTomado: Boolean read FConsultarServicoTomado write FConsultarServicoTomado;
+    property CancelarNfse: Boolean read FCancelarNfse write FCancelarNfse;
+    property SubstituirNfse: Boolean read FSubstituirNfse write FSubstituirNfse;
+    property GerarToken: Boolean read FGerarToken write FGerarToken;
+    property EnviarEvento: Boolean read FEnviarEvento write FEnviarEvento;
+    property ConsultarEvento: Boolean read FConsultarEvento write FConsultarEvento;
+    property ConsultarDFe: Boolean read FConsultarDFe write FConsultarDFe;
+    property ConsultarParam: Boolean read FConsultarParam write FConsultarParam;
+    property ConsultarSeqRps: Boolean read FConsultarSeqRps write FConsultarSeqRps;
+    property ConsultarLinkNfse: Boolean read FConsultarLinkNfse write FConsultarLinkNfse;
+    property ConsultarNfseChave: Boolean read FConsultarNfseChave write FConsultarNfseChave;
+    property TestarEnvio: Boolean read FTestarEnvio write FTestarEnvio;
+  end;
+
+  TParticularidades = class
+  private
+    FPermiteMaisDeUmServico: Boolean;
+    FPermiteTagOutrasInformacoes: Boolean;
+  public
+    property PermiteMaisDeUmServico: Boolean read FPermiteMaisDeUmServico write FPermiteMaisDeUmServico;
+    property PermiteTagOutrasInformacoes: Boolean read FPermiteTagOutrasInformacoes write FPermiteTagOutrasInformacoes;
+  end;
+
   { TGeralConfNFSe }
 
   TGeralConfNFSe = class(TGeralConf)
@@ -130,6 +205,10 @@ type
     FLayout: TLayout;
     FLayoutNFSe: TLayoutNFSe;
     FAssinaturas: TAssinaturas;
+    FAutenticacao: TAutenticacao;
+    FServicosDisponibilizados: TServicosDispobilizados;
+    FFormDiscriminacao: TFormatoDiscriminacao;
+    FParticularidades: TParticularidades;
 
     procedure SetCodigoMunicipio(const Value: Integer);
   public
@@ -160,6 +239,10 @@ type
     property LayoutNFSe: TLayoutNFSe read FLayoutNFSe write FLayoutNFSe default lnfsProvedor;
     property Assinaturas: TAssinaturas read FAssinaturas write FAssinaturas default taConfigProvedor;
     property PIniParams: TMemIniFile read FPIniParams;
+    property Autenticacao: TAutenticacao read FAutenticacao;
+    property ServicosDisponibilizados: TServicosDispobilizados read FServicosDisponibilizados;
+    property FormatoDiscriminacao: TFormatoDiscriminacao read FFormDiscriminacao write FFormDiscriminacao default fdNenhum;
+    property Particularidades: TParticularidades read FParticularidades write FParticularidades;
   end;
 
   { TArquivosConfNFSe }
@@ -338,12 +421,20 @@ begin
   FMontarPathSchema := True;
   FLayoutNFSe := lnfsProvedor;
   FAssinaturas := taConfigProvedor;
+  FFormDiscriminacao := fdNenhum;
+
+  FAutenticacao := TAutenticacao.Create;
+  FServicosDisponibilizados := TServicosDispobilizados.Create;
+  FParticularidades := TParticularidades.Create;
 end;
 
 destructor TGeralConfNFSe.Destroy;
 begin
   FEmitente.Free;
   FPIniParams.Free;
+  FAutenticacao.Free;
+  FServicosDisponibilizados.Free;
+  FParticularidades.Free;
 
   inherited;
 end;
@@ -359,6 +450,7 @@ begin
   AIni.WriteBool(fpConfiguracoes.SessaoIni, 'MontarPathSchema', MontarPathSchema);
   AIni.WriteInteger(fpConfiguracoes.SessaoIni, 'LayoutNFSe', Integer(LayoutNFSe));
   AIni.WriteInteger(fpConfiguracoes.SessaoIni, 'Assinaturas', Integer(Assinaturas));
+  AIni.WriteInteger(fpConfiguracoes.SessaoIni, 'FormatoDiscriminacao', Integer(FormatoDiscriminacao));
 
   // Emitente
   with Emitente do
@@ -372,21 +464,18 @@ begin
     AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.WSChaveAcesso', WSChaveAcesso);
     AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.WSChaveAutoriz', WSChaveAutoriz);
     // Dados do Emitente
-    with DadosEmitente do
-    begin
-      AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.NomeFantasia', NomeFantasia);
-      AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.InscricaoEstadual', InscricaoEstadual);
-      AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Endereco', Endereco);
-      AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Numero', Numero);
-      AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.CEP', CEP);
-      AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Bairro', Bairro);
-      AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Complemento', Complemento);
-      AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Municipio', Municipio);
-      AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.UF', UF);
-      AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.CodigoMunicipio', CodigoMunicipio);
-      AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Telefone', Telefone);
-      AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Email', Email);
-    end;
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.NomeFantasia', DadosEmitente.NomeFantasia);
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.InscricaoEstadual', DadosEmitente.InscricaoEstadual);
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Endereco', DadosEmitente.Endereco);
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Numero', DadosEmitente.Numero);
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.CEP', DadosEmitente.CEP);
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Bairro', DadosEmitente.Bairro);
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Complemento', DadosEmitente.Complemento);
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Municipio', DadosEmitente.Municipio);
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.UF', DadosEmitente.UF);
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.CodigoMunicipio', DadosEmitente.CodigoMunicipio);
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Telefone', DadosEmitente.Telefone);
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Email', DadosEmitente.Email);
   end;
 end;
 
@@ -401,6 +490,7 @@ begin
   MontarPathSchema := AIni.ReadBool(fpConfiguracoes.SessaoIni, 'MontarPathSchema', MontarPathSchema);
   LayoutNFSe := TLayoutNFSe(AIni.ReadInteger(fpConfiguracoes.SessaoIni, 'LayoutNFSe', Integer(LayoutNFSe)));
   Assinaturas := TAssinaturas(AIni.ReadInteger(fpConfiguracoes.SessaoIni, 'Assinaturas', Integer(Assinaturas)));
+  FormatoDiscriminacao := TFormatoDiscriminacao(AIni.ReadInteger(fpConfiguracoes.SessaoIni, 'FormatoDiscriminacao', Integer(FormatoDiscriminacao)));
 
   // Emitente
   with Emitente do
@@ -414,21 +504,18 @@ begin
     WSChaveAcesso := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.WSChaveAcesso', WSChaveAcesso);
     WSChaveAutoriz := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.WSChaveAutoriz', WSChaveAutoriz);
     // Dados do Emitente
-    with DadosEmitente do
-    begin
-      NomeFantasia := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.NomeFantasia', NomeFantasia);
-      InscricaoEstadual := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.InscricaoEstadual', InscricaoEstadual);
-      Endereco := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Endereco', Endereco);
-      Numero := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Numero', Numero);
-      CEP := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.CEP', CEP);
-      Bairro := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Bairro', Bairro);
-      Complemento := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Complemento', Complemento);
-      Municipio := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Municipio', Municipio);
-      UF := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.UF', UF);
-      CodigoMunicipio := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.CodigoMunicipio', CodigoMunicipio);
-      Telefone := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Telefone', Telefone);
-      Email := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Email', Email);
-    end;
+    DadosEmitente.NomeFantasia := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.NomeFantasia', DadosEmitente.NomeFantasia);
+    DadosEmitente.InscricaoEstadual := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.InscricaoEstadual', DadosEmitente.InscricaoEstadual);
+    DadosEmitente.Endereco := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Endereco', DadosEmitente.Endereco);
+    DadosEmitente.Numero := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Numero', DadosEmitente.Numero);
+    DadosEmitente.CEP := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.CEP', DadosEmitente.CEP);
+    DadosEmitente.Bairro := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Bairro', DadosEmitente.Bairro);
+    DadosEmitente.Complemento := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Complemento', DadosEmitente.Complemento);
+    DadosEmitente.Municipio := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Municipio', DadosEmitente.Municipio);
+    DadosEmitente.UF := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.UF', DadosEmitente.UF);
+    DadosEmitente.CodigoMunicipio := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.CodigoMunicipio', DadosEmitente.CodigoMunicipio);
+    DadosEmitente.Telefone := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Telefone', DadosEmitente.Telefone);
+    DadosEmitente.Email := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.Dados.Email', DadosEmitente.Email);
   end;
 end;
 
@@ -497,8 +584,6 @@ begin
   FxMunicipio := DeGeralConfNFSe.xMunicipio;
   FxUF        := DeGeralConfNFSe.xUF;
 
-  CodigoMunicipio := DeGeralConfNFSe.CodigoMunicipio;
-
   FCNPJPrefeitura        := DeGeralConfNFSe.CNPJPrefeitura;
   FConsultaLoteAposEnvio := DeGeralConfNFSe.ConsultaLoteAposEnvio;
   FConsultaAposCancelar  := DeGeralConfNFSe.ConsultaAposCancelar;
@@ -506,9 +591,13 @@ begin
   FLayout                := DeGeralConfNFSe.Layout;
   FLayoutNFSe            := DeGeralConfNFSe.LayoutNFSe;
   FAssinaturas           := DeGeralConfNFSe.Assinaturas;
-  FProvedor              := DeGeralConfNFSe.Provedor;
+  FFormDiscriminacao     := DeGeralConfNFSe.FormatoDiscriminacao;
 
   FEmitente.Assign(DeGeralConfNFSe.Emitente);
+
+  //Deve ser a última configuração para que não sobrescreva configurações importantes.
+  //Daniel Morais, Panda, Antonio Carlos Junior, Italo Giurizzato Junior, Diego Folieni
+  CodigoMunicipio := DeGeralConfNFSe.CodigoMunicipio;
 end;
 
 procedure TGeralConfNFSe.SetCodigoMunicipio(const Value: Integer);
@@ -607,10 +696,7 @@ begin
   if not Assigned(TConfiguracoesNFSe(Owner).Owner) then Exit;
   if not Assigned(TACBrNFSeX(TConfiguracoesNFSe(Owner).Owner).Provider) then Exit;
 
-  with TACBrNFSeX(TConfiguracoesNFSe(Owner).Owner).Provider.ConfigGeral do
-  begin
-    TabServicosExt := FTabServicosExt;
-  end;
+  TACBrNFSeX(TConfiguracoesNFSe(Owner).Owner).Provider.ConfigGeral.TabServicosExt := FTabServicosExt;
 end;
 
 function TArquivosConfNFSe.GetPathNFSe(Data: TDateTime = 0;

@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
@@ -37,21 +37,20 @@ unit ACBrDCeDeclaracoes;
 interface
 
 uses
-  Classes, 
+  Classes,
 	SysUtils, 
 	StrUtils,
   ACBrDCeConfiguracoes,
-  ACBrDCeClass, 
-	ACBrDCeLerXml, 
-	ACBrDCeGravarXml, 
-	pcnConversao, 
-	pcnAuxiliar;
+  ACBrDCe.Classes,
+	ACBrDCe.XmlReader,
+	ACBrDCe.XmlWriter,
+	pcnConversao;
 
 type
 
-  { Declaracao }
+  { TDeclaracao }
 
-  Declaracao = class(TCollectionItem)
+  TDeclaracao = class(TCollectionItem)
   private
     FDCe: TDCe;
     FDCeW: TDCeXmlWriter;
@@ -65,6 +64,7 @@ type
     FErroValidacaoCompleto: String;
     FErroRegrasdeNegocios: String;
     FNomeArq: String;
+    FNomeArqPDF: String;
 
     function GetConfirmado: Boolean;
     function GetProcessado: Boolean;
@@ -107,6 +107,7 @@ type
       PathArquivo: String = ''): String;
 
     property NomeArq: String read FNomeArq write FNomeArq;
+    property NomeArqPDF: String read FNomeArqPDF write FNomeArqPDF;
 
     property DCe: TDCe read FDCe;
 
@@ -136,8 +137,8 @@ type
     FACBrDCe: TComponent;
     FConfiguracoes: TConfiguracoesDCe;
 
-    function GetItem(Index: integer): Declaracao;
-    procedure SetItem(Index: integer; const Value: Declaracao);
+    function GetItem(Index: integer): TDeclaracao;
+    procedure SetItem(Index: integer; const Value: TDeclaracao);
 
     procedure VerificarDADCe;
   public
@@ -151,10 +152,10 @@ type
     procedure Imprimir;
     procedure ImprimirPDF;
 
-    function Add: Declaracao;
-    function Insert(Index: integer): Declaracao;
+    function Add: TDeclaracao;
+    function Insert(Index: integer): TDeclaracao;
 
-    property Items[Index: integer]: Declaracao read GetItem write SetItem; default;
+    property Items[Index: integer]: TDeclaracao read GetItem write SetItem; default;
 
     function GetNamePath: String; override;
     // Incluido o Parametro AGerarDCe que determina se após carregar os dados do DCe
@@ -176,15 +177,20 @@ uses
   Dateutils, 
 	IniFiles,
   synautil, 
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
 	ACBrXmlBase,
-  ACBrDCe, 
-	ACBrUtil.Strings, 
-	ACBrDFeUtil, 
-	ACBrDCeConversao;
+  ACBrXmlDocument,
+  ACBrDCe,
+	ACBrDFeUtil,
+	ACBrDCe.Conversao;
 
 { Declaracao }
 
-constructor Declaracao.Create(Collection2: TCollection);
+constructor TDeclaracao.Create(Collection2: TCollection);
 begin
   inherited Create(Collection2);
 
@@ -193,18 +199,18 @@ begin
   FDCeR := TDCeXmlReader.Create(FDCe);
   FConfiguracoes := TACBrDCe(TDeclaracoes(Collection).ACBrDCe).Configuracoes;
 
+  FDCe.Ide.verProc := 'ACBrDCe';
+  FDCe.Ide.modelo := 99;
+
   with TACBrDCe(TDeclaracoes(Collection).ACBrDCe) do
   begin
-    FDCe.Ide.modelo := 99;
     FDCe.infDCe.Versao := VersaoDCeToDbl(Configuracoes.Geral.VersaoDF);
-
-    FDCe.Ide.verProc := 'ACBrDCe';
     FDCe.Ide.tpAmb := TACBrTipoAmbiente(Integer(Configuracoes.WebServices.Ambiente));
-    FDCe.Ide.tpEmis := TTipoEmissao(Integer(Configuracoes.Geral.FormaEmissao));
+    FDCe.Ide.tpEmis := TACBrTipoEmissao(Integer(Configuracoes.Geral.FormaEmissao));
   end;
 end;
 
-destructor Declaracao.Destroy;
+destructor TDeclaracao.Destroy;
 begin
   FDCeW.Free;
   FDCeR.Free;
@@ -213,7 +219,7 @@ begin
   inherited Destroy;
 end;
 
-procedure Declaracao.Imprimir;
+procedure TDeclaracao.Imprimir;
 begin
   with TACBrDCe(TDeclaracoes(Collection).ACBrDCe) do
   begin
@@ -224,7 +230,7 @@ begin
   end;
 end;
 
-procedure Declaracao.ImprimirPDF;
+procedure TDeclaracao.ImprimirPDF;
 begin
   with TACBrDCe(TDeclaracoes(Collection).ACBrDCe) do
   begin
@@ -235,11 +241,12 @@ begin
   end;
 end;
 
-procedure Declaracao.Assinar;
+procedure TDeclaracao.Assinar;
 var
   XMLStr: String;
   XMLUTF8: AnsiString;
-//  Leitor: TLeitor;
+  Document: TACBrXmlDocument;
+  ANode: TACBrXmlNode;
 begin
   with TACBrDCe(TDeclaracoes(Collection).ACBrDCe) do
   begin
@@ -258,18 +265,16 @@ begin
     FXMLAssinado := SSL.Assinar(String(XMLUTF8), 'DCe', 'infDCe');
     // SSL.Assinar() sempre responde em UTF8...
     FXMLOriginal := FXMLAssinado;
-    {
-    Leitor := TLeitor.Create;
+
+    Document := TACBrXmlDocument.Create;
     try
-      leitor.Grupo := FXMLAssinado;
-      DCe.signature.URI := Leitor.rAtributo('Reference URI=');
-      DCe.signature.DigestValue := Leitor.rCampo(tcStr, 'DigestValue');
-      DCe.signature.SignatureValue := Leitor.rCampo(tcStr, 'SignatureValue');
-      DCe.signature.X509Certificate := Leitor.rCampo(tcStr, 'X509Certificate');
+      Document.LoadFromXml(FXMLOriginal);
+      ANode := Document.Root;
+
+      LerSignature(ANode.Childrens.FindAnyNs('Signature'), DCe.signature);
     finally
-      Leitor.Free;
+      FreeAndNil(Document);
     end;
-    }
 
     // Gera o QR-Code para adicionar no XML após ter a
     // assinatura, e antes de ser salvo.
@@ -277,20 +282,26 @@ begin
     with TACBrDCe(TDeclaracoes(Collection).ACBrDCe) do
     begin
       if DCe.emit.idOutros <> '' then
-        DCe.infDCeSupl.qrCode := GetURLQRCode(DCe.Ide.cUF, TpcnTipoAmbiente(Integer(DCe.Ide.tpAmb)),
-                              TpcnTipoEmissao(Integer(DCe.ide.tpEmis)), DCe.infDCe.ID, DCe.emit.idOutros,
-                              'O', DCe.infDCe.Versao)
+        DCe.infDCeSupl.qrCode := GetURLQRCode(DCe.Ide.cUF,
+          TpcnTipoAmbiente(Integer(DCe.Ide.tpAmb)),
+          TpcnTipoEmissao(Integer(DCe.ide.tpEmis)), DCe.infDCe.ID, DCe.emit.idOutros,
+          'O', DCe.infDCe.Versao)
       else
       begin
         if Length(DCe.emit.CNPJCPF) = 14 then
-          DCe.infDCeSupl.qrCode := GetURLQRCode(DCe.Ide.cUF, TpcnTipoAmbiente(Integer(DCe.Ide.tpAmb)),
-                              TpcnTipoEmissao(Integer(DCe.ide.tpEmis)), DCe.infDCe.ID, DCe.emit.CNPJCPF,
-                              'J', DCe.infDCe.Versao)
+          DCe.infDCeSupl.qrCode := GetURLQRCode(DCe.Ide.cUF,
+            TpcnTipoAmbiente(Integer(DCe.Ide.tpAmb)),
+            TpcnTipoEmissao(Integer(DCe.ide.tpEmis)), DCe.infDCe.ID, DCe.emit.CNPJCPF,
+            'J', DCe.infDCe.Versao)
         else
-          DCe.infDCeSupl.qrCode := GetURLQRCode(DCe.Ide.cUF, TpcnTipoAmbiente(Integer(DCe.Ide.tpAmb)),
-                              TpcnTipoEmissao(Integer(DCe.ide.tpEmis)), DCe.infDCe.ID, DCe.emit.CNPJCPF,
-                              'F', DCe.infDCe.Versao);
+          DCe.infDCeSupl.qrCode := GetURLQRCode(DCe.Ide.cUF,
+            TpcnTipoAmbiente(Integer(DCe.Ide.tpAmb)),
+            TpcnTipoEmissao(Integer(DCe.ide.tpEmis)), DCe.infDCe.ID, DCe.emit.CNPJCPF,
+            'F', DCe.infDCe.Versao);
       end;
+
+      DCe.infDCeSupl.urlChave := GetURLConsulta(DCe.Ide.cUF,
+                   TpcnTipoAmbiente(Integer(DCe.Ide.tpAmb)), DCe.infDCe.Versao);
 
       GerarXML;
     end;
@@ -306,7 +317,7 @@ begin
   end;
 end;
 
-procedure Declaracao.Validar;
+procedure TDeclaracao.Validar;
 var
   Erro, AXML, AXMLModal, TagModal: String;
   DCeEhValida, ModalEhValido: Boolean;
@@ -317,24 +328,9 @@ begin
   if AXML = '' then
     AXML := XMLOriginal;
 
-  AXMLModal := Trim(RetornarConteudoEntre(AXML, '<infModal', '</infModal>'));
-
-  case TACBrDCe(TDeclaracoes(Collection).ACBrDCe).IdentificaSchemaModal(AXML) of
-    schDCeModalAereo:       TagModal := 'aereo';
-    schDCeModalAquaviario:  TagModal := 'aquav';
-    schDCeModalFerroviario: TagModal := 'ferrov';
-    schDCeModalRodoviario:  TagModal := 'rodo';
-  end;
-
-  AXMLModal := '<' + TagModal + ' xmlns="' + ACBRDCe_NAMESPACE + '">' +
-                  Trim(RetornarConteudoEntre(AXML, '<' + TagModal + '>', '</' + TagModal + '>')) +
-               '</' + TagModal + '>';
-
-  AXMLModal := '<?xml version="1.0" encoding="UTF-8" ?>' + AXMLModal;
-
   with TACBrDCe(TDeclaracoes(Collection).ACBrDCe) do
   begin
-    ALayout := LayDCeRecepcao;
+    ALayout := LayDCeAutorizacao;
 
     // Extraindo apenas os dados da DCe (sem DCeProc)
     AXML := ObterDFeXML(AXML, 'DCe', ACBRDCe_NAMESPACE);
@@ -346,19 +342,6 @@ begin
     end
     else
     begin
-      ModalEhValido := SSL.Validar(AXMLModal, GerarNomeArqSchemaModal(AXML, FDCe.infDCe.Versao), Erro);
-
-      if not ModalEhValido then
-      begin
-        FErroValidacao := ACBrStr('Falha na validação do Modal do Declaracao: ') +
-          IntToStr(DCe.Ide.nDC) + sLineBreak + FAlertas ;
-        FErroValidacaoCompleto := FErroValidacao + sLineBreak + Erro;
-
-        raise EACBrDCeException.CreateDef(
-          IfThen(Configuracoes.Geral.ExibirErroSchema, ErroValidacaoCompleto,
-          ErroValidacao));
-      end;
-
       DCeEhValida := SSL.Validar(AXML, GerarNomeArqSchema(ALayout, FDCe.infDCe.Versao), Erro);
     end;
 
@@ -375,7 +358,7 @@ begin
   end;
 end;
 
-function Declaracao.VerificarAssinatura: Boolean;
+function TDeclaracao.VerificarAssinatura: Boolean;
 var
   Erro, AXML: String;
   AssEhValida: Boolean;
@@ -405,7 +388,7 @@ begin
   Result := AssEhValida;
 end;
 
-function Declaracao.ValidarRegrasdeNegocios: Boolean;
+function TDeclaracao.ValidarRegrasdeNegocios: Boolean;
 var
   Erros{, Log}: String;
   Agora: TDateTime;
@@ -474,7 +457,7 @@ begin
   FErroRegrasdeNegocios := Erros;
 end;
 
-function Declaracao.LerXML(const AXML: String): Boolean;
+function TDeclaracao.LerXML(const AXML: String): Boolean;
 var
   XMLStr: String;
 begin
@@ -486,7 +469,7 @@ begin
   Result := True;
 end;
 
-function Declaracao.GravarXML(const NomeArquivo: String; const PathArquivo: String): Boolean;
+function TDeclaracao.GravarXML(const NomeArquivo: String; const PathArquivo: String): Boolean;
 begin
   if EstaVazio(FXMLOriginal) then
     GerarXML;
@@ -496,7 +479,7 @@ begin
   Result := TACBrDCe(TDeclaracoes(Collection).ACBrDCe).Gravar(FNomeArq, FXMLOriginal);
 end;
 
-function Declaracao.GravarStream(AStream: TStream): Boolean;
+function TDeclaracao.GravarStream(AStream: TStream): Boolean;
 begin
   if EstaVazio(FXMLOriginal) then
     GerarXML;
@@ -506,7 +489,7 @@ begin
   Result := True;
 end;
 
-procedure Declaracao.EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings;
+procedure TDeclaracao.EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings;
   EnviaPDF: Boolean; sCC: TStrings; Anexos: TStrings; sReplyTo: TStrings);
 var
   NomeArqTemp : String;
@@ -546,7 +529,7 @@ begin
   end;
 end;
 
-function Declaracao.GerarDCeIni: String;
+function TDeclaracao.GerarDCeIni: String;
 var
   i, j, k, l, m: integer;
   sSecao: string;
@@ -1200,7 +1183,7 @@ begin
   end;
 end;
 
-function Declaracao.GerarXML: String;
+function TDeclaracao.GerarXML: String;
 var
   IdAnterior : String;
 begin
@@ -1215,7 +1198,12 @@ begin
     FDCeW.Opcoes.NormatizarMunicipios  := Configuracoes.Arquivos.NormatizarMunicipios;
     FDCeW.Opcoes.PathArquivoMunicipios := Configuracoes.Arquivos.PathArquivoMunicipios;
 
-    pcnAuxiliar.TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
+    TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
+
+    FDCeW.ModeloDF := 99;
+    FDCeW.VersaoDF := Configuracoes.Geral.VersaoDF;
+    FDCeW.tpAmb := TACBrTipoAmbiente(Integer(Configuracoes.WebServices.Ambiente));
+//    FDCeW.tpEmis := TACBrTipoEmissao(Integer(Configuracoes.Geral.FormaEmissao));
   end;
 
   FDCeW.GerarXml;
@@ -1231,7 +1219,7 @@ begin
   Result := FXMLOriginal;
 end;
 
-function Declaracao.CalcularNomeArquivo: String;
+function TDeclaracao.CalcularNomeArquivo: String;
 var
   xID: String;
 begin
@@ -1243,7 +1231,7 @@ begin
   Result := xID + '-DCe.xml';
 end;
 
-function Declaracao.CalcularPathArquivo: String;
+function TDeclaracao.CalcularPathArquivo: String;
 var
   Data: TDateTime;
 begin
@@ -1258,7 +1246,7 @@ begin
   end;
 end;
 
-function Declaracao.CalcularNomeArquivoCompleto(NomeArquivo: String;
+function TDeclaracao.CalcularNomeArquivoCompleto(NomeArquivo: String;
   PathArquivo: String): String;
 var
   PathNoArquivo: String;
@@ -1280,7 +1268,7 @@ begin
   Result := PathArquivo + NomeArquivo;
 end;
 
-function Declaracao.ValidarConcatChave: Boolean;
+function TDeclaracao.ValidarConcatChave: Boolean;
 var
   wAno, wMes, wDia: word;
 begin
@@ -1298,40 +1286,40 @@ begin
     (Copy(DCe.infDCe.ID, 40, 8) <> IntToStrZero(DCe.Ide.cDC, 8)));
 end;
 
-function Declaracao.GetConfirmado: Boolean;
+function TDeclaracao.GetConfirmado: Boolean;
 begin
   Result := TACBrDCe(TDeclaracoes(Collection).ACBrDCe).cStatConfirmado(
     FDCe.procDCe.cStat);
 end;
 
-function Declaracao.GetcStat: Integer;
+function TDeclaracao.GetcStat: Integer;
 begin
   Result := FDCe.procDCe.cStat;
 end;
 
-function Declaracao.GetProcessado: Boolean;
+function TDeclaracao.GetProcessado: Boolean;
 begin
   Result := TACBrDCe(TDeclaracoes(Collection).ACBrDCe).cStatProcessado(
     FDCe.procDCe.cStat);
 end;
 
-function Declaracao.GetCancelado: Boolean;
+function TDeclaracao.GetCancelado: Boolean;
 begin
   Result := TACBrDCe(TDeclaracoes(Collection).ACBrDCe).cStatCancelado(
     FDCe.procDCe.cStat);
 end;
 
-function Declaracao.GetMsg: String;
+function TDeclaracao.GetMsg: String;
 begin
   Result := FDCe.procDCe.xMotivo;
 end;
 
-function Declaracao.GetNumID: String;
+function TDeclaracao.GetNumID: String;
 begin
   Result := Trim(OnlyNumber(DCe.infDCe.ID));
 end;
 
-function Declaracao.GetXMLAssinado: String;
+function TDeclaracao.GetXMLAssinado: String;
 begin
   if EstaVazio(FXMLAssinado) then
     Assinar;
@@ -1339,12 +1327,12 @@ begin
   Result := FXMLAssinado;
 end;
 
-procedure Declaracao.SetXML(const AValue: String);
+procedure TDeclaracao.SetXML(const AValue: String);
 begin
   LerXML(AValue);
 end;
 
-procedure Declaracao.SetXMLOriginal(const AValue: String);
+procedure TDeclaracao.SetXMLOriginal(const AValue: String);
 var
   XMLUTF8: String;
 begin
@@ -1360,7 +1348,7 @@ begin
     FXMLAssinado := '';
 end;
 
-function Declaracao.LerArqIni(const AIniString: String): Boolean;
+function TDeclaracao.LerArqIni(const AIniString: String): Boolean;
 var
   I, J, K, L, M: Integer;
   versao, sSecao, sFim: String;
@@ -2420,9 +2408,9 @@ begin
   FConfiguracoes := TACBrDCe(FACBrDCe).Configuracoes;
 end;
 
-function TDeclaracoes.Add: Declaracao;
+function TDeclaracoes.Add: TDeclaracao;
 begin
-  Result := Declaracao(inherited Add);
+  Result := TDeclaracao(inherited Add);
 end;
 
 procedure TDeclaracoes.Assinar;
@@ -2448,9 +2436,9 @@ begin
     Self.Items[i].GerarXML;
 end;
 
-function TDeclaracoes.GetItem(Index: integer): Declaracao;
+function TDeclaracoes.GetItem(Index: integer): TDeclaracao;
 begin
-  Result := Declaracao(inherited Items[Index]);
+  Result := TDeclaracao(inherited Items[Index]);
 end;
 
 function TDeclaracoes.GetNamePath: String;
@@ -2473,15 +2461,15 @@ end;
 procedure TDeclaracoes.ImprimirPDF;
 begin
   VerificarDADCe;
-  TACBrDCe(FACBrDCe).DACE.ImprimirDACEPDF(nil);
+  TACBrDCe(FACBrDCe).DACE.ImprimirDACEPDF;
 end;
 
-function TDeclaracoes.Insert(Index: integer): Declaracao;
+function TDeclaracoes.Insert(Index: integer): TDeclaracao;
 begin
-  Result := Declaracao(inherited Insert(Index));
+  Result := TDeclaracao(inherited Insert(Index));
 end;
 
-procedure TDeclaracoes.SetItem(Index: integer; const Value: Declaracao);
+procedure TDeclaracoes.SetItem(Index: integer; const Value: TDeclaracao);
 begin
   Items[Index].Assign(Value);
 end;

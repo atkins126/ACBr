@@ -17,10 +17,11 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
+      <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="1"/>
-      <BuildNr Value="130"/>
+      <RevisionNr Value="1"/>
+      <BuildNr Value="162"/>
       <Language Value="0416"/>
-      <Attributes pvaPreRelease="True"/>
       <StringTable CompanyName="Projeto ACBr" FileDescription="ACBrSedex - Biblioteca para consulta de Sedex" InternalName="ACBrLibSedex" LegalCopyright="Projeto ACBr" LegalTrademarks="Projeto ACBr" ProductName="Sedex" ProductVersion="0.0.1.30"/>
     </VersionInfo>
     <BuildModes Count="12">
@@ -493,10 +494,13 @@
         </Mode0>
       </Modes>
     </RunParams>
-    <RequiredPackages Count="1">
+    <RequiredPackages Count="2">
       <Item1>
-        <PackageName Value="ACBrTCP"/>
+        <PackageName Value="ACBrOpenSSL"/>
       </Item1>
+      <Item2>
+        <PackageName Value="ACBrTCP"/>
+      </Item2>
     </RequiredPackages>
     <Units Count="12">
       <Unit0>

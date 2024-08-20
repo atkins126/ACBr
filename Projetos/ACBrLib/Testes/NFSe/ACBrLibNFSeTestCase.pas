@@ -82,6 +82,7 @@ type
     procedure Test_NFSE_ConsultarNFSePorPeriodo;
     procedure Test_NFSE_ConsultarNFSePorFaixa;
     procedure Test_NFSE_ConsultarNFSeGenerico;
+    procedure Test_NFSE_ConsultarLinkNFSe;
     procedure Test_NFSE_EnviarEmail;
     procedure Test_NFSE_Imprimir;
     procedure Test_NFSE_ImprimirPDF;
@@ -99,6 +100,10 @@ type
     procedure Test_NFSe_IniServicos_Vazio_Carregando_ACBrNFSeXServicos_Resources;
     procedure Test_NFSe_IniServicos_Informando_Path_Com_ACBrNFSeXServicos_Sem_Provedor;
     procedure Test_NFSe_IniServicos_Informando_Path_Com_ACBrNFSeXServicos_Com_Provedor;
+    procedure Test_NFSe_LayoutImpressao;
+    procedure Test_NFSe_ObterInformacoesProvedor;
+    procedure Test_NFSe_PropriedadeProducaoNAO;
+    procedure Test_NFSe_PropriedadeProducaoSIM;
 
   end;
 
@@ -714,6 +719,29 @@ begin
   end;
 end;
 
+procedure TTestACBrNFSeLib.Test_NFSE_ConsultarLinkNFSe();
+var
+  Handle: THandle;
+  Resposta: PChar;
+  Tamanho: Longint;
+begin
+  try
+    AssertEquals(ErrOK, NFSE_Inicializar(Handle, '', ''));
+    Resposta:= '';
+    Tamanho:= 0;
+
+    AssertEquals('Erro ao Consultar Link NFSe', ErrOK,
+    NFSE_ConsultarLinkNFSe(Handle, PChar(fCaminhoExec +'\NFSeConsultaLinkNFse.ini'), Resposta, Tamanho));
+    AssertEquals('Resposta= ' + AnsiString(Resposta), '', '');
+    AssertEquals('Tamanho= ' + IntToStr(Tamanho), '', '');
+
+    AssertEquals(ErrOK, NFSE_Finalizar(Handle));
+  except
+  on E: Exception do
+    ShowMessage( 'Error: '+ E.ClassName + #13#10 + E.Message );
+  end;
+end;
+
 procedure TTestACBrNFSeLib.Test_NFSE_EnviarEmail();
 var
   Handle: THandle;
@@ -1144,6 +1172,125 @@ begin
   NFSE_Emitir(Handle, '1', 0, False, Resposta, Tamanho));
   AssertEquals('Resposta= ' + AnsiString(Resposta), '', '');
   AssertEquals('Tamanho= ' + IntToStr(Tamanho), '', '');
+
+  AssertEquals(ErrOK, NFSE_Finalizar(Handle));
+end;
+
+procedure TTestACBrNFSeLib.Test_NFSe_LayoutImpressao;
+var
+  AStr: String;
+  Handle: THandle;
+  Bufflen: Integer;
+begin
+  AssertEquals(ErrOK, NFSE_Inicializar(Handle, '', ''));
+
+  Bufflen := 255;
+  AStr := Space(Bufflen);
+
+  AssertEquals(ErrOk, NFSE_ConfigLerValor(Handle, 'NFSe', 'LayoutNFSe', PChar(AStr), Bufflen));
+
+  AssertEquals('Erro ao Mudar configuração', ErrOk, NFSE_ConfigGravarValor(Handle, 'NFSe', 'LayoutNFSe', '0'));
+
+  AssertEquals(ErrOk, NFSE_ConfigLerValor(Handle, 'NFSe', 'CodigoMunicipio', PChar(AStr), Bufflen));
+
+  AssertEquals('Erro ao Mudar configuração', ErrOk, NFSE_ConfigGravarValor(Handle, 'NFSe', 'CodigoMunicipio', '3301702'));
+
+  AssertEquals(ErrOK, NFSE_ConfigGravar(Handle,'ACBrLib.ini'));
+
+  AssertEquals('Erro ao carregar XML NFSe', ErrOK,
+  NFSE_CarregarXML(Handle, PChar(fCaminhoExec+'\NFSe.xml')));
+
+  AssertEquals('Erro ao Imprimir NFSe', ErrOK,
+  NFSE_Imprimir(Handle, '', 1, 'True', 'True', ''));
+
+  AssertEquals(ErrOK, NFSE_Finalizar(Handle));
+end;
+
+procedure TTestACBrNFSeLib.Test_NFSe_ObterInformacoesProvedor;
+var
+  Handle: THandle;
+  Resposta: PChar;
+  Tamanho: longint;
+begin
+
+  AssertEquals(ErrOK, NFSE_Inicializar(Handle, '', ''));
+  Resposta := '';
+  Tamanho := 0;
+
+  NFSE_ObterInformacoesProvedor(Handle, Resposta, Tamanho);
+
+  AssertEquals('Resposta= ' + AnsiString(Resposta), '', '');
+  AssertEquals('Tamanho= ' + IntToStr(Tamanho), '', '');
+
+  AssertEquals('Erro ao configurar a cidade', ErrOK,
+  NFSE_ConfigGravarValor(Handle, 'NFSe', 'LayoutNFSe', '1'));
+
+  Resposta := '';
+  Tamanho := 0;
+  NFSE_ObterInformacoesProvedor(Handle, Resposta, Tamanho);
+
+  AssertEquals('Resposta= ' + AnsiString(Resposta), '', '');
+  AssertEquals('Tamanho= ' + IntToStr(Tamanho), '', '');
+
+  AssertEquals(ErrOK, NFSE_Finalizar(Handle));
+end;
+
+procedure TTestACBrNFSeLib.Test_NFSe_PropriedadeProducaoNAO;
+var
+  AStr: String;
+  Handle: THandle;
+  Bufflen: Integer;
+begin
+  AssertEquals(ErrOK, NFSE_Inicializar(Handle, '', ''));
+
+  Bufflen := 255;
+  AStr := Space(Bufflen);
+
+  AssertEquals(ErrOk, NFSE_ConfigLerValor(Handle, 'DANFSE', 'Producao', PChar(AStr), Bufflen));
+
+  AssertEquals('Erro ao Mudar configuração', ErrOk, NFSE_ConfigGravarValor(Handle, 'DANFSE', 'Producao', '0')); //Deve exibir Tarja "Ambiente de Homologação".
+
+  AssertEquals(ErrOk, NFSE_ConfigLerValor(Handle, 'NFSe', 'CodigoMunicipio', PChar(AStr), Bufflen));
+
+  AssertEquals('Erro ao Mudar configuração', ErrOk, NFSE_ConfigGravarValor(Handle, 'NFSe', 'CodigoMunicipio', '4321204'));
+
+  AssertEquals(ErrOK, NFSE_ConfigGravar(Handle,'ACBrLib.ini'));
+
+  AssertEquals('Erro ao carregar XML NFSe', ErrOK,
+  NFSE_CarregarXML(Handle, PChar(fCaminhoExec+'\TAQUARA.xml')));
+
+  AssertEquals('Erro ao Imprimir NFSe', ErrOK,
+  NFSE_Imprimir(Handle, '', 1, 'True', 'True', ''));
+
+  AssertEquals(ErrOK, NFSE_Finalizar(Handle));
+end;
+
+procedure TTestACBrNFSeLib.Test_NFSe_PropriedadeProducaoSIM;
+var
+  AStr: String;
+  Handle: THandle;
+  Bufflen: Integer;
+begin
+  AssertEquals(ErrOK, NFSE_Inicializar(Handle, '', ''));
+
+  Bufflen := 255;
+  AStr := Space(Bufflen);
+
+  AssertEquals(ErrOk, NFSE_ConfigLerValor(Handle, 'DANFSE', 'Producao', PChar(AStr), Bufflen));
+
+  AssertEquals('Erro ao Mudar configuração', ErrOk, NFSE_ConfigGravarValor(Handle, 'DANFSE', 'Producao', '1')); //Não deve exibir Tarja "Ambiente de Homologação"
+
+  AssertEquals(ErrOk, NFSE_ConfigLerValor(Handle, 'NFSe', 'CodigoMunicipio', PChar(AStr), Bufflen));
+
+  AssertEquals('Erro ao Mudar configuração', ErrOk, NFSE_ConfigGravarValor(Handle, 'NFSe', 'CodigoMunicipio', '4321204'));
+
+  AssertEquals(ErrOK, NFSE_ConfigGravar(Handle,'ACBrLib.ini'));
+
+  AssertEquals('Erro ao carregar XML NFSe', ErrOK,
+  NFSE_CarregarXML(Handle, PChar(fCaminhoExec+'\TAQUARA.xml')));
+
+  AssertEquals('Erro ao Imprimir NFSe', ErrOK,
+  NFSE_Imprimir(Handle, '', 1, 'True', 'True', ''));
 
   AssertEquals(ErrOK, NFSE_Finalizar(Handle));
 end;

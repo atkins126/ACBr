@@ -72,6 +72,10 @@ Private Declare Function NFSE_ConfigGravarValor _
 Private Declare Function NFSE_CarregarXML _
                 Lib "ACBrNFSe32.dll" (ByVal libHandler As Long, _
                                       ByVal eArquivoOuXml As String) As Long
+
+Private Declare Function NFSE_CarregarLoteXML _
+                Lib "ACBrNFSe32.dll" (ByVal libHandler As Long, _
+                                      ByVal eArquivoOuXml As String) As Long
                 
 Private Declare Function NFSE_CarregarINI _
                 Lib "ACBrNFSe32.dll" (ByVal libHandler As Long, _
@@ -230,6 +234,10 @@ Private Declare Function NFSE_Imprimir _
                                       
 Private Declare Function NFSE_ImprimirPDF Lib "ACBrNFSe32.dll" (ByVal libHandler As Long) As Long
 
+Private Declare Function NFSE_SalvarPDF Lib "ACBrNFSe32.dll" (ByVal libHandler As Long, _
+                                                                ByVal buffer As String, _
+                                                                ByRef bufferLen As Long) As Long
+
 Private Declare Function NFSE_ConsultarNFSeServicoPrestadoPorNumero _
                 Lib "ACBrNFSe32.dll" (ByVal libHandler As Long, _
                                       ByVal aNumero As String, _
@@ -369,6 +377,12 @@ Private Declare Function NFSE_ConsultarParametros _
                                      ByVal aNumeroBeneficio As String, _
                                      ByVal buffer As String, _
                                      ByRef bufferLen As Long) As Long
+                                     
+Private Declare Function NFSE_ObterInformacoesProvedor _
+                Lib "ACBrNFSe32.dll" (ByVal libHandler As Long, _
+                                      ByVal buffer As String, _
+                                      ByRef bufferLen As Long) As Long
+                                     
 Public Sub InicializarLib(Optional ByVal eArqConfig As String = "", _
                           Optional ByVal eChaveCrypt As String = "")
 
@@ -488,6 +502,12 @@ End Function
 Public Sub CarregarXML(ByVal eArquivoOuXml As String)
     Dim retorno   As Long
     retorno = NFSE_CarregarXML(libHandler, eArquivoOuXml)
+    CheckResult retorno
+End Sub
+
+Public Sub CarregarLoteXML(ByVal eArquivoOuXml As String)
+    Dim retorno   As Long
+    retorno = NFSE_CarregarLoteXML(libHandler, eArquivoOuXml)
     CheckResult retorno
 End Sub
 
@@ -621,7 +641,7 @@ Public Function LinkNFSE(ByVal aNumeroNFSe As String, ByVal aCodigoVerificacao A
     bufferLen = BUFFER_LENGTH
     buffer = String$(bufferLen, " ")
     
-    retorno = NFSE_LinkNFSE(libHandler, aNumeroNFSe, aCodigoVerificacao, aChaveAcesso, aValorServico, buffer, bufferLen)
+    retorno = NFSE_LinkNFSe(libHandler, aNumeroNFSe, aCodigoVerificacao, aChaveAcesso, aValorServico, buffer, bufferLen)
     CheckResult retorno
     
     LinkNFSE = processResult(buffer, bufferLen)
@@ -799,6 +819,22 @@ Public Sub ImprimirPDF()
     CheckResult retorno
     
 End Sub
+
+Public Function SalvarPDF() As String
+
+    Dim retorno   As Long
+    Dim buffer    As String
+    Dim bufferLen As Long
+    
+    bufferLen = BUFFER_LENGTH
+    buffer = String$(bufferLen, " ")
+    
+    retorno = NFSE_SalvarPDF(libHandler, buffer, bufferLen)
+    CheckResult retorno
+    
+    SalvarPDF = processResult(buffer, bufferLen)
+
+End Function
 
 Public Function ConsultarNFSeServicoPrestadoPorNumero(ByVal aNumero As String, ByVal aPagina As Long, ByVal aDataInicial As Date, ByVal aDataFinal As Date, ByVal aTipoPeriodo As Long) As String
 
@@ -1056,6 +1092,22 @@ Public Function ConsultarParametros(ByVal aTipoParametroMunicipio As Long, ByVal
 
 End Function
 
+
+Public Function ObterInformacoesProvedor() As String
+    
+    Dim retorno   As Long
+    Dim buffer    As String
+    Dim bufferLen As Long
+    
+    bufferLen = BUFFER_LENGTH
+    buffer = String$(bufferLen, " ")
+    
+    retorno = NFSE_ObterInformacoesProvedor(libHandler, buffer, bufferLen)
+    CheckResult retorno
+    
+    ObterInformacoesProvedor = processResult(buffer, bufferLen)
+
+End Function
 
 Private Sub CheckResult(ByVal Resultado As Long)
     

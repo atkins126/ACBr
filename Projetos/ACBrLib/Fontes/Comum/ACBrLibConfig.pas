@@ -1,9 +1,9 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 { Projeto: Componentes ACBr                                                    }
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Rafael Teno Dias                                }
 {                                                                              }
@@ -37,16 +37,20 @@ unit ACBrLibConfig;
 interface
 
 uses
-  Classes, SysUtils, IniFiles,
-  synachar, mimemess,
-  ACBrLibResposta, ACBrDeviceConfig, blcksock;
+  Classes,
+  SysUtils,
+  IniFiles,
+  synachar,
+  mimemess,
+  blcksock,
+  ACBrDeviceConfig,
+  ACBrUtil.FilesIO;
 
 type
-  //               0           1          2           3             4
-  TNivelLog = (logNenhum, logSimples, logNormal, logCompleto, logParanoico);
-
   //                 0       1
   TTipoFuncao = (tfGravar, tfLer);
+  TACBrLibRespostaTipo = (resINI, resXML, resJSON);
+  TACBrLibCodificacao = (codUTF8, codANSI);
 
   { TLogConfig }
 
@@ -62,7 +66,7 @@ type
     procedure GravarIni(const AIni: TCustomIniFile);
 
     property Nivel: TNivelLog read FNivel;
-    property Path: String read FPath;
+    property Path: String read FPath write SetPath;
   end;
 
   { TSistemaConfig }
@@ -108,6 +112,25 @@ type
     property Usuario: String read FUsuario;
     property Senha: String read GetSenha;
   end;
+
+  { TSocketConfig }
+
+  TSocketConfig = class
+  private
+    FArqLog: String;
+    FNivelLog: Byte;
+    FTimeOut: Integer;
+  public
+    constructor Create;
+    procedure DefinirValoresPadroes;
+    procedure LerIni(const AIni: TCustomIniFile);
+    procedure GravarIni(const AIni: TCustomIniFile);
+
+    property NivelLog: Byte read FNivelLog;
+    property ArqLog: String read FArqLog;
+    property TimeOut: Integer read FTimeOut;
+  end;
+
 
   { TEmailConfig }
 
@@ -285,6 +308,7 @@ type
     FPosDeviceConfig: TDeviceConfig;
     FProxyInfo: TProxyConfig;
     FSistema: TSistemaConfig;
+    FSocket: TSocketConfig;
     FSoftwareHouse: TEmpresaConfig;
     FEmissor: TEmpresaConfig;
     FTipoResposta: TACBrLibRespostaTipo;
@@ -328,13 +352,14 @@ type
     function AjustarValor(Tipo: TTipoFuncao; ASessao, AChave, AValor: Ansistring): Ansistring; virtual;
 
     property NomeArquivo: String read FNomeArquivo write SetNomeArquivo;
-    property ChaveCrypt: String read FChaveCrypt;
+    property ChaveCrypt: AnsiString read FChaveCrypt;
 
     property EhMemory: boolean read FEhMemory;
     property TipoResposta: TACBrLibRespostaTipo read FTipoResposta;
     property CodResposta: TACBrLibCodificacao read FCodificaoResposta;
     property Log: TLogConfig read FLog;
     property ProxyInfo: TProxyConfig read FProxyInfo;
+    property Socket: TSocketConfig read FSocket;
     property Email: TEmailConfig read FEmail;
     property PosPrinter: TPosPrinterConfig read FPosPrinter;
     property PosDeviceConfig: TDeviceConfig read FPosDeviceConfig;
@@ -350,7 +375,7 @@ implementation
 uses
   TypInfo, strutils,
   ACBrLibConsts, ACBrLibComum,
-  ACBrLibHelpers, ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings;
+  ACBrLibHelpersIni, ACBrUtil.Base, ACBrUtil.Strings;
 
 { TSistemaConfig }
 
@@ -420,6 +445,35 @@ begin
   AIni.WriteInteger(CSessaoProxy, CChavePorta, FPorta);
   AIni.WriteString(CSessaoProxy, CChaveUsuario, FUsuario);
   AIni.WriteString(CSessaoProxy, CChaveSenha, FSenha);
+end;
+
+{ TSocketConfig }
+
+constructor TSocketConfig.Create;
+begin
+  inherited Create;
+  DefinirValoresPadroes;
+end;
+
+procedure TSocketConfig.DefinirValoresPadroes;
+begin
+  FNivelLog := 0;
+  FArqLog := '';
+  FTimeOut := 0;
+end;
+
+procedure TSocketConfig.LerIni(const AIni: TCustomIniFile);
+begin
+  FNivelLog := AIni.ReadInteger(CSessaoSocket, CChaveNivelLog, FNivelLog);
+  FArqLog := AIni.ReadString(CSessaoSocket, CChaveArqLog, FArqLog);
+  FTimeOut := AIni.ReadInteger(CSessaoSocket, CChaveTimeOut, FTimeOut);
+end;
+
+procedure TSocketConfig.GravarIni(const AIni: TCustomIniFile);
+begin
+  AIni.WriteInteger(CSessaoSocket, CChaveNivelLog, FNivelLog);
+  AIni.WriteString(CSessaoSocket, CChaveArqLog, FArqLog);
+  AIni.WriteInteger(CSessaoSocket, CChaveTimeOut, FTimeOut);
 end;
 
 { TEmailConfig }
@@ -687,7 +741,11 @@ end;
 
 procedure TLogConfig.DefinirValoresPadroes;
 begin
-  FNivel := logNenhum;
+  {$IfDef ANDROID}
+   FNivel := logParanoico;
+  {$Else}
+   FNivel := logNenhum;
+  {$EndIf}
   FPath := '';
 end;
 
@@ -740,9 +798,10 @@ begin
   FLog := TLogConfig.Create;
   FSistema := TSistemaConfig.Create;
   FEmail := TEmailConfig.Create(FChaveCrypt);
-  FPosPrinter := TPosPrinterConfig.Create();
+  FPosPrinter := TPosPrinterConfig.Create;
   FPosDeviceConfig := TDeviceConfig.Create(CSessaoPosPrinterDevice);
   FProxyInfo := TProxyConfig.Create(FChaveCrypt);
+  FSocket := TSocketConfig.Create;
   FSoftwareHouse := TEmpresaConfig.Create(CSessaoSwHouse);
   FEmissor := TEmpresaConfig.Create(CSessaoEmissor);
 
@@ -769,6 +828,7 @@ begin
   FEmissor.Free;
   FSoftwareHouse.Free;
   FProxyInfo.Free;
+  FSocket.Free;
   FEmail.Free;
   FPosPrinter.Free;
   FPosDeviceConfig.Free;
@@ -778,7 +838,7 @@ end;
 
 procedure TLibConfig.VerificarSeIniFoiModificado;
 var
-  NewIniAge: LongInt;
+  NewIniAge: Integer;
 begin
   if (FEhMemory or  not FileExists(FNomeArquivo)) then Exit;
 
@@ -797,7 +857,13 @@ var
   APath: String;
 begin
   if EstaVazio(FNomeArquivo) then
-    FNomeArquivo := ApplicationPath + CNomeArqConf;
+  begin
+    {$IfDef ANDROID}
+     raise EACBrLibException.Create(ErrDiretorioNaoExiste, SErrArquivoConfigSemPathNoInicializar);
+    {$Else}
+     FNomeArquivo := ApplicationPath + CNomeArqConf;
+    {$EndIf}
+  end;
 
   APath := ExtractFilePath(FNomeArquivo);
   if NaoEstaVazio(APath) then
@@ -806,7 +872,13 @@ begin
       raise EACBrLibException.Create(ErrDiretorioNaoExiste, Format(SErrDiretorioInvalido, [APath]));
   end
   else
-    FNomeArquivo := ApplicationPath + ExtractFileName(FNomeArquivo);
+  begin
+    {$IfDef ANDROID}
+     raise EACBrLibException.Create(ErrDiretorioNaoExiste, Format(SErrDiretorioNaoInformado, [FNomeArquivo]));
+    {$Else}
+     FNomeArquivo := ApplicationPath + ExtractFileName(FNomeArquivo);
+    {$EndIf}
+  end;
 
   if (not Gravando) and (not FileExists(FNomeArquivo)) then
     raise EACBrLibException.Create(ErrArquivoNaoExiste, Format(SErrArquivoNaoExiste, [FNomeArquivo]));
@@ -881,6 +953,11 @@ begin
     if not EhMemory then
     begin
       ArquivoInformado := (FNomeArquivo <> '') and FileExists(FNomeArquivo);
+      {$IfDef ANDROID}
+      if DirectoryExists(FNomeArquivo) then
+        FNomeArquivo := PathWithDelim(FNomeArquivo) + CNomeArqConf;
+      {$EndIf};
+
       VerificarNomeEPath(not ArquivoInformado);
 
       TACBrLib(FOwner).GravarLog(ClassName + '.Ler: ' + FNomeArquivo, logCompleto);
@@ -921,6 +998,7 @@ begin
   FPosPrinter.LerIni(FIni);
   FPosDeviceConfig.LerIni(FIni);
   FProxyInfo.LerIni(FIni);
+  FSocket.LerIni(FIni);
   FSoftwareHouse.LerIni(FIni);
   FEmissor.LerIni(FIni);
 end;
@@ -961,6 +1039,7 @@ begin
   FPosPrinter.GravarIni(FIni);
   FPosDeviceConfig.GravarIni(FIni);
   FProxyInfo.GravarIni(FIni);
+  FSocket.GravarIni(FIni);
   FSoftwareHouse.GravarIni(FIni);
   FEmissor.GravarIni(FIni);
 end;
@@ -1031,6 +1110,9 @@ begin
               ( (ASessao = CSessaoProxy) or
                 (ASessao = CSessaoEmail) or
                 (ASessao = CSessaoDFe)
+
+              ) or (
+              (ASessao = CSessaoConsultaCNPJ) and ((AChave = CChaveSenha) or (AChave = CChaveUsuario))
               );
 
     if (Config.Log.Nivel > logCompleto) then
@@ -1047,7 +1129,6 @@ begin
   TACBrLib(FOwner).GravarLog(ClassName + '.AjustarValor(' + GetEnumName(TypeInfo(TTipoFuncao), Integer(Tipo)) + ','
                                                           + ASessao + ',' + AChave + ',' + IfThen(Criptografar,
                                                           StringOfChar('*', Length(AValor)), AValor) +')', logParanoico);
-
   Result := AValor;
   if Criptografar then
   begin

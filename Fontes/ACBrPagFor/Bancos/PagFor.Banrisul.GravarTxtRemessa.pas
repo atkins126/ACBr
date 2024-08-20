@@ -89,7 +89,7 @@ begin
   GravarCampo(' ', 14, tcStr);
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Agencia.Codigo, 5, tcInt);
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Agencia.DV, 1, tcStr);
-  GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Conta.Numero, 12, tcInt);
+  GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Conta.Numero, 12, tcInt64);
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Conta.DV, 1, tcStr);
   GravarCampo(' ', 1, tcStr);
   GravarCampo(PagFor.Registro0.Empresa.Nome, 30, tcStr, True);
@@ -119,7 +119,9 @@ begin
     Inc(FQtdeContasConc);
 
   FQtdeRegistrosLote := 1;
-  FSequencialDeLote  := 0;
+  FSequencialDoRegistroNoLote := 0;
+
+  FpFormaLancamento := PagFor.Lote.Items[I].Registro1.Servico.FormaLancamento;
 
   GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
   GravarCampo(FQtdeLotes, 4, tcInt);
@@ -143,7 +145,7 @@ begin
     GravarCampo(' ', 14, tcStr);
     GravarCampo(ContaCorrente.Agencia.Codigo, 5, tcInt);
     GravarCampo(ContaCorrente.Agencia.DV, 1, tcStr);
-    GravarCampo(ContaCorrente.Conta.Numero, 12, tcInt);
+    GravarCampo(ContaCorrente.Conta.Numero, 12, tcInt64);
     GravarCampo(ContaCorrente.Conta.DV, 1, tcStr);
     GravarCampo(' ', 1, tcStr);
     GravarCampo(Nome, 30, tcStr, True);
@@ -219,12 +221,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
-      Inc(FSequencialDeLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('A', 1, tcStr);
       GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
       GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
@@ -232,7 +234,7 @@ begin
       GravarCampo(BancoToStr(Favorecido.Banco), 3, tcStr);
       GravarCampo(Favorecido.ContaCorrente.Agencia.Codigo, 5, tcInt);
       GravarCampo(Favorecido.ContaCorrente.Agencia.DV, 1, tcStr);
-      GravarCampo(Favorecido.ContaCorrente.Conta.Numero, 12, tcInt);
+      GravarCampo(Favorecido.ContaCorrente.Conta.Numero, 12, tcInt64);
       GravarCampo(Favorecido.ContaCorrente.Conta.DV, 1, tcStr);
       GravarCampo(Favorecido.ContaCorrente.DV, 1, tcStr);
       GravarCampo(Favorecido.Nome, 30, tcStr, True);
@@ -274,12 +276,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
-      Inc(FSequencialDeLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('B', 1, tcStr);
 
       if (PixTipoChave <> tcpNenhum) then
@@ -342,12 +344,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
-      Inc(FSequencialDeLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('J', 1, tcStr);
       GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
       GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
@@ -387,12 +389,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
-      Inc(FSequencialDeLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('J', 1, tcStr);
       GravarCampo(' ', 1, tcStr);
       GravarCampo('01', 2, tcStr);

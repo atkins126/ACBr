@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2018 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo:          Rafael Teno Dias                       }
 {                                                                              }
@@ -54,6 +54,7 @@ exports
   POS_Inicializada,
   POS_Nome,
   POS_Versao,
+  POS_OpenSSLInfo,
   POS_UltimoRetorno,
   POS_ConfigImportar,
   POS_ConfigExportar,
@@ -86,6 +87,7 @@ exports
   POS_AbrirGaveta,
   POS_LerInfoImpressora,
   POS_LerStatusImpressora,
+  POS_LerStatusImpressoraFormatado,
   POS_RetornarTags,
   POS_AcharPortas,
   POS_GravarLogoArquivo,

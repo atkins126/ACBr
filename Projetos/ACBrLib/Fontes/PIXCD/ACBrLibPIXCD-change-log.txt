@@ -42,6 +42,104 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+23/07/2024
+-- ACBrLibPIXCDBase, ACBrLibPIXCDConsts, ACBrLibPIXCDRespostas, ACBrLibPIXCDST, ACBrLibPIXCDMT,
+   ACBrLibPIXCDStaticImportST, ACBrLibPIXCDStaticImportMT --
+[+] Novos métodos PIXCD_ConsultarCobrancasCob e PIXCD_ConsultarCobrancasCobV
+Por: Antonio Carlos Junior   
+
+15/07/2024
+-- ACBrLibPIXCDBase, ACBrLibPIXCDConfig, ACBrLibPIXCDConsts, ACBrLibPIXCDDataModule, ACBrLibPIXCDMateraRespostas,
+   ACBrLibPIXCDST, ACBrLibPIXCDMT, ACBrLibPIXCDStaticImportST, ACBrLibPIXCDStaticImportMT -- 
+[+] Novos métodos para uso PSP Matera.
+[+] Inclusão novos PSPs.
+Por: Antonio Carlos Junior / Revisão: Elias Cesar
+
+
+28/05/2024
+-- ACBrLibPIXCDRespostas --
+[*] Adiciona seção Violações na resposta quando houver erro e a informação for devolvida.
+Por: Diego Folieni
+
+02/05/2024
+-- ACBrLibPIXCDConfig --
+[*] Altera o escopo de variável visando correto uso de herança.
+Por: Diego Folieni
+[*] Refactoring da maneira como era lido e salvo a informação dos scopes
+Por: Diego Folieni
+-- ACBrLibPIXCDConfig, ACBrLibPIXCDDataModule, ACBrLibPIXCDConsts --
+[*] Adiciona a propriedade Scopes para os PSPs.
+Por: Diego Folieni
+
+13/03/2024
+--- ACBrLibPIXCDBase --
+[*] Adicionado uses ACBrUtil.filesIO
+Por: Daniel Morais Infocotidiano
+
+20/02/2024
+-- ACBrLibPIXCDConfig --
+[*] Corrige a informação do ArqPFX no GravarIni para o PSP Bradesco.
+  Por: Eduardo Telles
+
+12/02/2024
+-- ACBrLibPIXCDBase, ACBrLibPIXCDResposta --
+[*] Ajustes nas nomenclaturas de algumas funções visando trazer maior clareza no código e evitar possíveis problemas.
+   Por: Diego Folieni
+
+26/01/2024
+--- ACBrLibPIXCDBase, ACBrLibPIXCDRespostas, ACBrLibPIXCDConsts ---
+[*] Ajustes unit ACBrLibPIXCDRespostas e nos métodos ACBrLibPIXCDBase - #TK-4998
+    Por: Diego Folieni / Revisão Antonio Carlos Junior
+
+23/01/2024
+-- ACBrLibPIXCDConfig --
+[*] Correção do reader da propriedade ClientId para a config do PSP Sicoob.
+    Por: Diego Folieni
+
+28/12/2023
+--- ACBrLibPIXCDDataModule ---
+[+] Criação Versão Demonstração ACBrLibPIXCD
+    Por: Antonio Carlos Junior
+
+27/12/2023
+--- ACBrLibPIXCDBase, ACBrLibPIXCDST, ACBrLibPIXCDStaticImportST, ACBrLibPIXCDMT, ACBrLibPIXCDStaticImportMT ---
+[*] Ajuste Método GerarQRCodeEstatico
+    Por: Antonio Carlos Junior
+
+22/12/2023
+--- ACBrLibPIXCDDataModule, ACBrLibPIXCDConsts, ACBrLibPIXCDConfig ---
+[*] Inclusão propriedade ChavePIX para PSP MercadoPago.
+    Por: Antonio Carlos Junior
+
+19/12/2023
+--- ACBrLibPIXCDBase, ACBrLibPIXCDST, ACBrLibPIXCDMT, ACBrLibPIXCDStaticImportST, ACBrLibPIXCDStaticImportMT ---
+[*] Ajustes nos métodos CriarCobranca
+[+] Criação métodos CancelarCobranca
+    Por: Antonio Carlos Junior
+
+12/12/2023
+--- ACBrLibPIXCDDataModule, ACBrLibPIXCDConsts, ACBrLibPIXCDConfig ---
+[+] Inclusão novas propriedades dos PSPs.
+    Por: Antonio Carlos Junior 
+
+11/12/2023
+--- ACBrLibPIXCDConfig, ACBrLibPIXCDConsts, ACBrLibPIXCDDataModule ---
+[*] Ajustes nas propriedades ACBrLibPIXCD.
+    Por: Antonio Carlos Junior
+
+06/12/2023
+--- ACBrLibPIXCDBase, ACBrLibPIXCDConsts, ACBrLibPIXCDRespostas ---
+[*] Ajustes na unit ACBrLibPIXCDResposta e nos métodos em ACBrLibPIXCDBase.
+[+] Implementado novos métodos.
+    Por: Antonio Carlos Junior
+
+07/11/2023
+--- ACBrLibPIXCDBase, ACBrLibPIXCDConfig, ACBrLibPIXCDConsts, ACBrLibPIXCDDataModule --- 
+[+] Inclusão novos PSPs.
+[+] Inclusão das propriedades dos novos PSPs.
+[+] Implementado métodos de Consulta ACBrLibPIXCD.
+    Por: Antonio Carlos Junior
+
 29/09/2023
 --- ACBrLibPIXCDDataModule, ACBrLibPIXCDConsts, ACBrLibPIXCDConfig ---
 [*] Ajustes ACBrLibPIXCDDataModule para carregar PSP corretamente.
