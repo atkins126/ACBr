@@ -204,7 +204,7 @@ type
     FSituTrib: TpcnCSTIcms;
   public
     procedure LerICMS00(const ANode: TACBrXMLNode; const ICMS00: TCST00);
-  published
+//  published
     property LiAhInformacao: Boolean read FLiAhInformacao;
     property SituTrib: TpcnCSTIcms read FSituTrib;
   end;
@@ -215,7 +215,7 @@ type
     FSituTrib: TpcnCSTIcms;
   public
     procedure LerICMS20(const ANode: TACBrXMLNode; const ICMS20: TCST20);
-  published
+//  published
     property LiAhInformacao: Boolean read FLiAhInformacao;
     property SituTrib: TpcnCSTIcms read FSituTrib;
   end;
@@ -226,7 +226,7 @@ type
     FSituTrib: TpcnCSTIcms;
   public
     procedure LerICMS45(const ANode: TACBrXMLNode; const ICMS45: TCST45);
-  published
+//  published
     property LiAhInformacao: Boolean read FLiAhInformacao;
     property SituTrib: TpcnCSTIcms read FSituTrib;
   end;
@@ -237,7 +237,7 @@ type
     FSituTrib: TpcnCSTIcms;
   public
     procedure LerICMS60(const ANode: TACBrXMLNode; const ICMS60: TCST60);
-  published
+//  published
     property LiAhInformacao: Boolean read FLiAhInformacao;
     property SituTrib: TpcnCSTIcms read FSituTrib;
   end;
@@ -248,7 +248,7 @@ type
     FSituTrib: TpcnCSTIcms;
   public
     procedure LerICMS90(const ANode: TACBrXMLNode; const ICMS90: TCST90);
-  published
+//  published
     property LiAhInformacao: Boolean read FLiAhInformacao;
     property SituTrib: TpcnCSTIcms read FSituTrib;
   end;
@@ -259,7 +259,7 @@ type
     FSituTrib: TpcnCSTIcms;
   public
     procedure LerICMSOutraUF(const ANode: TACBrXMLNode; const ICMSOutraUF: TICMSOutraUF);
-  published
+//  published
     property LiAhInformacao: Boolean read FLiAhInformacao;
     property SituTrib: TpcnCSTIcms read FSituTrib;
   end;
@@ -270,7 +270,7 @@ type
     FSituTrib: TpcnCSTIcms;
   public
     procedure LerICMSSN(const ANode: TACBrXMLNode; const ICMSSN: TICMSSN);
-  published
+//  published
     property LiAhInformacao: Boolean read FLiAhInformacao;
     property SituTrib: TpcnCSTIcms read FSituTrib;
   end;
@@ -309,6 +309,11 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure LerImp(const ANode: TACBrXMLNode; const Imp: TImp);
+  end;
+
+  TTotalHandler = class
+  public
+    procedure LerTotal(const ANode: TACBrXmlNode; const total: Ttotal);
   end;
 
   TInfServicoHandler = class
@@ -407,6 +412,32 @@ type
     procedure LerInfDoc(const ANode: TACBrXmlNode; const InfDoc: TInfDoc);
   end;
 
+  TInfNFeTranspParcialHandler = class
+  private
+  public
+    procedure LerInfNFeTranspParcial(const ANode: TACBrXmlNode; const InfNFeTranspParcial: TInfNFeTranspParcialCollection);
+  end;
+
+  TinfDocAntHandler = class
+  private
+    FInfNFeTranspParcialHandler: TInfNFeTranspParcialHandler;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure LerInfDocAnt(const ANode: TACBrXmlNode; const infDocAnt: TInfDocAntCollection);
+  end;
+
+  TDetHandler = class
+  private
+    FCompHandler: TCompHandler;
+    FInfNFeHandler: TInfNFeHandler;
+    FInfDocAntHandler: TinfDocAntHandler;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure LerDet(const ANode: TACBrXmlNode; const Det: TdetCollection);
+  end;
+
   TIdDocAntPapHandler = class
   public
     procedure LerIdDocAntPap(const ANode: TACBrXmlNode; const IdDocAntPap: TIdDocAntPapCollection);
@@ -436,7 +467,7 @@ type
     procedure LerEmiDocAnt(const ANode: TACBrXmlNode; const emiDocAnt: TEmiDocAntCollection);
   end;
 
-  TInfDocAntHandler = class
+  TDocAntHandler = class
   private
     FEmiDocAntHandler: TEmiDocAntHandler;
   public
@@ -563,6 +594,7 @@ type
   private
     FTarifaHandler: TTarifaHandler;
     FNatCargaHandler: TNatCargaHandler;
+    FPeriHandler: TPeriHandler;
   public
     constructor Create;
     destructor Destroy; override;
@@ -751,7 +783,7 @@ type
     FInfDocRefHandler: TInfDocRefHandler;
     FInfCargaHandler: TInfCargaHandler;
     FInfDocHandler: TInfDocHandler;
-    FInfDocAntHandler: TInfDocAntHandler;
+    FDocAntHandler: TDocAntHandler;
     FSegHandler: TSegHandler;
     FRodoHandler: TRodoHandler;
     FRodoOSHandler: TRodoOSHandler;
@@ -809,11 +841,22 @@ type
     FDetGTVHandler: TDetGTVeHandler;
     FVPrestHandler: TVPrestHandler;
     FImpHandler: TImpHandler;
+    FTotalHandler: TTotalHandler;
     FInfCTeNormHandler: TInfCTeNormHandler;
     FInfCteCompHandler: TInfCTeCompHandler;
     FInfCteAnuHandler: TInfCTeAnuHandler;
     FAutXMLHandler: TAutXMLHandler;
     FInfRespTecHandler: TinfRespTecHandler;
+    // Usado pelo CTe Simplificado
+    FInfCargaHandler: TInfCargaHandler;
+    FRodoHandler: TRodoHandler;
+    FAereoHandler: TAereoHandler;
+    FAquavHandler: TAquavHandler;
+    FFerrovHandler: TFerrovHandler;
+    FDutoHandler: TDutoHandler;
+    FCobrHandler: TCobrHandler;
+    FInfCTeSubHandler: TInfCTeSubHandler;
+    FDetHandler: TDetHandler;
   public
     constructor Create;
     destructor Destroy; override;
@@ -841,6 +884,7 @@ type
   public
     constructor Create(AOwner: TCTe); reintroduce;
     destructor Destroy; override;
+
     function LerXML: Boolean; override;
     property CTe: TCTe read FCTe;
   end;
@@ -878,7 +922,7 @@ function TCTeXmlReader.LerXML: Boolean;
 var
   CTeNode, infCteNode: TACBrXMLNode;
 begin
-  Result := False;
+//  Result := False;
   ValidarXML(infCTeNode, CTeNode);
   FInfCTeHandler.LerInfCTe(infCTeNode, FCTe);
   FInfCTeSuplHandler.LerInfCTeSupl(CTeNode.Childrens.FindAnyNs('infCTeSupl'), FCTe.infCTeSupl);
@@ -904,9 +948,16 @@ begin
   begin
     FprotCTeHandler.LerProtCTe(Document.Root.Childrens.FindAnyNs('protCTe'), FCTe.procCTe);
     CTeNode := Document.Root.Childrens.FindAnyNs('CTe');
-  end else
+  end
+  else
   begin
-    CTeNode := Document.Root;
+    if Document.Root.Name = 'cteSimpProc' then
+    begin
+      FprotCTeHandler.LerProtCTe(Document.Root.Childrens.FindAnyNs('protCTe'), FCTe.procCTe);
+      CTeNode := Document.Root.Childrens.FindAnyNs('CTeSimp');
+    end
+    else
+      CTeNode := Document.Root;
   end;
 
   if Assigned(CTeNode) then
@@ -1033,7 +1084,6 @@ end;
 
 procedure TToma03Handler.LerToma03(const ANode: TACBrXmlNode; const toma03: TToma03);
 var
-  toma: string;
   tomaNode: TACBrXmlNode;
   Ok: Boolean;
 begin
@@ -1310,6 +1360,8 @@ begin
 end;
 
 procedure TTomaHandler.LerToma(const ANode: TACBrXMLNode; const Toma: TToma);
+var
+  Ok: Boolean;
 begin
   if not Assigned(ANode) then exit;
 
@@ -1322,6 +1374,7 @@ begin
   toma.xFant   := ObterConteudoTag(ANode.Childrens.FindAnyNs('xFant'), tcStr);
   toma.fone    := ObterConteudoTag(ANode.Childrens.FindAnyNs('fone'), tcStr);
   toma.email   := ObterConteudoTag(ANode.Childrens.FindAnyNs('email'), tcStr);
+  toma.indIEToma := StrToindIEDest(OK, ObterConteudoTag(ANode.Childrens.FindAnyNs('indIEToma'), tcStr));
 
   FEnderHandler.LerEnder(ANode.Childrens.FindAnyNs('enderToma'), toma.enderToma);
 end;
@@ -1531,7 +1584,6 @@ end;
 
 procedure TInfVeiculoHandler.LerInfVeiculo(const ANode: TACBrXmlNode; const InfVeiculo: TinfVeiculoCollection);
 var
-  Ok: Boolean;
   AuxNodeArray: TACBrXmlNodeArray;
   i: Integer;
 begin
@@ -1651,10 +1703,9 @@ procedure TICMSHandler.LerICMS(const ANode: TACBrXMLNode; const ICMS: TICMS);
 var
   JaLiICMS: Boolean;
 begin
-
   if not Assigned(ANode) then exit;
 
-  JaLiICMS := False;
+//  JaLiICMS := False;
 
   FICMS00Handler.LerICMS00(ANode.Childrens.FindAnyNs('ICMS00'), ICMS.ICMS00);
   ICMS.SituTrib := FICMS00Handler.SituTrib;
@@ -1699,9 +1750,8 @@ begin
   begin
     FICMSSNHandler.LerICMSSN(ANode.Childrens.FindAnyNs('ICMSSN'), ICMS.ICMSSN);
     ICMS.SituTrib := FICMSSNHandler.SituTrib;
-    JaLiICMS := FICMSSNHandler.LiAhInformacao;
+//    JaLiICMS := FICMSSNHandler.LiAhInformacao;
   end;
-
 end;
 
 { TICMS00Handler }
@@ -1879,7 +1929,7 @@ begin
   FInfDocRefHandler := TInfDocRefHandler.Create;
   FInfCargaHandler := TInfCargaHandler.Create;
   FInfDocHandler := TInfDocHandler.Create;
-  FInfDocAntHandler := TInfDocAntHandler.Create;
+  FDocAntHandler := TDocAntHandler.Create;
   FSegHandler := TSegHandler.Create;
   FRodoHandler := TRodoHandler.Create;
   FRodoOSHandler := TRodoOSHandler.Create;
@@ -1903,7 +1953,7 @@ begin
   FInfDocRefHandler.Free;
   FInfCargaHandler.Free;
   FInfDocHandler.Free;
-  FInfDocAntHandler.Free;
+  FDocAntHandler.Free;
   FSegHandler.Free;
   FRodoHandler.Free;
   FRodoOSHandler.Free;
@@ -1935,22 +1985,19 @@ begin
   FInfDocRefHandler.LerInfDocRef(ANode, InfCteNorm.infDocRef);
   FInfCargaHandler.LerInfCarga(ANode.Childrens.FindAnyNs('infCarga'), infCTeNorm.infCarga);
   FInfDocHandler.LerInfDoc(ANode.Childrens.FindAnyNs('infDoc'), infCteNorm.InfDoc);
-  FInfDocAntHandler.LerDocAnt(ANode.Childrens.FindAnyNs('docAnt'), infCteNorm.docAnt);
+  FDocAntHandler.LerDocAnt(ANode.Childrens.FindAnyNs('docAnt'), infCteNorm.docAnt);
   FSegHandler.LerSeg(ANode, infCTeNorm.seg);
 
   AuxNode := ANode.Childrens.FindAnyNs('infModal');
 
   if not Assigned(AuxNode) then exit;
 
-  JaLiOhModal := False;
+//  JaLiOhModal := False;
   JaLiOhModal := FRodoHandler.LerRodo(AuxNode.Childrens.FindAnyNs('rodo'), infCTeNorm.rodo);
   if not JaLiOhModal then
     JaLiOhModal := FRodoOSHandler.LerRodoOS(AuxNode.Childrens.FindAnyNs('rodoOS'), infCTeNorm.rodoOS);
   if not JaLiOhModal then
-  begin
     JaLiOhModal := FAereoHandler.LerAereo(AuxNode.Childrens.FindAnyNs('aereo'), infCTeNorm.aereo);
-    FPeriHandler.LerPeri(AuxNode.Childrens.FindAnyNs('aereo'), infCtenorm.peri);
-  end;
   if not JaLiOhModal then
     JaLiOhModal := FAquavHandler.LerAquav(AuxNode.Childrens.FindAnyNs('aquav'), infCTeNorm.aquav);
   if not JaLiOhModal then
@@ -1959,6 +2006,9 @@ begin
     FDutoHandler.LerDuto(AuxNode.Childrens.FindAnyNs('duto'), infCTeNorm.duto);
   if not JaLiOhModal then
     FMultiModalHandler.LerMultiModal(AuxNode.Childrens.FindAnyNs('multimodal'), infCTeNorm.multimodal);
+
+  // A linha abaixo é para compatibilizar com a versão 2.00
+  FPeriHandler.LerPeri(AuxNode.Childrens.FindAnyNs('peri'), infCteNorm.peri);
 
   FVeicNovosHandler.LerVeicNovos(ANode, infCTeNorm.veicNovos);
   FCobrHandler.LerCobr(ANode.Childrens.FindAnyNs('cobr'), infCTeNorm.cobr);
@@ -2152,7 +2202,7 @@ procedure TInfUnidTranspHandler.LerInfUnidTransp(const ANode: TACBrXmlNode; cons
 var
   AuxNodeArray: TACBrXmlNodeArray;
   i: Integer;
-  Ok: Boolean;
+//  Ok: Boolean;
 begin
   if not Assigned(ANode) then exit;
 
@@ -2169,7 +2219,7 @@ procedure TInfUnidTranspHandler.LerInfUnidTransp(const ANode: TACBrXmlNode; cons
 var
   AuxNodeArray: TACBrXmlNodeArray;
   i: Integer;
-  Ok: Boolean;
+//  Ok: Boolean;
 begin
   if not Assigned(ANode) then exit;
 
@@ -2184,7 +2234,7 @@ end;
 
 procedure TInfUnidTranspHandler.LerInfUnidTranspItem(const ANode: TACBrXmlNode; const infUnidTranspItem: TinfUnidTranspCollectionItem);
 var
-  i: Integer;
+//  i: Integer;
   Ok: Boolean;
 begin
   if not Assigned(ANode) then exit;
@@ -2206,6 +2256,7 @@ var
 begin
   if not Assigned(ANode) then exit;
 
+  lacUnidTransp.Clear;
   AuxNodeArray := ANode.Childrens.FindAllAnyNs('lacUnidTransp');
   for i:=0 to Length(AuxNodeArray)-1 do
   begin
@@ -2223,6 +2274,7 @@ var
 begin
   if not Assigned(ANode) then exit;
 
+  lacUnidCarga.Clear;
   AuxNodeArray := ANode.Childrens.FindAllAnyNs('lacUnidCarga');
   for i:=0 to Length(AuxNodeArray)-1 do
   begin
@@ -2253,6 +2305,7 @@ var
 begin
   if not Assigned(ANode) then exit;
 
+  infUnidCarga.Clear;
   AuxNodeArray := ANode.Childrens.FindAllAnyNs('infUnidCarga');
   for i:=0 to Length(AuxNodeArray)-1 do
   begin
@@ -2288,11 +2341,16 @@ var
 begin
   if not Assigned(ANode) then exit;
 
+  InfNFE.Clear;
   AuxNodeArray := ANode.Childrens.FindAllAnyNs('infNFe');
   for i:=0 to Length(AuxNodeArray)-1 do
   begin
     InfNFE.New;
     InfNFE[i].chave := ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('chave'), tcStr);
+
+    if InfNFE[i].chave = '' then
+      InfNFE[i].chave := ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('chNFe'), tcStr);
+
     InfNFE[i].PIN   := ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('PIN'), tcStr);
     InfNFE[i].dPrev := ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('dPrev'), tcDat);
 
@@ -2342,21 +2400,19 @@ end;
 
 { TDocAntHandler }
 
-constructor TInfDocAntHandler.Create;
+constructor TDocAntHandler.Create;
 begin
   inherited;
   FEmiDocAntHandler := TEmiDocAntHandler.Create;
 end;
 
-destructor TInfDocAntHandler.Destroy;
+destructor TDocAntHandler.Destroy;
 begin
   FEmiDocAntHandler.Free;
   inherited;
 end;
 
-procedure TInfDocAntHandler.LerDocAnt(const ANode: TACBrXmlNode; const DocAnt: TDocAnt);
-var
-  AuxNodeArray: TACBrXmlNodeArray;
+procedure TDocAntHandler.LerDocAnt(const ANode: TACBrXmlNode; const DocAnt: TDocAnt);
 begin
   if not Assigned(ANode) then exit;
 
@@ -2422,6 +2478,7 @@ var
 begin
   if not Assigned(ANode) then exit;
 
+  idDocAnt.Clear;
   AuxNodeArray := ANode.Childrens.FindAllAnyNs('idDocAnt');
   for i:=0 to Length(AuxNodeArray)-1 do
   begin
@@ -2441,6 +2498,7 @@ var
 begin
   if not Assigned(ANode) then exit;
 
+  idDocAntPap.Clear;
   AuxNodeArray := ANode.Childrens.FindAllAnyNs('idDocAntPap');
   for i:=0 to Length(AuxNodeArray)-1 do
   begin
@@ -2462,6 +2520,7 @@ var
 begin
   if not Assigned(ANode) then exit;
 
+  idDocAntEle.Clear;
   AuxNodeArray := ANode.Childrens.FindAllAnyNs('idDocAntEle');
   for i:=0 to Length(AuxNodeArray)-1 do
   begin
@@ -2480,6 +2539,7 @@ var
 begin
   if not Assigned(ANode) then exit;
 
+  seg.Clear;
   AuxNodeArray := ANode.Childrens.FindAllAnyNs('seg');
   for i:=0 to Length(AuxNodeArray) -1 do
   begin
@@ -3064,6 +3124,17 @@ begin
   FInfCTeAnuHandler := TInfCTeAnuHandler.Create;
   FAutXMLHandler := TAutXMLHandler.Create;
   FInfRespTecHandler := TinfRespTecHandler.Create;
+  // Usado pelo CT-e Simplificado
+  FInfCargaHandler := TInfCargaHandler.Create;
+  FRodoHandler := TRodoHandler.Create;
+  FAereoHandler := TAereoHandler.Create;
+  FAquavHandler := TAquavHandler.Create;
+  FFerrovHandler := TFerrovHandler.Create;
+  FDutoHandler := TDutoHandler.Create;
+  FCobrHandler := TCobrHandler.Create;
+  FInfCTeSubHandler := TInfCTeSubHandler.Create;
+  FDetHandler := TDetHandler.Create;
+  FTotalHandler := TTotalHandler.Create;
 end;
 
 destructor TInfCTeHandler.Destroy;
@@ -3086,15 +3157,31 @@ begin
   FInfCTeAnuHandler.Free;
   FAutXMLHandler.Free;
   FInfRespTecHandler.Free;
+  // Usado pelo CT-e Simplificado
+  FInfCargaHandler.Free;
+  FRodoHandler.Free;
+  FAereoHandler.Free;
+  FAquavHandler.Free;
+  FFerrovHandler.Free;
+  FDutoHandler.Free;
+  FCobrHandler.Free;
+  FInfCTeSubHandler.Free;
+  FDetHandler.Free;
+  FTotalHandler.Free;
+
   inherited;
 end;
 
 procedure TInfCTeHandler.LerInfCTe(const ANode: TACBrXmlNode; const CTe: TCTe);
+var
+  AuxNode: TACBrXmlNode;
+  JaLiOhModal: Boolean;
 begin
-  FIdeHandler.LerIde(ANode.Childrens.FindAnyNs('ide'),  CTe.ide);
+  FIdeHandler.LerIde(ANode.Childrens.FindAnyNs('ide'), CTe.ide);
   FComplHandler.LerCompl(ANode.Childrens.FindAnyNs('compl'), CTe.compl);
   FEmitHandler.LerEmit(ANode.Childrens.FindAnyNs('emit'), CTe.emit);
   FTomaHandler.LerToma(ANode.Childrens.FindAnyNs('toma'), CTe.toma);
+
   FRemHandler.LerRem(ANode.Childrens.FindAnyNs('rem'), CTe.rem);
   FExpedHandler.LerExped(ANode.Childrens.FindAnyNs('exped'), CTe.exped);
   FRecebHandler.LerReceb(ANode.Childrens.FindAnyNs('receb'), CTe.receb);
@@ -3103,10 +3190,35 @@ begin
   FOrigemHandler.LerEnder(ANode.Childrens.FindAnyNs('origem'), CTe.origem);
   FDestinoHandler.LerEnder(ANode.Childrens.FindAnyNs('destino'), CTe.destino);
 
+  if CTe.ide.tpCTe in [tcCTeSimp, tcSubstCTeSimpl] then
+  begin
+    FInfCargaHandler.LerInfCarga(ANode.Childrens.FindAnyNs('infCarga'), CTe.infCarga);
+    FDetHandler.LerDet(ANode, CTe.det);
+
+    AuxNode := ANode.Childrens.FindAnyNs('infModal');
+
+    if not Assigned(AuxNode) then exit;
+
+//    JaLiOhModal := False;
+    JaLiOhModal := FRodoHandler.LerRodo(AuxNode.Childrens.FindAnyNs('rodo'), CTe.infModal.rodo);
+
+    if not JaLiOhModal then
+      JaLiOhModal := FAereoHandler.LerAereo(AuxNode.Childrens.FindAnyNs('aereo'), CTe.infModal.aereo);
+
+    if not JaLiOhModal then
+//      JaLiOhModal :=
+      FAquavHandler.LerAquav(AuxNode.Childrens.FindAnyNs('aquav'), CTe.infModal.aquav);
+
+    FCobrHandler.LerCobr(ANode.Childrens.FindAnyNs('cobr'), CTe.cobr);
+    FInfCTeSubHandler.LerInfCTeSub(ANode.Childrens.FindAnyNs('infCteSub'), CTe.infCteSub);
+  end;
+
   FDetGTVHandler.LerDetGTVe(ANode.Childrens.FindAnyNs('detGTV'), CTe.detGTV);
   FVPrestHandler.LerVPrest(ANode.Childrens.FindAnyNs('vPrest'), CTe.vPrest);
   FImpHandler.LerImp(ANode.Childrens.FindAnyNs('imp'), CTe.imp);
+  FTotalHandler.LerTotal(ANode.Childrens.FindAnyNs('total'), CTe.total);
   FInfCTeNormHandler.LerinfCTeNorm(ANode.Childrens.FindAnyNs('infCTeNorm'), CTe.infCTeNorm);
+
   if CTe.infCTe.versao <= 3 then
     FInfCteCompHandler.LerInfCteComp(ANode.Childrens.FindAnyNs('infCteComp'), CTe.infCteComp)
   else
@@ -3244,12 +3356,14 @@ begin
   inherited;
   FTarifaHandler := TTarifaHandler.Create;
   FNatCargaHandler := TNatCargaHandler.Create;
+  FPeriHandler := TPeriHandler.Create;
 end;
 
 destructor TAereoHandler.Destroy;
 begin
   FTarifaHandler.Free;
   FNatCargaHandler.Free;
+  FPeriHandler.Free;
   inherited;
 end;
 
@@ -3266,6 +3380,7 @@ begin
 
   FTarifaHandler.LerTarifa(ANode.Childrens.FindAnyNs('tarifa'), aereo.tarifa);
   FNatCargaHandler.LerNatCarga(ANode.Childrens.FindAnyNs('natCarga'), aereo.natCarga);
+  FPeriHandler.LerPeri(ANode.Childrens.FindAnyNs('peri'), aereo.peri);
   Result := True;
 end;
 
@@ -3476,6 +3591,7 @@ var
 begin
   if not Assigned(ANode) then exit;
 
+  infNF.Clear;
   AuxNodeArray := ANode.Childrens.FindAllAnyNs('infNF');
   for i:=0 to Length(AuxNodeArray)-1 do
   begin
@@ -3496,6 +3612,7 @@ var
 begin
   if not Assigned(ANode) then exit;
 
+  infNFe.Clear;
   AuxNodeArray := ANode.Childrens.FindAllAnyNs('infNFe');
   for i:=0 to Length(AuxNodeArray)-1 do
   begin
@@ -3662,6 +3779,117 @@ begin
   multimodal.xSeg          := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('xSeg'), tcStr);
   multimodal.CNPJ          := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CNPJ'), tcStr);
   Result := True;
+end;
+
+{ TDetHandler }
+
+constructor TDetHandler.Create;
+begin
+  inherited;
+  FCompHandler := TCompHandler.Create;
+  FInfNFeHandler := TInfNFeHandler.Create;
+  FInfDocAntHandler := TinfDocAntHandler.Create;
+end;
+
+destructor TDetHandler.Destroy;
+begin
+  FCompHandler.Free;
+  FInfNFeHandler.Free;
+  FInfDocAntHandler.Free;
+  inherited;
+end;
+
+procedure TDetHandler.LerDet(const ANode: TACBrXmlNode;
+  const Det: TdetCollection);
+var
+  AuxNodeArray: TACBrXmlNodeArray;
+  i: Integer;
+begin
+  if not Assigned(ANode) then exit;
+
+  AuxNodeArray := ANode.Childrens.FindAllAnyNs('det');
+  det.Clear;
+  for i:= 0 to Length(AuxNodeArray)-1 do
+  begin
+    det.New;
+    det[i].cMunIni := ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('cMunIni'), tcInt);
+    det[i].xMunIni := ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('xMunIni'), tcStr);
+    det[i].cMunFim := ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('cMunFim'), tcInt);
+    det[i].xMunFim := ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('xMunFim'), tcStr);
+    det[i].vPrest := ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('vPrest'), tcDe2);
+    det[i].vRec := ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('vRec'), tcDe2);
+
+    FCompHandler.LerComp(AuxNodeArray[i], det[i].Comp);
+    FInfNFeHandler.LerinfNFe(AuxNodeArray[i], det[i].infNFe);
+    FInfDocAntHandler.LerinfDocAnt(AuxNodeArray[i], det[i].infdocAnt);
+  end;
+end;
+
+{ TinfDocAntHandler }
+
+constructor TinfDocAntHandler.Create;
+begin
+  inherited;
+  FInfNFeTranspParcialHandler := TInfNFeTranspParcialHandler.Create;
+
+end;
+
+destructor TinfDocAntHandler.Destroy;
+begin
+  FInfNFeTranspParcialHandler.Free;
+  inherited;
+end;
+
+procedure TinfDocAntHandler.LerInfDocAnt(const ANode: TACBrXmlNode;
+  const infDocAnt: TInfDocAntCollection);
+var
+  AuxNodeArray: TACBrXmlNodeArray;
+  i: Integer;
+  Ok: Boolean;
+begin
+  if not Assigned(ANode) then exit;
+
+  AuxNodeArray := ANode.Childrens.FindAllAnyNs('infDocAnt');
+  infDocAnt.Clear;
+  for i:= 0 to Length(AuxNodeArray)-1 do
+  begin
+    infDocAnt.New;
+    infDocAnt[i].chCTe := ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('chCTe'), tcStr);
+    infDocAnt[i].tpPrest := StrTotpPrest(ok, ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('tpPrest'), tcStr));
+
+    FInfNFeTranspParcialHandler.LerInfNFeTranspParcial(AuxNodeArray[i], infDocAnt[i].infNFeTranspParcial);
+  end;
+end;
+
+{ TInfNFeTranspParcialHandler }
+
+procedure TInfNFeTranspParcialHandler.LerInfNFeTranspParcial(
+  const ANode: TACBrXmlNode;
+  const InfNFeTranspParcial: TInfNFeTranspParcialCollection);
+var
+  AuxNodeArray: TACBrXmlNodeArray;
+  i: Integer;
+begin
+  if not Assigned(ANode) then exit;
+
+  AuxNodeArray := ANode.Childrens.FindAllAnyNs('infNFeTranspParcial');
+  infNFeTranspParcial.Clear;
+  for i:= 0 to Length(AuxNodeArray)-1 do
+  begin
+    infNFeTranspParcial.New;
+    infNFeTranspParcial[i].chNFe := ObterConteudoTag(AuxNodeArray[i].Childrens.FindAnyNs('chNFe'), tcStr);
+  end;
+end;
+
+{ TTotalHandler }
+
+procedure TTotalHandler.LerTotal(const ANode: TACBrXmlNode;
+  const total: Ttotal);
+begin
+  if not Assigned(ANode) then exit;
+
+  total.vTPrest := ObterConteudoTag(ANode.Childrens.FindAnyNs('vTPrest'), tcDe2);
+  total.vTRec := ObterConteudoTag(ANode.Childrens.FindAnyNs('vTRec'), tcDe2);
 end;
 
 end.

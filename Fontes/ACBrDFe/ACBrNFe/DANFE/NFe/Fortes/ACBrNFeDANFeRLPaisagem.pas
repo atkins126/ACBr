@@ -1916,7 +1916,7 @@ end;
 function TfrlDANFeRLPaisagem.ManterBandinfAdProd(const sInforAdicProduto: String): String;
 begin
   Result := Trim(sInforAdicProduto);
-  Result := StringReplace(Result, ';', sLineBreak, [rfReplaceAll]);
+  Result := StringReplace(Result, fpDanfe.CaractereQuebraDeLinha, sLineBreak, [rfReplaceAll]);
 
   RLBandInfAd.Visible := (Result <> '') and (fpDANFe.ExibeInforAdicProduto = infSeparadamente);
 end;
@@ -2193,7 +2193,7 @@ var
   iAltQuadro,
   iAltBand: Integer;
 begin
-  rlbFatura.Visible := (fpNFe.Cobr.Dup.Count > 0);
+  rlbFatura.Visible := (fpNFe.Cobr.Dup.Count > 0) and fpDANFe.ExibeCampoDuplicata;
 
   if (fpNFe.Cobr.Dup.Count > 0) then
   begin

@@ -42,6 +42,64 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+04/10/2024
+-- Diversos --
+[*] #TK-5866-2: Ajuste visando padronização do caractere de quebra de linha.
+   Por: Diego Folieni
+
+01/10/2024
+-- ACBrMDFe.RetConsSit --
+[*] Ajustes necessários para utilizar a unit: ACBrDFeComum.Proc
+-- ACBrMDFeWebServices --
+[*] Migração para as novas units: ACBrMDFe.ConsNaoEnc e ACBrMDFe.RetConsNaoEnc.
+   Por: Italo Giurizzato Junior
+
+27/09/2024
+-- pmdfeMDFeR --
+[-] Corrigido a posição da linha que faz a leitura da tag indPrestacaoParcial.
+  Por: Silvania
+
+18/09/2024
+-- ACBrMDFe.ProcInfraSA --
+[+] Nova unit que contem a classe InfraSA que consta no retorno da consulta.
+  Por: Italo Giurizzato Junior
+-- ACBrMDFe.RetConsSit --
+[-] Correção para evitar AV ao ler o retorno da consulta.
+  Por: Italo Giurizzato Junior
+
+16/09/2024
+-- ACBrMDFe.XmlWriter --
+[-] Correção visando não gerar o grupo <valePed> quando este não for informado
+    na versão 1.00 do MDF-e.
+  Por: SEI-INFO/Italo Giurizzato Junior
+
+13/09/2024
+-- ACBrMDFe.RetConsSit --
+[-] Correção para que a leitura do retorno ocorra com sucesso.
+  Por: Italo Giurizzato Junior
+
+12/09/2024
+-- ACBrMDFeWebServices --
+[*] Ajustes na montagem do XML *-ProcEventoMDFe.xml
+   Por: Italo Giurizzato Junior
+
+10/09/2024
+-- ACBrMDFe.XmlWriter --
+[-] Correção visando não gerar o grupo <valePed> quando este não for informado.
+  Por: Italo Giurizzato Junior
+
+06/09/2024
+-- ACBrMDFe/ACBrMDFeWebServices/ACBrMDFeDAMDFeClass/ACBrMDFeDAMDFEFR --
+-- ACBrMDFeDAEventoRL/ACBrMDFeDAMDFeRLClass --
+[+] Implementado o Imprimir Evento PDF por Stream.
+  Por: Antonio Carlos/Juliomar Marchetti/Italo Giurizzato Junior
+-- ACBrMDFe.ConsNaoEnc/ACBrMDFe.ConsSit/ACBrMDFe.EnvEvento --
+-- ACBrMDFe.EventoClass/ACBrMDFe.RetConsNaoEnc/ACBrMDFe.RetConsSit --
+-- ACBrMDFe.RetEnvEvento --
+[+] Implementado as novas units para os serviços de Consulta MDF-e não Encerrados,
+    Consulta a Situação e envio de eventos, bem como as units que fazem as leituras
+    dos retornos.
+  Por: Italo Giurizzato Junior
 
 14/08/2024
 -- ACBrMDFe.XmlWriter --

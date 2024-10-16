@@ -677,7 +677,10 @@ begin
     Result.AppendChild(nodeArray[i]);
   end;
 
-  if (VersaoDF = ve100) then
+  if (VersaoDF = ve100) and
+     ((MDFe.rodo.valePed.disp.Count > 0) or
+     (MDFe.rodo.infANTT.valePed.disp.Count > 0) or
+     (MDFe.Rodo.infANTT.valePed.categCombVeic <> tcNenhum)) then
     Result.AppendChild(Gerar_ValePedagio);
 
   Result.AppendChild(AddNode(tcStr, '#45', 'codAgPorto', 1, 16, 0,
@@ -709,7 +712,10 @@ begin
     Result.AppendChild(nodeArray[i]);
   end;
 
-  Result.AppendChild(Gerar_ValePedagio);
+  if (MDFe.rodo.valePed.disp.Count > 0) or
+     (MDFe.rodo.infANTT.valePed.disp.Count > 0) or
+     (MDFe.Rodo.infANTT.valePed.categCombVeic <> tcNenhum) then
+    Result.AppendChild(Gerar_ValePedagio);
 
   nodeArray := Gerar_InfContratante;
   for i := 0 to MDFe.rodo.infANTT.infContratante.Count - 1 do

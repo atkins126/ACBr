@@ -146,7 +146,7 @@ constructor TRetConsSitNFe.Create(const Versao: string);
 begin
   inherited Create;
 
-  FprotNFe    := TProcDFe.Create(Versao, NAME_SPACE, 'NFe');
+  FprotNFe    := TProcDFe.Create(Versao, NAME_SPACE, 'nfeProc', 'NFe');
   FretCancNFe := TRetCancNFe.Create;
 end;
 
@@ -194,7 +194,7 @@ begin
         chNFe := ObterConteudoTag(ANode.Childrens.FindAnyNs('chNFe'), tcStr);
 
         case cStat of
-          100, 101, 104, 110, 150, 151, 155, 301, 302, 303:
+          100, 101, 104, 150, 151, 155:
             begin
               ANodeAux := ANode.Childrens.FindAnyNs('protNFe');
 

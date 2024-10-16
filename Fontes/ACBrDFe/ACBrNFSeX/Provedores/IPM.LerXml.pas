@@ -120,7 +120,7 @@ var
   AuxNode: TACBrXmlNode;
   ANodes: TACBrXmlNodeArray;
   i: Integer;
-  aValor: string;
+  aValor, xUF: string;
   Ok: Boolean;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('itens');
@@ -190,6 +190,34 @@ begin
             ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor_inss'), tcDe2);
 
         ItemServico[i].CodCNO := ObterConteudo(ANodes[i].Childrens.FindAnyNs('cno'), tcStr);
+      end;
+
+      if ItemServico.Count > 0 then
+      begin
+        CodigoMunicipio := ItemServico[0].CodMunPrestacao;
+
+        if CodigoMunicipio <> '' then
+        begin
+          xUF := '';
+          MunicipioPrestacaoServico := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
+          MunicipioPrestacaoServico := MunicipioPrestacaoServico + '/' + xUF;
+        end;
+
+        if ItemServico[0].TribMunPrestador = snSim then
+          MunicipioIncidencia := StrToIntDef(CodigoMunicipio, 0)
+        else
+          MunicipioIncidencia := StrToIntDef(NFSe.Tomador.Endereco.CodigoMunicipio, 0);
+
+        MunicipioPrestacaoServico := '';
+        xMunicipioIncidencia := '';
+
+        if MunicipioIncidencia > 0 then
+        begin
+          MunicipioPrestacaoServico := ObterNomeMunicipioUF(MunicipioIncidencia, xUF);
+          MunicipioPrestacaoServico := MunicipioPrestacaoServico + '/' + xUF;
+
+          xMunicipioIncidencia := MunicipioPrestacaoServico;
+        end;
       end;
     end;
   end;
@@ -426,6 +454,8 @@ begin
   if XmlNode = nil then
     raise Exception.Create('Arquivo xml vazio.');
 
+  NFSe.tpXML := tpXml;
+
   if tpXML = txmlNFSe then
     Result := LerXmlNfse(XmlNode)
   else
@@ -448,10 +478,11 @@ begin
     AuxNode := ANode;
 
   LerRps(AuxNode);
+  LerTomador(AuxNode);
+  LerPrestador(AuxNode);
   LerItens(AuxNode);
   LerNota(AuxNode);
-  LerPrestador(AuxNode);
-  LerTomador(AuxNode);
+
   LerFormaPagamento(AuxNode);
 end;
 

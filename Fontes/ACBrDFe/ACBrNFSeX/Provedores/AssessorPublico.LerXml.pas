@@ -119,6 +119,8 @@ begin
   if XmlNode = nil then
     raise Exception.Create('Arquivo xml vazio.');
 
+  NFSe.tpXML := tpXml;
+
   if tpXML = txmlNFSe then
     Result := LerXmlNfse(XmlNode)
   else
@@ -271,7 +273,7 @@ begin
     CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('TOMCEP'), tcStr);
   end;
 
-  AuxNode := ANode.Childrens.FindAnyNs('SERVICOS');
+  AuxNode := AuxNode.Childrens.FindAnyNs('SERVICOS');
 
   if AuxNode <> nil then
   begin

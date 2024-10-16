@@ -47,6 +47,51 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+09/10/2024
+-- ACBrSchemasMatera --
+[-] Corrige problema ao ler campos do objeto 'generateImage' no json de resposta.
+    por: Elias César
+
+08/10/2024
+-- ACBrPIXPSPMatera, ACBrSchemasMatera --
+[*] Inclusão de novos campos no retorno das consultas
+[*] Ajuste no envio de contrato social na abertura de conta
+    Por: christian@adminfo.com.br / Rev.: Alexandre de Paula
+
+03/10/2024
+-- ACBrPixCDGerenciaNET --
+[*] Atualização de endereços e inclusão de PartnerToken.
+    Por: djinfope  / Rev.: Daniel Simões / Alexandre de Paula
+
+20/09/2024
+-- ACBrPIXPSPBradesco --
+[*] Corrige o HTTP.Protocol para correta comunicação com o PSP.
+    Por: Diego Folieni
+
+17/09/2024
+-- ACBrPSP --
+[+] Publicadas as propriedades ClientID e ClientSecret diretamente na classe pai TACBrPSPCertificate
+[*] Alteradas as classes dos bancos que não irão precisar mais publicar essas propriedades
+    por: Elias César
+
+-- ACBrPIXPSPAilos --
+[+] Alteração para incluir o RootCrt em "Http.Sock.SSL.CertCAFile"
+    https://www.projetoacbr.com.br/forum/topic/79682-problema-ao-integrar-psp-ailos-pixcd
+
+12/09/2024
+-- ACBrPIXPSPBradesco --
+[*] #TK-5445: Ajuste visando correta utilização com o PSP Bradesco.
+   Por: Vagner S Oliveira
+
+10/09/2024
+-- ACBrPIXPSPC6Bank --
+[+] Liberado PSP para utilização.
+
+30/08/2024
+-- ACBrSchemasMatera --
+[*] Ajuste função StringToMateraAliasType - #TK-5790 (https://www.projetoacbr.com.br/forum/topic/78912-ajuste-na-convers%C3%A3o-do-tipo-do-alias-do-psp-matera/)
+    Por: Elias Cesar / Antonio Carlos Junior
+
 30/07/2024
 -- ACBrPIXCD --
 [*] Ajuste para enviar o TimeZone nos parâmetros de consulta com datas.

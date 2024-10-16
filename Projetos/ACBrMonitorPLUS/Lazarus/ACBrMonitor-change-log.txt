@@ -44,6 +44,25 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+11/09/2024
+-- DoACBrNFeUnit --
+[*] #TK-5770: Refatora as rotinas do EnviarLoteNFe e do CriarEnviarNFeSefaz eu faltavam
+  Por: Diego Folieni
+
+10/09/2024
+-- DoACBrNFeUnit --
+[*] #TK-5770: Refatora rotina para que a geração de PDF não seja dependente do parâmetro de impressão.
+  Por: Diego Folieni
+-- DoACBrCTeUnit, DoACBrMDFeUnit --
+[*] #TK-5794: Altera o valor default do parâmetro modo de envio nos comandos para que seja síncrono.
+  Por: Diego Folieni.
+[*] #TK-5699: Padroniza a forma como o nome do arquivo é devolvido para o CTe e para o MDFe.
+  Por: Diego Folieni
+
+02/09/2024
+-- ACBrMonitor1.pas, ACBrMonitor1.lfm, ACBrMonitorConfig, ACBrMonitorConsts --
+[*] #TK-5866-1: Adiciona config no ACBrMonitorPLUS para configurar o caractere de quebra de linha.
+  Por: Diego Folieni
 
 29/07/2024
 -- DoBoletoUnit.pas  --

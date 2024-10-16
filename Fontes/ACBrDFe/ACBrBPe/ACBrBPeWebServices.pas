@@ -762,7 +762,7 @@ begin
           BPe.procBPe.digVal   := FBPeRetorno.protBPe.digVal;
           BPe.procBPe.xMotivo  := FBPeRetorno.protBPe.xMotivo;
 
-          AProcBPe := TProcDFe.Create(FPVersaoServico, NAME_SPACE_BPE, 'BPe');
+          AProcBPe := TProcDFe.Create(FPVersaoServico, NAME_SPACE_BPE, 'bpeProc', 'BPe');
           try
             // Processando em UTF8, para poder gravar arquivo corretamente //
             AProcBPe.XML_DFe := RemoverDeclaracaoXML(XMLAssinado);
@@ -869,7 +869,7 @@ begin
   if Assigned(FprocEventoBPe) then
     FprocEventoBPe.Free;
 
-  FprotBPe       := TProcDFe.Create('1.00', NAME_SPACE_BPE, 'BPe');
+  FprotBPe       := TProcDFe.Create('1.00', NAME_SPACE_BPE, 'bpeProc', 'BPe');
   FprocEventoBPe := TRetEventoBPeCollection.Create;
 end;
 
@@ -1187,7 +1187,7 @@ begin
                 BPe.procBPe.xMotivo := BPeRetorno.xMotivo;
 
                 // O código abaixo é bem mais rápido que "GerarXML" (acima)...
-                AProcBPe := TProcDFe.Create(FPVersaoServico, NAME_SPACE_BPE, 'BPe');
+                AProcBPe := TProcDFe.Create(FPVersaoServico, NAME_SPACE_BPE, 'bpeProc', 'BPe');
                 try
                   AProcBPe.XML_DFe := RemoverDeclaracaoXML(XMLOriginal);
                   AProcBPe.XML_Prot := NativeStringToUTF8(BPeRetorno.XMLprotBPe);
@@ -1570,25 +1570,17 @@ begin
       begin
         VersaoEvento := TACBrBPe(FPDFeOwner).LerVersaoDeParams(LayBPeEvento);
 
-//        Leitor.Arquivo := FPDadosMsg;
         Texto := '<eventoBPe versao="' + VersaoEvento + '">' +
-                   SeparaDados(FPDadosMsg, 'infEvento', True) +
-                   SeparaDados(FPDadosMsg, 'Signature', True) +
+                     SeparaDados(FPDadosMsg, 'infEvento', True) +
+                     '<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">' +
+                     SeparaDados(FPDadosMsg, 'Signature', False) +
+                     '</Signature>'+
                  '</eventoBPe>';
-                   {
-                  Leitor.rExtrai(1, 'infEvento', '', I + 1) +
-                  '<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">' +
-                   Leitor.rExtrai(1, 'SignedInfo', '', I + 1) +
-                   Leitor.rExtrai(1, 'SignatureValue', '', I + 1) +
-                   Leitor.rExtrai(1, 'KeyInfo', '', I + 1) +
-                  '</Signature>'+}
 
-//        Leitor.Arquivo := FPRetWS;
         Texto := Texto +
                    '<retEventoBPe versao="' + VersaoEvento + '">' +
-                     SeparaDados(FPRetWS, 'infEvento', True) +
+                      SeparaDados(FPRetWS, 'infEvento', True) +
                    '</retEventoBPe>';
-//                    Leitor.rExtrai(1, 'infEvento', '', J + 1) +
 
         Texto := '<procEventoBPe versao="' + VersaoEvento + '" xmlns="' + ACBRBPE_NAMESPACE + '">' +
                    Texto +

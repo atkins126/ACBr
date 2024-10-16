@@ -2006,8 +2006,7 @@ end;
 function TfrlDANFeRLRetrato.ManterBandinfAdProd(const sInforAdicProduto: String): String;
 begin
   Result := Trim(sInforAdicProduto);
-  Result := StringReplace(Result, ';', slineBreak, [rfReplaceAll]);
-
+  Result := StringReplace(Result, fpDANFe.CaractereQuebraDeLinha, slineBreak, [rfReplaceAll]);
   RLBandInfAd.Visible := (Result <> '') and (fpDANFe.ExibeInforAdicProduto = infSeparadamente);
 end;
 
@@ -2262,7 +2261,7 @@ var
   iAltBand: Integer;
 begin
 
-  rlbFatura.Visible := (fpNFe.Cobr.Dup.Count > 0);
+  rlbFatura.Visible := (fpNFe.Cobr.Dup.Count > 0) and fpDANFe.ExibeCampoDuplicata;
 
   if ( rlbFatura.Visible ) then
   begin

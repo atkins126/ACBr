@@ -64,14 +64,11 @@ type
   public
     constructor Create(aOwner: TComponent); override;
     procedure Autenticar; override;
-  published
-    property ClientID;
-    property ClientSecret;
   end;
 
 implementation
 
-uses synautil, DateUtils, ACBrJSON, ACBrUtil.Strings;
+uses synautil, synacode, DateUtils, ACBrJSON, ACBrUtil.Strings;
 
 { TACBrPSPBradesco }
 
@@ -99,7 +96,7 @@ end;
 
 procedure TACBrPSPBradesco.Autenticar;
 var
-  wURL: String;
+  wURL, BasicAutentication: String;
   qp: TACBrQueryParams;
   wResultCode: Integer;
   wRespostaHttp: AnsiString;
@@ -125,6 +122,8 @@ begin
   Http.Protocol := '1.1';
   Http.UserName := ClientID;
   Http.Password := ClientSecret;
+  BasicAutentication := 'Basic '+EncodeBase64(ClientID + ':' + ClientSecret);
+  Http.Headers.Add(ChttpHeaderAuthorization+' '+BasicAutentication);
   TransmitirHttp(ChttpMethodPOST, wURL, wResultCode, wRespostaHttp);
 
   if (wResultCode = HTTP_OK) then

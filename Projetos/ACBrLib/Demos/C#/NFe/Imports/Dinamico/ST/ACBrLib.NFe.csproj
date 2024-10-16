@@ -15,9 +15,9 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <AssemblyVersion>1.0.9.0</AssemblyVersion>
-    <FileVersion>1.0.9.0</FileVersion>
-    <Version>1.0.9.0</Version>
+    <AssemblyVersion>1.0.11.0</AssemblyVersion>
+    <FileVersion>1.0.11.0</FileVersion>
+    <Version>1.0.11.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
@@ -106,6 +106,7 @@
     <Compile Include="..\Shared\NotaFiscal\IndISS.cs" Link="NotaFiscal\IndISS.cs" />
     <Compile Include="..\Shared\NotaFiscal\InfIntermedNFe.cs" Link="NotaFiscal\InfIntermedNFe.cs" />
     <Compile Include="..\Shared\NotaFiscal\InfNFe.cs" Link="NotaFiscal\InfNFe.cs" />
+	<Compile Include="..\Shared\NotaFiscal\InfNFeSupl.cs" Link="NotaFiscal\InfNFeSupl.cs" />
     <Compile Include="..\Shared\NotaFiscal\InfoAdicionalNfe.cs" Link="NotaFiscal\InfoAdicionalNfe.cs" />
     <Compile Include="..\Shared\NotaFiscal\IPIProdutoNFe.cs" Link="NotaFiscal\IPIProdutoNFe.cs" />
     <Compile Include="..\Shared\NotaFiscal\ISSQNcSitTrib.cs" Link="NotaFiscal\ISSQNcSitTrib.cs" />

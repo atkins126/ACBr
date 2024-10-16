@@ -123,7 +123,8 @@ uses
   Isaneto.LerXml, Isaneto.Provider, Elmar.GravarXml, Elmar.LerXml, 
   Elmar.Provider, Sam.GravarXml, Sam.LerXml, Sam.Provider, 
   ISSCampinas.GravarXml, ISSCampinas.LerXml, ISSCampinas.Provider, 
-  LazarusPackageIntf;
+  Kalana.GravarXml, Kalana.LerXml, Kalana.Provider, NFEletronica.GravarXml, 
+  NFEletronica.LerXml, NFEletronica.Provider, LazarusPackageIntf;
 
 implementation
 

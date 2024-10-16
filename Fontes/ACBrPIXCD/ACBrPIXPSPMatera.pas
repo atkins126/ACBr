@@ -204,8 +204,6 @@ type
 
     property ErroResposta: TMateraError read GetErroResposta;
   published
-    property ClientID;
-    property ClientSecret;
     property SecretKey: String read fSecretKey write fSecretKey;
     property AccountId: String read fAccountId write fAccountId;
     property MediatorFee: Currency read fMediatorFee write SetMediatorFee;
@@ -1181,6 +1179,11 @@ begin
 
     // Copiando informações que não constam na resposta, do Objeto de Requisição //
     wCob.chave := fQRCodeSolicitacao.paymentInfo.instantPayment.alias_;
+	
+    wCob.calendario.expiracao := fQRCodeSolicitacao.paymentInfo.instantPayment.expiration;
+    if fQRCodeSolicitacao.recipients.Count > 0 then
+      wCob.solicitacaoPagador := fQRCodeSolicitacao.recipients.Items[0].recipientComment;
+	
 
     if (fQRCodeSolicitacao.paymentInfo.instantPayment.additionalInformation. Count > 0) then
     with fQRCodeSolicitacao.paymentInfo.instantPayment.additionalInformation[0] do
@@ -1239,6 +1242,9 @@ begin
         valor := TransacoesResposta[0].instantPayment.paymentReceived[I].receivedAmount;
         endToEndId := TransacoesResposta[0].instantPayment.paymentReceived[I].endToEndId;
         infoPagador := TransacoesResposta[0].instantPayment.paymentReceived[I].sender.name;
+
+        txId := StringReplace(TransacoesResposta[0].transactionId, '-', '', [rfReplaceAll]);
+        chave := TransacoesResposta[0].instantPayment.recipient.alias_;
 
         wTS := StrToInt64Def(TransacoesResposta[0].instantPayment.paymentReceived[I].transactionTimestamp, 0);
         wTS := (wTS div 1000);

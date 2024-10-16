@@ -466,6 +466,8 @@ begin
 end;
 
 function TDCeXmlWriter.Gerar_Dest: TACBrXmlNode;
+const
+  HOM_NOME_DEST = 'DCE EMITIDA EM AMBIENTE DE HOMOLOGACAO';
 begin
   Result := FDocument.CreateElement('dest');
 
@@ -475,8 +477,12 @@ begin
     Result.AppendChild(AddNode(tcStr, 'E03a', 'idOutros', 2, 60, 1,
                                                  DCe.dest.idOutros, DSC_XNOME));
 
-  Result.AppendChild(AddNode(tcStr, 'E04', 'xNome', 2, 60, 1,
-                                                    DCe.dest.xNome, DSC_XNOME));
+  if DCe.Ide.tpAmb = taProducao then
+    Result.AppendChild(AddNode(tcStr, 'E04', 'xNome', 2, 60, 1,
+                                                     DCe.dest.xNome, DSC_XNOME))
+  else
+    Result.AppendChild(AddNode(tcStr, 'E04', 'xNome', 2, 60, 1,
+                                                     HOM_NOME_DEST, DSC_XNOME));
 
   Result.AppendChild(Gerar_EnderDest);
 end;
@@ -580,14 +586,14 @@ const
 begin
   Result := FDocument.CreateElement('prod');
 
-  if (DCe.Det[i].Prod.nItem = 1) and (DCe.Ide.tpAmb = TACBrTipoAmbiente.taHomologacao) then
+  if (DCe.Det[i].Prod.nItem = 1) and (TACBrTipoAmbiente(DCe.Ide.tpAmb) = taHomologacao) then
     Result.AppendChild(AddNode(tcStr, 'I02', 'xProd', 1, 120, 1,
                                                           HOM_XPROD, DSC_XPROD))
   else
     Result.AppendChild(AddNode(tcStr, 'I02', 'xProd', 1, 120, 1,
                                              DCe.Det[i].Prod.xProd, DSC_XPROD));
 
-  Result.AppendChild(AddNode(tcStr, 'I03', 'NCM', 2, 8, 0,
+  Result.AppendChild(AddNode(tcStr, 'I03', 'NCM', 2, 8, 1,
                                                  DCe.Det[i].Prod.NCM, DSC_NCM));
 
   Result.AppendChild(AddNode(tcDe4, 'I04', 'qCom', 0, 15, 1,
@@ -717,6 +723,9 @@ begin
            'efetivamente realizada ou fornece-la em desacordo com a ' +
            'legislação. Sob pena de reclusão de 2 (dois) e 5 (cinco) anos, e ' +
            'multa (Lei 8.137/90, Art 1a, V)';
+
+  DCe.infDec.xObs1 := xObs1;
+  DCe.infDec.xObs2 := xObs2;
 
   Result := FDocument.CreateElement('infDec');
 

@@ -285,7 +285,7 @@ begin
   rllUsuario.Caption := ACBrStr('DATA / HORA DA IMPRESSÃO: ') + FormatDateTimeBr(Now) +
     ' - ' + fpDADCe.Usuario;
 
-  rllHomologacao.Visible := (fpDCe.Ide.tpAmb = TACBrTipoAmbiente.taHomologacao);
+  rllHomologacao.Visible := (TpcnTipoAmbiente(fpDCe.Ide.tpAmb) = taHomologacao);
   rllHomologacao.Caption := ACBrStr('AMBIENTE DE HOMOLOGAÇÃO - DC-E SEM VALOR FISCAL');
 
   rllDadosVariaveis3_Descricao.Visible := True;
@@ -338,7 +338,7 @@ begin
     end
     else
     begin
-      if (fpDCe.Ide.tpEmis = TACBrTipoEmissao.teNormal) then
+      if (TpcnTipoEmissao(fpDCe.Ide.tpEmis) = teNormal) then
       begin
         rllXmotivo.Caption := ACBrStr('DC-E NÃO ENVIADA PARA SEFAZ');
         rllDadosVariaveis3_Descricao.Visible := False;
@@ -383,6 +383,7 @@ begin
 
     // Configuração inicial
     rllDadosVariaveis3_Descricao.Caption := ACBrStr('PROTOCOLO DE AUTORIZAÇÃO DE USO');
+    rllDadosVariaveis3.Caption := fpDCe.procDCe.nProt;
   end;
 
   if rlbCodigoBarras.Visible then

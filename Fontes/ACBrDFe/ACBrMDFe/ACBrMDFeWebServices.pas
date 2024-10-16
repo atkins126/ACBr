@@ -43,7 +43,9 @@ uses
   pcnRetConsReciDFe,
   pcnConversao, pmdfeConversaoMDFe,
   pmdfeProcMDFe, pmdfeEnvEventoMDFe, pmdfeRetEnvEventoMDFe,
-  pmdfeRetConsSitMDFe, pmdfeRetConsMDFeNaoEnc, pmdfeRetEnvMDFe,
+  pmdfeRetConsSitMDFe,
+  ACBrMDFe.RetConsNaoEnc,
+  pmdfeRetEnvMDFe,
   pcnDistDFeInt, pcnRetDistDFeInt,
   ACBrMDFeManifestos, ACBrMDFeConfiguracoes, pmdfeProcInfraSA;
 
@@ -509,7 +511,8 @@ uses
   ACBrDFeComum.ConsStatServ,
   ACBrDFeComum.RetConsStatServ,
   pmdfeEventoMDFe,
-  pmdfeConsSitMDFe, pcnConsReciDFe, pmdfeConsMDFeNaoEnc;
+  pmdfeConsSitMDFe, pcnConsReciDFe,
+  ACBrMDFe.ConsNaoEnc;
 
 { TMDFeWebService }
 
@@ -846,9 +849,9 @@ begin
       vMDFe + '</enviMDFe>';
   end;
 
-  // Lote tem mais de 1024kb ? //
-  if Length(FPDadosMsg) > (1024 * 1024) then
-    GerarException(ACBrStr('Tamanho do XML de Dados superior a 1024 Kbytes. Tamanho atual: ' +
+  // Lote tem mais de 2048kb ? //
+  if Length(FPDadosMsg) > (2048 * 1024) then
+    GerarException(ACBrStr('Tamanho do XML de Dados superior a 2048 Kbytes. Tamanho atual: ' +
       IntToStr(trunc(Length(FPDadosMsg) / 1024)) + ' Kbytes'));
 
   FRecibo := '';
@@ -2425,7 +2428,6 @@ end;
 
 function TMDFeEnvEvento.TratarResposta: Boolean;
 var
-  Leitor: TLeitor;
   I, J: Integer;
   NomeArq, PathArq, VersaoEvento, Texto: String;
 begin
@@ -2447,67 +2449,59 @@ begin
   //gerar arquivo proc de evento
   if Result then
   begin
-    Leitor := TLeitor.Create;
-    try
-      for I := 0 to FEvento.Evento.Count - 1 do
+    for I := 0 to FEvento.Evento.Count - 1 do
+    begin
+      for J := 0 to EventoRetorno.retEvento.Count - 1 do
       begin
-        for J := 0 to EventoRetorno.retEvento.Count - 1 do
+        if FEvento.Evento.Items[I].InfEvento.chMDFe =
+          EventoRetorno.retEvento.Items[J].RetInfEvento.chMDFe then
         begin
-          if FEvento.Evento.Items[I].InfEvento.chMDFe =
-            EventoRetorno.retEvento.Items[J].RetInfEvento.chMDFe then
-          begin
-            FEvento.Evento.Items[I].RetInfEvento.tpAmb :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.tpAmb;
-            FEvento.Evento.Items[I].RetInfEvento.nProt :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.nProt;
-            FEvento.Evento.Items[I].RetInfEvento.dhRegEvento :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.dhRegEvento;
-            FEvento.Evento.Items[I].RetInfEvento.cStat :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.cStat;
-            FEvento.Evento.Items[I].RetInfEvento.xMotivo :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.xMotivo;
+          FEvento.Evento.Items[I].RetInfEvento.tpAmb :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.tpAmb;
+          FEvento.Evento.Items[I].RetInfEvento.nProt :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.nProt;
+          FEvento.Evento.Items[I].RetInfEvento.dhRegEvento :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.dhRegEvento;
+          FEvento.Evento.Items[I].RetInfEvento.cStat :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.cStat;
+          FEvento.Evento.Items[I].RetInfEvento.xMotivo :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.xMotivo;
 
-            VersaoEvento := TACBrMDFe(FPDFeOwner).LerVersaoDeParams(LayMDFeEvento);
+          VersaoEvento := TACBrMDFe(FPDFeOwner).LerVersaoDeParams(LayMDFeEvento);
 
-
-            Leitor.Arquivo := FPDadosMsg;
-            Texto := '<procEventoMDFe versao="' + VersaoEvento + '" xmlns="' + ACBRMDFE_NAMESPACE + '">' +
-                      '<eventoMDFe versao="' + VersaoEvento + '">' +
-                       Leitor.rExtrai(1, 'infEvento', '', I + 1) +
+          Texto := '<eventoMDFe versao="' + VersaoEvento + '">' +
+                       SeparaDados(FPDadosMsg, 'infEvento', True) +
                        '<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">' +
-                        Leitor.rExtrai(1, 'SignedInfo', '', I + 1) +
-                        Leitor.rExtrai(1, 'SignatureValue', '', I + 1) +
-                        Leitor.rExtrai(1, 'KeyInfo', '', I + 1) +
-                       '</Signature>' +
-                      '</eventoMDFe>';
+                       SeparaDados(FPDadosMsg, 'Signature', False) +
+                       '</Signature>'+
+                   '</eventoMDFe>';
 
-            Leitor.Arquivo := FPRetWS;
-            Texto := Texto +
-                       '<retEventoMDFe versao="' + VersaoEvento + '">' +
-                        Leitor.rExtrai(1, 'infEvento', '', J + 1) +
-                       '</retEventoMDFe>' +
-                      '</procEventoMDFe>';
+          Texto := Texto +
+                     '<retEventoMDFe versao="' + VersaoEvento + '">' +
+                        SeparaDados(FPRetWS, 'infEvento', True) +
+                     '</retEventoMDFe>';
 
-            if FPConfiguracoesMDFe.Arquivos.Salvar then
-            begin
-              NomeArq := OnlyNumber(FEvento.Evento.Items[I].InfEvento.Id) + '-procEventoMDFe.xml';
-              PathArq := PathWithDelim(GerarPathEvento(FEvento.Evento.Items[I].InfEvento.CNPJCPF));
+          Texto := '<procEventoMDFe versao="' + VersaoEvento + '" xmlns="' + ACBRMDFE_NAMESPACE + '">' +
+                     Texto +
+                   '</procEventoMDFe>';
 
-              FPDFeOwner.Gravar(NomeArq, Texto, PathArq);
-              FEventoRetorno.retEvento.Items[J].RetInfEvento.NomeArquivo := PathArq + NomeArq;
-              FEvento.Evento.Items[I].RetInfEvento.NomeArquivo := PathArq + NomeArq;
-            end;
+          if FPConfiguracoesMDFe.Arquivos.Salvar then
+          begin
+            NomeArq := OnlyNumber(FEvento.Evento.Items[I].InfEvento.Id) + '-procEventoMDFe.xml';
+            PathArq := PathWithDelim(GerarPathEvento(FEvento.Evento.Items[I].InfEvento.CNPJCPF));
 
-            Texto := ParseText(Texto);
-            FEventoRetorno.retEvento.Items[J].RetInfEvento.XML := Texto;
-            FEvento.Evento.Items[I].RetInfEvento.XML := Texto;
-
-            break;
+            FPDFeOwner.Gravar(NomeArq, Texto, PathArq);
+            FEventoRetorno.retEvento.Items[J].RetInfEvento.NomeArquivo := PathArq + NomeArq;
+            FEvento.Evento.Items[I].RetInfEvento.NomeArquivo := PathArq + NomeArq;
           end;
+
+          Texto := ParseText(Texto);
+          FEventoRetorno.retEvento.Items[J].RetInfEvento.XML := Texto;
+          FEvento.Evento.Items[I].RetInfEvento.XML := Texto;
+
+          break;
         end;
       end;
-    finally
-      Leitor.Free;
     end;
   end;
 end;
@@ -2604,12 +2598,7 @@ begin
     ConsMDFeNaoEnc.CNPJCPF := OnlyNumber( FCNPJCPF );
     ConsMDFeNaoEnc.Versao  := FPVersaoServico;
 
-    AjustarOpcoes( ConsMDFeNaoEnc.Gerador.Opcoes );
-    ConsMDFeNaoEnc.Gerador.Opcoes.RetirarAcentos := False;  // Não funciona sem acentos
-
-    ConsMDFeNaoEnc.GerarXML;
-
-    FPDadosMsg := ConsMDFeNaoEnc.Gerador.ArquivoFormatoXML;
+    FPDadosMsg := ConsMDFeNaoEnc.GerarXML;
   finally
     ConsMDFeNaoEnc.Free;
   end;
@@ -2625,8 +2614,7 @@ begin
   FRetConsMDFeNaoEnc.Free;
   FRetConsMDFeNaoEnc := TRetConsMDFeNaoEnc.Create;
 
-  //A função UTF8ToNativeString deve ser removida quando for refatorado para usar ACBrXmlDocument
-  FRetConsMDFeNaoEnc.Leitor.Arquivo := UTF8ToNativeString(ParseText(FPRetWS));
+  FRetConsMDFeNaoEnc.XmlRetorno := ParseText(FPRetWS);
   FRetConsMDFeNaoEnc.LerXml;
 
   Fversao    := FRetConsMDFeNaoEnc.versao;

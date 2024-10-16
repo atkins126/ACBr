@@ -152,7 +152,7 @@ constructor TRetConsSitNF3e.Create;
 begin
   inherited Create;
 
-  FprotNF3e := TProcDFe.Create(Versao, NAME_SPACE_NF3e, 'NF3e');
+  FprotNF3e := TProcDFe.Create(Versao, NAME_SPACE_NF3e, 'nf3eProc', 'NF3e');
 end;
 
 destructor TRetConsSitNF3e.Destroy;
@@ -196,7 +196,7 @@ begin
         chNF3e := ObterConteudoTag(ANode.Childrens.FindAnyNs('chNF3e'), tcStr);
 
         case cStat of
-          100,101,104,110,150,151,155,301,302,303:
+          100, 101, 104, 150, 151, 155:
             begin
               ANodeAux := ANode.Childrens.FindAnyNs('protNF3e');
 

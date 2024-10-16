@@ -1193,6 +1193,7 @@ begin
     Fversao := FNFeRetornoSincrono.versao;
     FTpAmb := FNFeRetornoSincrono.TpAmb;
     FverAplic := FNFeRetornoSincrono.verAplic;
+    FdhRecbto := FNFeRetornoSincrono.dhRecbto;
 
     // Consta no Retorno da NFC-e
     FRecibo := FNFeRetornoSincrono.nRec;
@@ -1671,10 +1672,8 @@ begin
           Nfe.ProcNFe.XML_prot := AInfProt[I].XMLprotDFe;
         end;
 
-        // Monta o XML da NF-e assinado e com o protocolo de Autorização ou Denegação
-        if (AInfProt.Items[I].cStat = 100) or (AInfProt.Items[I].cStat = 110) or
-           (AInfProt.Items[I].cStat = 150) or (AInfProt.Items[I].cStat = 301) or
-           (AInfProt.Items[I].cStat = 302) or (AInfProt.Items[I].cStat = 303) then
+        // Monta o XML da NF-e assinado e com o protocolo de Autorização
+        if (AInfProt.Items[I].cStat = 100) or (AInfProt.Items[I].cStat = 150) then
         begin
           AProcNFe := TProcNFe.Create;
           try
@@ -3388,6 +3387,7 @@ begin
     if SchemaEventoNFe = schAtorInteressadoNFe then
       EventoNFe.Gerador.Opcoes.RetirarAcentos := False;  // Não funciona sem acentos
 }
+    AjustarOpcoes(EventoNFe.Opcoes);
     EventoNFe.GerarXML;
 
     // Separa os grupos <evento> e coloca na variável Eventos
@@ -3490,7 +3490,6 @@ end;
 
 function TNFeEnvEvento.TratarResposta: Boolean;
 var
-  Leitor: TLeitor;
   I, J: integer;
   NomeArq, PathArq, VersaoEvento, Texto: String;
 begin
@@ -3515,76 +3514,70 @@ begin
   //gerar arquivo proc de evento
   if Result then
   begin
-    Leitor := TLeitor.Create;
-    try
-      for I := 0 to FEvento.Evento.Count - 1 do
+    for I := 0 to FEvento.Evento.Count - 1 do
+    begin
+      for J := 0 to EventoRetorno.retEvento.Count - 1 do
       begin
-        for J := 0 to EventoRetorno.retEvento.Count - 1 do
+        if FEvento.Evento.Items[I].InfEvento.chNFe =
+          EventoRetorno.retEvento.Items[J].RetInfEvento.chNFe then
         begin
-          if FEvento.Evento.Items[I].InfEvento.chNFe =
-            EventoRetorno.retEvento.Items[J].RetInfEvento.chNFe then
+          FEvento.Evento.Items[I].RetInfEvento.tpAmb :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.tpAmb;
+          FEvento.Evento.Items[I].RetInfEvento.nProt :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.nProt;
+          FEvento.Evento.Items[I].RetInfEvento.dhRegEvento :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.dhRegEvento;
+          FEvento.Evento.Items[I].RetInfEvento.cStat :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.cStat;
+          FEvento.Evento.Items[I].RetInfEvento.xMotivo :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.xMotivo;
+
+          Texto := '';
+
+          if EventoRetorno.retEvento.Items[J].RetInfEvento.cStat in [135, 136, 155] then
           begin
-            FEvento.Evento.Items[I].RetInfEvento.tpAmb :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.tpAmb;
-            FEvento.Evento.Items[I].RetInfEvento.nProt :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.nProt;
-            FEvento.Evento.Items[I].RetInfEvento.dhRegEvento :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.dhRegEvento;
-            FEvento.Evento.Items[I].RetInfEvento.cStat :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.cStat;
-            FEvento.Evento.Items[I].RetInfEvento.xMotivo :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.xMotivo;
+            VersaoEvento := TACBrNFe(FPDFeOwner).LerVersaoDeParams(LayNfeEvento);
 
-            Texto := '';
-
-            if EventoRetorno.retEvento.Items[J].RetInfEvento.cStat in [135, 136, 155] then
-            begin
-              VersaoEvento := TACBrNFe(FPDFeOwner).LerVersaoDeParams(LayNfeEvento);
-
-              Leitor.Arquivo := FPDadosMsg;
-              Texto := '<procEventoNFe versao="' + VersaoEvento + '" xmlns="' + ACBRNFE_NAMESPACE + '">' +
-                        '<evento versao="' + VersaoEvento + '">' +
-                         Leitor.rExtrai(1, 'infEvento', '', I + 1) +
+            Texto := '<evento versao="' + VersaoEvento + '">' +
+                         SeparaDados(FPDadosMsg, 'infEvento', True) +
                          '<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">' +
-                          Leitor.rExtrai(1, 'SignedInfo', '', I + 1) +
-                          Leitor.rExtrai(1, 'SignatureValue', '', I + 1) +
-                          Leitor.rExtrai(1, 'KeyInfo', '', I + 1) +
+                         SeparaDados(FPDadosMsg, 'Signature', False) +
                          '</Signature>'+
-                        '</evento>';
+                     '</evento>';
 
-              Leitor.Arquivo := FPRetWS;
-              Texto := Texto +
-                         '<retEvento versao="' + VersaoEvento + '">' +
-                          Leitor.rExtrai(1, 'infEvento', '', J + 1) +
-                         '</retEvento>' +
-                        '</procEventoNFe>';
+            Texto := Texto +
+                       '<retEvento versao="' + VersaoEvento + '">' +
+                          SeparaDados(FPRetWS, 'infEvento', True) +
+                       '</retEvento>';
 
-              if FPConfiguracoesNFe.Arquivos.Salvar then
-              begin
-                NomeArq := OnlyNumber(FEvento.Evento.Items[i].InfEvento.Id) + '-procEventoNFe.xml';
-                PathArq := PathWithDelim(GerarPathEvento(FEvento.Evento.Items[I].InfEvento.CNPJ, FEvento.Evento.Items[I].InfEvento.detEvento.IE));
+            Texto := '<procEventoNFe versao="' + VersaoEvento + '" xmlns="' + ACBRNFE_NAMESPACE + '">' +
+                       Texto +
+                     '</procEventoNFe>';
 
-                FPDFeOwner.Gravar(NomeArq, Texto, PathArq);
-                FEventoRetorno.retEvento.Items[J].RetInfEvento.NomeArquivo := PathArq + NomeArq;
-                FEvento.Evento.Items[I].RetInfEvento.NomeArquivo := PathArq + NomeArq;
-              end;
+            if FPConfiguracoesNFe.Arquivos.Salvar then
+            begin
+              NomeArq := OnlyNumber(FEvento.Evento.Items[i].InfEvento.Id) + '-procEventoNFe.xml';
+              PathArq := PathWithDelim(GerarPathEvento(FEvento.Evento.Items[I].InfEvento.CNPJ, FEvento.Evento.Items[I].InfEvento.detEvento.IE));
 
-              { Converte de UTF8 para a String nativa e Decodificar caracteres HTML Entity }
-              Texto := ParseText(Texto);
+              FPDFeOwner.Gravar(NomeArq, Texto, PathArq);
+              FEventoRetorno.retEvento.Items[J].RetInfEvento.NomeArquivo := PathArq + NomeArq;
+              FEvento.Evento.Items[I].RetInfEvento.NomeArquivo := PathArq + NomeArq;
             end;
 
-            // Se o evento for rejeitado a propriedade XML conterá uma string vazia
-            if Texto <> '' then
-              Texto := ConverteXMLtoUTF8(Texto);
+            { Converte de UTF8 para a String nativa e Decodificar caracteres HTML Entity }
+            Texto := UTF8ToNativeString(ParseText(Texto));
+          end;
+
+          // Se o evento for rejeitado a propriedade XML conterá uma string vazia
+          if Texto <> '' then
+          begin
+            Texto := ConverteXMLtoUTF8(Texto);
             FEventoRetorno.retEvento.Items[J].RetInfEvento.XML := Texto;
             FEvento.Evento.Items[I].RetInfEvento.XML := Texto;
-
-            break;
           end;
+          break;
         end;
       end;
-    finally
-      Leitor.Free;
     end;
   end;
 end;

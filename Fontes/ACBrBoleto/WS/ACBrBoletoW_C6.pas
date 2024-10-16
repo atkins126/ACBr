@@ -91,7 +91,8 @@ uses
   ACBrUtil.FilesIO,
   ACBrUtil.Strings,
   ACBrUtil.DateTime,
-  ACBrUtil.Base;
+  ACBrUtil.Base,
+  ACBrUtil.Math;
 
 { TBoletoW_C6 }
 
@@ -109,7 +110,7 @@ begin
     tpAltera           :    FPURL := FPURL + '/' + LNossoNumeroCorrespondente;
     tpConsultaDetalhe  :    FPURL := FPURL + '/' + LNossoNumeroCorrespondente;
     tpCancelar,
-    tpBaixa            :    FPURL := FPURL + '/' + LNossoNumeroCorrespondente;
+    tpBaixa            :    FPURL := FPURL + '/' + LNossoNumeroCorrespondente+'/cancel';
   end;
 end;
 
@@ -120,6 +121,7 @@ end;
 
 procedure TBoletoW_C6.GerarHeader;
 begin
+  FPHeaders.Clear;
   DefinirContentType;
   DefinirKeyUser;
   FPHeaders.Add('partner-software-name: ProjetoACBr');
@@ -148,7 +150,7 @@ begin
       end;
     tpBaixa, tpCancelar:
       begin
-        FMetodoHTTP := htDELETE; // Define Método DELETE para Baixa
+        FMetodoHTTP := htPUT; // Define Método DELETE para Baixa
         // Sem Payload
       end;
   else
@@ -201,28 +203,46 @@ end;
 procedure TBoletoW_C6.RequisicaoJson;
 var
   LJson : TACBrJSONObject;
+  LDesconto : TACBrJSONObject;
+  LMensagem : TACBrJSONArray;
+  I: Integer;
+  LValorMoraJuros : Double;
 begin
   if Assigned(ATitulo) then
   begin
     if (Length(ATitulo.SeuNumero) < 1) or (Length(ATitulo.SeuNumero) > 10) then
-      raise Exception.Create('Campo SeuNumero é inválido min. 1 max. 10!');
+      raise Exception.Create('Campo SeuNumero [a-zA-Z0-9] é inválido min. 1 max. 10!');
+
     if not ((ATitulo.NossoNumero = '0') or (ATitulo.NossoNumero = Poem_Zeros('',Boleto.Banco.TamanhoMaximoNossoNum)) ) then
       raise Exception.Create('Campo NossoNumero é inválido obrigatóriamente deve ser informado valor 0!');
+
     try
       LJson := TACBrJSONObject.Create
         .AddPair('external_reference_id',ATitulo.SeuNumero)
         .AddPair('amount',ATitulo.ValorDocumento)
         .AddPair('due_date',DateTimeToDate(ATitulo.Vencimento));
 
-      if (ATitulo.ValorDesconto > 0) or (ATitulo.ValorDesconto > 0) or (ATitulo.ValorDesconto > 0) then
+
+      if (Trim(ATitulo.Mensagem.Text) <> '') then
       begin
-        LJson.AddPair('discount',
-          TACBrJSONObject.Create
-            .AddPair('discount_type',IfThen(ATitulo.CodigoDesconto = cdValorFixo, 'V', 'P'))
-          );
+        LMensagem := TACBrJSONArray.Create;
+        for I := 0 to 3 do
+        begin
+          LMensagem.AddElement(Copy(Trim(ATitulo.Mensagem[I]),0,80));
+          if LMensagem.Count + 1 > I then
+            Break;
+        end;
+        LJson.AddPair('instructions',LMensagem)
+      end;
+
+      if (ATitulo.ValorDesconto > 0) or (ATitulo.ValorDesconto2 > 0) or (ATitulo.ValorDesconto3 > 0) then
+      begin
+        LDesconto :=  TACBrJSONObject.Create;
+        LDesconto.AddPair('discount_type',IfThen(ATitulo.CodigoDesconto = cdValorFixo, 'V', 'P'));
+
         if (ATitulo.ValorDesconto > 0) then
         begin
-          LJson.AddPair('first',
+          LDesconto.AddPair('first',
               TACBrJSONObject.Create
               .AddPair('value',ATitulo.ValorDesconto)
               .AddPair('dead_line',DaysBetween(ATitulo.Vencimento,ATitulo.DataDesconto))
@@ -230,7 +250,7 @@ begin
         end;
         if (ATitulo.ValorDesconto2 > 0) then
         begin
-          LJson.AddPair('second',
+          LDesconto.AddPair('second',
               TACBrJSONObject.Create
               .AddPair('value',ATitulo.ValorDesconto2)
               .AddPair('dead_line',DaysBetween(ATitulo.Vencimento,ATitulo.DataDesconto2))
@@ -238,22 +258,31 @@ begin
         end;
         if (ATitulo.ValorDesconto3 > 0) then
         begin
-          LJson.AddPair('third',
+          LDesconto.AddPair('third',
               TACBrJSONObject.Create
               .AddPair('value',ATitulo.ValorDesconto3)
               .AddPair('dead_line',DaysBetween(ATitulo.Vencimento,ATitulo.DataDesconto3))
             );
-        end
+        end;
+
+        LJson.AddPair('discount', LDesconto);
       end;
+
       if (ATitulo.ValorMoraJuros > 0) then
       begin
-        if not (ATitulo.CodigoMoraJuros in [cjTaxaMensal,cjValorMensal]) then
-          raise Exception.Create('CodigoMoraJuros Inválido: permitido somente :: cjTaxaMensal,cjValorMensal !');
+        case ATitulo.CodigoMoraJuros of
+          cjValorDia    : LValorMoraJuros := ATitulo.ValorMoraJuros;
+          cjTaxaDiaria  : LValorMoraJuros := RoundABNT((ATitulo.ValorDocumento / 100 ) * ATitulo.ValorMoraJuros, 2);
+          cjValorMensal : LValorMoraJuros := RoundABNT(ATitulo.ValorMoraJuros / 30, 2);
+          cjTaxaMensal  : LValorMoraJuros := RoundABNT((ATitulo.ValorDocumento / 100 ) * (ATitulo.ValorMoraJuros / 30), 2);
+          else
+            LValorMoraJuros := ATitulo.ValorMoraJuros;
+        end;
 
         LJson.AddPair('interest',
           TACBrJSONObject.Create
-            .AddPair('type',IfThen(ATitulo.CodigoMoraJuros = cjTaxaMensal, 'P', 'V') )
-            .AddPair('value',ATitulo.ValorMoraJuros )
+            .AddPair('type',IfThen(ATitulo.CodigoMoraJuros in [cjTaxaDiaria,cjTaxaMensal], 'P', 'V') )
+            .AddPair('value',LValorMoraJuros )
             .AddPair('dead_line',IfThen(ATitulo.DataMoraJuros > 0,DaysBetween(ATitulo.Vencimento,ATitulo.DataMoraJuros), 1) )
         );
       end;

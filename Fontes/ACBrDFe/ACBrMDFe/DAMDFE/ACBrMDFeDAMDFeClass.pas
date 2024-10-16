@@ -47,6 +47,9 @@ type
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
   {$ENDIF RTL230_UP}
+
+  { TACBrMDFeDAMDFeClass }
+
   TACBrMDFeDAMDFeClass = class(TACBrDFeReport)
    private
     procedure SetACBrMDFe(const Value: TComponent);
@@ -76,7 +79,11 @@ type
     procedure ImprimirDAMDFePDF(AStream: TStream; AMDFe: TMDFe = nil); overload; virtual;
 
     procedure ImprimirEVENTO(AMDFe: TMDFe = nil); virtual;
-    procedure ImprimirEVENTOPDF(AMDFe: TMDFe = nil); virtual;
+
+    procedure ImprimirEVENTOPDF(AMDFe: TMDFe = nil); overload; virtual;
+    procedure ImprimirEVENTOPDF(AStream: TStream; AMDFe: TMDFe = nil); overload; virtual;
+
+    function CaractereQuebraDeLinha: String;
   published
     property ACBrMDFe: TComponent           read FACBrMDFe               write SetACBrMDFe;
     property ImprimeHoraSaida: Boolean      read FImprimirHoraSaida      write FImprimirHoraSaida;
@@ -184,6 +191,11 @@ begin
   ErroAbstract('ImprimirEVENTOPDF');
 end;
 
+procedure TACBrMDFeDAMDFeClass.ImprimirEVENTOPDF(AStream: TStream; AMDFe: TMDFe);
+begin
+  ErroAbstract('ImprimirEVENTOPDF');
+end;
+
 function TACBrMDFeDAMDFeClass.GetSeparadorPathPDF(const aInitialPath: String): String;
 var
   dhEmissao: TDateTime;
@@ -213,6 +225,13 @@ begin
                          DescricaoModelo);
      end;
   end;
+end;
+
+function TACBrMDFeDAMDFeClass.CaractereQuebraDeLinha: String;
+begin
+  Result := '|';
+  if Assigned(FACBrMDFe) and (FACBrMDFe is TACBrMDFe) then
+    Result := TACBrMDFe(FACBrMDFe).Configuracoes.WebServices.QuebradeLinha;
 end;
 
 end.

@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo:                                                 }
 {                                                                              }
@@ -152,6 +152,7 @@ type
     fCodTerminal: String;
     fEnderecoServidor: String;
     fOperador: String;
+    fParamComunicacao: String;
     fPortaPinPad: String;
   public
     constructor Create;
@@ -165,11 +166,13 @@ type
     property CodTerminal: String read fCodTerminal write fCodTerminal;
     property Operador: String read fOperador write fOperador;
     property PortaPinPad: String read fPortaPinPad write fPortaPinPad;
+    property ParamComunicacao: String read fParamComunicacao write fParamComunicacao;
   end;
 
   TACBrTEFAPIMetodo = (tefmtdNenhuma, tefmtdPagamento, tefmtdCancelamento, tefmtdAdministrativa);
 
   TACBrTEFAPIComum = class;
+  TACBrTEFAPIRespostas = class;
 
   { TACBrTEFAPIComumClass }
 
@@ -188,6 +191,7 @@ type
     procedure InicializarChamadaAPI(AMetodoOperacao: TACBrTEFAPIMetodo); virtual;
     procedure FinalizarChamadaAPI; virtual;
     procedure InterpretarRespostaAPI; virtual;
+    procedure CarregarRespostasPendentes(const AListaRespostasTEF: TACBrTEFAPIRespostas); virtual;
 
     procedure ProcessarRespostaOperacaoTEF; virtual;
 
@@ -207,7 +211,8 @@ type
       CartoesAceitos: TACBrTEFTiposCartao = [];
       Financiamento: TACBrTEFModalidadeFinanciamento = tefmfNaoDefinido;
       Parcelas: Byte = 0;
-      DataPreDatado: TDateTime = 0 ): Boolean; virtual;
+      DataPreDatado: TDateTime = 0;
+      DadosAdicionais: String = ''): Boolean; virtual;
 
     function EfetuarAdministrativa(
       OperacaoAdm: TACBrTEFOperacao = tefopAdministrativo): Boolean; overload; virtual;
@@ -352,7 +357,8 @@ type
       CartoesAceitos: TACBrTEFTiposCartao = [];
       Financiamento: TACBrTEFModalidadeFinanciamento = tefmfNaoDefinido;
       Parcelas: Byte = 0;
-      DataPreDatado: TDateTime = 0): Boolean; virtual;
+      DataPreDatado: TDateTime = 0;
+      DadosAdicionais: String = ''): Boolean; virtual;
 
     function CancelarTransacao(
       const NSU, CodigoAutorizacaoTransacao: string;
@@ -376,6 +382,7 @@ type
 
     procedure LimparRespostasTEF;
     procedure CarregarRespostasDoDiretorioTrabalho;
+    procedure CarregarRespostasPendentes; virtual;
 
     procedure VerificarTransacoesPendentes;
     procedure ConfirmarTransacoesPendentes;
@@ -548,6 +555,7 @@ begin
   fOperador := '';
   fPortaPinPad := '';
   fEnderecoServidor := '';
+  fParamComunicacao := '';
 end;
 
 procedure TACBrTEFAPIDadosTerminal.Assign(Source: TPersistent);
@@ -564,6 +572,7 @@ begin
     fOperador := DadosTerminal.Operador;
     fPortaPinPad := DadosTerminal.PortaPinPad;
     fEnderecoServidor := DadosTerminal.EnderecoServidor;
+    fParamComunicacao := DadosTerminal.ParamComunicacao;
   end;
 end;
 
@@ -679,8 +688,6 @@ begin
 end;
 
 procedure TACBrTEFAPIRespostas.LimparRespostasTEF;
-//var
-//  i: Integer;
 begin
   while (fTEFRespList.Count > 0) do
     ApagarRespostaTEF(0);
@@ -882,7 +889,7 @@ end;
 function TACBrTEFAPIComumClass.EfetuarPagamento(ValorPagto: Currency;
   Modalidade: TACBrTEFModalidadePagamento; CartoesAceitos: TACBrTEFTiposCartao;
   Financiamento: TACBrTEFModalidadeFinanciamento; Parcelas: Byte;
-  DataPreDatado: TDateTime): Boolean;
+  DataPreDatado: TDateTime; DadosAdicionais: String): Boolean;
 begin
   Result := False;
 end;
@@ -945,6 +952,12 @@ begin
       Format(ACBrStr('%s.InterpretarDadosDaTransacao não implementado.'), [ClassName]);
     UltimaRespostaTEF.Sucesso := False;
   end;
+end;
+
+procedure TACBrTEFAPIComumClass.CarregarRespostasPendentes(
+  const AListaRespostasTEF: TACBrTEFAPIRespostas);
+begin
+  AListaRespostasTEF.CarregarRespostasDoDiretorioTrabalho;
 end;
 
 //function TACBrTEFAPIComumClass.VerificarTEF: Boolean;
@@ -1086,8 +1099,7 @@ begin
       CancelarOuEstornarTransacoesDiretorioTrabalho
     else
     begin
-      fRespostasTEF.CarregarRespostasDoDiretorioTrabalho;
-
+      fpTEFAPIClass.CarregarRespostasPendentes( fRespostasTEF );
       if (TratamentoTransacaoInicializacao = tefopiProcessarPendentes) then
         VerificarTransacoesPendentes;
     end;
@@ -1225,7 +1237,7 @@ function TACBrTEFAPIComum.EfetuarPagamento(
   const IdentificadorTransacao: String; ValorPagto: Currency;
   Modalidade: TACBrTEFModalidadePagamento; CartoesAceitos: TACBrTEFTiposCartao;
   Financiamento: TACBrTEFModalidadeFinanciamento; Parcelas: Byte;
-  DataPreDatado: TDateTime): Boolean;
+  DataPreDatado: TDateTime; DadosAdicionais: String): Boolean;
 var
   StrCartoesAceitos: String;
   i: TACBrTEFTipoCartao;
@@ -1249,6 +1261,7 @@ begin
             StrCartoesAceitos+
             IfThen(Parcelas = 0, '', ', '+IntToStr(Parcelas))+
             IfThen(DataPreDatado = 0, '', ', '+FormatDateBr(DataPreDatado))+
+            IfThen(DadosAdicionais = '', '', ', '+DadosAdicionais)+
             ' )');
 
   fRespostasTEF.IdentificadorTransacao := IdentificadorTransacao;
@@ -1257,7 +1270,8 @@ begin
   try
     Result := fpTEFAPIClass.EfetuarPagamento( ValorPagto, Modalidade,
                                               CartoesAceitos, Financiamento,
-                                              Parcelas, DataPreDatado );
+                                              Parcelas, DataPreDatado,
+                                              DadosAdicionais );
   finally
     fpTEFAPIClass.FinalizarChamadaAPI;
   end;
@@ -1386,6 +1400,12 @@ begin
   RespostasTEF.CarregarRespostasDoDiretorioTrabalho;
 end;
 
+procedure TACBrTEFAPIComum.CarregarRespostasPendentes;
+begin
+  GravarLog('CarregarRespostasPendentes');
+  fpTEFAPIClass.CarregarRespostasPendentes( fRespostasTEF );
+end;
+
 procedure TACBrTEFAPIComum.VerificarTransacoesPendentes;
 var
   i: Integer;
@@ -1443,7 +1463,7 @@ var
 begin
   GravarLog('CancelarOuEstornarTransacoesDiretorioTrabalho( '+fDiretorioTrabalho+' )');
 
-  fRespostasTEF.CarregarRespostasDoDiretorioTrabalho;
+  fpTEFAPIClass.CarregarRespostasPendentes( fRespostasTEF );
 
   // Cria uma nova Lista com as respostas da Pasta de Trabalho, pois a operação
   // de Cancelamento, pode gerar novas entradas na lista padrão (fRespostasTEF)
@@ -1451,7 +1471,7 @@ begin
                                                      fDiretorioTrabalho,
                                                      False, False);
   try
-    RespostasTEFAtuais.CarregarRespostasDoDiretorioTrabalho;
+    fpTEFAPIClass.CarregarRespostasPendentes( RespostasTEFAtuais );
 
     p := 0;  // No Passo 0, vamos processar primeiro os CNCs e ADMs, e as Não Confirmadas, depois Todas
     i := 0;

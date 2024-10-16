@@ -48,10 +48,94 @@ Símbolo : Significado
 [+]     : Novo recurso
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
+
+15/10/2024
+-- ACBrBoletoW_Itau_API --
+[-] TK-6101 Executado um clear no header para resolver o problema.
+	https://www.projetoacbr.com.br/forum/topic/80113-ita%C3%BA-api-retorno-header-fields-too-large/
+	por Daniel de Morais
+
+11/10/2024
+-- ACBrBoletoRet_Itau_API --
+[-] TK-6077 Alterado o tratamento da data retorno para funcionar com D7 Iso8601ToDateTime Ajustado Data Baixa 
+	https://www.projetoacbr.com.br/forum/topic/79807-boleto-itau-consulta-via-ws-n%C3%A3o-retorna-data-de-pagamento/#comment-518124
+	por Daniel de Morais
+
+10/10/2024
+-- ACBrBancoCaixa --
+[*] TK-6043 Ajustado para gerar msg no segmento R e S CNAB 240
+	https://www.projetoacbr.com.br/forum/topic/79960-n%C3%A3o-consigo-fazer-aparecer-mensagem-no-boleto-da-caixa-cnab-240
+	por Daniel de Morais
+
+10/10/2024
+-- ACBrBoletoRet_Itau_API --
+[-] TK-6077 Alterado o tratamento da data retorno para funcionar com D7 Iso8601ToDateTime
+	https://www.projetoacbr.com.br/forum/topic/79807-boleto-itau-consulta-via-ws-n%C3%A3o-retorna-data-de-pagamento/#comment-518124
+	por Daniel de Morais
+
+02/10/2024
+-- ACBrBancoBradescoMoneyPlus --
+[*] TK-6011 Novas especies de documento layout Investimentos
+	https://www.projetoacbr.com.br/forum/topic/79863-erro-na-esp%C3%A9cie-doc-no-money-plus
+	por Daniel de Morais
+
+30/09/2024
+-- ACBrBoletoW_Itau_API --
+[*] TK-5969 Verificado enumerado jurosMora
+	por Victor Gonzales Pandaaaa 
+
+25/09/2024
+-- ACBrBoletoW_Sicredi_APIV2 --
+[-] TK-6009 Corrigido nome da propriedade conforme manual valorOuPercentual
+	https://www.projetoacbr.com.br/forum/topic/79827-corre%C3%A7%C3%A3o-na-unit-acbrboletow_sicredi_apiv2/
+	por LeoDoreto 
+
+25/09/2024
+-- ACBrBoletoRet_Itau_API --
+[*] Mapeamento das propriedades juros, multa, desconto e abatimento na consulta detalhe
+   por Daniel Morais InfoCotidiano
+   
+24/09/2024
+-- ACBrBoletoW_Itau_API, ACBrBoletoRet_Itau_API --
+[-]TK-6004 Filtro de consulta, alterado para specific orientado pelo suporte itau para devolver informacoes do pagamento.
+   https://www.projetoacbr.com.br/forum/topic/79316-informa%C3%A7%C3%B5es-de-retorno-de-recebimento-de-boleto-ita%C3%BA-por-api/#comment-512758
+   por Sérgio Rocha - Splendor e Daniel Morais InfoCotidiano
+
+24/09/2024
+-- ACBrBoleto, ACBrBoletoW_Sicoob_V3, ACBrBoletoRet_Sicoob_V3 --
+[*] TK-5472 Nova Consulta de Movimento sicoob
+	https://www.projetoacbr.com.br/forum/topic/77825-integra%C3%A7%C3%A3o-com-a-api-da-sicoob-consulta/
+   por Rafaelbudag e Daniel Morais InfoCotidiano
+
+13/09/2024
+-- ACBrBoletoW_Inter_API --
+[-]TK-5956 Ajustes dos parametros gerarJuros e valorfixodatainformada
+	https://www.projetoacbr.com.br/forum/topic/79677-problema-no-envio-boleto-inter-api-v3/#comment-515314
+   por jefferson01 / Conf. Daniel Morais InfoCotidiano
+
+09/09/2024
+-- ACBrBoletoW_Inter_API --
+[-] TK-5849 Ajustes dos parametros da consulta. IndicadorPix True Utiliza V3, False Utiliza V2 que são diferentes os filtros.
+	https://www.projetoacbr.com.br/forum/topic/79146-boleto-api-banco-inter-v3/
+	https://www.projetoacbr.com.br/forum/topic/79580-consultar-boleto-banco-inter-via-ws-pela-datamovimento-n%C3%A3o-retorna-os-baixados/
+  por Daniel de Morais
+  
+02/09/2024
+-- ACBrBoletoRet_Santander_API --
+[+] TK-5912 Ajustes retorno da API consulta. tratar valor pago 0 settlementCreditedValue 
+	https://www.projetoacbr.com.br/forum/topic/79420-retorno-de-baixa-banco-santander/
+  por Daniel de Morais
+
+30/08/2024
+-- ACBrBoletoW_C6.pas --
+[+] Ajustes da API conforme os testes do programa coalizão 
+  por Daniel de Morais
+  
 15/08/2024
 -- ACBrBoleto.pas ACBrBoletoWS.pas ACBrBoletoRet_Cresol.pas ACBrBoletoW_Cresol.pas--
 [+]TK-4538 / TK-4854 ACBrBoleto - API CRESOL Cobrança Boletos 
   por Willian Delan
+  
 -- ACBrBoleto.pas --
 [+] Adicionado leitura a propriedades faltantes do Ini e gravação
   por Victor H Gonzales - Pandaaa

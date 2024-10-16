@@ -266,13 +266,9 @@ end;
 
 procedure TBoletoW_Itau_API.DefinirKeyUser;
 begin
-  if Boleto.Cedente.CedenteWS.IndicadorPix and Assigned(ATitulo) then
-      FPKeyUser := 'x-itau-correlationID: ' + Boleto.Cedente.CedenteWS.ClientID
-  else
-  begin
-    FPHeaders.Add('x-itau-apikey: ' + Boleto.Cedente.CedenteWS.ClientID);
-    FPHeaders.Add('x-itau-correlationID: ' + Boleto.Cedente.CedenteWS.ClientID);
-  end;
+  FPHeaders.Clear;
+  FPHeaders.Add('x-itau-apikey: ' + Boleto.Cedente.CedenteWS.ClientID);
+  FPHeaders.Add('x-itau-correlationID: ' + Boleto.Cedente.CedenteWS.ClientID);
 end;
 
 function TBoletoW_Itau_API.DefinirParametros: String;
@@ -323,8 +319,9 @@ begin
 
             if Boleto.Configuracoes.WebService.Filtro.indiceContinuidade > 0 then
               LConsulta.Add('page=' + IntToStr(Trunc(Boleto.Configuracoes.WebService.Filtro.indiceContinuidade)));
-            
-            LConsulta.Add('view=full');
+
+            {filtro full nao esta devolvendo informacoes pgto, suporte sugeriu utilizar specific}
+            LConsulta.Add('view=specific');
           end;
         tpConsultaDetalhe :
           begin
@@ -336,7 +333,8 @@ begin
             if LNossoNumero <> EmptyStr then
                LConsulta.Add('nosso_numero=' + LNossoNumero);
 
-            LConsulta.Add('view=full');
+            {filtro full nao esta devolvendo informacoes pgto, suporte sugeriu utilizar specific}
+            LConsulta.Add('view=specific');
           end;
         tpAltera :
           begin
@@ -856,9 +854,12 @@ begin
         case ATitulo.CodigoMoraJuros of
           cjValorDia:
             ATitulo.CodigoMora := '93';
+          cjValorMensal:
+            raise EACBrBoletoWSException.Create
+              (ACBrStr('Não é permitido cjValorMensal na propriedade ValorMoraJuros para este Banco'));
           cjTaxaDiaria:
             ATitulo.CodigoMora := '91';
-          cjValorMensal:
+          cjTaxaMensal:
             ATitulo.CodigoMora := '90';
           cjIsento:
             ATitulo.CodigoMora := '05';

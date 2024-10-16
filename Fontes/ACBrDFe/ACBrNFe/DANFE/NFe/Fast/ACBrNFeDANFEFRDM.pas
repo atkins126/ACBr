@@ -1014,7 +1014,7 @@ begin
         FieldByName('ChaveNFe').AsString          := FNFe.infNFe.ID;
         FieldByName('cProd').AsString             := FDANFEClassOwner.ManterCodigo(Prod.cEAN,Prod.cProd);
         FieldByName('cEAN').AsString              := Prod.cEAN;
-        FieldByName('XProd').AsString             := StringReplace( Prod.xProd, ';', #13, [rfReplaceAll]);
+        FieldByName('XProd').AsString             := StringReplace( Prod.xProd, FDANFEClassOwner.CaractereQuebraDeLinha, #13, [rfReplaceAll]);
         FieldByName('VProd').AsString             := FDANFEClassOwner.ManterVprod(Prod.VProd , Prod.vDesc );
         FieldByName('vTotTrib').AsString          := FDANFEClassOwner.ManterdvTotTrib(Imposto.vTotTrib );
         FieldByName('infAdProd').AsString         := FDANFEClassOwner.ManterinfAdProd(FNFe, inItem);
@@ -1438,8 +1438,6 @@ end;
 procedure TACBrNFeFRClass.CarregaInformacoesAdicionais;
 var
   vTemp         : TStringList;
-  IndexCampo    : Integer;
-  Campos        : TSplitResult;
   BufferInfCpl  : string;
   wObs          : string;
   wLinhasObs    : integer;
@@ -1489,9 +1487,7 @@ begin
 
     if Trim(wObs) <> '' then
     begin
-      Campos := Split(';', wObs);
-      for IndexCampo := 0 to Length(Campos) - 1 do
-        vTemp.Add(Campos[IndexCampo]);
+      vTemp.Text := StringReplace(wObs, FDANFEClassOwner.CaractereQuebraDeLinha, sLineBreak, [rfReplaceAll]);
 
       wLinhasObs    := 1; //TotalObS(vTemp.Text);
       BufferInfCpl  := vTemp.Text;
@@ -1972,10 +1968,10 @@ begin
         begin
           CondicoesUso := InfEvento.detEvento.xCondUso;
           CondicoesUso := StringReplace(CondicoesUso, 'com: I', 'com:'+#13+' I', [rfReplaceAll]);
-          CondicoesUso := StringReplace(CondicoesUso, ';', ';' + #13, [rfReplaceAll]);
+          CondicoesUso := StringReplace(CondicoesUso, FDANFEClassOwner.CaractereQuebraDeLinha, FDANFEClassOwner.CaractereQuebraDeLinha + #13, [rfReplaceAll]);
 
           Correcao := StringReplace(InfEvento.detEvento.xCorrecao,
-            TACBrNFe(DANFEClassOwner.ACBrNFe).Configuracoes.WebServices.QuebradeLinha, #13,
+            FDANFEClassOwner.CaractereQuebraDeLinha, #13,
              [rfReplaceAll]);
 
           FieldByName('xCondUso').AsString  := CondicoesUso;

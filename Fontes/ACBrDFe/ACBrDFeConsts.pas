@@ -146,6 +146,7 @@ resourcestring
   DSC_ULTNSU = 'Último NSU recebido pela Empresa';
   DSC_NSU = 'NSU específico';
 
+
 implementation
 
 end.

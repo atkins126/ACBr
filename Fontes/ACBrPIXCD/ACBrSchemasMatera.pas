@@ -101,10 +101,10 @@ type
 
   TMateraAliasType = (
     malNone,
-    //malTaxId,
-    //malEmail,
-    //malPhone,
-    malEVP
+    malEVP,
+    malTaxId,
+    malEmail,
+    malPhone
   );
 
   TMateraAliasStatus = (
@@ -3655,13 +3655,13 @@ end;
 
 function MateraAliasTypeToString(aType: TMateraAliasType): String;
 begin
-  Result := 'EVP';
+  Result := EmptyStr;
   
   case aType of
     malEVP: Result := 'EVP';
-    //malTaxId: Result := 'TAX_ID';
-    //malEmail:  Result := 'EMAIL';
-    //malPhone:  Result := 'PHONE';
+    malTaxId: Result := 'TAX_ID';
+    malEmail:  Result := 'EMAIL';
+    malPhone:  Result := 'PHONE';
   else
     Result := EmptyStr;
   end;
@@ -3671,17 +3671,17 @@ function StringToMateraAliasType(const aString: String): TMateraAliasType;
 var
   s: String;
 begin
+  Result := malNone;
+
   s := UpperCase(Trim(aString));
-  if (s = 'TAX_ID') then
+  if (s = 'EVP') then
     Result := malEVP
-  //else if (s = 'TAX_ID') then
-  //  Result := malTaxId
-  //else if (s = 'EMAIL') then
-  //  Result := malEmail
-  //else if (s = 'PHONE') then
-  //  Result := malPhone
-  else
-    Result := malNone;
+  else if (s = 'TAX_ID') then
+    Result := malTaxId
+  else if (s = 'EMAIL') then
+    Result := malEmail
+  else if (s = 'PHONE') then
+    Result := malPhone;
 end;
 
 function MateraAliasStatusToString(aType: TMateraAliasStatus): String;
@@ -9314,7 +9314,7 @@ end;
 constructor TMateraInstantPaymentQRCodeResponse.Create(const aObjectName: String);
 begin
   inherited Create(aObjectName);
-  fGeneratedImage := TMateraGeneratedImage.Create('GeneratedImage');
+  fGeneratedImage := TMateraGeneratedImage.Create('generateImage');
   Clear;
 end;
 
@@ -11391,7 +11391,9 @@ end;
 constructor TMateraAccountTransactionRequestBasic.Create(const aObjectName: String);
 begin
   inherited Create(aObjectName);
-  fdocuments := TMateraDocumentArray.Create('');
+  
+  fdocuments := TMateraDocumentArray.Create('documents');
+    
   fmobilePhone := TMateraMobilePhone.Create('mobilePhone');
   fbillingAddress := TMateraEndereco.Create('billingAddress');
   fadditionalDetailsCorporate := TMateraAdditionalDetailsCorporate.Create('additionalDetailsCorporate');

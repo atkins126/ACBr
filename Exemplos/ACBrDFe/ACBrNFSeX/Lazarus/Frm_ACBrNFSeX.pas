@@ -1421,6 +1421,13 @@ begin
 
           // Provedor EloTech
           Tributavel := snNao;
+          // Informações referente a Dedução do Provedor EloTech
+          DadosDeducao.TipoDeducao := tdNenhum;
+          DadosDeducao.CpfCnpj := '';
+          DadosDeducao.NumeroNotaFiscalReferencia := '';
+          DadosDeducao.ValorTotalNotaFiscal := 0;
+          DadosDeducao.PercentualADeduzir := 0;
+          DadosDeducao.ValorADeduzir := 0;
 
           CodigoCnae := '6203100';
         end;
@@ -1705,7 +1712,7 @@ end;
 procedure TfrmACBrNFSe.btnCancNFSeClick(Sender: TObject);
 var
   Titulo, NumNFSe, Codigo, Motivo, NumLote, CodVerif, SerNFSe, NumRps,
-  SerRps, ValNFSe, ChNFSe, eMailTomador, vNumRPS, xCodServ,
+  SerRps, ValNFSe, ChNFSe, eMailTomador, vNumRPS, xCodServ, CodMun,
   xDataEmissao: String;
   DataEmissao: TDateTime;
   CodCanc: Integer;
@@ -1867,6 +1874,13 @@ begin
       if not (InputQuery(Titulo, 'eMail do Tomador', eMailTomador)) then
         exit;
     end;
+
+    if ACBrNFSeX1.Configuracoes.Geral.Provedor = proFiorilli then
+    begin
+      CodMun := '';
+      if not (InputQuery(Titulo, 'Código IBGE do municipio de incidencia', CodMun)) then
+        exit;
+    end;
   end;
 
   if ACBrNFSeX1.Configuracoes.Geral.Provedor = proISSBarueri then
@@ -1897,6 +1911,7 @@ begin
       email           := eMailTomador;
       DataEmissaoNFSe := DataEmissao;
       CodServ         := xCodServ;
+      CodMunicipio    := StrToIntDef(CodMun, 0);
     end;
 
     ACBrNFSeX1.CancelarNFSe(InfCancelamento);

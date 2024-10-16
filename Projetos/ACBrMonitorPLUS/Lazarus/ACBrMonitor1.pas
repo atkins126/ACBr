@@ -62,7 +62,8 @@ uses
   DoECFObserver, DoECFBemafi32, DoSATUnit, DoACBreSocialUnit, DoACBrBPeUnit,
   ACBrLibResposta, DoACBrUnit, DoCNPJUnit, DoCPFUnit, ACBrBoletoConversao,
   ACBrBoletoFPDF, FormConsultaCNPJ, ACBrMonitorMenu, ACBrDFeReport, ACBrNFSeX,
-  ACBrNFSeXDANFSeRLClass, DoACBrNFSeUnit, ACBrGTIN, DoACBrGTINUnit, ACBrPIXBase;
+  ACBrNFSeXDANFSeRLClass, DoACBrNFSeUnit, ACBrGTIN, DoACBrGTINUnit, ACBrPIXBase,
+  ACBrLibConfig;
 
 const
   CEstados: array[TACBrECFEstado] of string =
@@ -518,6 +519,7 @@ type
     edEntTXT: TEdit;
     edIBGECodNome: TEdit;
     edConsultarGTIN: TEdit;
+    edtQuebraDeLinha: TEdit;
     edtConsCNPJ: TEdit;
     edtBolMargemInferior: TEdit;
     edtArquivoWebServicesNFSe: TEdit;
@@ -839,6 +841,7 @@ type
     Label114: TLabel;
     Label118: TLabel;
     Label152: TLabel;
+    Label189: TLabel;
     Label260: TLabel;
     Label261: TLabel;
     Label262: TLabel;
@@ -5971,6 +5974,7 @@ begin
     cbValidarDigest.Checked            := ValidarDigest;
     edtTimeoutWebServices.Value        := TimeoutWebService;
     cbModoEmissao.Checked              := IgnorarComandoModoEmissao;
+    edtQuebraDeLinha.Text              := QuebraDeLinha;
 
     with Certificado do
     begin
@@ -7261,6 +7265,7 @@ begin
       ArquivoWebServicesReinf   := edtArquivoWebServicesReinf.Text;
       ValidarDigest             := cbValidarDigest.Checked;
       TimeoutWebService         := edtTimeoutWebServices.Value;
+      QuebraDeLinha             := edtQuebraDeLinha.Text;
 
       with Certificado do
       begin
@@ -11956,6 +11961,7 @@ begin
       TimeOut  := edtTimeoutWebServices.Value * 1000;
       AjustaAguardaConsultaRet  := cbxAjustarAut.Checked;
       TimeZoneConf.ModoDeteccao := TTimeZoneModoDeteccao( cbxTimeZoneMode.ItemIndex );
+      QuebradeLinha := edtQuebraDeLinha.Text;
 
       try
         TimeZoneConf.TimeZoneStr := edTimeZoneStr.Caption;

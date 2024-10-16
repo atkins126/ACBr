@@ -227,6 +227,10 @@ begin
 
       VerificarSeConteudoEhLista(Discriminacao);
 
+      NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('Observacoes'), tcStr);
+      NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoMunicipio'), tcStr);
 
       CodMunicipioPrestacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('MunicipioPrestacaoServico'), tcInt);
@@ -334,6 +338,8 @@ begin
     raise Exception.Create('Arquivo xml vazio.');
 
   NFSe.Clear;
+
+  NFSe.tpXML := tpXml;
 
   if tpXML = txmlNFSe then
     Result := LerXmlNfse(XmlNode)

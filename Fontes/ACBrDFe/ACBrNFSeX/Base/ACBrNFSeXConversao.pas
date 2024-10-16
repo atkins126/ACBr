@@ -133,17 +133,18 @@ type
                    proISSJoinville, proISSLegal, proISSLencois, proISSNatal,
                    proISSNet, proISSPortoVelho, proISSRecife, proISSRio,
                    proISSSalvador, proISSSaoPaulo, proISSSJP, proISSVitoria,
-                   proLexsom, proLibre, proLink3, proMegaSoft, proMetropolisWeb,
-                   proMitra, proModernizacaoPublica, proNEAInformatica,
-                   proNFSeBrasil, proNotaInteligente, proPrescon, proPriMax,
-                   proProdata, proPRODAUB, proPronim, proPublica, proPublicSoft,
-                   proRLZ, proSam, proSaatri, proSafeWeb, proSH3, proSiam,
-                   proSiapNet, proSiappa, proSiapSistemas, proSiat, proSigCorp,
-                   proSigep, proSigISS, proSigISSWeb, proSilTecnologia, proSimple,
-                   proSimplISS, proSintese, proSisPMJP, proSistemas4R, proSmarAPD,
-                   proSoftPlan, proSpeedGov, proSSInformatica, proSudoeste,
-                   proSysISS, proSystemPro, proTcheInfo, proTecnos, proThema,
-                   proTinus, proTiplan, proTributus, proVersaTecnologia,
+                   proKalana, proLexsom, proLibre, proLink3, proMegaSoft,
+                   proMetropolisWeb, proMitra, proModernizacaoPublica,
+                   proNEAInformatica, proNFEletronica, proNFSeBrasil,
+                   proNotaInteligente, proPrescon, proPriMax, proProdata,
+                   proPRODAUB, proPronim, proPublica, proPublicSoft, proRLZ,
+                   proSam, proSaatri, proSafeWeb, proSH3, proSiam, proSiapNet,
+                   proSiappa, proSiapSistemas, proSiat, proSigCorp, proSigep,
+                   proSigISS, proSigISSWeb, proSilTecnologia, proSimple,
+                   proSimplISS, proSintese, proSisPMJP, proSistemas4R,
+                   proSmarAPD, proSoftPlan, proSpeedGov, proSSInformatica,
+                   proSudoeste, proSysISS, proSystemPro, proTcheInfo, proTecnos,
+                   proThema, proTinus, proTiplan, proTributus, proVersaTecnologia,
                    proVirtual, proWebFisco, proWebISS);
 
   TnfseSituacaoTributaria = (stRetencao, stNormal, stSubstituicao, stNenhum,
@@ -6619,7 +6620,7 @@ function CodTOMToCodIBGE(const ACodigo: string): string;
 var
   CodTOM, CodIBGE: integer;
 begin
-  CodTOM := strtoint64(ACodigo);
+  CodTOM := StrToInt64Def(ACodigo, 0);
 
   case CodTOM of
     0033: CodIBGE := 1100015; // Alta Floresta D Oeste/RO

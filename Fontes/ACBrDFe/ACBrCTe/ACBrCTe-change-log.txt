@@ -44,6 +44,80 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+
+14/10/2024
+-- ACBrCTe.XmlHandler --
+[-] #TK-6088: Correção, não estava lendo a tag indIEToma.
+-- pcteCTeW --
+[*] #TK-6088: Acrescentado a condição para checar o conteúdo de xObs antes de gerar
+    ou não o grupo: compl
+   Por: dev Fortes
+[+] Incluído a leitura do grupo <total> e suas tags.
+   Por: Italo Giurizzato Junior
+
+09/10/2024
+-- ACBrCTe --
+[*] #TK-6050: Ajuste visando a correta geração do URL-QRCode quando emitido em contingência.
+   Por: Italo Giurizzato Junior / Diego Folieni
+
+08/10/2024
+-- ACBrCTe.XmlHandler --
+[-] Correção para a leitura correta da chave da NF-e quando se tratar de CT-e Simplificado.
+   Por: Italo Giurizzato Junior
+-- pcteCTeW --
+[-] Correção para gerar a tag xNome do Tomador com um texto fixo quando se tratar
+    de ambiente de homologação.
+   Por: Alisson Orsolin
+-- ACBrCTe.XmlHandler --
+[-] Correção para identificar corretamente um CT-e Simplificado que foi processado
+    com sucesso, ou seja, autorizado.
+   Por: Italo Giurizzato Junior
+
+03/10/2024
+-- ACBrCTeServicos --
+[+] Incluída as URLs de produção e homologação de recepção do 
+    CT-e Simplificado das UF: MG, MS e SP.
+   Por: Italo Giurizzato Junior
+
+01/10/2024
+-- ACBrCTe.RetConsSit.pas --
+[*] Ajustes necessários para utilizar a unit: ACBrDFeComum.Proc
+   Por: Italo Giurizzato Junior
+
+26/09/2024
+-- ACBrCTeConhecimentos/pcteProcCTe --
+[-] Correção para ocorrer a união entre o XML do CT-e Simplificado com o
+    retorno que contem o protocolo de autorização.
+   Por: Italo Giurizzato Junior
+
+26/09/2024
+-- ACBrCTeServicos --
+[+] #TK-6020: Incluída as URLs de produção e homologação de recepção do 
+    CT-e Simplificado SEFAZ-PR.
+   Por: Marcelo Dev
+
+25/09/2024
+-- Diversos --
+[*] #TK-5866-2: Ajuste visando padronização do caractere de quebra de linha.
+   Por: Diego Folieni
+
+19/09/2024
+-- ACBrCTeServicos --
+[+] Incluída as URLs de produção e homologação de recepção do CT-e Simplificado
+    SEFAZ-MT.
+   Por: Italo Giurizzato Junior
+
+17/09/2024
+-- Diversos --
+[*] #TK-5326 - Implementação do CT-e Simplificado.
+   Por: Italo Giurizzato Junior
+
+20/08/2024
+[*] Remoção das units: pcteConsSitCTe, pcteEnvEventoCTe, pcteEventoCTe,
+    pcteLayoutTXT, pcteModeloCTe, pcteRetConsSitCTe, pcteRetEnvEventoCTe.
+    Elas não são mais utilizadas, foram substituidas. 
+   Por: Italo Giurizzato Junior
+
 07/08/2024
 -- Diversos --
 [*] Alteração nos fontes para passar a utilizar as novas units: ACBrCTe.ConsSit,

@@ -42,6 +42,29 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+16/10/2024
+--- ACBrLibBoletoRespostas ---
+[*] Ajuste da validação no retorno do emv
+    #TK-6080 - https://www.projetoacbr.com.br/forum/topic/80044-acbrlibboleto-c-classe-t%C3%ADtulo-falta-campo-nossonumerocorrespondente/
+    Por: Júlio Cavalcanti / Antonio Carlos
+
+06/09/2024
+-- Diversos --
+[+] #TK-4956-3: Implementados programas de exemplo do Boleto em PHP, ST e MT.
+  Por: Renato Rubinho
+
+29/08/2024
+--- ACBrLibBoletoConfig ---
+[*] Ajustado a linha que gera o campo OrientacaoBanco no ACBrLib.ini
+    #TK-5863 - https://www.projetoacbr.com.br/forum/topic/79205-chave-s-n%C3%A3o-existe-na-sess%C3%A3o-s-no-arquivo-de-configura%C3%A7%C3%A3o/#comment-512060
+    Por: Júlio Cavalcanti / Victor Panda / Daniel InfoCotidiano
+
+23/08/2024
+--- ACBrLibBoletoConfig ---
+[*] Descomentado a linha que gera o campo OrientacaoBanco no ACBrLib.ini
+    #TK-5863 - https://www.projetoacbr.com.br/forum/topic/79205-chave-s-n%C3%A3o-existe-na-sess%C3%A3o-s-no-arquivo-de-configura%C3%A7%C3%A3o/#comment-512060
+    Por: Júlio Cavalcanti / Victor Panda
+
 17/07/2024
 --- ACBrLibBoleto, ACBrLibBoletoBase, ACBrLibBoletoST, ACBrLibBoletoMT, ACBrLibBoletoStaticImport, ACBrLibBoletoStaticImport ---
 [+] Novo método Boleto_LerRetornoStream

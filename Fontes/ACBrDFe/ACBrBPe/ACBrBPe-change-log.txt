@@ -45,6 +45,27 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+
+01/10/2024
+-- Diversos --
+[*] Ajustes necessários para utilizar a unit: ACBrDFeComum.Proc
+   Por: Italo Giurizzato Junior
+
+24/09/2024
+-- ACBrBPeDABPEFR --
+[-] Mais algumas correção para a impressão correta do DABPE.
+   Por: Evertof
+
+23/09/2024
+-- ACBrBPeDABPEFR --
+[-] Correção no nome da unit para que ocorra a compilação da unit.
+   Por: Evertof
+
+12/09/2024
+-- ACBrBPeWebServices --
+[*] Ajustes na montagem do XML *-ProcEventoBPe.xml
+   Por: Italo Giurizzato Junior
+
 08/05/2024
 -- ACBrBPeWebServices/ACBrBPeXmlWriter --
 [*] Remoção de código não utilizado.

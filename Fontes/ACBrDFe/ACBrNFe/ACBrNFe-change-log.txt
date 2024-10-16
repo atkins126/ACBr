@@ -44,6 +44,87 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+11/10/2024
+-- ACBrDFeDANFeReport, ACBrDFeDANFeFRDM --
+[*] #TK-6038: Ajustes visando a correta quebra de linhas nas observações quando for criada pelo componente.
+   Por: Diogo Loff 
+-- pcnNFeConsts --
+[+] #TK-5795: Adiciona as constantes que haviam sido criadas previamente em ACBrDFeConsts
+   Por: Diego Folieni
+-- Diversos --
+[+] #TK-5975: Adequa o componente ACBrNFe as modificações propostas pela NT2024/003
+   Por: Diego Folieni 
+[+] Implementado a propriedade de configuração: ExibeCampoDuplicata com o valor
+    padrão True que permite definir se o quadro referente as duplicatas vai ser
+    impresso ou não. 
+   Por: Italo Giurizzato Junior
+
+01/10/2024
+-- ACBrNFe.RetConsSit --
+[*] Ajustes necessários para utilizar a unit: ACBrDFeComum.Proc
+   Por: Italo Giurizzato Junior
+
+30/09/2024
+-- ACBrDANFCeFortesFrA4 --
+[*] #TK-6029: Ajuste para compatibilizar com os demais impressos a lógica para vTotTrib, vTribFed, vTribEst e vTribMun.
+   Por: Diego Folieni
+
+20/09/2024
+-- ACBrNFe.EnvEvento --
+[*] Ajuste na forma como é lido a informação idLote em LerFromIni visando compatibilização com o tipo da propriedade.
+   Por: Diego Folieni
+
+16/09/2024
+-- ACBrNFeServicos --
+[*] #TK-5967 - Atualização das URLs de Produção do SVAN/SVC-AN
+    Por: Italo Giurizzato Junior
+
+13/09/2024
+-- ACBrNFeNotasFiscais --
+[*] #TK-5931 - Adicionar na classe de alto nível propriedades para seção infNFeSupl
+    - Implementado a classe infNFeSupl nas funções LerArqIni e GerarNFeIni para que o mesmo funcione nas classes do C#.
+    Por: Antonio Carlos Junior / Julio Cavalcanti / Diego Folieni
+
+12/09/2024
+-- ACBrNFeWebService --
+[*] #TK-5953: Ajuste visando retornar a data/hora do recebimento do documento.
+  Por: Italo Giurizzato Junior
+
+11/09/2024
+-- ACBrNFeWebService --
+[*] #TK-5933: Ajuste visando corrigir a forma como a string é devolvida na propriedade.
+  Por: Diego Folieni / Italo Giurizzato Junior / Victor H Gonzales - Pandaaa 
+
+10/09/2024
+-- ACBrNFe.XmlReader --
+[-] Correção na leitura do XML, não estava lendo corretamente o grupo <card>.
+  Por: Jeanny Paiva
+
+06/09/2024
+-- ACBrNFe.EnvEvento --
+[*] Remove linha que modificava config de RetirarAcentos para True independente da config definida.
+  Por: Diego Folieni
+
+05/09/2024
+-- ACBrNFeNotasFiscais --
+[*] #TK-5866-3: Adiciona correta config QuebraLinha no momento em que alimenta as configurações para o gerador do XML.
+   Por: Diego Folieni 
+
+04/09/2024
+-- ACBrNFe/ACBrNFeWebServices/ACBrNFe.RetConsSit --
+[*] Ajuste para considerar os cStat de denegação como rejeição.
+   Por: Italo Giurizzato Junior
+
+04/09/2024
+-- ACBrNFeNotasFiscais, ACBrNFeWebServices, ACBrNFeDAInutRLRetrato --
+[*] #TK-5866-3: Ajuste visando correto uso config de quebra de linha nas rotinas que substituem a quebra nativa pela config definida.
+  Por: Diego Folieni 
+
+02/09/2024
+-- Diversos --
+[*] #TK-5866: Ajuste visando padronização do caractere de quebra de linha.
+   por: Diego Folieni
+
 15/08/2024
 -- ACBrNFeWebServices --
 [*] #TK-5833: Adiciona o preenchimento da propriedade que alimenta o XML na resposta da Lib.

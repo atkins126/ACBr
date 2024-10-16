@@ -73,9 +73,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure Autenticar; override;
-  published
-    property ClientID;
-    property ClientSecret;
   end;
 
 implementation
@@ -116,7 +113,6 @@ var
   js: TACBrJSONObject;
   qp: TACBrQueryParams;
 begin
-  raise Exception.Create('EM DESENVOLVIMENTO');
   LimparHTTP;
 
   if (ACBrPixCD.Ambiente = ambProducao) then

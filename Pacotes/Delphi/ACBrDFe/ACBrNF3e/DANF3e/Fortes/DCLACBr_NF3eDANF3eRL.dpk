@@ -1,7 +1,6 @@
 package DCLACBr_NF3eDANF3eRL;
 
 {$R *.res}
-{$R *.otares}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
@@ -35,6 +34,6 @@ requires
   ACBr_NF3eDANF3eRL;
 
 contains
-  ACBrNF3e.DANF3ERLReg in '..\..\..\..\..\..\..\Fontes\ACBrDFe\ACBrNF3e\DANF3e\Fortes\ACBrNF3e.DANF3ERLReg.pas';
+  ACBrNF3e.DANF3ERLReg in '..\..\..\..\..\..\Fontes\ACBrDFe\ACBrNF3e\DANF3e\Fortes\ACBrNF3e.DANF3ERLReg.pas';
 
 end.

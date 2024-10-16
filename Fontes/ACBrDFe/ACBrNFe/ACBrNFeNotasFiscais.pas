@@ -1155,9 +1155,9 @@ begin
                 ((NFe.Emit.CRT <> crtSimplesNacional) and (Imposto.ICMS.CST in [cst10, cst30, cst60, cst70, cst90]))) then
               AdicionaErro('806-Rejeição: Operação com ICMS-ST sem informação do CEST [nItem: '+IntToStr(Prod.nItem)+']');           }
 
-            GravaLog('Validar: 856-Obrigatória a informação do campo vPart (id: LA03d) para produto "210203001 – GLP" (tag:cProdANP) [nItem: '+IntToStr(Prod.nItem)+']');
+{            GravaLog('Validar: 856-Obrigatória a informação do campo vPart (id: LA03d) para produto "210203001 – GLP" (tag:cProdANP) [nItem: '+IntToStr(Prod.nItem)+']');
             if (Prod.comb.cProdANP = 210203001) and (Prod.comb.vPart <= 0) then
-              AdicionaErro('856-Rejeição: Campo valor de partida não preenchido para produto GLP [nItem: '+IntToStr(Prod.nItem)+']');
+              AdicionaErro('856-Rejeição: Campo valor de partida não preenchido para produto GLP [nItem: '+IntToStr(Prod.nItem)+']'); }
 
 {            GravaLog('Validar: 858-Grupo ICMS60 (id:N08) informado indevidamente nas operações com os produtos combustíveis sujeitos a repasse interestadual [nItem: '+IntToStr(Prod.nItem)+']');
             if (Prod.comb.cProdANP = '210203001') and (Imposto.ICMS.CST = cst60 and Imposto.ICMS.vICMSSTDest <= 0) then
@@ -2762,6 +2762,16 @@ begin
         Inc(I);
       end;
 
+      sSecao := 'infNFeSupl';
+      if INIRec.SectionExists(sSecao) then
+      begin
+        with infNFeSupl do
+        begin
+          qrCode := INIRec.ReadString(sSecao, 'qrCode','');
+          urlChave := INIRec.ReadString(sSecao, 'urlChave','');
+        end;
+      end;
+
       sSecao := 'infRespTec';
       if INIRec.SectionExists(sSecao) then
       begin
@@ -2772,6 +2782,22 @@ begin
           email    := INIRec.ReadString(sSecao, 'email', '');
           fone     := INIRec.ReadString(sSecao, 'fone', '');
         end;
+      end;
+
+      sSecao := 'defensivo';
+      if INIRec.SectionExists(sSecao) then
+      begin
+        agropecuario.defensivo.nReceituario := INIRec.ReadString(sSecao, 'nReceituario', '');
+        agropecuario.defensivo.CPFRespTec := INIRec.ReadString(sSecao, 'CPFRespTec', '');
+      end;
+
+      sSecao := 'guiaTransito';
+      if INIRec.SectionExists(sSecao) then
+      begin
+        agropecuario.guiaTransito.UFGuia := INIRec.ReadString(sSecao, 'UFGuia', '');
+        agropecuario.guiaTransito.tpGuia := StrToTtpGuia(INIRec.ReadString(sSecao, 'tpGuia', ''));
+        agropecuario.guiaTransito.serieGuia := INIRec.ReadString(sSecao, 'serieGuia', '');
+        agropecuario.guiaTransito.nGuia := INIRec.ReadString(sSecao, 'nGuia', '0');
       end;
     end;
 
@@ -3701,10 +3727,27 @@ begin
         end;
       end;
 
+      INIRec.WriteString('infNFeSupl', 'qrCode', infNFeSupl.qrCode);
+      INIRec.WriteString('infNFeSupl', 'urlChave', infNFeSupl.urlChave);
+
       INIRec.WriteString('infRespTec', 'CNPJ', infRespTec.CNPJ);
       INIRec.WriteString('infRespTec', 'xContato', infRespTec.xContato);
       INIRec.WriteString('infRespTec', 'email', infRespTec.email);
       INIRec.WriteString('infRespTec', 'fone', infRespTec.fone);
+
+      if Trim(agropecuario.defensivo.nReceituario) <> '' then
+      begin
+        INIRec.WriteString('defensivo', 'nReceituario', agropecuario.defensivo.nReceituario);
+        INIRec.WriteString('defensivo', 'CPFRespTec', agropecuario.defensivo.CPFRespTec);
+      end;
+
+      if agropecuario.guiaTransito.tpGuia <> tpgNenhum then
+      begin
+        INIRec.WriteString('guiaTransito', 'UFGuia', agropecuario.guiaTransito.UFGuia);
+        INIRec.WriteString('guiaTransito', 'tpGuia', TtpGuiaToStr(agropecuario.guiaTransito.tpGuia));
+        INIRec.WriteString('guiaTransito', 'serieGuia', agropecuario.guiaTransito.serieGuia);
+        INIRec.WriteString('guiaTransito', 'nGuia', agropecuario.guiaTransito.nGuia);
+      end;
 
       INIRec.WriteString('procNFe', 'tpAmb', TpAmbToStr(procNFe.tpAmb));
       INIRec.WriteString('procNFe', 'verAplic', procNFe.verAplic);
@@ -3816,11 +3859,13 @@ begin
     FNFeW.Opcoes.CamposFatObrigatorios := Configuracoes.Geral.CamposFatObrigatorios;
     FNFeW.Opcoes.ForcarGerarTagRejeicao938 := Configuracoes.Geral.ForcarGerarTagRejeicao938;
     FNFeW.Opcoes.ForcarGerarTagRejeicao906 := Configuracoes.Geral.ForcarGerarTagRejeicao906;
+    FNFeW.Opcoes.QuebraLinha := Configuracoes.WebServices.QuebradeLinha;
 {$Else}
     FNFeW.Gerador.Opcoes.FormatoAlerta  := Configuracoes.Geral.FormatoAlerta;
     FNFeW.Gerador.Opcoes.RetirarAcentos := Configuracoes.Geral.RetirarAcentos;
     FNFeW.Gerador.Opcoes.RetirarEspacos := Configuracoes.Geral.RetirarEspacos;
     FNFeW.Gerador.Opcoes.IdentarXML := Configuracoes.Geral.IdentarXML;
+    FNFeW.Gerador.Opcoes.QuebraLinha := Configuracoes.WebServices.QuebradeLinha;
     FNFeW.Opcoes.NormatizarMunicipios  := Configuracoes.Arquivos.NormatizarMunicipios;
     FNFeW.Opcoes.PathArquivoMunicipios := Configuracoes.Arquivos.PathArquivoMunicipios;
     FNFeW.Opcoes.CamposFatObrigatorios := Configuracoes.Geral.CamposFatObrigatorios;

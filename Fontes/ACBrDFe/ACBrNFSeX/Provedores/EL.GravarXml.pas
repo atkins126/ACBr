@@ -38,9 +38,12 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXGravarXml_ABRASFv2,
-  ACBrNFSeXConversao, ACBrNFSeXConsts;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrNFSeXGravarXml,
+  ACBrNFSeXGravarXml_ABRASFv2,
+  ACBrNFSeXConversao,
+  ACBrNFSeXConsts;
 
 type
   { TNFSeW_EL }
@@ -180,6 +183,9 @@ begin
     FormatoItemListaServico := filsComFormatacaoSemZeroEsquerda;
 
   DivAliq100 := True;
+
+  if FpAOwner.ConfigGeral.Params.TemParametro('NaoDividir100') then
+    DivAliq100 := False;
 end;
 
 function TNFSeW_EL.GerarContatoPrestador: TACBrXmlNode;

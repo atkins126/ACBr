@@ -39,7 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv2, ACBrNFSeXConversao;
+  ACBrNFSeXGravarXml_ABRASFv2;
 
 type
   { TNFSeW_Giss204 }
@@ -63,9 +63,10 @@ procedure TNFSeW_Giss204.Configuracao;
 begin
   inherited Configuracao;
 
-  FormatoAliq := tcDe2;
+  DivAliq100 := True;
+  FormatoAliq := tcDe4;
 
-  NrOcorrCodigoPaisServico := -1;
+  NrOcorrCodigoPaisServico := 0;
   NrOcorrCodigoPaisTomador := -1;
 
   TagTomador := 'TomadorServico';

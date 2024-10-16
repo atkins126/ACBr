@@ -459,14 +459,14 @@ type
 
   TDadosDeducao = class(TObject)
   private
-    FvTotTribFed: TTipoDeducao;
+    FTipoDeducao: TTipoDeducao;
     FCpfCnpj: string;
     FNumeroNotaFiscalReferencia: string;
     FValorTotalNotaFiscal: Double;
     FPercentualADeduzir: Double;
     FValorADeduzir: Double;
   public
-    property TipoDeducao: TTipoDeducao read FvTotTribFed write FvTotTribFed;
+    property TipoDeducao: TTipoDeducao read FTipoDeducao write FTipoDeducao;
     property CpfCnpj: string read FCpfCnpj write FCpfCnpj;
     property NumeroNotaFiscalReferencia: string read FNumeroNotaFiscalReferencia write FNumeroNotaFiscalReferencia;
     property ValorTotalNotaFiscal: Double read FValorTotalNotaFiscal write FValorTotalNotaFiscal;
@@ -1068,6 +1068,11 @@ type
     FCondicao: TnfseCondicaoPagamento;
     FQtdParcela: Integer;
     FParcelas: TParcelasCollection;
+    // Provedor NFEletronica
+    FDataVencimento: TDateTime;
+    FInstrucaoPagamento: string;
+    FCodigoVencimento: Integer;
+
     procedure SetParcelas(const Value: TParcelasCollection);
   public
     constructor Create;
@@ -1076,6 +1081,10 @@ type
     property Condicao: TnfseCondicaoPagamento read FCondicao write FCondicao;
     property QtdParcela: Integer read FQtdParcela write FQtdParcela;
     property Parcelas: TParcelasCollection read FParcelas write SetParcelas;
+    // Provedor NFEletronica
+    property DataVencimento: TDateTime read FDataVencimento write FDataVencimento;
+    property InstrucaoPagamento: string read FInstrucaoPagamento write FInstrucaoPagamento;
+    property CodigoVencimento: Integer read FCodigoVencimento write FCodigoVencimento;
  end;
 
   TemailCollectionItem = class(TObject)
@@ -1413,6 +1422,7 @@ type
     FDescricaoCodigoTributacaoMunicipio: string;
     FEqptoRecibo: string;
     FVencimento: TDateTime;
+    FtpXML: TtpXML;
 
     procedure Setemail(const Value: TemailCollection);
     procedure SetInformacoesComplementares(const Value: string);
@@ -1536,6 +1546,9 @@ type
     // Provedor RLZ
     property Vencimento: TDateTime read FVencimento write FVencimento;
 
+    // Utilizado para detectar se os dados que se encontram nas classes foram
+    // lidos de um XML RPS ou NFS-e
+    property tpXML: TtpXML read FtpXML write FtpXML;
   end;
 
   TSubstituicaoNfse = class(TObject)
@@ -1674,6 +1687,8 @@ begin
   FIdentificacaoTomador := TIdentificacao.Create;
   FEndereco := TEndereco.Create;
   FContato := TContato.Create;
+
+  FTomadorExterior := snNao;
 end;
 
 destructor TDadosTomador.Destroy;
