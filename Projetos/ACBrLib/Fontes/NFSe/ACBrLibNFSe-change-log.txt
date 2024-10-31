@@ -42,6 +42,15 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+16/10/2024
+-- Diversos --
+[+] #TK-4956-2: Implementados programas de exemplo em PHP da NFSe ST e MT.
+-- ACBrComum.php --
+[*] Implementadas funcões para identificar se arquivo é xml ou ini, conversão de Data de texto para double e setar path das dependências 
+-- ACBrLibNFSeBase --
+[*] #TK-4956-2: Codificado em base64 o retorno do método ObterDANFSE do padrão nacional
+   Por: Renato Rubinho 
+
 23/09/2024
 -- ACBrLibNFSeRespostas --
 [*] #TK-4228: Adiciona chamada ao ACBrStr para mostrar corretamente o modo envio na resposta.

@@ -255,6 +255,9 @@ implementation
 uses
   strutils, math, TypInfo, DateUtils, synacode, blcksock, FileCtrl, Grids,
   IniFiles, Printers,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
+  ACBrUtil.Base,
   ACBrOpenSSLUtils, OpenSSLExt,
   ACBrDFeSSL,
   pcnConversao, ACBrANe.WebServicesResponse,
@@ -689,6 +692,8 @@ procedure TfrmACBrANe.ChecarResposta(aMetodo: TMetodo);
         memoLog.Lines.Add('Código  : ' + aErros[i].Codigo);
         memoLog.Lines.Add('Mensagem: ' + aErros[i].Descricao);
         memoLog.Lines.Add('Correção: ' + aErros[i].Correcao);
+        memoLog.Lines.Add('Valor Esperado: ' + aErros[i].ValorEsperado);
+        memoLog.Lines.Add('Valor Informado: ' + aErros[i].ValorInformado);
         memoLog.Lines.Add('---------');
       end;
     end;
@@ -731,6 +736,48 @@ procedure TfrmACBrANe.ChecarResposta(aMetodo: TMetodo);
       end;
     end;
   end;
+
+  procedure ListaDadosSeguro(aDadosSeguro: TDadosSeguroCollection);
+  var
+    i: Integer;
+  begin
+    if aDadosSeguro.Count > 0 then
+    begin
+      memoLog.Lines.Add(' ');
+      memoLog.Lines.Add('Dados do Seguro:');
+      for i := 0 to aDadosSeguro.Count -1 do
+      begin
+        memoLog.Lines.Add('Numero Averbação: ' + aDadosSeguro[i].NumeroAverbacao);
+        memoLog.Lines.Add('CNPJ Seguradora : ' + aDadosSeguro[i].CNPJSeguradora);
+        memoLog.Lines.Add('Nome Seguradora : ' + aDadosSeguro[i].NomeSeguradora);
+        memoLog.Lines.Add('Numero Apolice  : ' + aDadosSeguro[i].NumApolice);
+        memoLog.Lines.Add('Tipo Movimento  : ' + aDadosSeguro[i].TpMov);
+        memoLog.Lines.Add('Tipo de DDR     : ' + aDadosSeguro[i].TpDDR);
+        memoLog.Lines.Add('Valor Averbado  : ' + FloatToStr(aDadosSeguro[i].ValorAverbado));
+        memoLog.Lines.Add('Ramo Averbado   : ' + aDadosSeguro[i].RamoAverbado);
+
+        memoLog.Lines.Add('---------');
+      end;
+    end;
+  end;
+
+  procedure ListaInfo(aInfo: TInfoCollection);
+  var
+    i: Integer;
+  begin
+    if aInfo.Count > 0 then
+    begin
+      memoLog.Lines.Add(' ');
+      memoLog.Lines.Add('Informações:');
+      for i := 0 to aInfo.Count -1 do
+      begin
+        memoLog.Lines.Add('Numero Averbação: ' + aInfo[i].Codigo);
+        memoLog.Lines.Add('CNPJ Seguradora : ' + aInfo[i].Descricao);
+
+        memoLog.Lines.Add('---------');
+      end;
+    end;
+  end;
 begin
   memoLog.Clear;
   memoLog.Lines.Clear;
@@ -763,15 +810,18 @@ begin
             memoLog.Lines.Add('Xml a ser averbado');
             memoLog.Lines.Add(' ');
             memoLog.Lines.Add('Parâmetros de Retorno');
-            memoLog.Lines.Add('Numero          : ' + Numero);
-            memoLog.Lines.Add('Serie           : ' + Serie);
-            memoLog.Lines.Add('Filial          : ' + Filial);
-            memoLog.Lines.Add('CNPJ Cliente    : ' + CNPJCliente);
-            memoLog.Lines.Add('Tipo Documento  : ' + tpDoc);
-            memoLog.Lines.Add('Data/Hora       : ' + DateTimeToStr(DataHora));
-            memoLog.Lines.Add('Numero do Prot  : ' + Protocolo);
-            memoLog.Lines.Add('Numero Averbação: ' + NumeroAverbacao);
-            memoLog.Lines.Add('Sucesso         : ' + BoolToStr(Sucesso, True));
+            memoLog.Lines.Add('Numero        : ' + Numero);
+            memoLog.Lines.Add('Serie         : ' + Serie);
+            memoLog.Lines.Add('Filial        : ' + Filial);
+            memoLog.Lines.Add('CNPJ Cliente  : ' + CNPJCliente);
+            memoLog.Lines.Add('Tipo Documento: ' + tpDoc);
+            memoLog.Lines.Add('Data/Hora     : ' + DateTimeToStr(DataHora));
+            memoLog.Lines.Add('Numero do Prot: ' + Protocolo);
+            memoLog.Lines.Add('CTe           : ' + CTe);
+            memoLog.Lines.Add('Sucesso       : ' + BoolToStr(Sucesso, True));
+
+            ListaDadosSeguro(DadosSeguro);
+            ListaInfo(Info);
 
             LoadXML(XmlEnvio, WBXmlEnvio, 'temp1.xml');
             LoadXML(XmlRetorno, WBXmlRetorno, 'temp2.xml');

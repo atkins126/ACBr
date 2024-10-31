@@ -137,6 +137,8 @@ begin
     AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
     AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr));
     AErro.Correcao := '';
+    AErro.ValorEsperado := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('ValorEsperado'), tcStr));
+    AErro.ValorInformado := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('ValorInformado'), tcStr));
   end;
 end;
 
@@ -192,9 +194,8 @@ begin
   case TACBrANe(FAOwner).Configuracoes.Geral.TipoDoc of
     tdCTe:
       begin
-        Documento.ANe.xmlDFe := '<ANe>' +
-             RemoverGrupoInfSuplementares(Documento.ANe.xmlDFe, 'infCTeSupl') +
-             '</ANe>';
+        Documento.ANe.xmlDFe :=
+             RemoverGrupoInfSuplementares(Documento.ANe.xmlDFe, 'infCTeSupl');
         Documento.ANe.xmlDFe := '<xmlCTe><![CDATA[' +
                                    RemoverDeclaracaoXML(Documento.ANe.xmlDFe) +
                                 ']]></xmlCTe>';
@@ -202,9 +203,7 @@ begin
 
     tdNFe:
       begin
-        Documento.ANe.xmlDFe := '<ANe>' +
-                                   Documento.ANe.xmlDFe +
-                                '</ANe>';
+        Documento.ANe.xmlDFe := Documento.ANe.xmlDFe;
         Documento.ANe.xmlDFe := '<xmlNFe><![CDATA[' +
                                    RemoverDeclaracaoXML(Documento.ANe.xmlDFe) +
                                 ']]></xmlNFe>';
@@ -212,9 +211,8 @@ begin
 
     tdMDFe:
       begin
-        Documento.ANe.xmlDFe := '<ANe>' +
-              RemoverGrupoInfSuplementares(Documento.ANe.xmlDFe, 'infMDFeSupl') +
-              '</ANe>';
+        Documento.ANe.xmlDFe :=
+              RemoverGrupoInfSuplementares(Documento.ANe.xmlDFe, 'infMDFeSupl');
         Documento.ANe.xmlDFe := '<xmlMDFe><![CDATA[' +
                                    RemoverDeclaracaoXML(Documento.ANe.xmlDFe) +
                                 ']]></xmlMDFe>';
@@ -222,6 +220,8 @@ begin
   else
     Documento.ANe.xmlDFe := '';
   end;
+
+  Documento.ANe.xmlDFe := ChangeLineBreak(Documento.ANe.xmlDFe, '');
 
   if TACBrANe(FAOwner).Configuracoes.Geral.TipoDoc <> tdAddBackMail then
     Response.ArquivoEnvio := '<usuario>' +
@@ -272,6 +272,10 @@ var
   Document: TACBrXmlDocument;
   AErro: TANeEventoCollectionItem;
   ANode, ANodeAux: TACBrXmlNode;
+  ANodeArray: TACBrXmlNodeArray;
+  I: Integer;
+  ADadosSeguro: TDadosSeguroCollectionItem;
+  AInfo: TInfoCollectionItem;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -312,21 +316,47 @@ begin
       begin
         Response.DataHora := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('dhAverbacao'), tcDatHor);
         Response.Protocolo := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('Protocolo'), tcStr);
+
+        ANodeArray := ANodeAux.Childrens.FindAllAnyNs('DadosSeguro');
+
+        for I := Low(ANodeArray) to High(ANodeArray) do
+        begin
+          ANodeAux := ANodeArray[I];
+
+          ADadosSeguro := Response.DadosSeguro.New;
+          ADadosSeguro.NumeroAverbacao := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('NumeroAverbacao'), tcStr);
+          ADadosSeguro.CNPJSeguradora := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('CNPJSeguradora'), tcStr);
+          ADadosSeguro.NomeSeguradora := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('NomeSeguradora'), tcStr);
+          ADadosSeguro.NumApolice := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('NumApolice'), tcStr);
+          ADadosSeguro.TpMov := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('TpMov'), tcStr);
+          ADadosSeguro.TpDDR := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('TpDDR'), tcStr);
+          ADadosSeguro.ValorAverbado := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('ValorAverbado'), tcDe2);
+          ADadosSeguro.RamoAverbado := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('RamoAverbado'), tcStr);
+        end;
       end;
 
-      ANodeAux := ANode.Childrens.FindAnyNs('Declaracao');
+      ANodeAux := ANode.Childrens.FindAnyNs('Infos');
+
+      if ANodeAux <> nil then
+      begin
+        ANodeArray := ANodeAux.Childrens.FindAllAnyNs('Info');
+
+        for I := Low(ANodeArray) to High(ANodeArray) do
+        begin
+          ANodeAux := ANodeArray[I];
+
+          AInfo := Response.info.New;
+          AInfo.Codigo := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('Codigo'), tcStr);
+          AInfo.Descricao := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('Descricao'), tcStr);
+        end;
+      end;
+
+      ANodeAux := ANode.Childrens.FindAnyNs('Declarado');
 
       if ANodeAux <> nil then
       begin
         Response.DataHora := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('dhChancela'), tcDatHor);
         Response.Protocolo := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('Protocolo'), tcStr);
-      end;
-
-      ANodeAux := ANode.Childrens.FindAnyNs('DadosSeguro');
-
-      if ANodeAux <> nil then
-      begin
-        Response.NumeroAverbacao := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('NumeroAverbacao'), tcStr);
       end;
     except
       on E:Exception do

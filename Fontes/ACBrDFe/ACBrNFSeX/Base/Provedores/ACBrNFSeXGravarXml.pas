@@ -39,7 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils, IniFiles,
   ACBrXmlBase, ACBrXmlDocument, ACBrXmlWriter,
-  ACBrNFSeXInterface, ACBrNFSeXClass, ACBrNFSeXConversao;
+  ACBrNFSeXInterface, ACBrNFSeXClass, ACBrNFSeXConversao, ACBrUtil.Base;
 
 type
 
@@ -338,7 +338,7 @@ begin
         NFSe.Servico.Discriminacao := '{' + xDiscriminacao + '}';
 
       fdJson:
-        NFSe.Servico.Discriminacao := '{[' + xDiscriminacao + ']}';
+        NFSe.Servico.Discriminacao := '[' + xDiscriminacao + ']';
     else
       NFSe.Servico.Discriminacao := xDiscriminacao;
     end;
@@ -364,11 +364,11 @@ function TNFSeWClass.GerarTabulado(const xDescricao, xCodigoItem: string;
 begin
   Result := '[[Descricao=' + xDescricao + ']' +
              '[ItemServico=' + xCodigoItem + ']' +
-             '[Quantidade=' + FloatToStr(aQuantidade) + ']' +
-             '[ValorUnitario=' + FloatToStr(aValorUnitario) + ']' +
-             '[ValorServico=' + FloatToStr(aValorServico) + ']' +
-             '[ValorBaseCalculo=' + FloatToStr(aBaseCalculo) + ']' +
-             '[Aliquota=' + FloatToStr(aAliquota) + ']]';
+             '[Quantidade=' + FloatToString(aQuantidade, Opcoes.DecimalChar) + ']' +
+             '[ValorUnitario=' + FloatToString(aValorUnitario, Opcoes.DecimalChar) + ']' +
+             '[ValorServico=' + FloatToString(aValorServico, Opcoes.DecimalChar) + ']' +
+             '[ValorBaseCalculo=' + FloatToString(aBaseCalculo, Opcoes.DecimalChar) + ']' +
+             '[Aliquota=' + FloatToString(aAliquota, Opcoes.DecimalChar) + ']]';
 end;
 
 function TNFSeWClass.GerarJson(const xDescricao, xCodigoItem: string;

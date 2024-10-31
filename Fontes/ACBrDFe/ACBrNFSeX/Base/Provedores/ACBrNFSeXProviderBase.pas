@@ -964,6 +964,9 @@ begin
   begin
     TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(aXml, False);
     ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
+
+    if (aNota.XmlRps <> '') and (ANota.XmlNfse = '') then
+      ANota.XmlNfse := aNota.XmlRps;
   end;
 
   Result := aNota;
@@ -1033,6 +1036,9 @@ begin
 
     if aXml = '' then
       aXml := aNota.XmlEspelho;
+
+    if aXml = '' then
+      aXml := aNota.XmlRps;
 
     if ConfigGeral.FormatoArqNota <> tfaXml then
     begin

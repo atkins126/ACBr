@@ -879,6 +879,17 @@ var
   RespTEFPendente: TACBrTEFResp;
   InfValor: TACBrInformacao;
 begin
+  AListaRespostasTEF.CarregarRespostasDoDiretorioTrabalho;
+  i := 0;
+  while i < AListaRespostasTEF.Count do
+  begin
+    RespTEFPendente := AListaRespostasTEF[i];
+    if not RespTEFPendente.CNFEnviado then   // Transações não confirmadas, serão carregadas abaixo, pelo comando 130
+      AListaRespostasTEF.ApagarRespostaTEF(i)
+    else
+      Inc(i);
+  end;
+
   // Solicita do TEF respostas pendentes
   ExecutarTransacaoSiTef(CSITEF_OP_ConsultarTrasPendente, 0);
   i := fpACBrTEFAPI.UltimaRespostaTEF.LeInformacao(210, 0).AsInteger; // Total number of pending issues
@@ -897,7 +908,7 @@ begin
       HoraFiscal := Trim(LeInformacao(164, i).AsString);
       ValorTransacao := LeInformacao(1319, i).AsFloat;
 
-      RespTEFPendente := TACBrTEFResp.Create;
+      RespTEFPendente :=  TACBrTEFRespCliSiTef.Create;
       InfValor := TACBrInformacao.Create;
       try
         RespTEFPendente.Conteudo.GravaInformacao(899,100,'CRT');

@@ -111,7 +111,9 @@ uses
   ACBrUtil.Strings,
   ACBrDFeException,
   ACBrXmlDocument,
+  ACBrNFSeX,
   ACBrNFSeXConfiguracoes,
+  ACBrNFSeXNotasFiscais,
   ACBrNFSeXConsts,
   NFEletronica.GravarXml, NFEletronica.LerXml;
 
@@ -290,7 +292,7 @@ begin
 
       strRetorno := ObterConteudoTag(ANode.Childrens.FindAnyNs('Consulta_Ref_DetalheResult'), tcStr);
 
-      if not StringIsXML(strRetorno) then
+      if not StringIsXML(strRetorno) and (Pos(strRetorno, 'EMITIDA') = 0)then
       begin
         Response.ArquivoRetorno := '<Consulta_Ref_DetalheResult>' +
                                      '<ListaMensagemRetorno>' +
@@ -310,8 +312,11 @@ begin
 
       ProcessarMensagemErros(ANode, Response);
 
-      Response.Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataRecebimento'), FpFormatoDataRecebimento);
-      Response.Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Protocolo'), tcStr);
+      if Pos(strRetorno, 'EMITIDA') > 0 then
+      begin
+        Response.NumeroNota := OnlyNumber(strRetorno);
+        Response.Situacao := strRetorno;
+      end;
     except
       on E:Exception do
       begin
@@ -342,9 +347,14 @@ procedure TACBrNFSeProviderNFEletronica.TratarRetornoConsultaNFSe(
 var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
-  ANode: TACBrXmlNode;
+  ANode, AuxNode: TACBrXmlNode;
   strRetorno: string;
+  ANodeArray: TACBrXmlNodeArray;
+  i: Integer;
+  NumNFSe: String;
+  ANota: TNotaFiscal;
 begin
+  strRetorno := '';
   Document := TACBrXmlDocument.Create;
   try
     try
@@ -360,9 +370,12 @@ begin
 
       ANode := Document.Root;
 
-      strRetorno := ObterConteudoTag(ANode.Childrens.FindAnyNs('ConsultaXmlNotaResult'), tcStr);
+      AuxNode := ANode.Childrens.FindAnyNs('ConsultaXmlNotaResult');
 
-      if not StringIsXML(strRetorno) then
+      if AuxNode = nil then
+        strRetorno := ObterConteudoTag(ANode.Childrens.FindAnyNs('ConsultaXmlNotaResult'), tcStr);
+
+      if not StringIsXML(strRetorno) and (strRetorno <> '') then
       begin
         Response.ArquivoRetorno := '<ConsultaXmlNotaResult>' +
                                      '<ListaMensagemRetorno>' +
@@ -382,8 +395,41 @@ begin
 
       ProcessarMensagemErros(ANode, Response);
 
-      Response.Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataRecebimento'), FpFormatoDataRecebimento);
-      Response.Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Protocolo'), tcStr);
+      if AuxNode <> nil then
+      begin
+        ANode := AuxNode.Childrens.FindAnyNs('XML');
+
+        if not Assigned(ANode) then
+        begin
+          AErro := Response.Erros.New;
+          AErro.Codigo := Cod203;
+          AErro.Descricao := ACBrStr(Desc203);
+          Exit;
+        end;
+
+        ANodeArray := ANode.Childrens.FindAllAnyNs('NFSE');
+
+        if not Assigned(ANodeArray) then
+        begin
+          AErro := Response.Erros.New;
+          AErro.Codigo := Cod203;
+          AErro.Descricao := ACBrStr(Desc203);
+          Exit;
+        end;
+
+        for i := Low(ANodeArray) to High(ANodeArray) do
+        begin
+          ANode := ANodeArray[i];
+
+          AuxNode := ANode.Childrens.FindAnyNs('NF');
+          NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+
+          ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
+
+          ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
+          SalvarXmlNfse(ANota);
+        end;
+      end;
     except
       on E:Exception do
       begin
@@ -414,15 +460,25 @@ end;
 
 procedure TACBrNFSeProviderNFEletronica.GerarMsgDadosConsultaLinkNFSe(
   Response: TNFSeConsultaLinkNFSeResponse; Params: TNFSeParamsResponse);
+var
+  Referencia, NumNota: string;
 begin
-  Response.ArquivoEnvio := IfThen(Response.InfConsultaLinkNFSe.NumeroRps <> 0,
-                             '<ws:referencia>' +
-                                IntToStr(Response.InfConsultaLinkNFSe.NumeroRps) +
-                             '</ws:referencia>', '') +
-                           IfThen(not EstaVazio(Response.InfConsultaLinkNFSe.NumeroNFSe),
-                             '<ws:num_NF>' +
-                                Response.InfConsultaLinkNFSe.NumeroNFSe +
-                             '</ws:num_NF>', '');
+  Referencia := '';
+  NumNota := '';
+
+  if Response.InfConsultaLinkNFSe.NumeroRps > 0 then
+    Referencia := IntToStr(Response.InfConsultaLinkNFSe.NumeroRps);
+
+  NumNota := Response.InfConsultaLinkNFSe.NumeroNFSe;
+
+  if Referencia <> '' then
+    Response.ArquivoEnvio := '<ws:referencia>' +
+                                Referencia +
+                             '</ws:referencia>'
+  else
+    Response.ArquivoEnvio := '<ws:num_NF>' +
+                                NumNota +
+                             '</ws:num_NF>';
 end;
 
 procedure TACBrNFSeProviderNFEletronica.TratarRetornoConsultaLinkNFSe(
