@@ -239,6 +239,7 @@ type
     chkClear: TCheckBox;
     CBS2500: TCheckBox;
     CBS2501: TCheckBox;
+    cbS2555: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
     procedure sbPatheSocialClick(Sender: TObject);
@@ -284,6 +285,7 @@ type
     { Private declarations }
     function GetTipoOperacao: TModoLancamento;
 
+    procedure LerRespostaConsultar(Sucesso: Boolean);
     // procedures eventos de tabela
     procedure GerareSocial1000;
     procedure GerareSocial1005;
@@ -337,6 +339,7 @@ type
     procedure GerareSocial2420;
     procedure GerareSocial2500;
     procedure GerareSocial2501;
+    procedure GerareSocial2555;
     procedure GerareSocial3000;
     procedure GerareSocial3500;
 
@@ -437,8 +440,11 @@ begin
           cnpjEFR := '01234567890123';
           dtTrans11096 := Date;
 
-          if VersaoDFx > veS01_00_00 then
+          if (VersaoDFx > veS01_00_00) and (VersaoDFx < veS01_03_00) then
             indTribFolhaPisCofins := snfSim;
+
+          if VersaoDFx > veS01_02_00 then
+            indTribFolhaPisPasep := snfSim;
 
           if VersaoDFx <= ve02_05_00 then
           begin
@@ -661,6 +667,7 @@ begin
           codIncCP := tpCodIncCP(1);
           codIncIRRF := ciiOutrasVerbasNaoConsideradas;
           codIncFGTS := tpCodIncFGTS(1);
+          codIncPisPasep := tpCodIncPisPasep(1);
 
           if VersaoDFx >= veS01_00_00 then
             codIncCPRP := cicpSuspensaodeIncidenciaemDecorrenciadeDecisaoJudicialDecimo;
@@ -703,6 +710,24 @@ begin
             end;
           end;
 }
+
+          if VersaoDFx >= veS01_03_00 then
+          begin
+            ideProcessoPISPASEP.Clear;
+
+            with ideProcessoPISPASEP.New do
+            begin
+              nrProc := '95135703320156150258';
+              codSusp := '123456789';
+            end;
+
+            with ideProcessoPISPASEP.New do
+            begin
+              nrProc := '95135703320156150338';
+              codSusp := '1234567890123';
+            end;
+          end;
+
         end;
 
         if (ModoLancamento = mlAlteracao) then
@@ -779,7 +804,7 @@ begin
             tpInscContrat := tpTpInscContratante(0);
             nrInscContrat := '00000000000000';
             tpInscProp := TpTpInscProp(0);
-            nrInscProp := '654234523416';
+            nrInscProp := '65423452341';
           end;
 
           if VersaoDFx > ve02_05_00 then
@@ -1105,7 +1130,7 @@ begin
         with ideProcesso do
         begin
           tpProc := tpTpProc(0);
-          nrProc := '5000';
+          nrProc := '1234567890123456';
           iniValid := '2014-05';
           fimValid := '2015-06';
         end;
@@ -1118,7 +1143,7 @@ begin
           with dadosProcJud do
           begin
             UfVara := 'PR';
-            codMunic := 5075;
+            codMunic := 5075000;
             idVara := '20';
           end;
 
@@ -1365,6 +1390,15 @@ begin
               vrRubr := 3330.30;
               if VersaoDFx > ve02_05_00 then
                 indApurIR := tiaiNormal;
+
+              if VersaoDFx > veS01_02_00 then
+              with descFolha do
+              begin
+                tpDesc := tpdeConsignado;
+                instFinanc := '001';
+                nrDoc := '0123456789';
+                observacao := 'Qualquer observacao';
+              end;
             end;
 
             if VersaoDFx <= ve02_05_00 then
@@ -1722,6 +1756,15 @@ begin
               vrRubr := 3330.30;
               if VersaoDFx > ve02_05_00 then
                 indApurIR := tiaiNormal;
+
+              if VersaoDFx > veS01_02_00 then
+              with descFolha do
+              begin
+                tpDesc := tpdeConsignado;
+                instFinanc := '001';
+                nrDoc := '0123456789';
+                observacao := 'Qualquer observacao';
+              end;
             end;
           end;
         end;
@@ -1994,9 +2037,12 @@ begin
 
         if VersaoDFx >= veS01_02_00 then
         begin
-          with infoIRComplem do
+          with infoIRComplem.New do
           begin
             dtLaudo := date;
+
+            perAnt.perRefAjuste := '2024-10';
+            perAnt.nrRec1210Orig := '1.1.1234657980123456789';
 
             with infoDep.New do
             begin
@@ -2031,7 +2077,127 @@ begin
                 tpPrev := tprPrivada;
                 cnpjEntidPC := '01234567890123';
                 vlrDedPC := 585.00;
+                vlrDedPC13 := 300.00;
                 vlrPatrocFunp := 325.50;
+                vlrPatrocFunp := 210.50;
+              end;
+
+              with infoProcRet.New do
+              begin
+                tpProcRet := tpprAdministrativo;
+                nrProcRet := '12345678901234567890';
+                codSusp := '1234567890';
+
+                with infoValores.New do
+                begin
+                  indApuracao := iapuMensal;
+                  vlrNRetido := 78.33;
+                  vlrDepJud := 35.00;
+                  vlrCmpAnoCal := 125.00;
+                  vlrCmpAnoAnt := 125.00;
+                  vlrRendSusp := 50.00;
+
+                  with dedSusp.New do
+                  begin
+                    indTpDeducao := tpdPrevidenciaOficial;
+                    vlrDedSusp := 65;
+                    cnpjEntidPC := '01234567890123';
+                    vlrPatrocFunp := 734.22;
+
+                    with benefPen.New do
+                    begin
+                      cpfDep := '12345678901';
+                      vlrDepenSusp := 724.32;
+                    end;
+                  end;
+                end;
+              end;
+            end;
+
+            with planSaude.New do
+            begin
+              cnpjOper := '01234567890123';
+              regANS := '123456';
+              vlrSaudeTit := 1200.23;
+
+              with infoDepSau.New do
+              begin
+                cpfDep := '12345678901';
+                vlrSaudeDep := 785.21;
+              end;
+            end;
+
+            with infoReembMed.New do
+            begin
+              indOrgReemb := '1';
+              cnpjOper := '01234567890123';
+              regANS := '123456';
+
+              with detReembTit.New do
+              begin
+                tpInsc := tiCPF;
+                nrInsc := '12345678901';
+                vlrReemb := 1000;
+                vlrReembAnt := 785;
+              end;
+
+              with infoReembDep.New do
+              begin
+                cpfBenef := '12345678901';
+
+                with detReembDep.New do
+                begin
+                  tpInsc := tiCPF;
+                  nrInsc := '12345678901';
+                  vlrReemb := 100;
+                  vlrReembAnt := 78.5;
+                end;
+              end;
+            end;
+          end;
+          with infoIRComplem.New do
+          begin
+            dtLaudo := date;
+
+            perAnt.perRefAjuste := '2024-10';
+            perAnt.nrRec1210Orig := '1.1.1234657980123456789';
+
+            with infoDep.New do
+            begin
+              cpfDep := '01234567891';
+              DtNascto := date;
+              nome := 'José das Areias';
+              depIRRF := snfSim;
+              tpDep := tdConjuge;
+              descrDep := 'descrever o dependente ou algo parecido';
+            end;
+
+            with infoIRCR.New do
+            begin
+              tpCR := '056107';
+
+              with dedDepen.New do
+              begin
+                tpRend := 11;
+                cpfDep := '01234567891';
+                vlrDedDep := 185.00;
+              end;
+
+              with penAlim.New do
+              begin
+                tpRend := 11;
+                cpfDep := '01234567891';
+                vlrDedPenAlim := 685.76;
+              end;
+
+              with previdCompl.New do
+              begin
+                tpPrev := tprPrivada;
+                cnpjEntidPC := '01234567890123';
+                vlrDedPC := 585.00;
+                vlrDedPC13 := 300.00;
+                vlrPatrocFunp := 325.50;
+                vlrPatrocFunp := 210.50;
               end;
 
               with infoProcRet.New do
@@ -4638,16 +4804,28 @@ begin
           nrCertObito := '0123456789';
 
         // numero do processo que decidiu o desligamento mtvdeslig = 17
-        nrProcTrab := '9632587410';
+        nrProcTrab := '96325874101234567890';
 
         if VersaoDFx > ve02_05_00 then
         begin
           with infoInterm.New do
+          begin
             dia := 1;
+            if VersaoDFx > veS01_02_00 then
+              hrsTrab := '0855';
+          end;
           with infoInterm.New do
+          begin
             dia := 15;
+            if VersaoDFx > veS01_02_00 then
+              hrsTrab := '0855';
+          end;
           with infoInterm.New do
+          begin
             dia := 22;
+            if VersaoDFx > veS01_02_00 then
+              hrsTrab := '0855';
+          end;
         end;
 
         if VersaoDFx <= ve02_05_00 then
@@ -4753,6 +4931,16 @@ begin
                   vrRubr := 304.70;
                   if VersaoDFx > ve02_05_00 then
                     indApurIR := tiaiNormal;
+                  if VersaoDFx > veS01_02_00 then
+                  begin
+                    with descFolha do
+                    begin
+                      tpDesc := tpdeConsignado;
+                      instFinanc := '001';
+                      nrDoc := '0123456789';
+                      observacao := 'Qualquer observacao';
+                    end;
+                  end;
                 end;
                 if VersaoDFx <= ve02_05_00 then
                   with infoSaudeColet.detOper.New do
@@ -5443,6 +5631,17 @@ begin
                 vrRubr := 304.70;
                 if VersaoDF > ve02_05_00 then
                   indApurIR := tiaiNormal;
+
+                if VersaoDFx > veS01_02_00 then
+                begin
+                  with descFolha do
+                  begin
+                    tpDesc := tpdeConsignado;
+                    instFinanc := '001';
+                    nrDoc := '0123456789';
+                    observacao := 'Qualquer observacao';
+                  end;
+                end;
               end;
 
               if VersaoDFx <= ve02_05_00 then
@@ -5972,6 +6171,11 @@ begin
         begin
           tpInsc := tiCPF;
           nrInsc := '01234567890';
+          if VersaoDFx > veS01_02_00 then
+          begin
+            dtAdmRespDir := Now;
+            matRespDir := '12346578';
+          end;
         end;
       end;
 
@@ -6125,6 +6329,27 @@ begin
                   vrBcCpMensal := 0;
                   vrBcCp13 := 10000;
                 end;
+
+                if VersaoDFx > veS01_02_00 then
+                begin
+                  with infoInterm.New do
+                  begin
+                    dia := 1;
+                    hrsTrab := '0855';
+                  end;
+
+                  with infoInterm.New do
+                  begin
+                    dia := 15;
+                    hrsTrab := '0632';
+                  end;
+
+                  with infoInterm.New do
+                  begin
+                    dia := 22;
+                    hrsTrab := '0354';
+                  end;
+                end;
               end;
             end;
           end;
@@ -6163,6 +6388,8 @@ begin
       begin
         nrProcTrab := '012345678901234';
         perApurPgto := '2022-09';
+        if VersaoDFx > veS01_02_00 then
+          ideSeqProc := 1;
         obs := 'Qualquer observação necessária';
       end;
 
@@ -6187,6 +6414,9 @@ begin
             tpCR := '593656';
             vrCR := 76;
 
+            if VersaoDFx > veS01_02_00 then
+              vrCR13 := 10;
+
             with infoIR.New do
             begin
               vrRendTrib := 3875.22;
@@ -6197,6 +6427,20 @@ begin
               vrRendIsenNTrib := 3284.33;
               descIsenNTrib := 'Descrição de isento ou não tributável';
               vrPrevOficial := 685.22;
+
+              if VersaoDFx > veS01_03_00 then
+              begin
+                vrRendMoleGrave13 := 2841.55;
+                vrRendIsen65Dec := 1403.25;
+                vrjurosMora13 := 22.00;
+                vrPrevOficial13 := 585.62;
+
+                rendIsen0561.vlrDiarias := 155.31;
+                rendIsen0561.vlrAjudaCusto := 78.31;
+                rendIsen0561.vlrIndResContrato := 65.65;
+                rendIsen0561.vlrAbonoPec := 33.45;
+                rendIsen0561.vlrAuxMoradia := 24.32;
+              end;
             end;
 
             with infoRRA do
@@ -6282,6 +6526,36 @@ begin
   end;
 end;
 
+procedure TfrmACBreSocial.GerareSocial2555;
+begin
+  if VersaoDFx < veS01_03_00 then
+    exit;
+
+  with ACBreSocial1.Eventos.NaoPeriodicos.S2555.New do
+  begin
+    with evtConsolidContProc do
+    begin
+      with ideEvento do
+      begin
+        ProcEmi := peAplicEmpregador;
+        VerProc := '1.0';
+      end;
+
+      with ideEmpregador do
+      begin
+        TpInsc := tiCNPJ;
+        nrInsc := '12345678901234';
+      end;
+
+      with ideProc do
+      begin
+        nrProcTrab := '123456789012345';
+        perApurPgto := '2024-10';
+      end;
+    end;
+  end;
+end;
+
 procedure TfrmACBreSocial.GerareSocial3000;
 begin
   with ACBreSocial1.Eventos.NaoPeriodicos.S3000.New do
@@ -6354,6 +6628,9 @@ begin
           nrProcTrab := '01234567890123456789';
           cpfTrab := '12345678950';
           perApurPgto := '2023-01';
+
+          if VersaoDFx > veS01_03_00 then
+            ideSeqProc := 1;
         end;
       end;
     end;
@@ -6728,6 +7005,147 @@ begin
     ConfigurarComponente;
   finally
     Ini.Free;
+  end;
+end;
+
+procedure TfrmACBreSocial.LerRespostaConsultar(Sucesso: Boolean);
+var
+  i, J: Integer;
+  evtS5001: TS5001;
+  evtS5002: TS5002;
+  evtS5011: TS5011;
+  evtS5012: TS5012;
+  evtS5501: TS5501;
+  evtS5503: TS5503;
+  memoLinhas: TStrings;
+  vRetornoConsultaLote: TRetConsultaLote;
+  vRetEventos : TRetEventosCollectionItem;
+  vOcorrenciasItem : TOcorrenciasCollectionItem;
+begin
+  if Sucesso then
+  begin
+    MemoResp.Lines.Text := ACBreSocial1.WebServices.ConsultaLote.RetWS;
+
+    memoLinhas := MemoDados.Lines;
+    vRetornoConsultaLote := ACBreSocial1.WebServices.ConsultaLote.RetConsultaLote;
+
+    memoLinhas.Add('');
+    memoLinhas.Add('Código Retorno: ' + IntToStr(vRetornoConsultaLote.Status.cdResposta));
+    memoLinhas.Add('Mensagem: ' + vRetornoConsultaLote.Status.descResposta);
+    memoLinhas.Add('Arquivo Salvo: ' + ACBreSocial1.WebServices.ConsultaLote.PathNome);
+
+    if vRetornoConsultaLote.Status.cdResposta in [201, 202] then
+    begin
+      memoLinhas.Add('ideEmpregador');
+      memoLinhas.Add(' - TpInsc: ' + eSTpInscricaoToStr(vRetornoConsultaLote.IdeEmpregador.TpInsc));
+      memoLinhas.Add(' - NrInsc: ' + vRetornoConsultaLote.IdeEmpregador.NrInsc);
+      memoLinhas.Add('ideTransmissor');
+      memoLinhas.Add(' - TpInsc: ' + eSTpInscricaoToStr(vRetornoConsultaLote.IdeTransmissor.TpInsc));
+      memoLinhas.Add(' - NrInsc: ' + vRetornoConsultaLote.IdeTransmissor.NrInsc);
+      memoLinhas.Add('dadosRecepcaoLote');
+      memoLinhas.Add(' - dhRecepcao..............: ' +
+        DateTimeToStr(vRetornoConsultaLote.dadosRecLote.dhRecepcao));
+      memoLinhas.Add(' - versaoAplicativoRecepcao: ' +
+        vRetornoConsultaLote.dadosRecLote.versaoAplicRecepcao);
+      memoLinhas.Add(' - protocoloEnvio..........: ' + vRetornoConsultaLote.dadosRecLote.Protocolo);
+
+      for i := 0 to vRetornoConsultaLote.retEventos.Count - 1 do
+      begin
+        vRetEventos := vRetornoConsultaLote.retEventos.Items[i];
+        memoLinhas.Add('Processamento');
+        memoLinhas.Add(' - ID Evento..........: ' + vRetEventos.Id);
+        memoLinhas.Add(' - cdResposta.........: ' +
+          IntToStr(vRetEventos.Processamento.cdResposta));
+        memoLinhas.Add(' - descResposta.......: ' + vRetEventos
+          .Processamento.descResposta);
+        memoLinhas.Add(' - versaoAplicProcLote: ' + vRetEventos
+          .Processamento.versaoAplicProcLote);
+        memoLinhas.Add(' - dhProcessamento....: ' + DateTimeToStr(vRetEventos
+          .Processamento.dhProcessamento));
+
+        if vRetEventos.Processamento.Ocorrencias.Count > 0 then
+        begin
+          memoLinhas.Add('Ocorrencias do Processamento');
+          for J := 0 to vRetEventos.Processamento.Ocorrencias.Count - 1 do
+          begin
+            memoLinhas.Add(' Ocorrencia ' + IntToStr(J));
+            memoLinhas.Add('   Código.....: ' +
+              IntToStr(vRetEventos.Processamento.Ocorrencias.Items
+              [J].Codigo));
+            memoLinhas.Add('   Descrição..: ' + vRetEventos
+              .Processamento.Ocorrencias.Items[J].Descricao);
+            memoLinhas.Add('   Tipo.......: ' +
+              IntToStr(vRetEventos.Processamento.Ocorrencias.Items
+              [J].Tipo));
+            memoLinhas.Add('   Localização: ' + vRetEventos
+              .Processamento.Ocorrencias.Items[J].Localizacao);
+          end;
+        end;
+
+        for J := 0 to vRetEventos.tot.Count - 1 do
+        begin
+          memoLinhas.Add(' Tot ' + IntToStr(J));
+          memoLinhas.Add('   Tipo.........: ' + vRetEventos.tot[J].Tipo);
+          case vRetEventos.tot[J].Evento.TipoEvento of
+            teS5001:
+              begin
+                evtS5001 := TS5001(vRetEventos.tot[J].Evento.GetEvento);
+                memoLinhas.Add('   Id...........: ' + evtS5001.EvtBasesTrab.Id);
+                memoLinhas.Add('   nrRecArqBase.: ' + evtS5001.EvtBasesTrab.IdeEvento.nrRecArqBase);
+              end;
+            teS5002:
+              begin
+                evtS5002 := TS5002(vRetEventos.tot[J].Evento.GetEvento);
+                memoLinhas.Add('   Id...........: ' + evtS5002.EvtirrfBenef.Id);
+                memoLinhas.Add('   nrRecArqBase.: ' + evtS5002.EvtirrfBenef.IdeEvento.nrRecArqBase);
+              end;
+            teS5011:
+              begin
+                evtS5011 := TS5011(vRetEventos.tot[J].Evento.GetEvento);
+                memoLinhas.Add('   Id...........: ' + evtS5011.EvtCS.Id);
+                memoLinhas.Add('   nrRecArqBase.: ' + evtS5011.EvtCS.IdeEvento.nrRecArqBase);
+              end;
+            teS5012:
+              begin
+                evtS5012 := TS5012(vRetEventos.tot[J].Evento.GetEvento);
+                memoLinhas.Add('   Id...........: ' + evtS5012.EvtIrrf.Id);
+                memoLinhas.Add('   nrRecArqBase.: ' + evtS5012.EvtIrrf.IdeEvento.nrRecArqBase);
+              end;
+            teS5501:
+              begin
+                evtS5501 := TS5501(vRetEventos.tot[J].Evento.GetEvento);
+                memoLinhas.Add('   Id...........: ' + evtS5501.EvtTribProcTrab.Id);
+                memoLinhas.Add('   nrRecArqBase.: ' + evtS5501.EvtTribProcTrab.IdeEvento.nrRecArqBase);
+              end;
+            teS5503:
+              begin
+                evtS5503 := TS5503(vRetEventos.tot[J].Evento.GetEvento);
+                memoLinhas.Add('   Id...........: ' + evtS5503.EvtFGTSProcTrab.Id);
+                memoLinhas.Add('   nrRecArqBase.: ' + evtS5503.EvtFGTSProcTrab.IdeEvento.nrRecArqBase);
+              end;
+          end;
+        end;
+
+        memoLinhas.Add('Recibo');
+        memoLinhas.Add(' - nrRecibo: ' + vRetEventos.Recibo.NrRecibo);
+        memoLinhas.Add(' - hash....: ' + vRetEventos.Recibo.hash);
+      end;
+    end
+    else
+    begin
+      for i := 0 to vRetornoConsultaLote.Status.Ocorrencias.Count - 1 do
+      begin
+        vOcorrenciasItem := vRetornoConsultaLote.Status.Ocorrencias.Items[i];
+
+        memoLinhas.Add(' Ocorrencia ' + IntToStr(i));
+        memoLinhas.Add('   Código.....: ' + IntToStr(vOcorrenciasItem.Codigo));
+        memoLinhas.Add('   Descrição..: ' + vOcorrenciasItem.Descricao);
+        memoLinhas.Add('   Tipo.......: ' + IntToStr(vOcorrenciasItem.Tipo));
+        memoLinhas.Add('   Localização: ' + vOcorrenciasItem.Localizacao);
+      end;
+    end;
+
+    pgRespostas.ActivePageIndex := 3;
   end;
 end;
 
@@ -7121,147 +7539,22 @@ end;
 procedure TfrmACBreSocial.btnConsultarClick(Sender: TObject);
 var
   Protocolo: string;
-  i, J: Integer;
-  evtS5001: TS5001;
-  evtS5002: TS5002;
-  evtS5011: TS5011;
-  evtS5012: TS5012;
-  evtS5501: TS5501;
-  evtS5503: TS5503;
-  memoLinhas: TStrings;
-  vRetornoConsultaLote: TRetConsultaLote;
-  vRetEventos : TRetEventosCollectionItem;
-  vOcorrenciasItem : TOcorrenciasCollectionItem;
 begin
-  Protocolo := '';
-  if not(InputQuery('WebServices: Consulta Protocolo', 'Protocolo', Protocolo))
-  then
-    Exit;
-
-  if ACBreSocial1.Consultar(Protocolo) then
+  OpenDialog1.Title := 'Selecione um arquivo de retorno para simular a leitura';
+  OpenDialog1.DefaultExt := '*.xml';
+  OpenDialog1.Filter := 'Arquivos de retorno (*-sit.xml)|*-sit.xml|Arquivos XML(*.XML)|*.XML|Arquivos xml(*.xml)|*.xml';
+  if OpenDialog1.Execute then
   begin
-    MemoResp.Lines.Text := ACBreSocial1.WebServices.ConsultaLote.RetWS;
-
-    memoLinhas := MemoDados.Lines;
-    vRetornoConsultaLote := ACBreSocial1.WebServices.ConsultaLote.RetConsultaLote;
-
-    memoLinhas.Add('');
-    memoLinhas.Add('Código Retorno: ' + IntToStr(vRetornoConsultaLote.Status.cdResposta));
-    memoLinhas.Add('Mensagem: ' + vRetornoConsultaLote.Status.descResposta);
-    memoLinhas.Add('Arquivo Salvo: ' + ACBreSocial1.WebServices.ConsultaLote.PathNome);
-
-    if vRetornoConsultaLote.Status.cdResposta in [201, 202] then
-    begin
-      memoLinhas.Add('ideEmpregador');
-      memoLinhas.Add(' - TpInsc: ' + eSTpInscricaoToStr(vRetornoConsultaLote.IdeEmpregador.TpInsc));
-      memoLinhas.Add(' - NrInsc: ' + vRetornoConsultaLote.IdeEmpregador.NrInsc);
-      memoLinhas.Add('ideTransmissor');
-      memoLinhas.Add(' - TpInsc: ' + eSTpInscricaoToStr(vRetornoConsultaLote.IdeTransmissor.TpInsc));
-      memoLinhas.Add(' - NrInsc: ' + vRetornoConsultaLote.IdeTransmissor.NrInsc);
-      memoLinhas.Add('dadosRecepcaoLote');
-      memoLinhas.Add(' - dhRecepcao..............: ' +
-        DateTimeToStr(vRetornoConsultaLote.dadosRecLote.dhRecepcao));
-      memoLinhas.Add(' - versaoAplicativoRecepcao: ' +
-        vRetornoConsultaLote.dadosRecLote.versaoAplicRecepcao);
-      memoLinhas.Add(' - protocoloEnvio..........: ' + vRetornoConsultaLote.dadosRecLote.Protocolo);
-
-      for i := 0 to vRetornoConsultaLote.retEventos.Count - 1 do
-      begin
-        vRetEventos := vRetornoConsultaLote.retEventos.Items[i];
-        memoLinhas.Add('Processamento');
-        memoLinhas.Add(' - ID Evento..........: ' + vRetEventos.Id);
-        memoLinhas.Add(' - cdResposta.........: ' +
-          IntToStr(vRetEventos.Processamento.cdResposta));
-        memoLinhas.Add(' - descResposta.......: ' + vRetEventos
-          .Processamento.descResposta);
-        memoLinhas.Add(' - versaoAplicProcLote: ' + vRetEventos
-          .Processamento.versaoAplicProcLote);
-        memoLinhas.Add(' - dhProcessamento....: ' + DateTimeToStr(vRetEventos
-          .Processamento.dhProcessamento));
-
-        if vRetEventos.Processamento.Ocorrencias.Count > 0 then
-        begin
-          memoLinhas.Add('Ocorrencias do Processamento');
-          for J := 0 to vRetEventos.Processamento.Ocorrencias.Count - 1 do
-          begin
-            memoLinhas.Add(' Ocorrencia ' + IntToStr(J));
-            memoLinhas.Add('   Código.....: ' +
-              IntToStr(vRetEventos.Processamento.Ocorrencias.Items
-              [J].Codigo));
-            memoLinhas.Add('   Descrição..: ' + vRetEventos
-              .Processamento.Ocorrencias.Items[J].Descricao);
-            memoLinhas.Add('   Tipo.......: ' +
-              IntToStr(vRetEventos.Processamento.Ocorrencias.Items
-              [J].Tipo));
-            memoLinhas.Add('   Localização: ' + vRetEventos
-              .Processamento.Ocorrencias.Items[J].Localizacao);
-          end;
-        end;
-
-        for J := 0 to vRetEventos.tot.Count - 1 do
-        begin
-          memoLinhas.Add(' Tot ' + IntToStr(J));
-          memoLinhas.Add('   Tipo.........: ' + vRetEventos.tot[J].Tipo);
-          case vRetEventos.tot[J].Evento.TipoEvento of
-            teS5001:
-              begin
-                evtS5001 := TS5001(vRetEventos.tot[J].Evento.GetEvento);
-                memoLinhas.Add('   Id...........: ' + evtS5001.EvtBasesTrab.Id);
-                memoLinhas.Add('   nrRecArqBase.: ' + evtS5001.EvtBasesTrab.IdeEvento.nrRecArqBase);
-              end;
-            teS5002:
-              begin
-                evtS5002 := TS5002(vRetEventos.tot[J].Evento.GetEvento);
-                memoLinhas.Add('   Id...........: ' + evtS5002.EvtirrfBenef.Id);
-                memoLinhas.Add('   nrRecArqBase.: ' + evtS5002.EvtirrfBenef.IdeEvento.nrRecArqBase);
-              end;
-            teS5011:
-              begin
-                evtS5011 := TS5011(vRetEventos.tot[J].Evento.GetEvento);
-                memoLinhas.Add('   Id...........: ' + evtS5011.EvtCS.Id);
-                memoLinhas.Add('   nrRecArqBase.: ' + evtS5011.EvtCS.IdeEvento.nrRecArqBase);
-              end;
-            teS5012:
-              begin
-                evtS5012 := TS5012(vRetEventos.tot[J].Evento.GetEvento);
-                memoLinhas.Add('   Id...........: ' + evtS5012.EvtIrrf.Id);
-                memoLinhas.Add('   nrRecArqBase.: ' + evtS5012.EvtIrrf.IdeEvento.nrRecArqBase);
-              end;
-            teS5501:
-              begin
-                evtS5501 := TS5501(vRetEventos.tot[J].Evento.GetEvento);
-                memoLinhas.Add('   Id...........: ' + evtS5501.EvtTribProcTrab.Id);
-                memoLinhas.Add('   nrRecArqBase.: ' + evtS5501.EvtTribProcTrab.IdeEvento.nrRecArqBase);
-              end;
-            teS5503:
-              begin
-                evtS5503 := TS5503(vRetEventos.tot[J].Evento.GetEvento);
-                memoLinhas.Add('   Id...........: ' + evtS5503.EvtFGTSProcTrab.Id);
-                memoLinhas.Add('   nrRecArqBase.: ' + evtS5503.EvtFGTSProcTrab.IdeEvento.nrRecArqBase);
-              end;
-          end;
-        end;
-
-        memoLinhas.Add('Recibo');
-        memoLinhas.Add(' - nrRecibo: ' + vRetEventos.Recibo.NrRecibo);
-        memoLinhas.Add(' - hash....: ' + vRetEventos.Recibo.hash);
-      end;
-    end
-    else
-    begin
-      for i := 0 to vRetornoConsultaLote.Status.Ocorrencias.Count - 1 do
-      begin
-        vOcorrenciasItem := vRetornoConsultaLote.Status.Ocorrencias.Items[i];
-
-        memoLinhas.Add(' Ocorrencia ' + IntToStr(i));
-        memoLinhas.Add('   Código.....: ' + IntToStr(vOcorrenciasItem.Codigo));
-        memoLinhas.Add('   Descrição..: ' + vOcorrenciasItem.Descricao);
-        memoLinhas.Add('   Tipo.......: ' + IntToStr(vOcorrenciasItem.Tipo));
-        memoLinhas.Add('   Localização: ' + vOcorrenciasItem.Localizacao);
-      end;
-    end;
-
-    pgRespostas.ActivePageIndex := 3;
+    ACBreSocial1.WebServices.ConsultaLote.RetConsultaLote.Leitor.CarregarArquivo(OpenDialog1.FileName);
+    ACBreSocial1.WebServices.ConsultaLote.RetConsultaLote.LerXml;
+    LerRespostaConsultar(True);
+  end else
+  begin
+    Protocolo := '';
+    if not(InputQuery('WebServices: Consulta Protocolo', 'Protocolo', Protocolo))
+    then
+      Exit;
+    LerRespostaConsultar(ACBreSocial1.Consultar(Protocolo));
   end;
 end;
 
@@ -7583,6 +7876,8 @@ begin
     GerareSocial2500;
   if (cbS2501.Checked) then
     GerareSocial2501;
+  if (cbS2555.Checked) then
+    GerareSocial2555;
   if (cbS3000.Checked) then
     GerareSocial3000;
   if (cbS3500.Checked) then

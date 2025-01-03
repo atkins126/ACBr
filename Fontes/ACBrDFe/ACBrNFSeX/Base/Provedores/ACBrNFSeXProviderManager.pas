@@ -190,6 +190,7 @@ uses
   ISSCampinas.Provider,
   ISSDSF.Provider,
   ISSLencois.Provider,
+  ISSMap.Provider,
   ISSSaoPaulo.Provider,
   Prescon.Provider,
   PriMax.Provider,
@@ -200,7 +201,8 @@ uses
   SigISSWeb.Provider,
   Simple.Provider,
   SoftPlan.Provider,
-  WebFisco.Provider;
+  WebFisco.Provider,
+  XTRTecnologia.Provider;
 
   { TACBrNFSeXProviderManager }
 
@@ -441,6 +443,7 @@ begin
       proISSLencois:
         Result := TACBrNFSeProviderISSLencois.Create(ACBrNFSe);
 
+      proISSMap:   Result := TACBrNFSeProviderISSMap.Create(ACBrNFSe);
       proISSNatal: Result := TACBrNFSeProviderISSNatal.Create(ACBrNFSe);
 
       proISSNet:
@@ -664,6 +667,9 @@ begin
             Result := nil;
           end;
         end;
+
+      proXTRTecnologia:
+        Result := TACBrNFSeProviderXTRTecnologia.Create(ACBrNFSe);
     else
       Result := nil;
     end;

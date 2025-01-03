@@ -42,6 +42,46 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+23/12/2024
+-- pmdfeConsts --
+[*] Remoção de unit sem uso.
+   Por: Italo Giurizzato Junior
+
+11/12/2024
+-- ACBrMDFe.Classes --
+[+] #TK-6345: Criação da nova unit que contem as classes do MDF-e.
+   Por: Italo Giurizzato Junior
+-- ACBrMDFeWebServices.pas --
+[*] Corrigida leitura do xml da consulta por chave quando houverem caracteres especiais.
+   Por: Renato Rubinho
+
+03/12/2024
+-- pmdfeConsMDFeNaoEnc/pmdfeConsSitMDFe/pmdfeEnvEventoMDFe/pmdfeEventoMDFe --
+-- pmdfeProcInfraSA/pmdfeRetConsMDFeNaoEnc/pmdfeRetConsSitMDFe --
+-- pmdfeRetEnvEventoMDFe/pmdfeRetEnvMDFe --
+[*] #TK-5874: Removido as units acima por estarem em desuso.
+   Por: Italo Giurizzato Junior
+-- ACBrMDFeWebServices/ACBrMDFe.XmlWriter/ACBrMDFe.ConsNaoEnc/ACBrMDFe.ConsSit --
+-- ACBrMDFe.EnvEvento/ACBrMDFe.RetConsSit/pmdfeConsMDFeNaoEnc/pmdfeConsSitMDFe --
+-- pmdfeEnvEventoMDFe/pmdfeMDFeW/pmdfeProcMDFe --
+[*] #TK-5997: Realizado a substituição da unit de constantes de: pmdfeConsts
+    por: ACBrMDFe.Consts 
+   Por: Italo Giurizzato Junior
+
+27/11/2024
+-- ACBrMDFe.Consts --
+[+] #TK-5997: Disponibilizado a nova Unit de Constantes do MDFe, mas ela ainda não esta
+    em uso.
+   Por: Italo Giurizzato Junior
+
+19/11/2024
+-- ACBrMDFeWebServices --
+[*] Ajustes para a migração para as novas units.
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Migração para as novas units.
+   Por: Italo Giurizzato Junior
+
 04/10/2024
 -- Diversos --
 [*] #TK-5866-2: Ajuste visando padronização do caractere de quebra de linha.

@@ -1332,6 +1332,8 @@ const
   CKeyBOLETOCEP =                           'CEP';
   CKeyBOLETOComplemento =                   'Complemento';
   CKeyBOLETOUF =                            'UF';
+  CKeyBOLETOCodigoFlash =                   'CodigoFlash';
+  CKeyBOLETOKeySoftwareHouse =              'KeySoftwareHouse';
   CKeyBOLETORespEmis =                      'RespEmis';
   CKeyBOLETOPessoa =                        'Pessoa';
   CKeyBOLETOCodTransmissao =                'CodTransmissao';

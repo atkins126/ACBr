@@ -79,7 +79,8 @@ type
   TInfoPgtoExt = class;
   TInfoProcJudRubCollection = class;
   TInfoProcJudRubCollectionItem = class;
-  TinfoIRComplem = class;
+  TinfoIRComplemCollection = class;
+  TinfoIRComplemCollectionItem = class;
   TideDepCollection = class;
   TideDepCollectionItem = class;
   TinfoIRCRCollection = class;
@@ -110,6 +111,9 @@ type
   TinfoReembDepCollectionItem = class;
   TdetReembDepCollection = class;
   TdetReembDepCollectionItem = class;
+  TtotInfoIR = class;
+  TconsolidApurMenCollection = class;
+  TconsolidApurMenCollectionItem = class;
 
   TS5002 = class(TInterfacedObject, IEventoeSocial)
   private
@@ -178,9 +182,11 @@ type
   end;
 
   TinfoIRCollectionItem = class(TObject)
-  private
+  protected
     FtpInfoIR: Integer;
     Fvalor: Double;
+    FdescRendimento: string;
+  private
     FinfoProcJudRub: TinfoProcJudRubCollection;
 
     function getInfoProcJudRub(): TinfoProcJudRubCollection;
@@ -192,6 +198,7 @@ type
 
     property tpInfoIR: Integer read FtpInfoIR;
     property valor: Double read Fvalor;
+    property descRendimento: string read FdescRendimento;
     property infoProcJudRub: TinfoProcJudRubCollection read getInfoProcJudRub write FinfoProcJudRub;
   end;
 
@@ -207,16 +214,16 @@ type
 
   TdmDevCollectionItem = class(TObject)
   private
-    FperRef    : String;
-    FideDmDev  : String;
-    FtpPgto    : Integer;
-    FdtPgto    : TDateTime;
-    FcodCateg  : Integer;
-    FinfoIR    : TinfoIRCollection;
-    FtotApurMen: TtotApurMenCollection;
-    FtotApurDia: TtotApurDiaCollection;
-    FinfoRRA   : TInfoRRA;
-    FInfoPgtoExt : TInfoPgtoExt;
+    FperRef     : String;
+    FideDmDev   : String;
+    FtpPgto     : Integer;
+    FdtPgto     : TDateTime;
+    FcodCateg   : Integer;
+    FinfoIR     : TinfoIRCollection;
+    FtotApurMen : TtotApurMenCollection;
+    FtotApurDia : TtotApurDiaCollection;
+    FinfoRRA    : TInfoRRA;
+    FInfoPgtoExt: TInfoPgtoExt;
 
     function getInfoIR(): TInfoIRCollection;
     function getTotApurMen(): TTotApurMenCollection;
@@ -249,20 +256,24 @@ type
   private
     FcpfBenef: string;
     FdmDev: TdmDevCollection;
-    FinfoIRComplem: TinfoIRComplem;
+    FtotInfoIR: TtotInfoIR;
+    FinfoIRComplem: TinfoIRComplemCollection;
 
     function getDmDev: TDmDevCollection;
-    function getInfoIRComplem: TInfoIRComplem;
+    function getInfoIRComplem: TInfoIRComplemCollection;
+    function getTotInfoIR: TtotInfoIR;
   public
     constructor Create;
     destructor Destroy; override;
 
     function dmDevInst(): boolean;
     function infoIRComplemInst(): boolean;
+    function totInfoIRInst(): boolean;
 
     property cpfBenef: string read FcpfBenef;
     property dmDev: TdmDevCollection read getDmDev write FdmDev;
-    property infoIRComplem: TinfoIRComplem read getInfoIRComplem write FinfoIRComplem;
+    property totInfoIR: TtotInfoIR read getTotInfoIR write FtotInfoIR;
+    property infoIRComplem: TinfoIRComplemCollection read getInfoIRComplem write FinfoIRComplem;
   end;
 
   TbasesIrrfCollection = class(TACBrObjectList)
@@ -326,13 +337,53 @@ type
 
   TTotApurMenCollectionItem = class
   private
-   FCRMen: string;
-   FVlrCRMen: Double;
-   FVlrCRMenSusp: Double;
+    FCRMen: string;
+    FvlrRendTrib: Double;
+    FvlrRendTrib13: Double;
+    FvlrPrevOficial: Double;
+    FvlrPrevOficial13: Double;
+    FvlrCRMen: Double;
+    FvlrCR13Men: Double;
+    FvlrParcIsenta65: Double;
+    FvlrParcIsenta65Dec: Double;
+    FvlrDiarias: Double;
+    FvlrAjudaCusto: Double;
+    FvlrIndResContrato: Double;
+    FvlrAbonoPec: Double;
+    FvlrRendMoleGrave: Double;
+    FvlrRendMoleGrave13: Double;
+    FvlrAuxMoradia: Double;
+    FvlrBolsaMedico: Double;
+    FvlrBolsaMedico13: Double;
+    FvlrJurosMora: Double;
+    FvlrIsenOutros: Double;
+    FdescRendimento: string;
+
+    FvlrCRMenSusp: Double;
   public
-   property CRMen: string read FCRMen;
-   property vlrCRMen: Double read FVlrCRMen;
-   property vlrCRMenSusp: Double read FVlrCRMenSusp;
+    property CRMen: string read FCRMen;
+    property vlrRendTrib: Double read FvlrRendTrib;
+    property vlrRendTrib13: Double read FvlrRendTrib13;
+    property vlrPrevOficial: Double read FvlrPrevOficial;
+    property vlrPrevOficial13: Double read FvlrPrevOficial13;
+    property vlrCRMen: Double read FVlrCRMen;
+    property vlrCR13Men: Double read FvlrCR13Men;
+    property vlrParcIsenta65: Double read FvlrParcIsenta65;
+    property vlrParcIsenta65Dec: Double read FvlrParcIsenta65Dec;
+    property vlrDiarias: Double read FvlrDiarias;
+    property vlrAjudaCusto: Double read FvlrAjudaCusto;
+    property vlrIndResContrato: Double read FvlrIndResContrato;
+    property vlrAbonoPec: Double read FvlrAbonoPec;
+    property vlrRendMoleGrave: Double read FvlrRendMoleGrave;
+    property vlrRendMoleGrave13: Double read FvlrRendMoleGrave13;
+    property vlrAuxMoradia: Double read FvlrAuxMoradia;
+    property vlrBolsaMedico: Double read FvlrBolsaMedico;
+    property vlrBolsaMedico13: Double read FvlrBolsaMedico13;
+    property vlrJurosMora: Double read FvlrJurosMora;
+    property vlrIsenOutros: Double read FvlrIsenOutros;
+    property descRendimento: string read FdescRendimento;
+
+    property vlrCRMenSusp: Double read FVlrCRMenSusp;
   end;
 
   TTotApurDiaCollection = class(TACBrObjectList)
@@ -346,15 +397,21 @@ type
 
   TTotApurDiaCollectionItem = class
   private
-   FPerApurDia: Integer;
-   FCRDia: string;
-   FVlrCRDia: Double;
-   FVlrCRDiaSusp: Double;
+    FPerApurDia: Integer;
+    FCRDia: string;
+    FfrmTribut: integer;
+    FpaisResidExt: integer;
+    FvlrPagoDia: Double;
+    FVlrCRDia: Double;
+    FVlrCRDiaSusp: Double;
   public
-   property perApurDia: Integer read FPerApurDia;
-   property CRDia: string read FCRDia;
-   property vlrCRDia: Double read FVlrCRDia;
-   property vlrCRDiaSusp: Double read FVlrCRDiaSusp;
+    property perApurDia: Integer read FPerApurDia;
+    property CRDia: string read FCRDia;
+    property frmTribut: integer read FfrmTribut;
+    property paisResidExt: integer read FpaisResidExt;
+    property vlrPagoDia: Double read FvlrPagoDia;
+    property vlrCRDia: Double read FVlrCRDia;
+    property vlrCRDiaSusp: Double read FVlrCRDiaSusp;
   end;
 
   TEvtIrrfBenef = class(TObject)
@@ -418,20 +475,30 @@ type
 
   TInfoProcJudRubCollectionItem = class(TObject)
   private
-   FnrProc: string;
-   FufVara: string;
-   FcodMunic: integer;
-   FidVara: integer;
+    FnrProc: string;
+    FufVara: string;
+    FcodMunic: integer;
+    FidVara: integer;
   public
-   property nrProc: string read FnrProc;
-   property ufVara: string read FufVara;
-   property codMunic: integer read FcodMunic;
-   property idVara: integer read FidVara;
+    property nrProc: string read FnrProc;
+    property ufVara: string read FufVara;
+    property codMunic: integer read FcodMunic;
+    property idVara: integer read FidVara;
   end;
 
-  TinfoIRComplem = class(TObject)
+  TinfoIRComplemCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TinfoIRComplemCollectionItem;
+    procedure SetItem(Index: Integer; Value: TinfoIRComplemCollectionItem);
+  public
+    function New: TinfoIRComplemCollectionItem;
+    property Items[Index: Integer]: TinfoIRComplemCollectionItem read GetItem write SetItem;
+  end;
+
+  TinfoIRComplemCollectionItem = class(TObject)
   private
     FdtLaudo: TDateTime;
+    FperAnt: TPerAnt;
     FideDep: TideDepCollection;
     FinfoIRCR: TinfoIRCRCollection;
     FplanSaude: TplanSaudeCollection;
@@ -451,6 +518,7 @@ type
     function infoReembMedInst: boolean;
 
     property dtLaudo: TDateTime read FdtLaudo;
+    property perAnt: TperAnt read FPerAnt;
     property ideDep: TideDepCollection read getIdeDep write FideDep;
     property infoIRCR: TinfoIRCRCollection read getInfoIRCR write FinfoIRCR;
     property planSaude: TplanSaudeCollection read getPlanSaude write FplanSaude;
@@ -574,12 +642,16 @@ type
     FtpPrev: tpTpPrev;
     FcnpjEntidPC: string;
     FvlrDedPC: double;
+    FvlrDedPC13: double;
     FvlrPatrocFunp: double;
+    FvlrPatrocFunp13: double;
   public
     property tpPrev: tpTpPrev read FtpPrev;
     property cnpjEntidPC: string read FcnpjEntidPC;
     property vlrDedPC: double read FvlrDedPC;
+    property vlrDedPC13: double read FvlrDedPC13;
     property vlrPatrocFunp: double read FvlrPatrocFunp;
+    property vlrPatrocFunp13: double read FvlrPatrocFunp13;
   end;
 
   TinfoProcRetCollection = class(TACBrObjectList)
@@ -842,6 +914,76 @@ type
     property nrInsc: string read FnrInsc;
     property vlrReemb: double read FvlrReemb;
     property vlrReembAnt: double read FvlrReembAnt;
+  end;
+
+  TtotInfoIR = class(TObject)
+  private
+    FconsolidApurMen: TconsolidApurMenCollection;
+
+    function getconsolidApurMen(): TconsolidApurMenCollection;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function consolidApurMenInst(): boolean;
+
+    property consolidApurMen: TconsolidApurMenCollection read getconsolidApurMen write FconsolidApurMen;
+  end;
+
+  TconsolidApurMenCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TconsolidApurMenCollectionItem;
+    procedure SetItem(Index: Integer; const Value: TconsolidApurMenCollectionItem);
+  public
+    function New: TconsolidApurMenCollectionItem;
+    property Items[Index: Integer]: TconsolidApurMenCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TconsolidApurMenCollectionItem = class(TObject)
+  private
+    FCRMen: string;
+    FvlrRendTrib: Double;
+    FvlrRendTrib13: Double;
+    FvlrPrevOficial: Double;
+    FvlrPrevOficial13: Double;
+    FvlrCRMen: Double;
+    FvlrCR13Men: Double;
+    FvlrParcIsenta65: Double;
+    FvlrParcIsenta65Dec: Double;
+    FvlrDiarias: Double;
+    FvlrAjudaCusto: Double;
+    FvlrIndResContrato: Double;
+    FvlrAbonoPec: Double;
+    FvlrRendMoleGrave: Double;
+    FvlrRendMoleGrave13: Double;
+    FvlrAuxMoradia: Double;
+    FvlrBolsaMedico: Double;
+    FvlrBolsaMedico13: Double;
+    FvlrJurosMora: Double;
+    FvlrIsenOutros: Double;
+    FdescRendimento: string;
+  public
+    property CRMen: string read FCRMen;
+    property vlrRendTrib: Double read FvlrRendTrib;
+    property vlrRendTrib13: Double read FvlrRendTrib13;
+    property vlrPrevOficial: Double read FvlrPrevOficial;
+    property vlrPrevOficial13: Double read FvlrPrevOficial13;
+    property vlrCRMen: Double read FVlrCRMen;
+    property vlrCR13Men: Double read FvlrCR13Men;
+    property vlrParcIsenta65: Double read FvlrParcIsenta65;
+    property vlrParcIsenta65Dec: Double read FvlrParcIsenta65Dec;
+    property vlrDiarias: Double read FvlrDiarias;
+    property vlrAjudaCusto: Double read FvlrAjudaCusto;
+    property vlrIndResContrato: Double read FvlrIndResContrato;
+    property vlrAbonoPec: Double read FvlrAbonoPec;
+    property vlrRendMoleGrave: Double read FvlrRendMoleGrave;
+    property vlrRendMoleGrave13: Double read FvlrRendMoleGrave13;
+    property vlrAuxMoradia: Double read FvlrAuxMoradia;
+    property vlrBolsaMedico: Double read FvlrBolsaMedico;
+    property vlrBolsaMedico13: Double read FvlrBolsaMedico13;
+    property vlrJurosMora: Double read FvlrJurosMora;
+    property vlrIsenOutros: Double read FvlrIsenOutros;
+    property descRendimento: string read FdescRendimento;
   end;
 
 implementation
@@ -1251,19 +1393,39 @@ begin
   Self.Add(Result);
 end;
 
-{ TinfoIRComplem }
+{ TinfoIRComplemCollection }
 
-constructor TinfoIRComplem.Create;
+function TinfoIRComplemCollection.GetItem(
+  Index: Integer): TinfoIRComplemCollectionItem;
+begin
+  Result := TinfoIRComplemCollectionItem(inherited Items[Index]);
+end;
+
+procedure TinfoIRComplemCollection.SetItem(Index: Integer;
+  Value: TinfoIRComplemCollectionItem);
+begin
+  inherited Items[Index] := Value;
+end;
+
+function TinfoIRComplemCollection.New: TinfoIRComplemCollectionItem;
+begin
+  Result := TinfoIRComplemCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+{ TinfoIRComplemCollectionItem }
+constructor TinfoIRComplemCollectionItem.Create;
 begin
   inherited Create;
 
   FideDep := nil;
+  FperAnt := TperAnt.Create;
   FinfoIRCR := nil;
   FplanSaude := nil;
   FinfoReembMed := nil;
 end;
 
-destructor TinfoIRComplem.Destroy;
+destructor TinfoIRComplemCollectionItem.Destroy;
 begin
   if ideDepInst() then
     FreeAndNil(FideDep);
@@ -1277,53 +1439,55 @@ begin
   if infoReembMedInst() then
     FreeAndNil(FinfoReembMed);
 
+  FreeAndNil(FperAnt);
+
   inherited;
 end;
 
-function TinfoIRComplem.getIdeDep: TideDepCollection;
+function TinfoIRComplemCollectionItem.getIdeDep: TideDepCollection;
 begin
   if not Assigned(FideDep) then
     FideDep := TideDepCollection.Create;
   Result := FideDep;
 end;
 
-function TinfoIRComplem.getInfoIRCR: TinfoIRCRCollection;
+function TinfoIRComplemCollectionItem.getInfoIRCR: TinfoIRCRCollection;
 begin
   if not Assigned(FinfoIRCR) then
     FinfoIRCR := TinfoIRCRCollection.Create;
   Result := FinfoIRCR;
 end;
 
-function TinfoIRComplem.getPlanSaude: TplanSaudeCollection;
+function TinfoIRComplemCollectionItem.getPlanSaude: TplanSaudeCollection;
 begin
   if not Assigned(FPlanSaude) then
     FPlanSaude := TPlanSaudeCollection.Create;
   Result := FPlanSaude;
 end;
 
-function TinfoIRComplem.getInfoReembMed: TinfoReembMedCollection;
+function TinfoIRComplemCollectionItem.getInfoReembMed: TinfoReembMedCollection;
 begin
   if not Assigned(FinfoReembMed) then
     FinfoReembMed := TinfoReembMedCollection.Create;
   Result := FinfoReembMed;
 end;
 
-function TinfoIRComplem.ideDepInst: boolean;
+function TinfoIRComplemCollectionItem.ideDepInst: boolean;
 begin
   Result := Assigned(FideDep);
 end;
 
-function TinfoIRComplem.infoIRCRInst: boolean;
+function TinfoIRComplemCollectionItem.infoIRCRInst: boolean;
 begin
   Result := Assigned(FinfoIRCR);
 end;
 
-function TinfoIRComplem.planSaudeInst: boolean;
+function TinfoIRComplemCollectionItem.planSaudeInst: boolean;
 begin
   Result := Assigned(FplanSaude);
 end;
 
-function TinfoIRComplem.infoReembMedInst: boolean;
+function TinfoIRComplemCollectionItem.infoReembMedInst: boolean;
 begin
   Result := Assigned(FinfoReembMed);
 end;
@@ -1865,6 +2029,53 @@ begin
   Self.Add(Result);
 end;
 
+{ TtotInfoIR }
+
+constructor TtotInfoIR.Create;
+begin
+  inherited Create;
+
+  FconsolidApurMen := nil;
+end;
+
+destructor TtotInfoIR.Destroy;
+begin
+  if consolidApurMenInst() then
+    FreeAndNil(FconsolidApurMen);
+
+  inherited;
+end;
+
+function TtotInfoIR.getconsolidApurMen(): TconsolidApurMenCollection;
+begin
+  if not Assigned(FconsolidApurMen) then
+    FconsolidApurMen := TconsolidApurMenCollection.Create;
+  Result := FconsolidApurMen;
+end;
+
+function TtotInfoIR.consolidApurMenInst(): boolean;
+begin
+  Result := Assigned(FconsolidApurMen);
+end;
+
+{ TconsolidApurMenCollection }
+
+function TconsolidApurMenCollection.GetItem(Index: Integer): TconsolidApurMenCollectionItem;
+begin
+  Result := TconsolidApurMenCollectionItem(inherited Items[Index]);
+end;
+
+procedure TconsolidApurMenCollection.SetItem(Index: Integer; const Value: TconsolidApurMenCollectionItem);
+begin
+  inherited Items[Index] := Value;
+end;
+
+function TconsolidApurMenCollection.New: TconsolidApurMenCollectionItem;
+begin
+  Result := TconsolidApurMenCollectionItem.Create;
+  Self.Add(Result);
+end;
+
 { TIdeTrabalhador4 }
 
 constructor TIdeTrabalhador4.Create;
@@ -1872,6 +2083,7 @@ begin
  inherited Create;
 
  FdmDev := nil;
+ FtotInfoIR := nil;
  FinfoIRComplem := nil;
 end;
 
@@ -1881,6 +2093,8 @@ begin
    FreeAndNil(FdmDev);
  if infoIRComplemInst() then
    FreeAndNil(FinfoIRComplem);
+ if totInfoIRInst() then
+   FreeAndNil(FtotInfoIR);
  inherited;
 end;
 
@@ -1896,16 +2110,28 @@ begin
   Result := Assigned(FDmDev);
 end;
 
-function TIdeTrabalhador4.getInfoIRComplem: TinfoIRComplem;
+function TIdeTrabalhador4.getInfoIRComplem: TinfoIRComplemCollection;
 begin
   if not(Assigned(FinfoIRComplem)) then
-    FinfoIRComplem := TinfoIRComplem.Create;
+    FinfoIRComplem := TinfoIRComplemCollection.Create;
   Result := FinfoIRComplem;
 end;
 
 function TIdeTrabalhador4.infoIRComplemInst: boolean;
 begin
   Result := Assigned(FinfoIRComplem);
+end;
+
+function TIdeTrabalhador4.getTotInfoIR: TtotInfoIR;
+begin
+  if not(Assigned(FtotInfoIR)) then
+    FtotInfoIR := TtotInfoIR.Create;
+  Result := FtotInfoIR;
+end;
+
+function TIdeTrabalhador4.totInfoIRInst: boolean;
+begin
+  Result := Assigned(FtotInfoIR);
 end;
 
 { TEvtIrrfBenef }
@@ -1941,7 +2167,7 @@ end;
 function TEvtIrrfBenef.LerXML: boolean;
 var
   ok: Boolean;
-  i, j, k, l, m, n: Integer;
+  i, j, k, l, m, n, z: Integer;
   s: String;
 begin
   Result := False;
@@ -2069,12 +2295,10 @@ begin
           j := 0;
           while Leitor.rExtrai(3, 'infoIR', '', j + 1) <> '' do
           begin
-            with IdeTrabalhador.DmDev.Items[i].infoIR do
-            begin
-              New;
-              Items[j].FtpInfoIR := leitor.rCampo(tcInt, 'tpInfoIR');
-              Items[j].Fvalor    := leitor.rCampo(tcDe2, 'valor');
-            end;
+            IdeTrabalhador.DmDev.Items[i].infoIR.New;
+            IdeTrabalhador.DmDev.Items[i].infoIR.Items[j].FtpInfoIR       := leitor.rCampo(tcInt, 'tpInfoIR');
+            IdeTrabalhador.DmDev.Items[i].infoIR.Items[j].Fvalor          := leitor.rCampo(tcDe2, 'valor');
+            IdeTrabalhador.DmDev.Items[i].infoIR.Items[j].FdescRendimento := leitor.rCampo(tcStr, 'descRendimento');
 
             if VersaoDF >= veS01_02_00 then
             begin
@@ -2103,8 +2327,36 @@ begin
             with IdeTrabalhador.DmDev.Items[i].totApurMen do
             begin
               New;
-              Items[j].FCRMen          := leitor.rCampo(tcStr, 'CRMen');
-              Items[j].FvlrCRMen       := leitor.rCampo(tcDe2, 'vlrCRMen');
+              Items[j].FCRMen                := leitor.rCampo(tcStr, 'CRMen');
+
+              if VersaoDF > veS01_02_00 then
+              begin
+                Items[j].FvlrRendTrib        := leitor.rCampo(tcDe2, 'vlrRendTrib');
+                Items[j].FvlrRendTrib13      := leitor.rCampo(tcDe2, 'vlrRendTrib13');
+                Items[j].FvlrPrevOficial     := leitor.rCampo(tcDe2, 'vlrPrevOficial');
+                Items[j].FvlrPrevOficial13   := leitor.rCampo(tcDe2, 'vlrPrevOficial13');
+              end;
+
+              Items[j].FvlrCRMen             := leitor.rCampo(tcDe2, 'vlrCRMen');
+
+              if VersaoDF > veS01_02_00 then
+              begin
+                Items[j].FvlrCR13Men         := leitor.rCampo(tcDe2, 'vlrCR13Men');
+                Items[j].FvlrParcIsenta65    := leitor.rCampo(tcDe2, 'vlrParcIsenta65');
+                Items[j].FvlrParcIsenta65Dec := leitor.rCampo(tcDe2, 'vlrParcIsenta65Dec');
+                Items[j].FvlrDiarias         := leitor.rCampo(tcDe2, 'vlrDiarias');
+                Items[j].FvlrAjudaCusto      := leitor.rCampo(tcDe2, 'vlrAjudaCusto');
+                Items[j].FvlrIndResContrato  := leitor.rCampo(tcDe2, 'vlrIndResContrato');
+                Items[j].FvlrAbonoPec        := leitor.rCampo(tcDe2, 'vlrAbonoPec');
+                Items[j].FvlrRendMoleGrave   := leitor.rCampo(tcDe2, 'vlrRendMoleGrave');
+                Items[j].FvlrRendMoleGrave13 := leitor.rCampo(tcDe2, 'vlrRendMoleGrave13');
+                Items[j].FvlrAuxMoradia      := leitor.rCampo(tcDe2, 'vlrAuxMoradia');
+                Items[j].FvlrBolsaMedico     := leitor.rCampo(tcDe2, 'vlrBolsaMedico');
+                Items[j].FvlrBolsaMedico13   := leitor.rCampo(tcDe2, 'vlrBolsaMedico13');
+                Items[j].FvlrJurosMora       := leitor.rCampo(tcDe2, 'vlrJurosMora');
+                Items[j].FvlrIsenOutros      := leitor.rCampo(tcDe2, 'vlrIsenOutros');
+                Items[j].FdescRendimento     := leitor.rCampo(tcStr, 'descRendimento');
+              end;
 
               if VersaoDF < veS01_02_00 then
                 Items[j].FvlrCRMenSusp := leitor.rCampo(tcDe2, 'vlrCRMenSusp');
@@ -2121,6 +2373,14 @@ begin
               New;
               Items[j].FperApurDia     := leitor.rCampo(tcInt, 'perApurDia');
               Items[j].FCRDia          := leitor.rCampo(tcStr, 'CRDia');
+
+              if VersaoDF > veS01_02_00 then
+              begin
+                Items[j].FfrmTribut    := leitor.rCampo(tcInt, 'frmTribut');
+                Items[j].FpaisResidExt := leitor.rCampo(tcInt, 'paisResidExt');
+                Items[j].FvlrPagoDia   := leitor.rCampo(tcDe2, 'vlrPagoDia');
+              end;
+
               Items[j].FvlrCRDia       := leitor.rCampo(tcDe2, 'vlrCRDia');
 
               if VersaoDF < veS01_02_00 then
@@ -2168,51 +2428,91 @@ begin
 
             if leitor.rExtrai(3, 'infoPgtoExt') <> '' then
             begin
-              with IdeTrabalhador.DmDev do
-              begin
-                Items[i].infoPgtoExt.FpaisResidExt := leitor.rCampo(tcInt, 'paisResidExt');
-                Items[i].infoPgtoExt.FindNIF       := eSStrToIndNIF(ok, leitor.rCampo(tcStr, 'indNIF'));
-                Items[i].infoPgtoExt.FnifBenef     := leitor.rCampo(tcStr, 'nifBenef');
-                Items[i].infoPgtoExt.FfrmTribut    := leitor.rCampo(tcInt, 'frmTribut');
-              end;
+              IdeTrabalhador.DmDev.Items[i].infoPgtoExt.FpaisResidExt := leitor.rCampo(tcInt, 'paisResidExt');
+              IdeTrabalhador.DmDev.Items[i].infoPgtoExt.FindNIF       := eSStrToIndNIF(ok, leitor.rCampo(tcStr, 'indNIF'));
+              IdeTrabalhador.DmDev.Items[i].infoPgtoExt.FnifBenef     := leitor.rCampo(tcStr, 'nifBenef');
+              IdeTrabalhador.DmDev.Items[i].infoPgtoExt.FfrmTribut    := leitor.rCampo(tcInt, 'frmTribut');
 
               if leitor.rExtrai(4, 'endExt') <> '' then
               begin
-                with IdeTrabalhador.DmDev.Items[i].infoPgtoExt.endExt do
-                begin
-                  endDscLograd := leitor.rCampo(tcStr, 'endDscLograd');
-                  endNrLograd  := leitor.rCampo(tcStr, 'endNrLograd');
-                  endComplem   := leitor.rCampo(tcStr, 'endComplem');
-                  endBairro    := leitor.rCampo(tcStr, 'endBairro');
-                  endCidade    := leitor.rCampo(tcStr, 'endCidade');
-                  endEstado    := leitor.rCampo(tcStr, 'endEstado');
-                  endCodPostal := leitor.rCampo(tcStr, 'endCodPostal');
-                  telef        := leitor.rCampo(tcStr, 'telef');
-                end;
+                IdeTrabalhador.DmDev.Items[i].infoPgtoExt.endExt.endDscLograd := leitor.rCampo(tcStr, 'endDscLograd');
+                IdeTrabalhador.DmDev.Items[i].infoPgtoExt.endExt.endNrLograd  := leitor.rCampo(tcStr, 'endNrLograd');
+                IdeTrabalhador.DmDev.Items[i].infoPgtoExt.endExt.endComplem   := leitor.rCampo(tcStr, 'endComplem');
+                IdeTrabalhador.DmDev.Items[i].infoPgtoExt.endExt.endBairro    := leitor.rCampo(tcStr, 'endBairro');
+                IdeTrabalhador.DmDev.Items[i].infoPgtoExt.endExt.endCidade    := leitor.rCampo(tcStr, 'endCidade');
+                IdeTrabalhador.DmDev.Items[i].infoPgtoExt.endExt.endEstado    := leitor.rCampo(tcStr, 'endEstado');
+                IdeTrabalhador.DmDev.Items[i].infoPgtoExt.endExt.endCodPostal := leitor.rCampo(tcStr, 'endCodPostal');
+                IdeTrabalhador.DmDev.Items[i].infoPgtoExt.endExt.telef        := leitor.rCampo(tcStr, 'telef');
               end; { endExt }
             end; { infoPgtoExt }
 
+            if VersaoDF > veS01_02_00 then
+            begin
+              if leitor.rExtrai(2, 'totInfoIR') <> '' then
+              begin
 
+                j := 0;
+                while Leitor.rExtrai(3, 'consolidApurMen', '', j + 1) <> '' do
+                begin
+                  with IdeTrabalhador.totInfoIR.consolidApurMen do
+                  begin
+                    New;
+                    Items[j].FCRMen              := leitor.rCampo(tcStr, 'CRMen');
+                    Items[j].FvlrRendTrib        := leitor.rCampo(tcDe2, 'vlrRendTrib');
+                    Items[j].FvlrRendTrib13      := leitor.rCampo(tcDe2, 'vlrRendTrib13');
+                    Items[j].FvlrPrevOficial     := leitor.rCampo(tcDe2, 'vlrPrevOficial');
+                    Items[j].FvlrPrevOficial13   := leitor.rCampo(tcDe2, 'vlrPrevOficial13');
+                    Items[j].FvlrCRMen           := leitor.rCampo(tcDe2, 'vlrCRMen');
+                    Items[j].FvlrCR13Men         := leitor.rCampo(tcDe2, 'vlrCR13Men');
+                    Items[j].FvlrParcIsenta65    := leitor.rCampo(tcDe2, 'vlrParcIsenta65');
+                    Items[j].FvlrParcIsenta65Dec := leitor.rCampo(tcDe2, 'vlrParcIsenta65Dec');
+                    Items[j].FvlrDiarias         := leitor.rCampo(tcDe2, 'vlrDiarias');
+                    Items[j].FvlrAjudaCusto      := leitor.rCampo(tcDe2, 'vlrAjudaCusto');
+                    Items[j].FvlrIndResContrato  := leitor.rCampo(tcDe2, 'vlrIndResContrato');
+                    Items[j].FvlrAbonoPec        := leitor.rCampo(tcDe2, 'vlrAbonoPec');
+                    Items[j].FvlrRendMoleGrave   := leitor.rCampo(tcDe2, 'vlrRendMoleGrave');
+                    Items[j].FvlrRendMoleGrave13 := leitor.rCampo(tcDe2, 'vlrRendMoleGrave13');
+                    Items[j].FvlrAuxMoradia      := leitor.rCampo(tcDe2, 'vlrAuxMoradia');
+                    Items[j].FvlrBolsaMedico     := leitor.rCampo(tcDe2, 'vlrBolsaMedico');
+                    Items[j].FvlrBolsaMedico13   := leitor.rCampo(tcDe2, 'vlrBolsaMedico13');
+                    Items[j].FvlrJurosMora       := leitor.rCampo(tcDe2, 'vlrJurosMora');
+                    Items[j].FvlrIsenOutros      := leitor.rCampo(tcDe2, 'vlrIsenOutros');
+                    Items[j].FdescRendimento     := leitor.rCampo(tcStr, 'descRendimento');
+                  end; { consolidApurMen }
+
+                  inc(j);
+                end;
+              end; { totInfoIR }
+            end;
           end;
 
           inc(i);
         end; { dmDev }
 
-        if leitor.rExtrai(2, 'infoIRComplem') <> '' then
+        z := 0;
+        while Leitor.rExtrai(2, 'infoIRComplem', '', z + 1) <> '' do
         begin
-          IdeTrabalhador.infoIRComplem.FdtLaudo := leitor.rCampo(tcDat, 'dtLaudo');
+          IdeTrabalhador.infoIRComplem.New;
+          IdeTrabalhador.infoIRComplem.Items[z].FdtLaudo := leitor.rCampo(tcDat, 'dtLaudo');
+
+          if VersaoDF > veS01_02_00 then
+          begin
+            if leitor.rExtrai(3, 'perAnt') <> '' then
+            begin
+              IdeTrabalhador.infoIRComplem.Items[z].perAnt.perRefAjuste  := leitor.rCampo(tcStr, 'perRefAjuste');
+              IdeTrabalhador.infoIRComplem.Items[z].perAnt.nrRec1210Orig := leitor.rCampo(tcStr, 'nrRec1210Orig');
+            end;
+          end;
 
           j := 0;
           while Leitor.rExtrai(3, 'ideDep', '', j + 1) <> '' do
           begin
-            with IdeTrabalhador.infoIRComplem.ideDep do
+            with IdeTrabalhador.infoIRComplem.Items[z].ideDep do
             begin
               New;
               Items[j].FcpfDep   := leitor.rCampo(tcStr, 'cpfDep');
               Items[j].FdepIRRF  := eSStrToSimNaoFacultativo(ok, leitor.rCampo(tcStr, 'depIRRF'));
-
-              // terminar
-              //Items[j].FdtNascto := leitor.rCampo(tcDat, 'dtNascto');
+              Items[j].FdtNascto := leitor.rCampo(tcDat, 'dtNascto');
               Items[j].Fnome     := leitor.rCampo(tcStr, 'nome');
               Items[j].FtpDep    := eSStrToTpDep(ok, leitor.rCampo(tcStr, 'tpDep'));
               Items[j].FdescrDep := leitor.rCampo(tcStr, 'descrDep');
@@ -2224,7 +2524,7 @@ begin
           j := 0;
           while Leitor.rExtrai(3, 'infoIRCR', '', j + 1) <> '' do
           begin
-            with IdeTrabalhador.infoIRComplem.infoIRCR do
+            with IdeTrabalhador.infoIRComplem.Items[z].infoIRCR do
             begin
               New;
               Items[j].FtpCR := leitor.rCampo(tcStr, 'tpCR');
@@ -2233,7 +2533,7 @@ begin
             k := 0;
             while Leitor.rExtrai(4, 'dedDepen', '', k + 1) <> '' do
             begin
-              with IdeTrabalhador.infoIRComplem.infoIRCR.Items[j].dedDepen do
+              with IdeTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[j].dedDepen do
               begin
                 New;
                 Items[k].FtpRend    := leitor.rCampo(tcInt, 'tpRend');
@@ -2247,7 +2547,7 @@ begin
             k := 0;
             while Leitor.rExtrai(4, 'penAlim', '', k + 1) <> '' do
             begin
-              with IdeTrabalhador.infoIRComplem.infoIRCR.Items[j].penAlim do
+              with IdeTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[j].penAlim do
               begin
                 New;
                 Items[k].FtpRend        := leitor.rCampo(tcInt, 'tpRend');
@@ -2261,13 +2561,15 @@ begin
             k := 0;
             while Leitor.rExtrai(4, 'previdCompl', '', k + 1) <> '' do
             begin
-              with IdeTrabalhador.infoIRComplem.infoIRCR.Items[j].previdCompl do
+              with IdeTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[j].previdCompl do
               begin
                 New;
-                Items[k].FtpPrev        := eSStrTotpTpPrev(ok, leitor.rCampo(tcStr, 'tpPrev'));
-                Items[k].FcnpjEntidPC   := leitor.rCampo(tcStr, 'cnpjEntidPC');
-                Items[k].FvlrDedPC      := leitor.rCampo(tcDe2, 'vlrDedPC');
-                Items[k].FvlrPatrocFunp := leitor.rCampo(tcDe2, 'vlrPatrocFunp');
+                Items[k].FtpPrev          := eSStrTotpTpPrev(ok, leitor.rCampo(tcStr, 'tpPrev'));
+                Items[k].FcnpjEntidPC     := leitor.rCampo(tcStr, 'cnpjEntidPC');
+                Items[k].FvlrDedPC        := leitor.rCampo(tcDe2, 'vlrDedPC');
+                Items[k].FvlrDedPC13      := leitor.rCampo(tcDe2, 'vlrDedPC13');
+                Items[k].FvlrPatrocFunp   := leitor.rCampo(tcDe2, 'vlrPatrocFunp');
+                Items[k].FvlrPatrocFunp13 := leitor.rCampo(tcDe2, 'vlrPatrocFunp13');
               end;
 
               inc(k);
@@ -2276,7 +2578,7 @@ begin
             k := 0;
             while Leitor.rExtrai(4, 'infoProcRet', '', k + 1) <> '' do
             begin
-              with IdeTrabalhador.infoIRComplem.infoIRCR.Items[j].infoProcRet do
+              with IdeTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[j].infoProcRet do
               begin
                 New;
                 Items[k].FtpProcRet := eSStrTotpTpProcRet(ok, leitor.rCampo(tcStr, 'tpProcRet'));
@@ -2287,7 +2589,7 @@ begin
               l := 0;
               while Leitor.rExtrai(5, 'infoValores', '', l + 1) <> '' do
               begin
-                with IdeTrabalhador.infoIRComplem.infoIRCR.Items[j].infoProcRet.Items[k].infoValores do
+                with IdeTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[j].infoProcRet.Items[k].infoValores do
                 begin
                   New;
                   Items[l].FindApuracao  := eSStrToIndApuracao(ok, leitor.rCampo(tcStr, 'indApuracao'));
@@ -2301,7 +2603,7 @@ begin
                 m := 0;
                 while Leitor.rExtrai(5, 'dedSusp', '', m + 1) <> '' do
                 begin
-                  with IdeTrabalhador.infoIRComplem.infoIRCR.Items[j].infoProcRet.Items[k].infoValores.Items[l].dedSusp do
+                  with IdeTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[j].infoProcRet.Items[k].infoValores.Items[l].dedSusp do
                   begin
                     New;
                     Items[m].FindTpDeducao  := eSStrTotpIndTpDeducao(ok, leitor.rCampo(tcStr, 'indTpDeducao'));
@@ -2313,7 +2615,7 @@ begin
                   n := 0;
                   while Leitor.rExtrai(6, 'benefPen', '', n + 1) <> '' do
                   begin
-                    with IdeTrabalhador.infoIRComplem.infoIRCR.Items[j].infoProcRet.Items[k].infoValores.Items[l].dedSusp.Items[m].benefPen do
+                    with IdeTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[j].infoProcRet.Items[k].infoValores.Items[l].dedSusp.Items[m].benefPen do
                     begin
                       New;
                       Items[n].FcpfDep       := leitor.rCampo(tcStr, 'cpfDep');
@@ -2338,7 +2640,7 @@ begin
           j := 0;
           while Leitor.rExtrai(3, 'planSaude', '', j + 1) <> '' do
           begin
-            with IdeTrabalhador.infoIRComplem.planSaude do
+            with IdeTrabalhador.infoIRComplem.Items[z].planSaude do
             begin
               New;
               Items[j].FcnpjOper    := leitor.rCampo(tcStr, 'cnpjOper');
@@ -2349,7 +2651,7 @@ begin
             k := 0;
             while Leitor.rExtrai(4, 'infoDepSau', '', k + 1) <> '' do
             begin
-              with IdeTrabalhador.infoIRComplem.planSaude.Items[j].infoDepSau do
+              with IdeTrabalhador.infoIRComplem.Items[z].planSaude.Items[j].infoDepSau do
               begin
                 New;
                 Items[k].FcpfDep      := leitor.rCampo(tcStr, 'cpfDep');
@@ -2365,7 +2667,7 @@ begin
           j := 0;
           while Leitor.rExtrai(3, 'infoReembMed', '', j + 1) <> '' do
           begin
-            with IdeTrabalhador.infoIRComplem.infoReembMed do
+            with IdeTrabalhador.infoIRComplem.Items[z].infoReembMed do
             begin
               New;
               Items[j].FindOrgReemb := leitor.rCampo(tcStr, 'indOrgReemb');
@@ -2376,7 +2678,7 @@ begin
             k := 0;
             while Leitor.rExtrai(4, 'detReembTit', '', k + 1) <> '' do
             begin
-              with IdeTrabalhador.infoIRComplem.infoReembMed.Items[j].detReembTit do
+              with IdeTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[j].detReembTit do
               begin
                 New;
                 Items[k].FtpInsc      := eSStrToTpInscricao(ok, leitor.rCampo(tcStr, 'tpInsc'));
@@ -2391,7 +2693,7 @@ begin
             k := 0;
             while Leitor.rExtrai(4, 'infoReembDep', '', k + 1) <> '' do
             begin
-              with IdeTrabalhador.infoIRComplem.infoReembMed.Items[j].infoReembDep do
+              with IdeTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[j].infoReembDep do
               begin
                 New;
                 Items[k].FcpfBenef := leitor.rCampo(tcStr, 'cpfBenef');
@@ -2400,7 +2702,7 @@ begin
               l := 0;
               while Leitor.rExtrai(5, 'detReembDep', '', l + 1) <> '' do
               begin
-                with IdeTrabalhador.infoIRComplem.infoReembMed.Items[j].infoReembDep.Items[k].detReembDep do
+                with IdeTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[j].infoReembDep.Items[k].detReembDep do
                 begin
                   New;
                   Items[l].FtpInsc      := eSStrToTpInscricao(ok, leitor.rCampo(tcStr, 'tpInsc'));
@@ -2417,6 +2719,7 @@ begin
 
             inc(j);
           end; { infoReembMed }
+          inc(z);
         end; { infoIRComplem }
       end;
 
@@ -2431,7 +2734,7 @@ function TEvtIrrfBenef.SalvarINI: boolean;
 var
   AIni: TMemIniFile;
   sSecao: String;
-  i, j, k, l, m: Integer;
+  i, j, k, l, m, z: Integer;
   infoIR: TinfoIRCollectionItem;
   infoProcJudRub: TInfoProcJudRubCollectionItem;
   infoValores: TinfoValoresCollectionItem;
@@ -2544,148 +2847,152 @@ begin
         AIni.WriteString(sSecao, 'telef', ideTrabalhador.dmDev.Items[i].infoPgtoExt.endExt.telef);
       end;
 
-      sSecao := 'infoIRComplem';
-      AIni.WriteDate(sSecao, 'dtLaudo', ideTrabalhador.infoIRComplem.dtLaudo);
-
-      for i := 0 to ideTrabalhador.infoIRComplem.ideDep.Count -1 do
+      for z := 0 to ideTrabalhador.infoIRComplem.Count -1 do
       begin
-        sSecao := 'ideDep' + IntToStrZero(I, 3);
+        sSecao := 'infoIRComplem' + IntToStrZero(z, 2);
 
-        AIni.WriteString(sSecao, 'cpfDep', ideTrabalhador.infoIRComplem.ideDep.Items[i].cpfDep);
-        AIni.WriteString(sSecao, 'depIRRF', eSSimNaoFacultativoToStr(ideTrabalhador.infoIRComplem.ideDep.Items[i].depIRRF));
-        AIni.WriteDate(sSecao, 'dtNascto', ideTrabalhador.infoIRComplem.ideDep.Items[i].dtNascto);
-        AIni.WriteString(sSecao, 'nome', ideTrabalhador.infoIRComplem.ideDep.Items[i].nome);
-        AIni.WriteString(sSecao, 'tpDep', eStpDepToStr(ideTrabalhador.infoIRComplem.ideDep.Items[i].tpDep));
-        AIni.WriteString(sSecao, 'descrDep', ideTrabalhador.infoIRComplem.ideDep.Items[i].descrDep);
-      end;
+        AIni.WriteDate(sSecao, 'dtLaudo', ideTrabalhador.infoIRComplem.Items[z].dtLaudo);
 
-      for i := 0 to ideTrabalhador.infoIRComplem.infoIRCR.Count -1 do
-      begin
-        sSecao := 'infoIRCR' + IntToStrZero(I, 2);
-
-        AIni.WriteString(sSecao, 'cpfDep', ideTrabalhador.infoIRComplem.infoIRCR.Items[i].tpCR);
-
-        for j := 0 to ideTrabalhador.infoIRComplem.infoIRCR.Items[i].dedDepen.Count -1 do
+        for i := 0 to ideTrabalhador.infoIRComplem.Items[z].ideDep.Count -1 do
         begin
-          sSecao := 'dedDepen' + IntToStrZero(I, 2) + IntToStrZero(j, 3);
+          sSecao := 'ideDep' + IntToStrZero(z, 2) + IntToStrZero(I, 3);
 
-          AIni.WriteInteger(sSecao, 'tpRend', ideTrabalhador.infoIRComplem.infoIRCR.Items[i].dedDepen.Items[j].tpRend);
-          AIni.WriteString(sSecao, 'cpfDep', ideTrabalhador.infoIRComplem.infoIRCR.Items[i].dedDepen.Items[j].cpfDep);
-          AIni.WriteFloat(sSecao, 'vlrDedDep', ideTrabalhador.infoIRComplem.infoIRCR.Items[i].dedDepen.Items[j].vlrDedDep);
+          AIni.WriteString(sSecao, 'cpfDep', ideTrabalhador.infoIRComplem.Items[z].ideDep.Items[i].cpfDep);
+          AIni.WriteString(sSecao, 'depIRRF', eSSimNaoFacultativoToStr(ideTrabalhador.infoIRComplem.Items[z].ideDep.Items[i].depIRRF));
+          AIni.WriteDate(sSecao, 'dtNascto', ideTrabalhador.infoIRComplem.Items[z].ideDep.Items[i].dtNascto);
+          AIni.WriteString(sSecao, 'nome', ideTrabalhador.infoIRComplem.Items[z].ideDep.Items[i].nome);
+          AIni.WriteString(sSecao, 'tpDep', eStpDepToStr(ideTrabalhador.infoIRComplem.Items[z].ideDep.Items[i].tpDep));
+          AIni.WriteString(sSecao, 'descrDep', ideTrabalhador.infoIRComplem.Items[z].ideDep.Items[i].descrDep);
         end;
 
-        for j := 0 to ideTrabalhador.infoIRComplem.infoIRCR.Items[i].penAlim.Count -1 do
+        for i := 0 to ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Count -1 do
         begin
-          sSecao := 'penAlim' + IntToStrZero(I, 2) + IntToStrZero(j, 2);
+          sSecao := 'infoIRCR' + IntToStrZero(z, 2) + IntToStrZero(I, 2);
 
-          AIni.WriteInteger(sSecao, 'tpRend', ideTrabalhador.infoIRComplem.infoIRCR.Items[i].penAlim.Items[j].tpRend);
-          AIni.WriteString(sSecao, 'cpfDep', ideTrabalhador.infoIRComplem.infoIRCR.Items[i].penAlim.Items[j].cpfDep);
-          AIni.WriteFloat(sSecao, 'vlrDedPenAlim', ideTrabalhador.infoIRComplem.infoIRCR.Items[i].penAlim.Items[j].vlrDedPenAlim);
-        end;
+          AIni.WriteString(sSecao, 'cpfDep', ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].tpCR);
 
-        for j := 0 to ideTrabalhador.infoIRComplem.infoIRCR.Items[i].previdCompl.Count -1 do
-        begin
-          sSecao := 'previdCompl' + IntToStrZero(I, 2) + IntToStrZero(j, 2);
-
-          AIni.WriteString(sSecao, 'tpPrev', eStpTpPrevToStr(ideTrabalhador.infoIRComplem.infoIRCR.Items[i].previdCompl.Items[j].tpPrev));
-          AIni.WriteString(sSecao, 'cnpjEntidPC', ideTrabalhador.infoIRComplem.infoIRCR.Items[i].previdCompl.Items[j].cnpjEntidPC);
-          AIni.WriteFloat(sSecao, 'vlrDedPC', ideTrabalhador.infoIRComplem.infoIRCR.Items[i].previdCompl.Items[j].vlrDedPC);
-          AIni.WriteFloat(sSecao, 'vlrPatrocFunp', ideTrabalhador.infoIRComplem.infoIRCR.Items[i].previdCompl.Items[j].vlrPatrocFunp);
-        end;
-
-        for j := 0 to ideTrabalhador.infoIRComplem.infoIRCR.Items[i].infoProcRet.Count -1 do
-        begin
-          sSecao := 'infoProcRet' + IntToStrZero(I, 2) + IntToStrZero(j, 2);
-
-          AIni.WriteString(sSecao, 'tpProcRet', eStpTpProcRetToStr(ideTrabalhador.infoIRComplem.infoIRCR.Items[i].infoProcRet.Items[j].tpProcRet));
-          AIni.WriteString(sSecao, 'nrProcRet', ideTrabalhador.infoIRComplem.infoIRCR.Items[i].infoProcRet.Items[j].nrProcRet);
-          AIni.WriteInteger(sSecao, 'codSusp', ideTrabalhador.infoIRComplem.infoIRCR.Items[i].infoProcRet.Items[j].codSusp);
-
-          for k := 0 to ideTrabalhador.infoIRComplem.infoIRCR.Items[i].infoProcRet.Items[j].infoValores.Count -1 do
+          for j := 0 to ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].dedDepen.Count -1 do
           begin
-            sSecao := 'infoProcRet' + IntToStrZero(I, 2) + IntToStrZero(j, 2) + IntToStrZero(k, 1);
+            sSecao := 'dedDepen' + IntToStrZero(z, 2) + IntToStrZero(I, 2) + IntToStrZero(j, 3);
 
-            infoValores := ideTrabalhador.infoIRComplem.infoIRCR.Items[i].infoProcRet.Items[j].infoValores.Items[k];
-            AIni.WriteString(sSecao, 'indApuracao', eSIndApuracaoToStr(infoValores.indApuracao));
-            AIni.WriteFloat(sSecao, 'vlrNRetido', infoValores.vlrNRetido);
-            AIni.WriteFloat(sSecao, 'vlrDepJud', infoValores.vlrDepJud);
-            AIni.WriteFloat(sSecao, 'vlrCmpAnoCal', infoValores.vlrCmpAnoCal);
-            AIni.WriteFloat(sSecao, 'vlrCmpAnoAnt', infoValores.vlrCmpAnoAnt);
-            AIni.WriteFloat(sSecao, 'vlrRendSusp', infoValores.vlrRendSusp);
+            AIni.WriteInteger(sSecao, 'tpRend', ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].dedDepen.Items[j].tpRend);
+            AIni.WriteString(sSecao, 'cpfDep', ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].dedDepen.Items[j].cpfDep);
+            AIni.WriteFloat(sSecao, 'vlrDedDep', ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].dedDepen.Items[j].vlrDedDep);
+          end;
 
-            for l := 0 to infoValores.dedSusp.Count -1 do
+          for j := 0 to ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].penAlim.Count -1 do
+          begin
+            sSecao := 'penAlim' + IntToStrZero(z, 2) + IntToStrZero(I, 2) + IntToStrZero(j, 2);
+
+            AIni.WriteInteger(sSecao, 'tpRend', ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].penAlim.Items[j].tpRend);
+            AIni.WriteString(sSecao, 'cpfDep', ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].penAlim.Items[j].cpfDep);
+            AIni.WriteFloat(sSecao, 'vlrDedPenAlim', ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].penAlim.Items[j].vlrDedPenAlim);
+          end;
+
+          for j := 0 to ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].previdCompl.Count -1 do
+          begin
+            sSecao := 'previdCompl' + IntToStrZero(z, 2) + IntToStrZero(I, 2) + IntToStrZero(j, 2);
+
+            AIni.WriteString(sSecao, 'tpPrev', eStpTpPrevToStr(ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].previdCompl.Items[j].tpPrev));
+            AIni.WriteString(sSecao, 'cnpjEntidPC', ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].previdCompl.Items[j].cnpjEntidPC);
+            AIni.WriteFloat(sSecao, 'vlrDedPC', ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].previdCompl.Items[j].vlrDedPC);
+            AIni.WriteFloat(sSecao, 'vlrPatrocFunp', ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].previdCompl.Items[j].vlrPatrocFunp);
+          end;
+
+          for j := 0 to ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].infoProcRet.Count -1 do
+          begin
+            sSecao := 'infoProcRet' + IntToStrZero(z, 2) + IntToStrZero(I, 2) + IntToStrZero(j, 2);
+
+            AIni.WriteString(sSecao, 'tpProcRet', eStpTpProcRetToStr(ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].infoProcRet.Items[j].tpProcRet));
+            AIni.WriteString(sSecao, 'nrProcRet', ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].infoProcRet.Items[j].nrProcRet);
+            AIni.WriteInteger(sSecao, 'codSusp', ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].infoProcRet.Items[j].codSusp);
+
+            for k := 0 to ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].infoProcRet.Items[j].infoValores.Count -1 do
             begin
-              sSecao := 'infoValores' + IntToStrZero(I, 2) + IntToStrZero(j, 2) + IntToStrZero(k, 1) +
-                                        IntToStrZero(l, 2);
+              sSecao := 'infoProcRet' + IntToStrZero(z, 2) + IntToStrZero(I, 2) + IntToStrZero(j, 2) + IntToStrZero(k, 1);
 
-              AIni.WriteString(sSecao, 'indTpDeducao', eStpTpIndTpDeducaoToStr(infoValores.dedSusp.Items[l].indTpDeducao));
-              AIni.WriteFloat(sSecao, 'vlrDedSusp', infoValores.dedSusp.Items[l].vlrDedSusp);
-              AIni.WriteString(sSecao, 'cnpjEntidPC', infoValores.dedSusp.Items[l].cnpjEntidPC);
-              AIni.WriteFloat(sSecao, 'vlrPatrocFunp', infoValores.dedSusp.Items[l].vlrPatrocFunp);
+              infoValores := ideTrabalhador.infoIRComplem.Items[z].infoIRCR.Items[i].infoProcRet.Items[j].infoValores.Items[k];
+              AIni.WriteString(sSecao, 'indApuracao', eSIndApuracaoToStr(infoValores.indApuracao));
+              AIni.WriteFloat(sSecao, 'vlrNRetido', infoValores.vlrNRetido);
+              AIni.WriteFloat(sSecao, 'vlrDepJud', infoValores.vlrDepJud);
+              AIni.WriteFloat(sSecao, 'vlrCmpAnoCal', infoValores.vlrCmpAnoCal);
+              AIni.WriteFloat(sSecao, 'vlrCmpAnoAnt', infoValores.vlrCmpAnoAnt);
+              AIni.WriteFloat(sSecao, 'vlrRendSusp', infoValores.vlrRendSusp);
 
-              for m := 0 to infoValores.dedSusp.Items[l].benefPen.Count -1 do
+              for l := 0 to infoValores.dedSusp.Count -1 do
               begin
-                sSecao := 'infoProcRet' + IntToStrZero(I, 2) + IntToStrZero(j, 2) + IntToStrZero(k, 1) +
-                                          IntToStrZero(l, 2) + IntToStrZero(m, 2);
+                sSecao := 'infoValores' + IntToStrZero(z, 2) + IntToStrZero(I, 2) + IntToStrZero(j, 2) + IntToStrZero(k, 1) +
+                                          IntToStrZero(l, 2);
 
-                AIni.WriteString(sSecao, 'cpfDep', infoValores.dedSusp.Items[l].benefPen.Items[m].cpfDep);
-                AIni.WriteFloat(sSecao, 'vlrDepenSusp', infoValores.dedSusp.Items[l].benefPen.Items[m].vlrDepenSusp);
+                AIni.WriteString(sSecao, 'indTpDeducao', eStpTpIndTpDeducaoToStr(infoValores.dedSusp.Items[l].indTpDeducao));
+                AIni.WriteFloat(sSecao, 'vlrDedSusp', infoValores.dedSusp.Items[l].vlrDedSusp);
+                AIni.WriteString(sSecao, 'cnpjEntidPC', infoValores.dedSusp.Items[l].cnpjEntidPC);
+                AIni.WriteFloat(sSecao, 'vlrPatrocFunp', infoValores.dedSusp.Items[l].vlrPatrocFunp);
+
+                for m := 0 to infoValores.dedSusp.Items[l].benefPen.Count -1 do
+                begin
+                  sSecao := 'infoProcRet' + IntToStrZero(z, 2) + IntToStrZero(I, 2) + IntToStrZero(j, 2) + IntToStrZero(k, 1) +
+                                            IntToStrZero(l, 2) + IntToStrZero(m, 2);
+
+                  AIni.WriteString(sSecao, 'cpfDep', infoValores.dedSusp.Items[l].benefPen.Items[m].cpfDep);
+                  AIni.WriteFloat(sSecao, 'vlrDepenSusp', infoValores.dedSusp.Items[l].benefPen.Items[m].vlrDepenSusp);
+                end;
               end;
             end;
           end;
         end;
-      end;
 
-      for i := 0 to ideTrabalhador.infoIRComplem.planSaude.Count -1 do
-      begin
-        sSecao := 'planSaude' + IntToStrZero(I, 2);
-
-        AIni.WriteString(sSecao, 'cnpjOper', ideTrabalhador.infoIRComplem.planSaude.Items[i].cnpjOper);
-        AIni.WriteString(sSecao, 'regANS', ideTrabalhador.infoIRComplem.planSaude.Items[i].regANS);
-        AIni.WriteFloat(sSecao, 'vlrSaudeTit', ideTrabalhador.infoIRComplem.planSaude.Items[i].vlrSaudeTit);
-
-        for j := 0 to ideTrabalhador.infoIRComplem.planSaude.Items[i].infoDepSau.Count -1 do
+        for i := 0 to ideTrabalhador.infoIRComplem.Items[z].planSaude.Count -1 do
         begin
-          sSecao := 'infoDepSau' + IntToStrZero(I, 2) + IntToStrZero(j, 2);
+          sSecao := 'planSaude' + IntToStrZero(z, 2) + IntToStrZero(I, 2);
 
-          AIni.WriteString(sSecao, 'cpfDep', ideTrabalhador.infoIRComplem.planSaude.Items[i].infoDepSau.Items[j].cpfDep);
-          AIni.WriteFloat(sSecao, 'vlrSaudeDep', ideTrabalhador.infoIRComplem.planSaude.Items[i].infoDepSau.Items[j].vlrSaudeDep);
-        end;
-      end;
+          AIni.WriteString(sSecao, 'cnpjOper', ideTrabalhador.infoIRComplem.Items[z].planSaude.Items[i].cnpjOper);
+          AIni.WriteString(sSecao, 'regANS', ideTrabalhador.infoIRComplem.Items[z].planSaude.Items[i].regANS);
+          AIni.WriteFloat(sSecao, 'vlrSaudeTit', ideTrabalhador.infoIRComplem.Items[z].planSaude.Items[i].vlrSaudeTit);
 
-      for i := 0 to ideTrabalhador.infoIRComplem.infoReembMed.Count -1 do
-      begin
-        sSecao := 'infoReembMed' + IntToStrZero(I, 2);
-
-        AIni.WriteString(sSecao, 'indOrgReemb', ideTrabalhador.infoIRComplem.infoReembMed.Items[i].indOrgReemb);
-        AIni.WriteString(sSecao, 'cnpjOper', ideTrabalhador.infoIRComplem.infoReembMed.Items[i].cnpjOper);
-        AIni.WriteString(sSecao, 'regANS', ideTrabalhador.infoIRComplem.infoReembMed.Items[i].regANS);
-
-        for j := 0 to ideTrabalhador.infoIRComplem.infoReembMed.Items[i].detReembTit.Count -1 do
-        begin
-          sSecao := 'detReembTit' + IntToStrZero(I, 2) + IntToStrZero(j, 2);
-
-          AIni.WriteString(sSecao, 'tpInsc', eSTpInscricaoToStr(ideTrabalhador.infoIRComplem.infoReembMed.Items[i].detReembTit.Items[j].tpInsc));
-          AIni.WriteString(sSecao, 'nrInsc', ideTrabalhador.infoIRComplem.infoReembMed.Items[i].detReembTit.Items[j].nrInsc);
-          AIni.WriteFloat(sSecao, 'vlrReemb', ideTrabalhador.infoIRComplem.infoReembMed.Items[i].detReembTit.Items[j].vlrReemb);
-          AIni.WriteFloat(sSecao, 'vlrReembAnt', ideTrabalhador.infoIRComplem.infoReembMed.Items[i].detReembTit.Items[j].vlrReembAnt);
-        end;
-
-        for j := 0 to ideTrabalhador.infoIRComplem.infoReembMed.Items[i].infoReembDep.Count -1 do
-        begin
-          sSecao := 'infoReembDep' + IntToStrZero(I, 2) + IntToStrZero(j, 2);
-
-          AIni.WriteString(sSecao, 'cpfBenef', ideTrabalhador.infoIRComplem.infoReembMed.Items[i].infoReembDep.Items[j].cpfBenef);
-
-          for k := 0 to ideTrabalhador.infoIRComplem.infoReembMed.Items[i].infoReembDep.Items[j].detReembDep.Count -1 do
+          for j := 0 to ideTrabalhador.infoIRComplem.Items[z].planSaude.Items[i].infoDepSau.Count -1 do
           begin
-            sSecao := 'infoReembDep' + IntToStrZero(I, 2) + IntToStrZero(j, 2) + IntToStrZero(k, 2);
+            sSecao := 'infoDepSau' + IntToStrZero(z, 2) + IntToStrZero(I, 2) + IntToStrZero(j, 2);
 
-            detReembDep := ideTrabalhador.infoIRComplem.infoReembMed.Items[i].infoReembDep.Items[j].detReembDep.Items[k];
-            AIni.WriteString(sSecao, 'tpInsc', eSTpInscricaoToStr(detReembDep.tpInsc));
-            AIni.WriteString(sSecao, 'nrInsc', detReembDep.nrInsc);
-            AIni.WriteFloat(sSecao, 'vlrReemb', detReembDep.vlrReemb);
-            AIni.WriteFloat(sSecao, 'vlrReembAnt', detReembDep.vlrReembAnt);
+            AIni.WriteString(sSecao, 'cpfDep', ideTrabalhador.infoIRComplem.Items[z].planSaude.Items[i].infoDepSau.Items[j].cpfDep);
+            AIni.WriteFloat(sSecao, 'vlrSaudeDep', ideTrabalhador.infoIRComplem.Items[z].planSaude.Items[i].infoDepSau.Items[j].vlrSaudeDep);
+          end;
+        end;
+
+        for i := 0 to ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Count -1 do
+        begin
+          sSecao := 'infoReembMed' + IntToStrZero(z, 2) + IntToStrZero(I, 2);
+
+          AIni.WriteString(sSecao, 'indOrgReemb', ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[i].indOrgReemb);
+          AIni.WriteString(sSecao, 'cnpjOper', ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[i].cnpjOper);
+          AIni.WriteString(sSecao, 'regANS', ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[i].regANS);
+
+          for j := 0 to ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[i].detReembTit.Count -1 do
+          begin
+            sSecao := 'detReembTit' + IntToStrZero(z, 2) + IntToStrZero(I, 2) + IntToStrZero(j, 2);
+
+            AIni.WriteString(sSecao, 'tpInsc', eSTpInscricaoToStr(ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[i].detReembTit.Items[j].tpInsc));
+            AIni.WriteString(sSecao, 'nrInsc', ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[i].detReembTit.Items[j].nrInsc);
+            AIni.WriteFloat(sSecao, 'vlrReemb', ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[i].detReembTit.Items[j].vlrReemb);
+            AIni.WriteFloat(sSecao, 'vlrReembAnt', ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[i].detReembTit.Items[j].vlrReembAnt);
+          end;
+
+          for j := 0 to ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[i].infoReembDep.Count -1 do
+          begin
+            sSecao := 'infoReembDep' + IntToStrZero(z, 2) + IntToStrZero(I, 2) + IntToStrZero(j, 2);
+
+            AIni.WriteString(sSecao, 'cpfBenef', ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[i].infoReembDep.Items[j].cpfBenef);
+
+            for k := 0 to ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[i].infoReembDep.Items[j].detReembDep.Count -1 do
+            begin
+              sSecao := 'infoReembDep' + IntToStrZero(z, 2) + IntToStrZero(I, 2) + IntToStrZero(j, 2) + IntToStrZero(k, 2);
+
+              detReembDep := ideTrabalhador.infoIRComplem.Items[z].infoReembMed.Items[i].infoReembDep.Items[j].detReembDep.Items[k];
+              AIni.WriteString(sSecao, 'tpInsc', eSTpInscricaoToStr(detReembDep.tpInsc));
+              AIni.WriteString(sSecao, 'nrInsc', detReembDep.nrInsc);
+              AIni.WriteFloat(sSecao, 'vlrReemb', detReembDep.vlrReemb);
+              AIni.WriteFloat(sSecao, 'vlrReembAnt', detReembDep.vlrReembAnt);
+            end;
           end;
         end;
       end;

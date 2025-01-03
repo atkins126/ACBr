@@ -433,7 +433,7 @@ begin
             Titulos[I] := Titulo;
           end;
 
-          fpCmd.Resposta := TACBrObjectSerializer.Gerar<TRetornoRegistroWeb>(Titulos, TpResp, codUTF8);
+          fpCmd.Resposta := GerarResposta<TRetornoRegistroWeb>(Titulos);
         finally
           for I:= 0 to High(Titulos) do
           begin
@@ -1276,7 +1276,7 @@ begin
             Titulos[I] := Titulo;
           end;
 
-          fpCmd.Resposta := TACBrObjectSerializer.Gerar<TRetornoRegistroWeb>(Titulos, TpResp, codUTF8);
+          fpCmd.Resposta := GerarResposta<TRetornoRegistroWeb>(Titulos);
         finally
           for I:= 0 to High(Titulos) do
           begin
@@ -1329,6 +1329,7 @@ begin
     CEP                := fACBrBoleto.Cedente.CEP;
     Complemento        := fACBrBoleto.Cedente.Complemento;
     UF                 := fACBrBoleto.Cedente.UF;
+    CodigoFlash        := fACBrBoleto.Cedente.CodigoFlash;
     with Conta do
     begin
       CodCedente       := fACBrBoleto.Cedente.CodigoCedente;
@@ -1370,7 +1371,8 @@ begin
     Banco := Integer(fACBrBoleto.Banco.TipoCobranca);
   with MonitorConfig.BOLETO.RemessaRetorno do
     CNAB := Integer(fACBrBoleto.LayoutRemessa);
-
+  with MonitorConfig.BOLETO.RemessaRetorno do
+    KeySoftwareHouse := fACBrBoleto.KeySoftwareHouse;
 
   {Parametros da Conta}
   with MonitorConfig.BOLETO.Conta do

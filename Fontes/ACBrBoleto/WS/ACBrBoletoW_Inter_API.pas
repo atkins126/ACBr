@@ -139,7 +139,7 @@ begin
     end;
 
 
-  if Boleto.Configuracoes.WebService.Ambiente = taProducao then
+  if Boleto.Configuracoes.WebService.Ambiente = tawsProducao then
    FPURL := IfThen(Boleto.Cedente.CedenteWS.IndicadorPix, C_URLPIX, C_URL)
   else
    FPURL := IfThen(Boleto.Cedente.CedenteWS.IndicadorPix, C_URL_HOMPIX, C_URL_HOM);
@@ -340,14 +340,13 @@ begin
               LConsulta.Add( 'ordenarPor='+LOrdenarDataVencimento );
             end;
 
-            if Boleto.Configuracoes.WebService.Filtro.dataRegistro.DataInicio > 0
-            then
+            if Boleto.Configuracoes.WebService.Filtro.dataRegistro.DataInicio > 0 then
+            {por data de registro, devolve qq status, pois o boleto pode ter sido pago ou baixado}
             begin
-              LConsulta.Add( 'filtrarDataPor='+LFiltroDataEmissao );
-              LConsulta.Add('situacao='+LSituacaoAbertos);
+              LConsulta.Add('filtrarDataPor='+'EMISSAO' );
               LConsulta.Add('dataInicial=' +DateTimeToDateInter(Boleto.Configuracoes.WebService.Filtro.dataRegistro.DataInicio));
-              LConsulta.Add('dataFinal=' +DateTimeToDateInter(Boleto.Configuracoes.WebService.Filtro.DataRegistro.DataFinal));
-              LConsulta.Add( 'ordenarPor='+LOrdenarDataSituacao);
+              LConsulta.Add('dataFinal=' +DateTimeToDateInter(Boleto.Configuracoes.WebService.Filtro.dataRegistro.DataFinal));
+              LConsulta.Add( 'ordenarPor='+'STATUS' );
             end;
           end;
       end;
@@ -387,7 +386,7 @@ end;
 
 function TBoletoW_Inter_API.ValidaAmbiente: Integer;
 begin
-  result := StrToIntDef(IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao, '1','2'), 2);
+  result := StrToIntDef(IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao, '1','2'), 2);
 end;
 
 procedure TBoletoW_Inter_API.RequisicaoJson;
@@ -818,12 +817,12 @@ begin
 
   if Assigned(OAuth) then
   begin
-    if OAuth.Ambiente = taHomologacao then
-      OAuth.URL := C_URL_OAUTH_HOM
+    if OAuth.Ambiente = tawsProducao then
+      OAuth.URL := C_URL_OAUTH_PROD
     else
-      OAuth.URL := C_URL_OAUTH_PROD;
+      OAuth.URL := C_URL_OAUTH_HOM;
 
-    OAuth.Payload := OAuth.Ambiente = taHomologacao;
+    OAuth.Payload := not (OAuth.Ambiente = tawsProducao);
   end;
 end;
 

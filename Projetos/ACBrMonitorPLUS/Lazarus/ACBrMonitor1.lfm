@@ -17381,12 +17381,12 @@ object FrmACBrMonitor: TFrmACBrMonitor
         Height = 549
         Top = 1
         Width = 1129
-        ActivePage = tsDFe
+        ActivePage = tsACBrBoleto
         Align = alClient
         Font.Height = -13
         Images = ImageList1
         ParentFont = False
-        TabIndex = 16
+        TabIndex = 11
         TabOrder = 0
         OnChange = pgConfigChange
         object tsMonitor: TTabSheet
@@ -21486,11 +21486,11 @@ object FrmACBrMonitor: TFrmACBrMonitor
             Height = 519
             Top = 0
             Width = 1121
-            ActivePage = tsWebBoleto
+            ActivePage = tsBeneficiario
             Align = alClient
             Font.Height = -13
             ParentFont = False
-            TabIndex = 6
+            TabIndex = 0
             TabOrder = 0
             OnChange = pgBoletoChange
             object tsBeneficiario: TTabSheet
@@ -22522,9 +22522,9 @@ object FrmACBrMonitor: TFrmACBrMonitor
               end
               object lblBolMotorRelatorio: TLabel
                 Left = 593
-                Height = 13
+                Height = 14
                 Top = 144
-                Width = 97
+                Width = 92
                 Caption = 'Motor Relatório *'
                 Font.Color = clWindowText
                 Font.Height = -11
@@ -22809,6 +22809,36 @@ object FrmACBrMonitor: TFrmACBrMonitor
                 Top = 122
                 Width = 80
                 TabOrder = 8
+              end
+              object edtBoletoCodigoFlash: TEdit
+                Left = 672
+                Height = 25
+                Top = 122
+                Width = 80
+                TabOrder = 9
+              end
+              object Label288: TLabel
+                Left = 672
+                Height = 17
+                Top = 104
+                Width = 76
+                Caption = 'Código Flash'
+                ParentColor = False
+              end
+              object edtBoletoKeySoftwareHouse: TEdit
+                Left = 760
+                Height = 25
+                Top = 122
+                Width = 112
+                TabOrder = 10
+              end
+              object Label289: TLabel
+                Left = 760
+                Height = 17
+                Top = 104
+                Width = 109
+                Caption = 'KeySoftwareHouse'
+                ParentColor = False
               end
             end
             object tsRelatorio: TTabSheet
@@ -23553,7 +23583,7 @@ object FrmACBrMonitor: TFrmACBrMonitor
                 end
                 object rgTipoAmbBoleto: TRadioGroup
                   Left = 8
-                  Height = 44
+                  Height = 56
                   Top = -8
                   Width = 209
                   AutoFill = True
@@ -23565,7 +23595,7 @@ object FrmACBrMonitor: TFrmACBrMonitor
                   ChildSizing.ShrinkVertical = crsScaleChilds
                   ChildSizing.Layout = cclLeftToRightThenTopToBottom
                   ChildSizing.ControlsPerLine = 2
-                  ClientHeight = 24
+                  ClientHeight = 36
                   ClientWidth = 205
                   Columns = 2
                   Font.CharSet = ANSI_CHARSET
@@ -23579,6 +23609,7 @@ object FrmACBrMonitor: TFrmACBrMonitor
                   Items.Strings = (
                     'Produção'
                     'Homologação'
+                    'SandBox'
                   )
                   ParentBackground = False
                   ParentFont = False
@@ -23638,7 +23669,7 @@ object FrmACBrMonitor: TFrmACBrMonitor
                   AnchorSideTop.Side = asrBottom
                   Left = 96
                   Height = 25
-                  Top = 48
+                  Top = 53
                   Width = 120
                   BorderSpacing.Top = 10
                   Font.Height = -13
@@ -25326,12 +25357,12 @@ object FrmACBrMonitor: TFrmACBrMonitor
             Height = 519
             Top = 0
             Width = 1121
-            ActivePage = tsImpressaoDFe
+            ActivePage = tsDiretoriosDFe
             Align = alClient
             Font.Height = -13
             Images = ImageList1
             ParentFont = False
-            TabIndex = 3
+            TabIndex = 4
             TabOrder = 0
             OnChange = pgDFeChange
             object tsCertificadoDFe: TTabSheet
@@ -26307,6 +26338,7 @@ object FrmACBrMonitor: TFrmACBrMonitor
                       Font.Name = 'Segoe UI'
                       Font.Pitch = fpVariable
                       Font.Quality = fqDraft
+                      ParentColor = False
                       ParentFont = False
                     end
                     object edtQuebraDeLinha: TEdit
@@ -35142,13 +35174,14 @@ object FrmACBrMonitor: TFrmACBrMonitor
     Cedente.TipoInscricao = pJuridica
     Cedente.IdentDistribuicao = tbBancoDistribui
     Cedente.PIX.TipoChavePIX = tchNenhuma
+    Cedente.IntegradoraBoleto = tibNenhum
     NumeroArquivo = 0
     ACBrBoletoFC = ACBrBoletoFCFortes1
     Configuracoes.Arquivos.LogNivel = logNenhum
     Configuracoes.WebService.SSLHttpLib = httpOpenSSL
     Configuracoes.WebService.StoreName = 'My'
     Configuracoes.WebService.UseCertificateHTTP = False
-    Configuracoes.WebService.Ambiente = taHomologacao
+    Configuracoes.WebService.Ambiente = tawsHomologacao
     Configuracoes.WebService.Operacao = tpInclui
     Configuracoes.WebService.VersaoDF = '1.2'
     Left = 724

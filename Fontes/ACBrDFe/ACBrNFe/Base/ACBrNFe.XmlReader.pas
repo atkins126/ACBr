@@ -725,7 +725,7 @@ begin
   Item.Prod.veicProd.pot          := ObterConteudo(ANode.Childrens.Find('pot'), tcStr);
   Item.Prod.veicProd.Cilin        := ObterConteudo(ANode.Childrens.Find('cilin'), tcStr);
   Item.Prod.veicProd.pesoL        := ObterConteudo(ANode.Childrens.Find('pesoL'), tcStr);
-  Item.Prod.veicProd.pesoB        := ObterConteudo(ANode.Childrens.Find(''), tcStr);
+  Item.Prod.veicProd.pesoB        := ObterConteudo(ANode.Childrens.Find('pesoB'), tcStr);
   Item.Prod.veicProd.nSerie       := ObterConteudo(ANode.Childrens.Find('nSerie'), tcStr);
   Item.Prod.veicProd.tpComb       := ObterConteudo(ANode.Childrens.Find('tpComb'), tcStr);
   Item.Prod.veicProd.nMotor       := ObterConteudo(ANode.Childrens.Find('nMotor'), tcStr);
@@ -894,8 +894,8 @@ var
     ANodeImposto.ICMS.vFCPST := ObterConteudo(ANodeICMS.Childrens.Find('vFCPST'), tcDe2);
     ANodeImposto.ICMS.UFST := ObterConteudo(ANodeICMS.Childrens.Find('UFST'), tcStr);
     ANodeImposto.ICMS.pBCOp := ObterConteudo(ANodeICMS.Childrens.Find('pBCOp'), tcDe2);
-    ANodeImposto.ICMS.vBCSTRET := ObterConteudo(ANodeICMS.Childrens.Find('vBCSTRET'), tcDe2);
-    ANodeImposto.ICMS.vICMSSTRET := ObterConteudo(ANodeICMS.Childrens.Find('vICMSSTRET'), tcDe2);
+    ANodeImposto.ICMS.vBCSTRET := ObterConteudo(ANodeICMS.Childrens.Find('vBCSTRet'), tcDe2);
+    ANodeImposto.ICMS.vICMSSTRET := ObterConteudo(ANodeICMS.Childrens.Find('vICMSSTRet'), tcDe2);
     ANodeImposto.ICMS.vICMSDeson := ObterConteudo(ANodeICMS.Childrens.Find('vICMSDeson'), tcDe2);
     ANodeImposto.ICMS.vBCFCPSTRet := ObterConteudo(ANodeICMS.Childrens.Find('vBCFCPSTRet'), tcDe2);
     ANodeImposto.ICMS.pFCPSTRet := ObterConteudo(ANodeICMS.Childrens.Find('pFCPSTRet'), tcDe2);
@@ -979,16 +979,19 @@ begin
   LerICMS('ICMSSN500', Item.Imposto);
   LerICMS('ICMSSN900', Item.Imposto);
 
+  LerICMS('ICMSPart', Item.Imposto);
+  LerICMS('ICMSST', Item.Imposto);
+
   if (AuxNode <> nil) then
   begin
-    if (AuxNode.Name = 'ICMSPart') then
+    if Assigned(AuxNode.Childrens.FindAnyNs('ICMSPart')) then
     begin
       case Item.Imposto.ICMS.CST of
         cst10 : Item.Imposto.ICMS.CST := cstPart10;
         cst90 : Item.Imposto.ICMS.CST := cstPart90;
       end;
     end
-    else if (AuxNode.Name = 'ICMSST') then
+    else if Assigned(AuxNode.Childrens.FindAnyNs('ICMSST')) then
     begin
       case Item.Imposto.ICMS.CST of
         cst41 : Item.Imposto.ICMS.CST := cstRep41;

@@ -137,7 +137,7 @@ begin
     LNossoNumero := ACBrUtil.Strings.RemoveZerosEsquerda(OnlyNumber(aTitulo.NossoNumero)+aTitulo.ACBrBoleto.Banco.CalcularDigitoVerificador(aTitulo));
     LContrato    := OnlyNumber(aTitulo.ACBrBoleto.Cedente.CodigoCedente);
   end;
-  FPURL := IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao, C_URL,C_URL_HOM);
+  FPURL := IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao, C_URL,C_URL_HOM);
 
   case Boleto.Configuracoes.WebService.Operacao of
     tpInclui:  FPURL := FPURL + '/boletos';
@@ -181,13 +181,12 @@ end;
 
 procedure TBoletoW_Sicoob.GerarHeader;
 begin
-  FPHeaders.Clear;
+  ClearHeaderParams;
   DefinirContentType;
   DefinirKeyUser;
 
   if NaoEstaVazio(Boleto.Cedente.CedenteWS.ClientID) then
-    FPHeaders.Add(C_SICOOB_CLIENT + ': ' + Boleto.Cedente.CedenteWS.ClientID);
-//  HTTPSend.Headers.Add('Accept-Encoding: ' + C_ACCEPT_ENCODING);
+    AddHeaderParam(C_SICOOB_CLIENT, Boleto.Cedente.CedenteWS.ClientID);
 end;
 
 procedure TBoletoW_Sicoob.GerarDados;
@@ -227,7 +226,7 @@ end;
 
 procedure TBoletoW_Sicoob.DefinirAuthorization;
 begin
-  if Boleto.Configuracoes.WebService.Ambiente = taProducao then
+  if Boleto.Configuracoes.WebService.Ambiente = tawsProducao then
     FPAuthorization := C_AUTHORIZATION + ': Bearer ' + GerarTokenAutenticacao
   else
     FPAuthorization := C_AUTHORIZATION + ': Bearer ' + C_ACCESS_TOKEN_HOM;
@@ -290,7 +289,7 @@ end;
 
 function TBoletoW_Sicoob.ValidaAmbiente: Integer;
 begin
-  result := StrToIntDef(IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao, '1','2'), 2);
+  result := StrToIntDef(IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao, '1','2'), 2);
 end;
 
 procedure TBoletoW_Sicoob.RequisicaoBaixa;

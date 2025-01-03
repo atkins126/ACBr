@@ -118,6 +118,8 @@ begin
   TipoOperacao := ACBrBoleto.Configuracoes.WebService.Operacao;
   ARetornoWS.HTTPResultCode  := HTTPResultCode;
   ARetornoWS.JSONEnvio       := EnvWs;
+  If Assigned(ACBrTitulo) then
+     ARetornoWS.DadosRet.IDBoleto.NossoNum := ACBrTitulo.NossoNumero;
   ARetornoWS.Header.Operacao := TipoOperacao;
 
   if (HttpResultCode = 204) and (TipoOperacao = tpConsultaDetalhe) then
@@ -163,7 +165,11 @@ begin
             ARetornoWS.DadosRet.TituloRet.CodBarras      := ARetornoWS.DadosRet.IDBoleto.CodBarras;
             ARetornoWS.DadosRet.TituloRet.LinhaDig       := ARetornoWS.DadosRet.IDBoleto.LinhaDig;
             ARetornoWS.DadosRet.TituloRet.NossoNumero    := ARetornoWS.DadosRet.IDBoleto.NossoNum;
-
+            if EstaVazio(ARetornoWS.DadosRet.IDBoleto.NossoNum) then
+            begin
+              If Assigned(ACBrTitulo) then
+                ARetornoWS.DadosRet.IDBoleto.NossoNum := ACBrTitulo.NossoNumero;
+            end;
             ARetornoWS.DadosRet.TituloRet.Contrato       := LJSonObject.AsString['numeroCliente'];
             ARetornoWS.DadosRet.TituloRet.EMV            := LJSonObject.AsString['qrCode'];
             ARetornoWS.DadosRet.TituloRet.UrlPix         := LJSonObject.AsString['qrCode'];
@@ -191,6 +197,12 @@ begin
             ARetornoWS.DadosRet.TituloRet.ValorDocumento  := LJSonObject.AsCurrency['valor'];
             ARetornoWS.DadosRet.TituloRet.EspecieDoc      := LJSonObject.AsString['codigoEspecieDocumento'];
             ARetornoWS.DadosRet.TituloRet.Contrato        := LJSonObject.AsString['numeroCliente'];
+
+            if EstaVazio(ARetornoWS.DadosRet.IDBoleto.NossoNum) then
+            begin
+              If Assigned(ACBrTitulo) then
+                ARetornoWS.DadosRet.IDBoleto.NossoNum := ACBrTitulo.NossoNumero;
+            end;
 
             case LJSonObject.AsInteger['tipoMulta'] of
              1 : begin // Multa Valor Fixo
@@ -331,8 +343,12 @@ begin
   ListaRetorno := ACBrBoleto.CriarRetornoWebNaLista;
   ListaRetorno.HTTPResultCode := HTTPResultCode;
   ListaRetorno.JSONEnvio      := EnvWs;
+  ListaRetorno.Header.Operacao:= ACBrBoleto.Configuracoes.WebService.Operacao;
+
   LCodigoSolicitacao := ACBrBoleto.Configuracoes.WebService.Filtro.NumeroProtocolo;
-  LIdArquivo         := ACBrBoleto.Configuracoes.WebService.Filtro.Identificador;
+  LIdArquivo         := StrToInt64Def(ACBrBoleto.Configuracoes.WebService.Filtro.Identificador,0);
+  If Assigned(ACBrTitulo) then
+    ListaRetorno.DadosRet.IDBoleto.NossoNum := ACBrTitulo.NossoNumero;
 
   if RetWS <> '' then
   begin
@@ -413,6 +429,8 @@ begin
                   begin
                     if I > 0 then
                       ListaRetorno := ACBrBoleto.CriarRetornoWebNaLista;
+
+                    ListaRetorno.Header.Operacao := tpConsulta;
 
                     AJSonObject  := AJsonBoletosArray.ItemAsJSONObject[I];
 

@@ -45,7 +45,8 @@ uses
   ACBrBoleto,
   ACBrBoletoWS.Rest,
   ACBrUtil.Strings,
-  ACBrJSON;
+  ACBrJSON,
+  ACBrUtil.Base;
 
 
 type
@@ -131,7 +132,7 @@ uses
 procedure TBoletoW_BancoBrasil_API.DefinirURL;
 var DevAPP, ID, NConvenio : String;
 begin
-  FPURL     := IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao,C_URL, C_URL_HOM);
+  FPURL     := IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao,C_URL, C_URL_HOM);
   DevAPP    := '?gw-dev-app-key='+Boleto.Cedente.CedenteWS.KeyUser;
 
   if ATitulo <> nil then
@@ -162,6 +163,8 @@ procedure TBoletoW_BancoBrasil_API.GerarHeader;
 begin
   DefinirContentType;
   DefinirKeyUser;
+  if NaoEstaVazio(Boleto.KeySoftwareHouse) then
+    AddHeaderParam('x-bb-portal-devx-cnpj-parceiro',Boleto.KeySoftwareHouse)
 end;
 
 procedure TBoletoW_BancoBrasil_API.GerarDados;
@@ -321,7 +324,7 @@ end;
 
 function TBoletoW_BancoBrasil_API.ValidaAmbiente: Integer;
 begin
-  Result := StrToIntDef(IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao, '1','2'),2);
+  Result := StrToIntDef(IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao, '1','2'),2);
 end;
 
 procedure TBoletoW_BancoBrasil_API.RequisicaoJson;
@@ -483,7 +486,7 @@ begin
         LJsonObject.AddPair('indicadorAlterarSeuNumero', 'S');
         AlteracaoSeuNumero(LJsonObject);
       end;
-      toRemessaCobrarJurosMora: begin
+      toRemessaCobrarJurosMora : begin
         LJsonObject.AddPair('indicadorCobrarJuros', 'S');
         AtribuirJuros(LJsonObject);
       end;
@@ -1086,9 +1089,9 @@ begin
 
   if Assigned(OAuth) then
   begin
-    OAuth.URL := IfThen(OAuth.Ambiente = taHomologacao, C_URL_OAUTH_HOM , C_URL_OAUTH_PROD ) ;
+    OAuth.URL := IfThen(OAuth.Ambiente = tawsHomologacao, C_URL_OAUTH_HOM , C_URL_OAUTH_PROD ) ;
     
-    OAuth.Payload := OAuth.Ambiente = taHomologacao;
+    OAuth.Payload := not (OAuth.Ambiente = tawsProducao);
   end;
 end;
 

@@ -51,9 +51,50 @@ uses
   ACBrBoletoWS.SOAP;
 
 type
+  TEspecieDocumento = record
+    Sigla: string;
+    Codigo: Integer;
+  end;
+const
+  TabelaEspecieDocumentos: array[1..32] of TEspecieDocumento = (
+    (Sigla: 'CH'; Codigo: 1),
+    (Sigla: 'DM'; Codigo: 2),
+    (Sigla: 'DMI'; Codigo: 3),
+    (Sigla: 'DS'; Codigo: 4),
+    (Sigla: 'DSI'; Codigo: 5),
+    (Sigla: 'DR'; Codigo: 6),
+    (Sigla: 'LC'; Codigo: 7),
+    (Sigla: 'NCC'; Codigo: 8),
+    (Sigla: 'NCE'; Codigo: 9),
+    (Sigla: 'NCI'; Codigo: 10),
+    (Sigla: 'NCR'; Codigo: 11),
+    (Sigla: 'NP'; Codigo: 12),
+    (Sigla: 'NPR'; Codigo: 13),
+    (Sigla: 'TM'; Codigo: 14),
+    (Sigla: 'TS'; Codigo: 15),
+    (Sigla: 'NS'; Codigo: 16),
+    (Sigla: 'RC'; Codigo: 17),
+    (Sigla: 'FAT'; Codigo: 18),
+    (Sigla: 'ND'; Codigo: 19),
+    (Sigla: 'AP'; Codigo: 20),
+    (Sigla: 'ME'; Codigo: 21),
+    (Sigla: 'PC'; Codigo: 22),
+    (Sigla: 'DD'; Codigo: 23),
+    (Sigla: 'CCB'; Codigo: 24),
+    (Sigla: 'FI'; Codigo: 25),
+    (Sigla: 'RD'; Codigo: 26),
+    (Sigla: 'DRI'; Codigo: 27),
+    (Sigla: 'EC'; Codigo: 28),
+    (Sigla: 'ECI'; Codigo: 29),
+    (Sigla: 'CC'; Codigo: 31),
+    (Sigla: 'BDP'; Codigo: 32),
+    (Sigla: 'OUT'; Codigo: 99)
+  );
+type
 
   { TBoletoW_Bradesco}
   TBoletoW_Bradesco = class(TBoletoWSREST)
+    FUnixTime : Int64;
   private
     procedure AlteracaoDesconto(AJsonObject: TACBrJSONObject);
     procedure AlteraDataVencimento(AJsonObject: TACBrJSONObject);
@@ -86,30 +127,28 @@ type
     procedure GerarDesconto(AJsonObject: TACBrJSONObject);
 
   public
-    constructor Create(ABoletoWS: TBoletoWS); override;
+    constructor Create(ABoletoWS: TBoletoWS; AACBrBoleto : TACBrBoleto); reintroduce;
     function GerarRemessa: string; override;
     function Enviar: boolean; override;
+    function AgenciaContaFormatada(const APadding : Integer = 11) : String;
+    function EspecieDocumento : Integer;
   end;
 
 const
   C_URL             = 'https://openapi.bradesco.com.br';
   C_URL_HOM         = 'https://proxy.api.prebanco.com.br';
-  URI_REG_BOLETO    = '/v1/boleto-hibrido/registrar-boleto';
 
-  C_URL_OAUTH_JWS_PROD  = 'https://openapi.bradesco.com.br/auth/server/v1.1/token';
-  C_URL_OAUTH_JWS_HOM   = 'https://proxy.api.prebanco.com.br/auth/server/v1.1/token';
+  C_URL_OAUTH_PROD  = 'https://openapi.bradesco.com.br/auth/server/v%s/token';
+  C_URL_OAUTH_HOM   = 'https://proxy.api.prebanco.com.br/auth/server/v%s/token';
 
-  C_URL_OAUTH_PROD  = 'https://openapi.bradesco.com.br/auth/server/v1.2/token';
-  C_URL_OAUTH_HOM   = 'https://proxy.api.prebanco.com.br/auth/server/v1.2/token';
 
-  C_CONTENT_TYPE    = 'application/x-www-form-urlencoded';
   C_ACCEPT          = '*/*';
   C_AUTHORIZATION   = 'Authorization';
 
   C_ACCEPT_ENCODING = 'gzip, deflate, br';
 
   C_CHARSET         = 'utf-8';
-  C_ACCEPT_CHARSET  = 'utf-8';
+  C_ACCEPT_CHARSET  = 'UTF-8';
 
 implementation
 
@@ -123,15 +162,16 @@ uses
   ACBrUtil.DateTime,
   ACBrUtil.Base,
   pcnAuxiliar,
-  ACBrBoletoWS.Rest.OAuth;
+  ACBrBoletoWS.Rest.OAuth,
+  ACBr.Auth.JWT;
 
 { TBoletoW_Bradesco}
 
 procedure TBoletoW_Bradesco.DefinirURL;
 begin
-  FPURL := IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao, C_URL,C_URL_HOM);
+  FPURL := IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao, C_URL,C_URL_HOM);
   case Boleto.Configuracoes.WebService.Operacao of
-    tpInclui: FPURL := FPURL + URI_REG_BOLETO;
+    tpInclui: FPURL := FPURL + '/v1/boleto-hibrido/registrar-boleto';
     tpAltera:
     begin
        if ATitulo.OcorrenciaOriginal.Tipo = ACBrBoleto.toRemessaBaixar then
@@ -146,7 +186,10 @@ end;
 
 procedure TBoletoW_Bradesco.DefinirContentType;
 begin
-  FPContentType := C_CONTENT_TYPE;
+  if OAuth.Token = '' then
+    FPContentType := 'application/x-www-form-urlencoded'
+  else
+    FPContentType := 'application/json';
 end;
 
 procedure TBoletoW_Bradesco.GerarHeader;
@@ -156,34 +199,65 @@ var
   LStrTimeStamp:string ;
   LStrRequestAssinado: string;
   LStrConteudo:string;
+  LMetodoURI : String;
+  LJWTAuth : TACBrJWTAuth;
+  LStringList : TStringList;
+  LSignature : string;
+  LTimestamp : string;
+
+  function addLine(const AString : String; const ABreakLine : Boolean = True) : String;
+  begin
+    Result := Trim(AString);
+    if ABreakLine then
+      Result := Result + AnsiChar(#10);
+  end;
+
 begin
-  FPHeaders.Clear;
+  if OAuth.Token = '' then
+    GerarTokenAutenticacao;
+
+  LTimestamp := ACBrUtil.DateTime.DateTimeTodhUTC(ACBrUtil.DateTime.DateTimeUniversalToLocal(ACBrUtil.DateTime.GetUTCSistema,UnixToDateTime(FUnixTime)), ACBrUtil.DateTime.GetUTCSistema);
+
+  ClearHeaderParams;
   DefinirContentType;
   DefinirKeyUser;
   if FPDadosMsg <> '' then
   begin
-     LDataAtual       := Now;
-//     LIntMiliSegundos := DateTimeToUnix(LDataAtual, False) * 1000;
-//     LStrTimeStamp    := DateToISO8601(now);
-     LStrConteudo := 'POST' + AnsiChar(#10) +
-                     '/v1/boleto-hibrido/registrar-boleto' + AnsiChar(#10) +
-                     '' + AnsiChar(#10) +
-                     FPDadosMsg + AnsiChar(#10) +
-                     OAuth.Token + AnsiChar(#10) +
-                     IntToStr(LIntMiliSegundos) + AnsiChar(#10) +
-                     LStrTimeStamp + AnsiChar(#10) +
-                     'SHA256';
-     LStrRequestAssinado := DFeSSL.CalcHash(AnsiString(LStrConteudo), dgstSHA256, outBase64, True);
 
-     FPHeaders.Add('Accept-Encoding: ' + C_ACCEPT_ENCODING);
-     FPHeaders.Add('Content-Type: application/json');
-     FPHeaders.Add('X-Brad-Signature: ' + LStrRequestAssinado);
-     FPHeaders.Add('X-Brad-Nonce: ' + IntToStr(LIntMiliSegundos));
-     FPHeaders.Add('X-Brad-Timestamp: ' + LStrTimeStamp);
-     FPHeaders.Add('X-Brad-Algorithm: SHA256');
-     FPHeaders.Add('acess-token: ' + Boleto.Cedente.CedenteWS.ClientID);
-     FPHeaders.Add('cpf-cnpj: ' + OnlyNumber(Boleto.Cedente.CNPJCPF));
-     FPHeaders.Add(FPDadosMsg);
+     LMetodoURI := FPURL;
+     if Boleto.Configuracoes.WebService.Ambiente = tawsProducao then
+       LMetodoURI := StringReplace(LMetodoURI, C_URL, '', [rfReplaceAll, rfIgnoreCase])
+     else
+       LMetodoURI := StringReplace(LMetodoURI, C_URL_HOM, '', [rfReplaceAll, rfIgnoreCase]);
+
+     LStrConteudo :=  {1}   addLine(MetodoHTTPToStr(FMetodoHTTP))
+                      {2} + addLine(LMetodoURI)
+                      {3} + addLine('')
+                      {4} + addLine(FPDadosMsg)
+                      {5} + addLine(OAuth.Token)
+                      {6} + addLine(IntToStr(FUnixTime * 1000))
+                      {7} + addLine(LTimestamp)
+                      {8} + addLine('SHA256',False);
+
+    LStringList := TStringList.Create;
+
+    try
+      LStringList.LoadFromFile(Boleto.Configuracoes.WebService.ArquivoKEY);
+      LJWTAuth := TACBrJWTAuth.Create(LStringList.Text);
+      try
+        LSignature := LJWTAuth.Signature(LStrConteudo);
+      finally
+        LJWTAuth.Free;
+      end;
+    finally
+      LStringList.Free;
+    end;
+    AddHeaderParam('X-Brad-Signature', LSignature);
+    AddHeaderParam('X-Brad-Nonce', IntToStr(FUnixTime * 1000) );
+    AddHeaderParam('X-Brad-Timestamp', LTimestamp );
+    AddHeaderParam('X-Brad-Algorithm', 'SHA256');
+    AddHeaderParam('acess-token',Boleto.Cedente.CedenteWS.ClientID);
+    AddHeaderParam('cpf-cnpj',OnlyNumber(Boleto.Cedente.CNPJCPF) )
   end;
 end;
 
@@ -205,13 +279,15 @@ begin
     end;
     tpBaixa:
     begin
-      FMetodoHTTP := htPATCH;//Define Método PATCH para Baixa.
+      FMetodoHTTP := htPOST;//Define Método POST para Baixa.
       RequisicaoBaixa;
+      GerarHeader;
     end;
     tpConsultaDetalhe:
     begin
-      FMetodoHTTP := htGET;//Define Método GET Consulta Detalhe.
+      FMetodoHTTP := htPOST;//Define Método POST Consulta Detalhe.
       RequisicaoConsultaDetalhe;
+      GerarHeader;
     end;
   else
     raise EACBrBoletoWSException.Create(ClassName + Format(S_OPERACAO_NAO_IMPLEMENTADO,
@@ -225,9 +301,57 @@ begin
 end;
 
 function TBoletoW_Bradesco.GerarTokenAutenticacao: string;
+const PARAMS_OAUTH = '';
+var
+  LVersao : String;
+  LJSonObject : TACBrJSONObject;
 begin
   OAuth.Payload := True;
-  Result := inherited GerarTokenAutenticacao;
+  result:= '';
+
+  //FUnixTime := DateTimeToUnix(Now, False);
+  FUnixTime := DateTimeToUnix(ACBrUtil.DateTime.DateTimeUniversal(ACBrUtil.DateTime.GetUTCSistema,Now));
+
+  if OAuth.Ambiente = tawsProducao then
+  begin
+    OAuth.URL := C_URL_OAUTH_PROD;
+    LVersao := '1.1';
+  end else
+  begin
+    OAuth.URL := C_URL_OAUTH_HOM;
+    LVersao := '1.2';
+  end;
+
+  if  Boleto.Configuracoes.WebService.Ambiente = tawsProducao then
+    OAuth.URL := Format(OAuth.URL,['1.1']) //página 7
+  else
+    OAuth.URL := Format(OAuth.URL,[LVersao]);
+
+  if Assigned(OAuth) then
+  begin
+    OAuth.AuthorizationType := atJWT;
+    OAuth.GrantType   := 'urn:ietf:params:oauth:grant-type:jwt-bearer';
+    try
+      LJSonObject := TACBrJSONObject.Create
+                     .AddPair('aud',OAuth.URL)
+                     .AddPair('sub',Trim(Boleto.Cedente.CedenteWS.ClientID))
+                     .AddPair('iat',FUnixTime - 3600 )
+                     .AddPair('exp',FUnixTime + 3600)
+                     .AddPair('jti',FUnixTime * 1000)
+                     .AddPair('ver',LVersao);
+      OAuth.ParamsOAuth := LJSonObject.ToJSON;
+    finally
+      LJSonObject.Free;
+    end;
+
+    OAuth.AddHeaderParam('Accept-Encoding', C_ACCEPT_ENCODING);
+    OAuth.AddHeaderParam('Accept-Charset' , C_ACCEPT_CHARSET);
+    OAuth.AddHeaderParam('Accept','*/*');
+    if OAuth.GerarToken then
+      result := OAuth.Token
+    else
+      raise EACBrBoletoWSException.Create(ClassName + Format( S_ERRO_GERAR_TOKEN_AUTENTICACAO, [OAuth.ErroComunicacao] ));
+  end;
 end;
 
 procedure TBoletoW_Bradesco.DefinirKeyUser;
@@ -266,7 +390,7 @@ end;
 
 function TBoletoW_Bradesco.ValidaAmbiente: Integer;
 begin
-  result := StrToIntDef(IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao, '1','2'), 2);
+  result := StrToIntDef(IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao, '1','2'), 2);
 end;
 
 procedure TBoletoW_Bradesco.DefinirAutenticacao;
@@ -276,24 +400,24 @@ end;
 
 procedure TBoletoW_Bradesco.RequisicaoBaixa;
 var
-  LJsonObject: TACBrJSONObject;
+  LJsonObject, LJsonCnpjCPF: TACBrJSONObject;
 begin
    if Assigned(aTitulo) then
   begin
     LJsonObject := TACBrJSONObject.Create;
+    LJsonCnpjCPF := TACBrJSONObject.Create;
     try
-      LJsonObject.AddPair('numeroContrato',aTitulo.ACBrBoleto.Cedente.CodigoCedente);
-      LJsonObject.AddPair('modalidade',aTitulo.ACBrBoleto.Cedente.Modalidade);
-      LJsonObject.AddPair('nossoNumero',OnlyNumber(aTitulo.ACBrBoleto.Banco.MontarCampoNossoNumero(aTitulo)));
-      LJsonObject.AddPair('seuNumero', IfThen(ATitulo.SeuNumero <> '',
-                                                      ATitulo.SeuNumero,
-                                                      IfThen(ATitulo.NumeroDocumento <> '',
-                                                        ATitulo.NumeroDocumento,
-                                                        OnlyNumber(aTitulo.ACBrBoleto.Banco.MontarCampoNossoNumero(aTitulo))
-                                                      )
-                                                    ));
+      LJsonCnpjCPF.AddPair('cpfCnpj', Copy(OnlyNumber(Boleto.Cedente.CNPJCPF), 1, 8));
+      LJsonCnpjCPF.AddPair('filial', Copy(OnlyNumber(Boleto.Cedente.CNPJCPF), 9, 4));
+      LJsonCnpjCPF.AddPair('controle', Copy(OnlyNumber(Boleto.Cedente.CNPJCPF), 13, 2));
+      LJsonObject.AddPair('cpfCnpj', LJsonCnpjCPF);
+      LJsonObject.AddPair('produto', RemoveZerosEsquerda(aTitulo.Carteira));
+      LJsonObject.AddPair('negociacao', AgenciaContaFormatada(11));
+      LJsonObject.AddPair('nossoNumero', OnlyNumber(aTitulo.NossoNumero));
+      LJsonObject.AddPair('sequencia', '0');
+      LJsonObject.AddPair('codigoBaixa', '57');
 
-      FPDadosMsg := Format('[%s]',[LJsonObject.ToJSON]);
+      FPDadosMsg := LJsonObject.ToJSON;
     finally
       LJsonObject.Free;
     end;
@@ -306,14 +430,15 @@ var
 begin
   //*OBS: Todos os campos devem ser informados conforme layout, entretanto, para os tipos não obrigatórios,
   //devem ser preenchidos com zeros para campo numérico, ou espaços para campo alfanumérico.
+
   if Assigned(aTitulo) then
   begin
     LJsonObject := TACBrJSONObject.Create;
     try
       LJsonObject.AddPair('registrarTitulo', 1); //1 = Registrar o título 2 = Somente consistir dados do título
       LJsonObject.AddPair('codUsuario', 'APISERVIC');//FIXO.
-      LJsonObject.AddPair('nroCpfCnpjBenef', OnlyNumber(Boleto.Cedente.CNPJCPF));
-      LJsonObject.AddPair('filCpfCnpjBenef', 57);
+      LJsonObject.AddPair('nroCpfCnpjBenef', Copy(OnlyNumber(Boleto.Cedente.CNPJCPF), 1, 8));
+      LJsonObject.AddPair('filCpfCnpjBenef', Copy(OnlyNumber(Boleto.Cedente.CNPJCPF), 9, 4));
       LJsonObject.AddPair('digCpfCnpjBenef', IfThen(Boleto.Cedente.TipoInscricao = pJuridica,
                                              Copy(OnlyNumber(Boleto.Cedente.CNPJCPF), 13, 2),
                                              Copy(OnlyNumber(Boleto.Cedente.CNPJCPF), 10, 2)));
@@ -322,7 +447,7 @@ begin
       LJsonObject.AddPair('ctpoContrNegoc', 0);//FIXO.
       LJsonObject.AddPair('nseqContrNegoc', 0);//FIXO.
       LJsonObject.AddPair('cidtfdProdCobr', RemoveZerosEsquerda(aTitulo.Carteira));
-      LJsonObject.AddPair('cnegocCobr', Boleto.Cedente.Agencia + Boleto.Cedente.Conta);
+      LJsonObject.AddPair('cnegocCobr', AgenciaContaFormatada(18));
       LJsonObject.AddPair('codigoBanco', 237);//FIXO.
       LJsonObject.AddPair('filler', '');//FIXO.
       LJsonObject.AddPair('eNseqContrNegoc', 0);//FIXO.
@@ -332,18 +457,18 @@ begin
       LJsonObject.AddPair('ctitloCobrCdent', OnlyNumber(aTitulo.NossoNumero));//NÃO Obrigatório;
 
       //ctitloCliCdent: Identificador do título pelo beneficiário(Seu Número).
-      LJsonObject.AddPair('ctitloCliCdent', IfThen(ATitulo.NumeroDocumento <> '',
+      LJsonObject.AddPair('ctitloCliCdent', Trim(IfThen(ATitulo.NumeroDocumento <> '',
                                              ATitulo.NumeroDocumento,
                                              IfThen(ATitulo.SeuNumero <> '',
                                                     ATitulo.SeuNumero,
-                                                    OnlyNumber(aTitulo.NossoNumero))));
+                                                    OnlyNumber(aTitulo.NossoNumero)))));
       LJsonObject.AddPair('demisTitloCobr', DateTimeToDateBradesco(aTitulo.DataDocumento));
       LJsonObject.AddPair('dvctoTitloCobr', DateTimeToDateBradesco(aTitulo.Vencimento));
       LJsonObject.AddPair('cidtfdTpoVcto', 0);//FIXO.
       LJsonObject.AddPair('cindcdEconmMoeda', '00006');
-      LJsonObject.AddPair('vnmnalTitloCobr', aTitulo.ValorDocumento);
+      LJsonObject.AddPair('vnmnalTitloCobr', aTitulo.ValorDocumento*100);
       LJsonObject.AddPair('qmoedaNegocTitlo', 0);//FIXO.
-      LJsonObject.AddPair('cespceTitloCobr', aTitulo.EspecieDoc);
+      LJsonObject.AddPair('cespceTitloCobr', EspecieDocumento);
       LJsonObject.AddPair('cindcdAceitSacdo', 'N');
      //ctpoProteTitlo: Tipo de protesto automático do título: 1 = Dias corridos | 2 = Dias úteis.
       LJsonObject.AddPair('ctpoProteTitlo', 0);//NÃO Obrigatório;
@@ -354,7 +479,7 @@ begin
       LJsonObject.AddPair('ctpoPrzDecurs', 0);//FIXO.
       LJsonObject.AddPair('cctrlPartcTitlo', 0);//NÃO Obrigatório;
       LJsonObject.AddPair('cformaEmisPplta', 2);//FIXO.
-      LJsonObject.AddPair('cindcdPgtoParcial', 'Não');//FIXO.
+      LJsonObject.AddPair('cindcdPgtoParcial', 'N');//FIXO.
       LJsonObject.AddPair('qtdePgtoParcial', 000);//FIXO.
       LJsonObject.AddPair('filler1', '');//FIXO.
 
@@ -366,19 +491,19 @@ begin
       LJsonObject.AddPair('ctpoPrzCobr', 1);
       LJsonObject.AddPair('pdescBonifPgto', 0);//NÃO Obrigatório;
       LJsonObject.AddPair('vdescBonifPgto', 0);//NÃO Obrigatório;
-      LJsonObject.AddPair('dlimBonifPgto', '0');// 'Exemplo 01.01.2001';Caso informado o acima.
+      LJsonObject.AddPair('dlimBonifPgto', '');// 'Exemplo 01.01.2001';Caso informado o acima.
       LJsonObject.AddPair('vabtmtTitloCobr', 0);//NÃO Obrigatório;
       LJsonObject.AddPair('viofPgtoTitlo', 0);//NÃO Obrigatório;
       LJsonObject.AddPair('filler2', '');//FIXO.
-      LJsonObject.AddPair('isacdoTitloCobr', Copy(aTitulo.Sacado.NomeSacado, 1, 70));
-      LJsonObject.AddPair('elogdrSacdoTitlo', Copy(aTitulo.Sacado.Logradouro, 1, 40));
+      LJsonObject.AddPair('isacdoTitloCobr', Copy(TiraAcentos(aTitulo.Sacado.NomeSacado), 1, 70));
+      LJsonObject.AddPair('elogdrSacdoTitlo', Copy(TiraAcentos(aTitulo.Sacado.Logradouro), 1, 40));
       LJsonObject.AddPair('enroLogdrSacdo', aTitulo.Sacado.Numero);
-      LJsonObject.AddPair('ecomplLogdrSacdo', Copy(aTitulo.Sacado.Complemento, 1, 15));
-      LJsonObject.AddPair('ccepSacdoTitlo', Copy(aTitulo.Sacado.CEP, 1, 5));
-      LJsonObject.AddPair('ccomplCepSacdo', Copy(aTitulo.Sacado.CEP, 6, 8));
-      LJsonObject.AddPair('ebairoLogdrSacdo', Copy(aTitulo.Sacado.Bairro, 1, 40));
-      LJsonObject.AddPair('imunSacdoTitlo', Copy(aTitulo.Sacado.Cidade, 1, 30));
-      LJsonObject.AddPair('csglUfSacdo', Copy(aTitulo.Sacado.UF, 1, 2));
+      LJsonObject.AddPair('ecomplLogdrSacdo', Copy(TiraAcentos(aTitulo.Sacado.Complemento), 1, 15));
+      LJsonObject.AddPair('ccepSacdoTitlo', Copy(OnlyNumber(aTitulo.Sacado.CEP), 1, 5));
+      LJsonObject.AddPair('ccomplCepSacdo', Copy(OnlyNumber(aTitulo.Sacado.CEP), 6, 8));
+      LJsonObject.AddPair('ebairoLogdrSacdo', Copy(TiraAcentos(aTitulo.Sacado.Bairro), 1, 40));
+      LJsonObject.AddPair('imunSacdoTitlo', Copy(TiraAcentos(aTitulo.Sacado.Cidade), 1, 30));
+      LJsonObject.AddPair('csglUfSacdo', Copy(TiraAcentos(aTitulo.Sacado.UF), 1, 2));
       LJsonObject.AddPair('indCpfCnpjSacdo', IfThen(aTitulo.Sacado.Pessoa = pJuridica, '2', '1'));
       LJsonObject.AddPair('nroCpfCnpjSacdo', OnlyNumber(aTitulo.Sacado.CNPJCPF));
       LJsonObject.AddPair('renderEletrSacdo', Copy(aTitulo.Sacado.Email, 1, 70));
@@ -482,8 +607,31 @@ begin
 end;
 
 procedure TBoletoW_Bradesco.RequisicaoConsultaDetalhe;
+var
+  LJsonObject, LJsonCpfCnpj: TACBrJSONObject;
 begin
-  //Implementar
+  if Assigned(aTitulo) then
+  begin
+    LJsonObject := TACBrJSONObject.Create;
+    try
+      //Testado em produção
+      LJsonCpfCnpj := TACBrJSONObject.Create;
+      LJsonCpfCnpj.AddPair('cpfCnpj', Copy(OnlyNumber(Boleto.Cedente.CNPJCPF), 1, 8));
+      LJsonCpfCnpj.AddPair('filial', Copy(OnlyNumber(Boleto.Cedente.CNPJCPF), 9, 4));
+      LJsonCpfCnpj.AddPair('controle', Copy(OnlyNumber(Boleto.Cedente.CNPJCPF), 13, 2));
+      LJsonObject.AddPair('cpfCnpj', LJsonCpfCnpj);
+      
+      LJsonObject.AddPair('produto', RemoveZerosEsquerda(aTitulo.Carteira));
+      LJsonObject.AddPair('negociacao', AgenciaContaFormatada(11));
+      LJsonObject.AddPair('nossoNumero', OnlyNumber(aTitulo.NossoNumero));
+      LJsonObject.AddPair('sequencia', '0');
+      LJsonObject.AddPair('status', 0);
+
+      FPDadosMsg := LJsonObject.ToJSON;
+    finally
+      LJsonObject.Free;
+    end;
+  end;
 end;
 
 procedure TBoletoW_Bradesco.GerarBenificiarioFinal(AJsonObject: TACBrJSONObject);
@@ -493,16 +641,16 @@ begin
   begin
     if Assigned(AJsonObject) then
     begin
-      AJsonObject.AddPair('isacdrAvalsTitlo', Copy(aTitulo.Sacado.SacadoAvalista.NomeAvalista, 1, 40));
+      AJsonObject.AddPair('isacdrAvalsTitlo', Copy(TiraAcentos(aTitulo.Sacado.SacadoAvalista.NomeAvalista), 1, 40));
       AJsonObject.AddPair('nroCpfCnpjSacdr', Copy(OnlyNumber(aTitulo.Sacado.SacadoAvalista.CNPJCPF), 1, 14));
       AJsonObject.AddPair('ccepSacdrTitlo', Copy(aTitulo.Sacado.SacadoAvalista.CEP, 1, 5));
       AJsonObject.AddPair('ccomplCepSacdr', Copy(aTitulo.Sacado.SacadoAvalista.CEP, 6, 8));
-      AJsonObject.AddPair('elogdrSacdrAvals', Copy(aTitulo.Sacado.SacadoAvalista.Logradouro, 1, 10));
+      AJsonObject.AddPair('elogdrSacdrAvals', Copy(TiraAcentos(aTitulo.Sacado.SacadoAvalista.Logradouro), 1, 10));
       AJsonObject.AddPair('enroLogdrSacdr', aTitulo.Sacado.SacadoAvalista.Numero);
-      AJsonObject.AddPair('ecomplLogdrSacdr', Copy(aTitulo.Sacado.SacadoAvalista.Complemento, 1, 15));
-      AJsonObject.AddPair('ebairoLogdrSacdr', Copy(aTitulo.Sacado.SacadoAvalista.Bairro, 1, 40));
-      AJsonObject.AddPair('imunSacdrAvals', Copy(aTitulo.Sacado.SacadoAvalista.Cidade, 1, 40));
-      AJsonObject.AddPair('csglUfSacdr', Copy(aTitulo.Sacado.SacadoAvalista.UF, 1, 2));
+      AJsonObject.AddPair('ecomplLogdrSacdr', Copy(TiraAcentos(aTitulo.Sacado.SacadoAvalista.Complemento), 1, 15));
+      AJsonObject.AddPair('ebairoLogdrSacdr', Copy(TiraAcentos(aTitulo.Sacado.SacadoAvalista.Bairro), 1, 40));
+      AJsonObject.AddPair('imunSacdrAvals', Copy(TiraAcentos(aTitulo.Sacado.SacadoAvalista.Cidade), 1, 40));
+      AJsonObject.AddPair('csglUfSacdr', Copy(TiraAcentos(aTitulo.Sacado.SacadoAvalista.UF), 1, 2));
       AJsonObject.AddPair('indCpfCnpjSacdr', IfThen(aTitulo.Sacado.SacadoAvalista.Pessoa = pJuridica, '2', '1'));
       AJsonObject.AddPair('renderEletrSacdr', Copy(aTitulo.Sacado.SacadoAvalista.Email, 1, 70));
       AJsonObject.AddPair('cdddFoneSacdr', Copy(OnlyNumber(aTitulo.Sacado.SacadoAvalista.Fone), 1, 3));//NÃO Obrigatório;
@@ -531,20 +679,24 @@ begin
       case (StrToIntDef(aTitulo.CodigoMora, 0)) of
         0,3:    // Isento
           begin
-            AJsonObject.AddPair('vdiaJuroMora', 0);
             AJsonObject.AddPair('ptxJuroVcto', 0);
+            AJsonObject.AddPair('vdiaJuroMora', 0);
             AJsonObject.AddPair('qdiaInicJuro', 0);
           end;
         1:     // Dia
           begin
-            AJsonObject.AddPair('qdiaInicJuro', DaysBetween(aTitulo.Vencimento, aTitulo.DataMoraJuros));
-            AJsonObject.AddPair('vdiaJuroMora', aTitulo.ValorMoraJuros);
+            AJsonObject.AddPair('vdiaJuroMora', aTitulo.ValorMoraJuros*100);
+            if aTitulo.ValorMoraJuros > 0 then
+              AJsonObject.AddPair('qdiaInicJuro', DaysBetween(aTitulo.Vencimento, aTitulo.DataMoraJuros));
             AJsonObject.AddPair('ptxJuroVcto', 0);
           end;
         2: // Mês
           begin
-            AJsonObject.AddPair('qdiaInicJuro', DaysBetween(aTitulo.Vencimento, aTitulo.DataMoraJuros));
-            AJsonObject.AddPair('ptxJuroVcto', aTitulo.ValorMoraJuros);
+            AJsonObject.AddPair('ptxJuroVcto', aTitulo.ValorMoraJuros*100);
+            if aTitulo.ValorMoraJuros > 0 then
+              AJsonObject.AddPair('qdiaInicJuro', DaysBetween(aTitulo.Vencimento, aTitulo.DataMoraJuros))
+            else
+              AJsonObject.AddPair('qdiaInicJuro', 0);
             AJsonObject.AddPair('vdiaJuroMora', 0);
           end;
       end;
@@ -577,42 +729,37 @@ begin
       case LCodMulta of
         1:
         begin
-          AJsonObject.AddPair('qdiaInicMulta', DateTimeToDateBradesco(LDataMulta));
-          AJsonObject.AddPair('vmultaAtrsoPgto', aTitulo.PercentualMulta);
           AJsonObject.AddPair('pmultaAplicVcto', 0);
+          AJsonObject.AddPair('vmultaAtrsoPgto', aTitulo.PercentualMulta*100);
+          AJsonObject.AddPair('qdiaInicMulta', DaysBetween(aTitulo.Vencimento, LDataMulta));
         end;
         2:
         begin
-          AJsonObject.AddPair('qdiaInicMulta', DateTimeToDateBradesco(LDataMulta));
           AJsonObject.AddPair('pmultaAplicVcto', aTitulo.PercentualMulta);
           AJsonObject.AddPair('vmultaAtrsoPgto', 0);
+          AJsonObject.AddPair('qdiaInicMulta', DaysBetween(aTitulo.Vencimento, LDataMulta));
         end;
         3:
         begin
-          AJsonObject.AddPair('qdiaInicMulta', 0);
           AJsonObject.AddPair('pmultaAplicVcto', 0);
           AJsonObject.AddPair('vmultaAtrsoPgto', 0);
+          AJsonObject.AddPair('qdiaInicMulta', 0);
         end;
       end;
     end;
   end;
 end;
 
-constructor TBoletoW_Bradesco.Create(ABoletoWS: TBoletoWS);
+constructor TBoletoW_Bradesco.Create(ABoletoWS: TBoletoWS; AACBrBoleto : TACBrBoleto);
 begin
   inherited Create(ABoletoWS);
 
   FPAccept := C_ACCEPT;
-
   if Assigned(OAuth) then
   begin
-    if OAuth.Ambiente = taHomologacao then
-      OAuth.URL := C_URL_OAUTH_HOM
-    else
-      OAuth.URL := C_URL_OAUTH_PROD;
     OAuth.Payload := True;
     OAuth.ContentType       := 'application/x-www-form-urlencoded';
-    OAuth.AuthorizationType := atNoAuth;//precisa alterar para NoAuth para não mandar o Basic.
+    OAuth.AuthorizationType := atJWT;
   end;
 end;
 
@@ -628,6 +775,21 @@ begin
   result := inherited Enviar;
 end;
 
+function TBoletoW_Bradesco.EspecieDocumento: Integer;
+var
+  I: Integer;
+begin
+  for I := Low(TabelaEspecieDocumentos) to High(TabelaEspecieDocumentos) do
+  begin
+    if SameText(TabelaEspecieDocumentos[I].Sigla, ATitulo.EspecieDoc) then
+    begin
+      Result := TabelaEspecieDocumentos[I].Codigo;
+      Exit;
+    end;
+    Result := StrToIntDef(ATitulo.EspecieDoc,0);
+  end;
+end;
+
 procedure TBoletoW_Bradesco.GerarDesconto(AJsonObject: TACBrJSONObject);
 begin
  if Assigned(aTitulo) then
@@ -641,8 +803,8 @@ begin
       begin
         if Integer(aTitulo.TipoDesconto) = 1 then
         begin
-          AJsonObject.AddPair('vdescBonifPgto01', aTitulo.ValorDesconto);
           AJsonObject.AddPair('pdescBonifPgto01', 0);
+          AJsonObject.AddPair('vdescBonifPgto01', aTitulo.ValorDesconto);
         end
         else
         begin
@@ -653,16 +815,16 @@ begin
       end
       else
       begin
-        AJsonObject.AddPair('vdescBonifPgto01', 0);
         AJsonObject.AddPair('pdescBonifPgto01', 0);
-        AJsonObject.AddPair('dlimDescBonif1', 0);
+        AJsonObject.AddPair('vdescBonifPgto01', 0);
+        AJsonObject.AddPair('dlimDescBonif1', '');
       end;
       if Integer(aTitulo.TipoDesconto2) <> 0 then
       begin
         if Integer(aTitulo.TipoDesconto2) = 1 then
         begin
-          AJsonObject.AddPair('vdescBonifPgto02', aTitulo.ValorDesconto);
           AJsonObject.AddPair('pdescBonifPgto02', 0);
+          AJsonObject.AddPair('vdescBonifPgto02', aTitulo.ValorDesconto);
         end
         else
         begin
@@ -673,16 +835,16 @@ begin
       end
       else
       begin
-        AJsonObject.AddPair('vdescBonifPgto02', 0);
         AJsonObject.AddPair('pdescBonifPgto02', 0);
-        AJsonObject.AddPair('dlimDescBonif2', 0);
+        AJsonObject.AddPair('vdescBonifPgto02', 0);
+        AJsonObject.AddPair('dlimDescBonif2', '');
       end;
       if Integer(aTitulo.TipoDesconto3) <> 0 then
       begin
         if Integer(aTitulo.TipoDesconto3) = 1 then
         begin
-          AJsonObject.AddPair('vdescBonifPgto03', aTitulo.ValorDesconto);
           AJsonObject.AddPair('pdescBonifPgto03', 0);
+          AJsonObject.AddPair('vdescBonifPgto03', aTitulo.ValorDesconto);
         end
         else
         begin
@@ -693,9 +855,9 @@ begin
       end
       else
       begin
-        AJsonObject.AddPair('vdescBonifPgto03', 0);
         AJsonObject.AddPair('pdescBonifPgto03', 0);
-        AJsonObject.AddPair('dlimDescBonif3', 0);
+        AJsonObject.AddPair('vdescBonifPgto03', 0);
+        AJsonObject.AddPair('dlimDescBonif3', '');
       end;
     end;
   end;
@@ -737,7 +899,7 @@ begin
     begin
         if (ATitulo.Vencimento > 0) then
         begin
-          AJsonObject.AddPair('especieDocumento',aTitulo.EspecieDoc);
+          AJsonObject.AddPair('especieDocumento',EspecieDocumento);
         end;
     end;
   end;
@@ -752,6 +914,18 @@ begin
       GerarDesconto(AJsonObject);
     end;
   end;
+end;
+
+function TBoletoW_Bradesco.AgenciaContaFormatada(const APadding : Integer) : String;
+var
+  LAgencia, LConta, LZeros, LPadding : String;
+begin
+  LConta := RemoveZerosEsquerda(ATitulo.ACBrBoleto.Cedente.Conta);
+  LAgencia := ATitulo.ACBrBoleto.Cedente.Agencia;
+
+  LZeros := Poem_Zeros('0',APadding - (Length(LAgencia) + Length(LConta)));
+
+  Result := LAgencia + LZeros + LConta;
 end;
 
 procedure TBoletoW_Bradesco.AlteracaoDesconto(AJsonObject: TACBrJSONObject);

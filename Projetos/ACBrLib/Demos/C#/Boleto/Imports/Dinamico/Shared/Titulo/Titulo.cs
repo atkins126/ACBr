@@ -48,6 +48,8 @@ namespace ACBrLib.Boleto
 
         public DateTime? DataMoraJuros { get; set; }
 
+        public ACBrCodigoMulta CodigoMulta { get; set; }
+
         public DateTime? DataMulta { get; set; }
 
         public int DiasDeProtesto { get; set; }
@@ -118,7 +120,9 @@ namespace ACBrLib.Boleto
 
         public bool Verso { get; set; }
 
-        public QrCode QrCode { get;} = new QrCode();
+        public QrCode QrCode { get; } = new QrCode();
+
+        public ACBrCodigoDesconto CodigoDesconto { get; set; }
 
     public List<BoletoNotaFiscal> NotaFiscais { get; } = new List<BoletoNotaFiscal>();
 

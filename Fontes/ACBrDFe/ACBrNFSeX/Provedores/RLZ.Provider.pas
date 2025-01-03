@@ -115,6 +115,9 @@ begin
 
   ConfigGeral.UseCertificateHTTP := False;
 
+  ConfigAssinar.Rps := True;
+  ConfigAssinar.LoteRps := True;
+
   with ConfigWebServices do
   begin
     VersaoDados := '2.03';
@@ -485,7 +488,6 @@ var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
   ANode, AuxNode: TACBrXmlNode;
-  NumNfse: String;
   ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
@@ -516,7 +518,6 @@ begin
       with Response do
       begin
         NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
-        NumNfse := NumeroNota;
         Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('guia'), tcStr);
         CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('codigoverificacao'), tcStr);
         Link := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('url'), tcStr);
@@ -532,7 +533,7 @@ begin
         Exit;
       end;
 
-      ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNfse);
+      ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[0];
 
       ANota := CarregarXmlNfse(ANota, AuxNode.OuterXml);
       SalvarXmlNfse(ANota);

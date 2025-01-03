@@ -65,10 +65,10 @@ function CarregaDll($dir, $nomeLib)
 
     if (!file_exists($dllPath . $biblioteca))
     {
-        $dllPath = $dir . DIRECTORY_SEPARATOR . "ACBrLib\\x" . $arquitetura . DIRECTORY_SEPARATOR;
+        $dllPath = $dir . DIRECTORY_SEPARATOR . "ACBrLib" . DIRECTORY_SEPARATOR . "x" . $arquitetura . DIRECTORY_SEPARATOR;
 
         if (!file_exists($dllPath . $biblioteca)){
-            echo json_encode(["mensagem" => "DLL não encontrada no caminho especificado: $dllPath . $biblioteca"]);
+            echo json_encode(["mensagem" => "Biblioteca (.dll/.so) não encontrada no caminho especificado: " . $dllPath . $biblioteca]);
             return -10;
         }
     }
@@ -100,6 +100,16 @@ function CarregaIniPath($dir, $nomeLib)
 
 function CarregaContents($importsPath, $dllPath)
 {
+    $modoGrafico = verificaAmbienteGrafico();
+    if ( $modoGrafico === 0) {
+        throw new Exception("Ambiente gráfico não identificado");
+        return -10;
+    }
+
+    if ($modoGrafico === 2){
+        putenv("DISPLAY=:99");
+    }
+
     $ffi = FFI::cdef(
         file_get_contents($importsPath),
         $dllPath
@@ -155,8 +165,8 @@ function strDateTimeToDoubleDateTime($dateString) {
 
     // Fração de um dia (horas, minutos, segundos)
     $fraction = ($inputDate->format('H') / 24) +
-                ($inputDate->format('i') / 1440) +
-                ($inputDate->format('s') / 86400);
+        ($inputDate->format('i') / 1440) +
+        ($inputDate->format('s') / 86400);
 
     // Retorna o valor em formato double
     return $daysDiff + $fraction;
@@ -164,7 +174,7 @@ function strDateTimeToDoubleDateTime($dateString) {
 
 function parseIniToStr($ini)
 {
-    $lines = explode("\r\n", $ini);
+    $lines = explode( PHP_EOL, $ini );
     $config = [];
     $section = null;
 
@@ -192,4 +202,26 @@ function parseIniToStr($ini)
     }
 
     return $config;
+}
+
+function verificaAmbienteGrafico()
+{
+    $verificaXVFB = shell_exec('pgrep Xvfb 2>&1') !== null;
+    $displayXVFB = strpos(getenv('DISPLAY'), ':99') !== false;
+
+    if ($verificaXVFB || $displayXVFB) {
+        // Emulador XVFB    
+        return 2;
+    } else {
+        $verificaX11 = shell_exec('pgrep Xorg') !== null && trim(shell_exec('pgrep Xorg')) !== '';
+        $displayX11 = getenv('DISPLAY') !== false && trim(getenv('DISPLAY')) !== '';
+        $pacoteX11 = shell_exec('dpkg -l | grep xserver-xorg') !== null && trim(shell_exec('dpkg -l | grep xserver-xorg')) !== '';
+
+        if ($verificaX11 || $displayX11 || $pacoteX11) {
+            // Ambiente grafico X11
+            return 1;
+        } else
+            // Sem ambiente grafico
+            return 0;
+    }
 }

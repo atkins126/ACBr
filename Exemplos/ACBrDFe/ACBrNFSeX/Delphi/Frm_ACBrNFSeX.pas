@@ -48,7 +48,6 @@ type
     edtPathLogs: TEdit;
     chkSalvarGer: TCheckBox;
     cbFormaEmissao: TComboBox;
-    cbxAtualizarXML: TCheckBox;
     cbxExibirErroSchema: TCheckBox;
     edtFormatoAlerta: TEdit;
     cbxRetirarAcentos: TCheckBox;
@@ -274,6 +273,8 @@ type
     btnInformacoes: TButton;
     Label50: TLabel;
     edtCidComProv: TEdit;
+    Label51: TLabel;
+    cbFormatoDiscr: TComboBox;
 
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
@@ -829,7 +830,7 @@ begin
            proCTA, proCTAConsult, proEquiplano, proFacundo, proFGMaiss, proEL,
            proGoverna, proInfisc, proIPM, proISSDSF, proPriMax, proRLZ, proSam,
            proSimple, proSmarAPD, proWebFisco, proBauhaus, proeISS, proISSCampinas,
-           proSoftPlan] then
+           proSoftPlan, proXTRTecnologia] then
       begin
         Servico.Valores.ValorServicos := 0;
 
@@ -1038,6 +1039,7 @@ begin
 
       Servico.CodigoPais := 1058; // Brasil
       Servico.MunicipioIncidencia := StrToIntDef(edtCodCidade.Text, 0);
+      Servico.MunicipioPrestacaoServico := 'Cidade onde servico executado';
 
       // Provedor GeisWeb
       // tlDevidoNoMunicPrestador, tlDevidoNoMunicTomador, tlSimplesNacional, tlIsentoImune
@@ -1350,7 +1352,76 @@ begin
 
           BaseCalculo := ValorTotal - ValorDeducoes - DescontoIncondicionado;
 
-          Aliquota := 2;
+          Aliquota := 2.5;
+
+          ValorISS := BaseCalculo * Aliquota / 100;
+
+          ValorISSRetido := 0;
+
+          AliqISSST := 0;
+          ValorISSST := 0;
+
+          ValorBCCSLL := 0;
+          AliqRetCSLL := 0;
+          ValorCSLL := 0;
+
+          ValorBCPIS := 0;
+          AliqRetPIS := 0;
+          ValorPIS := 0;
+
+          ValorBCCOFINS := 0;
+          AliqRetCOFINS := 0;
+          ValorCOFINS := 0;
+
+          ValorBCINSS := 0;
+          AliqRetINSS := 0;
+          ValorINSS := 0;
+
+          ValorBCRetIRRF := 0;
+          AliqRetIRRF := 0;
+          ValorIRRF := 0;
+
+          // Provedor EloTech
+          Tributavel := snNao;
+          // Informações referente a Dedução do Provedor EloTech
+          DadosDeducao.TipoDeducao := tdNenhum;
+          DadosDeducao.CpfCnpj := '';
+          DadosDeducao.NumeroNotaFiscalReferencia := '';
+          DadosDeducao.ValorTotalNotaFiscal := 0;
+          DadosDeducao.PercentualADeduzir := 0;
+          DadosDeducao.ValorADeduzir := 0;
+
+          CodigoCnae := '6203100';
+        end;
+
+        with Servico.ItemServico.New do
+        begin
+          Descricao := 'Desc. do Serv. 2';
+          ItemListaServico := '09.01';
+
+          ValorDeducoes := 0;
+          xJustDeducao := '';
+
+          AliqReducao := 0;
+          ValorReducao := 0;
+
+          DescontoIncondicionado := 0;
+          DescontoCondicionado := 0;
+
+          // TUnidade = (tuHora, tuQtde);
+          TipoUnidade := tuQtde;
+          Unidade := 'UN';
+          Quantidade := 1;
+          ValorUnitario := 5;
+
+          QtdeDiaria := 0;
+          ValorTaxaTurismo := 0;
+
+          ValorTotal := Quantidade * ValorUnitario;
+
+          BaseCalculo := ValorTotal - ValorDeducoes - DescontoIncondicionado;
+
+          Aliquota := 2.5;
 
           ValorISS := BaseCalculo * Aliquota / 100;
 
@@ -1423,7 +1494,7 @@ begin
         Servico.Valores.BaseCalculo := Servico.Valores.ValorServicos -
         Servico.Valores.ValorDeducoes - Servico.Valores.DescontoIncondicionado;
 
-        Servico.Valores.Aliquota := 2;
+        Servico.Valores.Aliquota := 2.5;
 
         Servico.Valores.tribMun.cPaisResult := 0;
         // TtribISSQN = (tiOperacaoTributavel, tiImunidade, tiExportacao, tiNaoIncidencia);
@@ -1509,7 +1580,7 @@ begin
       // Informar A Exigibilidade ISS para fintelISS [1/2/3/4/5/6/7]
       Servico.ExigibilidadeISS := exiExigivel;
 
-      Servico.CodigoPais := 1058; // Brasil
+//      Servico.CodigoPais := 1058; // Brasil
       Servico.MunicipioIncidencia := StrToIntDef(edtCodCidade.Text, 0);
 
       {=========================================================================
@@ -1678,7 +1749,7 @@ procedure TfrmACBrNFSe.btnCancNFSeClick(Sender: TObject);
 var
   Titulo, NumNFSe, Codigo, Motivo, NumLote, CodVerif, SerNFSe, NumRps,
   SerRps, ValNFSe, ChNFSe, eMailTomador, vNumRPS, xCodServ, CodMun,
-  xDataEmissao: String;
+  xDataEmissao, xCNPJTomador: string;
   DataEmissao: TDateTime;
   CodCanc: Integer;
   InfCancelamento: TInfCancelamento;
@@ -1860,6 +1931,13 @@ begin
     Alimentar_Componente(vNumRPS, '1');
   end;
 
+  if ACBrNFSeX1.Configuracoes.Geral.Provedor = proISSMap then
+  begin
+    xCNPJTomador := '';
+    if not(InputQuery(Titulo, 'CNPJ/CPF Tomador', xCNPJTomador)) then
+      exit;
+  end;
+
   InfCancelamento := TInfCancelamento.Create;
 
   try
@@ -1879,6 +1957,7 @@ begin
       DataEmissaoNFSe := DataEmissao;
       CodServ         := xCodServ;
       CodMunicipio    := StrToIntDef(CodMun, 0);
+      CNPJCPFTomador  := xCNPJTomador;
     end;
 
     ACBrNFSeX1.CancelarNFSe(InfCancelamento);
@@ -1977,6 +2056,13 @@ begin
       exit;
   end;
 
+  if ACBrNFSeX1.Configuracoes.Geral.Provedor = proNFEletronica then
+  begin
+    xNumeroRps := '';
+    if not(InputQuery(xTitulo, 'Numero do RPS (referencia):', xNumeroRps)) then
+      exit;
+  end;
+
   xNumeroNFSe := '';
   if not(InputQuery(xTitulo, 'Numero da NFS-e:', xNumeroNFSe)) then
     exit;
@@ -2065,7 +2151,8 @@ procedure TfrmACBrNFSe.btnConsultarNFSeGenericoClick(Sender: TObject);
 var
   xTitulo, NumIniNFSe, NumFinNFSe, SerNFSe, DataIni, DataFin,
   CPFCNPJ_Prestador, IM_Prestador, CPFCNPJ_Tomador, IM_Tomador,
-  CPFCNPJ_Inter, IM_Inter, NumLote, CadEcon, NumPagina: String;
+  CPFCNPJ_Inter, IM_Inter, NumLote, CadEcon, NumPagina, xTipoConsulta: String;
+  TipoConsulta: Integer;
   InfConsultaNFSe: TInfConsultaNFSe;
 begin
   xTitulo := 'Consultar NFSe Genérico';
@@ -2129,6 +2216,14 @@ begin
   if not(InputQuery(xTitulo, 'Pagina:', NumPagina)) then
     exit;
 
+  xTipoConsulta := '1';
+  if not(InputQuery(xTitulo, 'Tipo Consulta: 1=PorNumero, 2=PorFaixa, 3=PorPeriodo, ' +
+                             '4=ServicoPrestado, 5=ServicoTomado, 6=PorCodigoVerificacao, ' +
+                             '7=PorChave', xTipoConsulta)) then
+    exit;
+
+  TipoConsulta := StrToIntDef(xTipoConsulta, 1);
+
   InfConsultaNFSe := TInfConsultaNFSe.Create;
 
   try
@@ -2136,7 +2231,16 @@ begin
     begin
       // Valores aceito para o Tipo de Consulta:
       // tcPorNumero, tcPorFaixa, tcPorPeriodo, tcServicoPrestado, tcServicoTomado
-      tpConsulta := tcPorNumero;
+      case TipoConsulta of
+        1: tpConsulta := tcPorNumero;
+        2: tpConsulta := tcPorFaixa;
+        3: tpConsulta := tcPorPeriodo;
+        4: tpConsulta := tcServicoPrestado;
+        5: tpConsulta := tcServicoTomado;
+        6: tpConsulta := tcPorCodigoVerificacao;
+      else
+        tpConsulta := tcPorChave;
+      end;
 
       // Necessário para a consulta por numero e por faixa
       NumeroIniNFSe := NumIniNFSe;
@@ -2424,19 +2528,20 @@ end;
 
 procedure TfrmACBrNFSe.btnConsultarNFSeRPSClick(Sender: TObject);
 var
-  NumeroRps, SerieRps, TipoRps, CodVerificacao: String;
+  Titulo, NumeroRps, SerieRps, TipoRps, CodVerificacao, xCNPJTomador: string;
   iTipoRps: Integer;
 begin
+  Titulo := 'Consultar NFSe por RPS';
   NumeroRps := '';
-  if not (InputQuery('Consultar NFSe por RPS', 'Numero do RPS:', NumeroRps)) then
+  if not (InputQuery(Titulo, 'Numero do RPS:', NumeroRps)) then
     exit;
 
   SerieRps := '1';
-  if not (InputQuery('Consultar NFSe por RPS', 'Serie do RPS:', SerieRps)) then
+  if not (InputQuery(Titulo, 'Serie do RPS:', SerieRps)) then
     exit;
 
   TipoRps := '1';
-  if not (InputQuery('Consultar NFSe por RPS', 'Tipo do RPS:', TipoRps)) then
+  if not (InputQuery(Titulo, 'Tipo do RPS:', TipoRps)) then
     exit;
 
   // Provedor ISSDSF e Siat
@@ -2470,15 +2575,23 @@ begin
     end;
   end;
 
+  CodVerificacao := '';
   if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proGiap, proGoverna,
      proPrescon, proIntertec] then
   begin
-    CodVerificacao := '123';
-    if not (InputQuery('Consultar NFSe por RPS', 'Codigo Verificação:', CodVerificacao)) then
+    if not (InputQuery(Titulo, 'Codigo Verificação:', CodVerificacao)) then
       exit;
   end;
 
-  ACBrNFSeX1.ConsultarNFSePorRps(NumeroRps, SerieRps, TipoRps, CodVerificacao);
+  xCNPJTomador := '';
+  if ACBrNFSeX1.Configuracoes.Geral.Provedor = proISSMap then
+  begin
+    if not (InputQuery(Titulo, 'CNPJ/CPF Tomador:', xCNPJTomador)) then
+      exit;
+  end;
+
+  ACBrNFSeX1.ConsultarNFSePorRps(NumeroRps, SerieRps, TipoRps, CodVerificacao,
+    xCNPJTomador);
 
   ChecarResposta(tmConsultarNFSePorRps);
 end;
@@ -4111,6 +4224,7 @@ var
   X: TSSLXmlSignLib;
   Y: TSSLType;
   L: TLayoutNFSe;
+  J: TFormatoDiscriminacao;
 begin
   cbSSLLib.Items.Clear;
   for T := Low(TSSLLib) to High(TSSLLib) do
@@ -4147,6 +4261,11 @@ begin
     cbLayoutNFSe.Items.Add(GetEnumName(TypeInfo(TLayoutNFSe), integer(L)));
   cbLayoutNFSe.ItemIndex := 0;
 
+  cbFormatoDiscr.Items.Clear;
+  for J := Low(TFormatoDiscriminacao) to High(TFormatoDiscriminacao) do
+    cbFormatoDiscr.Items.Add(GetEnumName(TypeInfo(TFormatoDiscriminacao), integer(J)));
+  cbFormatoDiscr.ItemIndex := 0;
+
   LerConfiguracao;
 
   pgRespostas.ActivePageIndex := 0;
@@ -4170,10 +4289,10 @@ begin
     Ini.WriteString( 'Certificado', 'Senha',      edtSenha.Text);
     Ini.WriteString( 'Certificado', 'NumSerie',   edtNumSerie.Text);
 
-    Ini.WriteBool(   'Geral', 'AtualizarXML',     cbxAtualizarXML.Checked);
     Ini.WriteBool(   'Geral', 'ExibirErroSchema', cbxExibirErroSchema.Checked);
     Ini.WriteString( 'Geral', 'FormatoAlerta',    edtFormatoAlerta.Text);
     Ini.WriteInteger('Geral', 'FormaEmissao',     cbFormaEmissao.ItemIndex);
+    Ini.WriteInteger('Geral', 'FormatoDiscr',     cbFormatoDiscr.ItemIndex);
     Ini.WriteBool(   'Geral', 'RetirarAcentos',   cbxRetirarAcentos.Checked);
     Ini.WriteBool(   'Geral', 'Salvar',           chkSalvarGer.Checked);
     Ini.WriteString( 'Geral', 'PathSalvar',       edtPathLogs.Text);
@@ -4308,10 +4427,10 @@ begin
     edtSenha.Text          := Ini.ReadString( 'Certificado', 'Senha',      '');
     edtNumSerie.Text       := Ini.ReadString( 'Certificado', 'NumSerie',   '');
 
-    cbxAtualizarXML.Checked     := Ini.ReadBool(   'Geral', 'AtualizarXML',     True);
     cbxExibirErroSchema.Checked := Ini.ReadBool(   'Geral', 'ExibirErroSchema', True);
     edtFormatoAlerta.Text       := Ini.ReadString( 'Geral', 'FormatoAlerta',    'TAG:%TAGNIVEL% ID:%ID%/%TAG%(%DESCRICAO%) - %MSG%.');
     cbFormaEmissao.ItemIndex    := Ini.ReadInteger('Geral', 'FormaEmissao',     0);
+    cbFormatoDiscr.ItemIndex    := Ini.ReadInteger('Geral', 'FormatoDiscr',     0);
 
     chkSalvarGer.Checked      := Ini.ReadBool(  'Geral', 'Salvar',         True);
     cbxRetirarAcentos.Checked := Ini.ReadBool(  'Geral', 'RetirarAcentos', True);
@@ -5095,6 +5214,8 @@ begin
     RetirarAcentos   := cbxRetirarAcentos.Checked;
     FormatoAlerta    := edtFormatoAlerta.Text;
     FormaEmissao     := TpcnTipoEmissao(cbFormaEmissao.ItemIndex);
+
+    FormatoDiscriminacao := TFormatoDiscriminacao(cbFormatoDiscr.ItemIndex);
 
     ConsultaLoteAposEnvio := chkConsultaLoteAposEnvio.Checked;
     ConsultaAposCancelar  := chkConsultaAposCancelar.Checked;

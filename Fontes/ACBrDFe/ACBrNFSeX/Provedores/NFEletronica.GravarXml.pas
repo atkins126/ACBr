@@ -55,6 +55,8 @@ type
     function GerarEnderecoTomador: TACBrXmlNode; override;
     function GerarTomador: TACBrXmlNode; override;
     function Gerar_CondicaoPagamento: TACBrXmlNode;
+    function GerarIdentificacaoTomador: TACBrXmlNode; override;
+    function GerarCPFCNPJTomador(const CPFCNPJ: string): TACBrXmlNode;
   end;
 
 implementation
@@ -77,6 +79,9 @@ begin
   inherited Configuracao;
 
   DivAliq100  := True;
+
+  if FpAOwner.ConfigGeral.Params.TemParametro('NaoDividir100') then
+    DivAliq100 := False;
 
   FormatoEmissao := tcDat;
 
@@ -135,8 +140,8 @@ begin
   Result.AppendChild(AddNode(tcDe2, '#13', 'ValorServicos', 1, 15, 1,
                              NFSe.Servico.Valores.ValorServicos, DSC_VSERVICO));
 
-  Result.AppendChild(AddNode(tcStr, '#20', 'IssRetido', 1, 1, 1,
-    FpAOwner.SituacaoTributariaToStr(NFSe.Servico.Valores.IssRetido), DSC_INDISSRET));
+  Result.AppendChild(AddNode(tcDe2, '#20', 'IssRetido', 1, 15, 1,
+                           NFSe.Servico.Valores.ValorIssRetido, DSC_INDISSRET));
 
   Result.AppendChild(AddNode(tcDe2, '#18', 'ValorIR', 1, 15, 1,
                                         NFSe.Servico.Valores.ValorIr, DSC_VIR));
@@ -196,6 +201,32 @@ begin
     Result.AppendChild(AddNode(tcStr, '#45', 'Cep', 8, 8, 1,
                                OnlyNumber(NFSe.Tomador.Endereco.CEP), DSC_CEP));
   end;
+end;
+
+function TNFSeW_NFEletronica.GerarCPFCNPJTomador(
+  const CPFCNPJ: string): TACBrXmlNode;
+var
+  aDoc: string;
+begin
+  aDoc := OnlyNumber(CPFCNPJ);
+
+  Result := CreateElement('CpfCnpj');
+
+  Result.AppendChild(AddNode(tcStr, '#34', 'Cnpj', 11, 14, 1, aDoc, DSC_CNPJ));
+end;
+
+function TNFSeW_NFEletronica.GerarIdentificacaoTomador: TACBrXmlNode;
+begin
+  Result := CreateElement('IdentificacaoTomador');
+
+  if NFSe.Tomador.IdentificacaoTomador.CpfCnpj <> '' then
+    Result.AppendChild(GerarCPFCNPJTomador(NFSe.Tomador.IdentificacaoTomador.CpfCnpj));
+
+  Result.AppendChild(AddNode(tcStr, '#37', 'InscricaoMunicipal', 1, 15, NrOcorrInscMunTomador,
+                 NFSe.Tomador.IdentificacaoTomador.InscricaoMunicipal, DSC_IM));
+
+  Result.AppendChild(AddNode(tcStr, '#38', 'InscricaoEstadual', 1, 20, NrocorrInscEstTomador,
+                  NFSe.Tomador.IdentificacaoTomador.InscricaoEstadual, DSC_IE));
 end;
 
 function TNFSeW_NFEletronica.Gerar_CondicaoPagamento: TACBrXmlNode;

@@ -116,7 +116,7 @@ type
     FArqLOG       : String;
     procedure SetBanco(ABanco: TACBrTipoCobranca);
     procedure GravaLog(const AString: AnsiString);
-
+    procedure InstanciarIntegradora;
     procedure Clear;
 
   protected
@@ -140,6 +140,7 @@ type
   TRetornoEnvioClass = class
   private
     FACBrBoleto    : TACBrBoleto;
+    FACBrTitulo    : TACBrTitulo;
     FRetWS         : String;
     FEnvWS         : String;
     FCodRetorno    : Integer;
@@ -151,6 +152,7 @@ type
     function LerRetorno(const ARetornoWS: TACBrBoletoRetornoWS): Boolean; virtual;
     function RetornoEnvio(const AIndex: Integer): Boolean; virtual;
 
+    property ACBrTitulo: TACBrTitulo read FACBrTitulo write FACBrTitulo;
     property ACBrBoleto: TACBrBoleto read FACBrBoleto;
     property Leitor: TLeitor read FLeitor;
     property RetWS: String read FRetWS write FRetWS;
@@ -245,7 +247,11 @@ uses
   ACBrBoletoW_Bradesco,
   ACBrBoletoRet_Bradesco,
   ACBrBoletoW_Banrisul,
-  ACBrBoletoRet_Banrisul;
+  ACBrBoletoRet_Banrisul,
+  ACBrBoletoW_Cora,
+  AcbrBoletoRet_Cora,
+  ACBrBoletoW_Kobana,
+  ACBrBoletoRet_Kobana;
 
   { TRetornoEnvioClass }
 
@@ -281,6 +287,7 @@ end;
 
 function TRetornoEnvioClass.RetornoEnvio(const AIndex: Integer): Boolean;
 begin
+  FACBrTitulo := FACBrBoleto.ListadeBoletos[AIndex];
   Result := False;
   raise EACBrBoletoWSException.Create(ACBrStr(ClassName + Format(S_METODO_NAO_IMPLEMENTADO, [ C_RETORNO_ENVIO ])));
 
@@ -334,11 +341,19 @@ begin
   if ABanco = FBanco then
     exit;
 
+  FBanco                 := ABanco;
+
   if Assigned(FBoletoWSClass) then
     FreeAndNil(FBoletoWSClass);
 
   if Assigned(FRetornoBanco) then
     FreeAndNil(FRetornoBanco);
+
+  if Integer(FBoleto.Cedente.IntegradoraBoleto) > 0 then
+  begin
+    InstanciarIntegradora;
+    exit;
+  end;
 
   LVersaoDF := UpperCase(FBoleto.Configuracoes.WebService.VersaoDF);
   LVersaoDFInt := StrToIntDef(FBoleto.Configuracoes.WebService.VersaoDF,0);
@@ -443,22 +458,27 @@ begin
         FBoletoWSClass := TBoletoW_Cresol.Create(Self);
         FRetornoBanco  := TRetornoEnvio_Cresol.Create(FBoleto);
       end;
-    //cobBradesco :
-      //begin
-        //FBoletoWSClass := TBoletoW_Bradesco.Create(Self);
-        //FRetornoBanco  := TRetornoEnvio_Bradesco.Create(FBoleto);
-      //end;
+    cobBradesco :
+      begin
+        FBoletoWSClass := TBoletoW_Bradesco.Create(Self, FBoleto);
+        FRetornoBanco  := TRetornoEnvio_Bradesco.Create(FBoleto);
+      end;
     cobBanrisul :
       begin
         FBoletoWSClass := TBoletoW_Banrisul.Create(Self);
         FRetornoBanco  := TRetornoEnvio_Banrisul.Create(FBoleto);
+      end;
+    cobBancoCora :
+      begin
+        FBoletoWSClass := TBoletoW_Cora.Create(Self);
+        FRetornoBanco  := TRetornoEnvio_Cora.Create(FBoleto);
       end;
     else
       FBoletoWSClass := TBoletoWSClass.Create(Self);
       FRetornoBanco  := TRetornoEnvioClass.Create(FBoleto);
   end;
   FBoletoWSClass.FBoleto := FBoleto;
-  FBanco                 := ABanco;
+
 end;
 
 constructor TBoletoWS.Create(AOwner: TComponent);
@@ -515,6 +535,19 @@ begin
     exit;
 
   WriteLog(FArqLOG, FormatDateTime('dd/mm/yy hh:nn:ss:zzz', now) + ' - ' + AString);
+end;
+
+procedure TBoletoWS.InstanciarIntegradora;
+begin
+  case FBoleto.Cedente.IntegradoraBoleto of
+    tibKobana :
+      begin
+        FBoletoWSClass := TBoletoW_Kobana.Create(Self);
+        FRetornoBanco  := TRetornoEnvio_Kobana.Create(FBoleto);
+      end;
+  end;
+
+  FBoletoWSClass.FBoleto := FBoleto;
 end;
 
 destructor TBoletoWS.Destroy;

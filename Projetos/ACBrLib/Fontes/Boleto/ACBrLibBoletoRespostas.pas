@@ -80,6 +80,7 @@ type
     FNomeArqRetorno: String;
     FDensidadeGravacao: String;
     FCIP: String;
+    FKeySoftwareHouse: String;
 
   public
     constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
@@ -96,6 +97,7 @@ type
     property NomeArqRetorno: String read FNomeArqRetorno write FNomeArqRetorno;
     property DensidadeGravacao: String read FDensidadeGravacao write FDensidadeGravacao;
     property CIP: String read FCIP write FCIP;
+    property KeySoftwareHouse: String read FKeySoftwareHouse write FKeySoftwareHouse;
 
   end;
 
@@ -128,6 +130,7 @@ type
     FID : Integer;
     FIDRej : Integer;
     FMotivoRejeicao : String;
+    FMotivoRejeicaoComando: string;
 
   public
     constructor Create( const AIDRej: Integer; const AID: Integer; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
@@ -135,6 +138,7 @@ type
 
   published
     property MotivoRejeicao : String read FMotivoRejeicao write FMotivoRejeicao;
+    property MotivoRejeicaoComando: string read FMotivoRejeicaoComando write FMotivoRejeicaoComando;
 
   end;
 
@@ -835,6 +839,7 @@ end;
 procedure TRetornoRejeicoesTitulo.Processar(const ACBrBoleto: TACBrBoleto);
 begin
   MotivoRejeicao := ACBrBoleto.ListadeBoletos[FID].DescricaoMotivoRejeicaoComando[FIDRej];
+  MotivoRejeicaoComando := ACBrBoleto.ListadeBoletos[FID].MotivoRejeicaoComando[FIDRej];
 end;
 
 { TRetornoBoleto }
@@ -996,6 +1001,7 @@ begin
     NomeArqRetorno := ACBrBoleto.NomeArqRetorno;
     DensidadeGravacao := ACBrBoleto.Banco.DensidadeGravacao;
     CIP := ACBrBoleto.Banco.CIP;
+    KeySoftwareHouse:= ACBrBoleto.KeySoftwareHouse;
   end;
 end;
 

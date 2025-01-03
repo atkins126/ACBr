@@ -35,7 +35,7 @@ unit ACBrLibPIXCDMateraRespostas;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, StrUtils,
   ACBrBase, ACBrPIXCD, ACBrPIXBase, ACBrSchemasMatera,
   ACBrUtil.Strings,
   ACBrPIXPSPMatera,
@@ -449,7 +449,7 @@ type
   TLibPIXCDMateraDestinationAccount = class(TACBrLibRespostaBase)
     private
       faccount: String;
-      faccountType: TMateraAccountTypeDestination;
+      faccountType: String;
       fbranch: String;
 
     public
@@ -458,7 +458,7 @@ type
 
     published
       property account: String read faccount write faccount;
-      property accountType: TMateraAccountTypeDestination read faccountType write faccountType;
+      property accountType: String read faccountType write faccountType;
       property branch: String read fbranch write fbranch;
   end;
 
@@ -614,7 +614,7 @@ type
       fTaxIdentifier: TLibPIXCDMateraTaxIdentifier;
 
     public
-      constructor Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
+      constructor Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao; const AIndice: Integer = 0); reintroduce;
       destructor Destroy; override;
 
       procedure Clear;
@@ -646,7 +646,7 @@ type
       ftype_: TMaterastatementEntryType;
 
     public
-      constructor Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
+      constructor Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao; const AIndice: Integer= 0); reintroduce;
       destructor Destroy; override;
 
       procedure Clear;
@@ -1132,7 +1132,7 @@ type
     private
       faccountDestination: String;
       faccountDigitDestination: String;
-      faccountTypeDestination: TMateraAccountTypeDestination;
+      faccountTypeDestination: String;
       fbankDestination: String;
       fbranchDestination: String;
       fhistoryCode: String;
@@ -1152,7 +1152,7 @@ type
     published
       property accountDestination: String read faccountDestination write faccountDestination;
       property accountDigitDestination: String read faccountDigitDestination write faccountDigitDestination;
-      property accountTypeDestination: TMateraAccountTypeDestination read faccountTypeDestination write faccountTypeDestination;
+      property accountTypeDestination: String read faccountTypeDestination write faccountTypeDestination;
       property bankDestination: String read fbankDestination write fbankDestination;
       property branchDestination: String read fbranchDestination write fbranchDestination;
       property historyCode: String read fhistoryCode write fhistoryCode;
@@ -2180,7 +2180,7 @@ procedure TLibPIXCDMateraBankTransfer.Clear;
 begin
   faccountDestination := EmptyStr;
   faccountDigitDestination := EmptyStr;
-  faccountTypeDestination := matdNone;
+  faccountTypeDestination := EmptyStr;
   fbankDestination := EmptyStr;
   fbranchDestination := EmptyStr;
   fhistoryCode := EmptyStr;
@@ -2195,7 +2195,7 @@ procedure TLibPIXCDMateraBankTransfer.Processar(const MateraBankTransfer: TMater
 begin
   accountDestination := MateraBankTransfer.accountDestination;
   accountDigitDestination := MateraBankTransfer.accountDigitDestination;
-  accountTypeDestination := MateraBankTransfer.accountTypeDestination;
+  accountTypeDestination := MateraAccountTypeDestinationToString(MateraBankTransfer.accountTypeDestination);
   bankDestination := MateraBankTransfer.bankDestination;
   branchDestination := MateraBankTransfer.branchDestination;
   historyCode := MateraBankTransfer.historyCode;
@@ -2486,14 +2486,14 @@ end;
 procedure TLibPIXCDMateraDestinationAccount.Clear;
 begin
   faccount := EmptyStr;
-  faccountType := matdNone;
+  faccountType := EmptyStr;
   fbranch := EmptyStr;
 end;
 
 procedure TLibPIXCDMateraDestinationAccount.Processar(const MateraDestinationAccount: TMateraDestinationAccount);
 begin
   account := MateraDestinationAccount.account;
-  accountType := MateraDestinationAccount.accountType;
+  accountType := MateraAccountTypeDestinationToString(MateraDestinationAccount.accountType);
   branch := MateraDestinationAccount.branch;
 end;
 
@@ -2764,18 +2764,18 @@ var
 begin
   for i := 0 to ExtratoECResposta.statement.Count - 1 do
   begin
-    item := TLibPIXCDMaterastatementEntry.Create(CSessaoRespMaterastatementEntry + IntToStr(i), Tipo, Codificacao);
+    item := TLibPIXCDMaterastatementEntry.Create(CSessaoRespMaterastatementEntry, Tipo, Codificacao, i+1);
     item.Processar(ExtratoECResposta.statement[i]);
-    statement.Add(item);
+    fstatement.Add(item);
   end;
 end;
 
 { TLibPIXCDMaterastatementEntry }
-constructor TLibPIXCDMaterastatementEntry.Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+constructor TLibPIXCDMaterastatementEntry.Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao; const AIndice: Integer= 0);
 begin
-  inherited Create(CSessaoRespMaterastatementEntry, ATipo, AFormato);
-  fcounterpart := TLibPIXCDMateraCounterpart.Create(CSessaoRespMaterastatementEntry, ATipo, AFormato);
-  finstantPaymentCashValue := TLibPIXCDMateraStatementInstantPaymentCashValue.Create(CSessaoRespMaterastatementEntry, ATipo, AFormato);
+  inherited Create(ifThen(AIndice > 0, ASessao + IntToStr(AIndice), ASessao), ATipo, AFormato);
+  fcounterpart := TLibPIXCDMateraCounterpart.Create(CSessaoRespMateraCounterpart, ATipo, AFormato, AIndice);
+  finstantPaymentCashValue := TLibPIXCDMateraStatementInstantPaymentCashValue.Create(IfThen(AIndice > 0, CSessaoRespMateraStatementInstantPaymentCashValue + IntToStr(AIndice), CSessaoRespMateraStatementInstantPaymentCashValue), ATipo, AFormato);
 end;
 
 destructor TLibPIXCDMaterastatementEntry.Destroy;
@@ -2818,10 +2818,10 @@ begin
 end;
 
 { TLibPIXCDMateraCounterpart }
-constructor TLibPIXCDMateraCounterpart.Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
+constructor TLibPIXCDMateraCounterpart.Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao; const AIndice: Integer = 0);
 begin
-  inherited Create(CSessaoRespMateraCounterpart, ATipo, AFormato);
-  fTaxIdentifier := TLibPIXCDMateraTaxIdentifier.Create(CSessaoRespMateraCounterpart, ATipo, AFormato);
+  inherited Create(IfThen(AIndice > 0, ASessao + IntToStr(AIndice), ASessao), ATipo, AFormato);
+  fTaxIdentifier := TLibPIXCDMateraTaxIdentifier.Create(IfThen(AIndice > 0, CSessaoRespAliasAccountHolderTaxIdentifier + IntToStr(AIndice), CSessaoRespAliasAccountHolderTaxIdentifier), ATipo, AFormato);
 end;
 
 destructor TLibPIXCDMateraCounterpart.Destroy;
@@ -2853,7 +2853,7 @@ end;
 { TLibPIXCDMateraStatementInstantPaymentCashValue }
 constructor TLibPIXCDMateraStatementInstantPaymentCashValue.Create(const ASessao: String; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
 begin
-  inherited Create(CSessaoRespMateraStatementInstantPaymentCashValue, ATipo, AFormato);
+  inherited Create(ASessao, ATipo, AFormato);
   fvalues := TACBrObjectList.Create;
 end;
 
@@ -2875,9 +2875,9 @@ var
 begin
   for i := 0 to StatementInstantPaymentCashValueDataArray.Count - 1 do
   begin
-    item := TLibPIXCDMateraStatementInstantPaymentCashValueData.Create(CSessaoRespMateraStatementInstantPaymentCashValue + IntToStr(i), Tipo, Codificacao);
-    item.Processar(StatementInstantPaymentCashValueDataArray[i]);
-    values.Add(item);
+    item := TLibPIXCDMateraStatementInstantPaymentCashValueData.Create(CSessaoRespMateraStatementInstantPaymentCashValue + IntToStr(i+1), Tipo, Codificacao);
+    item.Processar(StatementInstantPaymentCashValueDataArray.Items[i]);
+    fvalues.Add(item);
   end;
 end;
 

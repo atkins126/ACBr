@@ -117,8 +117,7 @@ procedure TBoletoW_Banrisul.DefinirURL;
 var
    DevAPP, ID, NConvenio: String;
 begin
-   FPURL := IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao, C_URL,
-     C_URL_HOM);
+   FPURL := IfThen(Boleto.Configuracoes.WebService.Ambiente in [tawsProducao, tawsHomologacao], C_URL, C_URL_HOM);
 
    if ATitulo <> nil then
       ID := OnlyNumber(ATitulo.ACBrBoleto.Banco.MontarCampoNossoNumero(ATitulo));
@@ -196,13 +195,13 @@ begin
    if Assigned(ATitulo) then
       FPKeyUser := '';
 
-   FPHeaders.Clear;
-   FPHeaders.Add('bergs-beneficiario: ' + trim(Boleto.Cedente.Convenio));
+   ClearHeaderParams;
+   AddHeaderParam('bergs-beneficiario', trim(Boleto.Cedente.Convenio));
 
    if Assigned(Boleto) then
    begin
       if Boleto.Configuracoes.WebService.Operacao = tpBaixa then
-         FPHeaders.Add('bergs-ambiente: ' + ValidaAmbiente);
+         AddHeaderParam('bergs-ambiente', ValidaAmbiente);
    end;
 
 end;
@@ -219,7 +218,17 @@ end;
 
 function TBoletoW_Banrisul.ValidaAmbiente: String;
 begin
-  Result := IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao, 'P', 'T');
+  Result := IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao, 'P', 'T');
+
+  //Produção    = P
+  //Homologação = T
+  //SandBox     = T
+
+  //Homologação: na sua primeira chamada em produção você deve informar o conteúdo "T"
+  //no atributo "ambiente" do payload de entrada. Este procedimento deve ser feito apenas
+  //no EndPoint de registro, a fim de homologar sua API, não sendo necessário nos demais
+  //EndPoints. Após sua homologação, você deve enviar cinco requisições e retornos de
+  //sucesso e os respectivos boletos em formato PDF para o e-mail
 end;
 
 procedure TBoletoW_Banrisul.RequisicaoJson;
@@ -446,7 +455,8 @@ begin
             case ATitulo.CodigoMoraJuros of
                cjValorDia:    ATitulo.CodigoMora := '1';
                cjTaxaMensal:  ATitulo.CodigoMora := '2';
-               cjIsento:      ATitulo.CodigoMora := '3';
+            else
+              ATitulo.CodigoMora := '3';
             end;
          end;
 
@@ -462,6 +472,10 @@ begin
 
          AJson.AddPair('juros', LJsonJurosObject);
 
+      end else
+      begin
+        LJsonJurosObject.AddPair('valor', 3);
+        AJson.AddPair('juros', LJsonJurosObject);
       end;
    end;
 end;
@@ -633,10 +647,8 @@ begin
 
    if Assigned(OAuth) then
    begin
-      OAuth.URL := IfThen(OAuth.Ambiente = taHomologacao, C_URL_OAUTH_HOM, C_URL_OAUTH_PROD);
-
+      OAuth.URL := IfThen(OAuth.Ambiente in [tawsProducao,tawsHomologacao], C_URL_OAUTH_PROD, C_URL_OAUTH_HOM);
       OAuth.Payload := True;
-
    end;
 end;
 

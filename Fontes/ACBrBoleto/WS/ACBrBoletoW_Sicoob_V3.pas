@@ -144,10 +144,10 @@ begin
   if Boleto.Configuracoes.WebService.Operacao in [tpConsulta] then
   begin
     LCodigoSolicitacao := Boleto.Configuracoes.WebService.Filtro.NumeroProtocolo;
-    LIdArquivo         := Boleto.Configuracoes.WebService.Filtro.Identificador;
+    LIdArquivo         := StrToInt64Def(Boleto.Configuracoes.WebService.Filtro.Identificador,0);
   end;
 
-  FPURL := IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao, C_URL,C_URL_HOM);
+  FPURL := IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao, C_URL,C_URL_HOM);
 
   case Boleto.Configuracoes.WebService.Operacao of
     tpInclui:  FPURL := FPURL + '/boletos';
@@ -193,13 +193,12 @@ end;
 
 procedure TBoletoW_Sicoob_V3.GerarHeader;
 begin
-  FPHeaders.Clear;
+  ClearHeaderParams;
   DefinirContentType;
   DefinirKeyUser;
 
   if NaoEstaVazio(Boleto.Cedente.CedenteWS.ClientID) then
-    FPHeaders.Add(C_SICOOB_CLIENT + ': ' + Boleto.Cedente.CedenteWS.ClientID);
-//  HTTPSend.Headers.Add('Accept-Encoding: ' + C_ACCEPT_ENCODING);
+    AddHeaderParam(C_SICOOB_CLIENT, Boleto.Cedente.CedenteWS.ClientID);
 end;
 
 procedure TBoletoW_Sicoob_V3.GerarDados;
@@ -234,7 +233,7 @@ begin
     tpConsulta:
       begin
         LCodigoSolicitacao := Boleto.Configuracoes.WebService.Filtro.NumeroProtocolo;
-        LIdArquivo         := Boleto.Configuracoes.WebService.Filtro.Identificador;
+        LIdArquivo         := StrToInt64Def(Boleto.Configuracoes.WebService.Filtro.Identificador,0);
         if ((LIdArquivo>0) and (LCodigoSolicitacao>0)) then {Download do(s) arquivo(s) de movimentação.}
         begin
           FMetodoHTTP := htGET; // Define Método POST Consulta Requisição
@@ -321,7 +320,7 @@ end;
 
 procedure TBoletoW_Sicoob_V3.DefinirAuthorization;
 begin
-  if Boleto.Configuracoes.WebService.Ambiente = taProducao then
+  if Boleto.Configuracoes.WebService.Ambiente = tawsProducao then
     FPAuthorization := C_AUTHORIZATION + ': Bearer ' + GerarTokenAutenticacao
   else
     FPAuthorization := C_AUTHORIZATION + ': Bearer ' + C_ACCESS_TOKEN_HOM;
@@ -380,7 +379,7 @@ end;
 
 function TBoletoW_Sicoob_V3.ValidaAmbiente: Integer;
 begin
-  result := StrToIntDef(IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao, '1','2'), 2);
+  result := StrToIntDef(IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao, '1','2'), 2);
 end;
 
 procedure TBoletoW_Sicoob_V3.RequisicaoBaixa;

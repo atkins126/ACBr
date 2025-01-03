@@ -45,6 +45,18 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+19/12/2024
+-- ACBrGNReGuiaRLClass --
+[*] #TK-6366: Alteração visando usar o caminho/nome definido na propriedade ArquivoPDF como
+    sendo o nome do PDF salvo em disco.
+Por: Italo Giurizzato Junior
+
+27/11/2024
+-- pgnreRetConsResLoteGNRE --
+[-] Correção de memory leaks.
+    https://www.projetoacbr.com.br/forum/topic/80787-fuga-de-mem%C3%B3ria-leak-gnre/#comment-523118
+    por: doszapro
+
 08/08/2024
 -- pgnreConsResLoteGNRE --
 [*] #TK-5791: Altera os parâmetros de tamanho min e max do numeroRecibo na geração do XML de consulta para coincidir com versão 2.11 do manual e schemas.

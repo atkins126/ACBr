@@ -77,6 +77,8 @@ begin
 
   FormatoAliq := tcDe2;
 
+  NrOcorrInscEstTomador := 0;
+
   NrOcorrComplTomador := 1;
   NrOcorrFoneTomador := 1;
   NrOcorrEmailTomador := 1;
@@ -180,11 +182,11 @@ begin
     begin
       Result.AppendChild(GerarIdentificacaoTomador);
     end;
-
+    {
     // Envio de nome com o Caracter '&'
     NFSe.Tomador.RazaoSocial := StringReplace(NFSe.Tomador.RazaoSocial,
                                           '&amp;', '&amp;amp;', [rfReplaceAll]);
-
+    }
     Result.AppendChild(AddNode(tcStr, '#38', 'RazaoSocial', 1, 115, 0,
                                           NFSe.Tomador.RazaoSocial, DSC_XNOME));
 

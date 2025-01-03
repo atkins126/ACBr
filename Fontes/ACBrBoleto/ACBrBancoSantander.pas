@@ -56,6 +56,7 @@ type
     function DefineTipoDiasProtesto(const ACBrTitulo: TACBrTitulo): String; override;
     function InstrucoesProtesto(const ACBrTitulo: TACBrTitulo): String; override;
     function DefineTipoCarteira(const ACBrTitulo: TACBrTitulo): String;
+    function DefineTipoSacado(const ACBrTitulo: TACBrTitulo): String; override;
     function DefineCarteira(const ACBrTitulo: TACBrTitulo): String;
     function DefineTipoDocumento(const ACBrTitulo: TACBrTitulo): String; reintroduce;
     function MontaInstrucoes1CNAB240(const ACBrTitulo: TACBrTitulo): String;
@@ -318,6 +319,17 @@ begin
        else
         Result := '2';
     end;
+  end;
+end;
+
+function TACBrBancoSantander.DefineTipoSacado(const ACBrTitulo: TACBrTitulo): String;
+begin
+  case ACBrTitulo.Sacado.Pessoa of
+    pFisica   : Result := '01';
+    pJuridica : Result := '02';
+    pOutras   : Result := '99';
+  else
+    Result := '00';
   end;
 end;
 
@@ -901,10 +913,10 @@ begin
               LMensagem1 := TiraAcentos(Mensagem[0]);
 
             if Mensagem.Count >= 2 then
-              LMensagem1 := TiraAcentos(Mensagem[1]);
+              LMensagem2 := TiraAcentos(Mensagem[1]);
 
             if Mensagem.Count >= 3 then
-              LMensagem1 := TiraAcentos(Mensagem[2]);
+              LMensagem3 := TiraAcentos(Mensagem[2]);
 
             wLinha:= '2'                                                      + // 001-001 "2" - Recibo Pagador
                      space(16)                                                + // 002-017 Reservado Banco

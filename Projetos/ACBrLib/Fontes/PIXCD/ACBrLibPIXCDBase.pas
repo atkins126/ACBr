@@ -91,7 +91,7 @@ type
 implementation
 
 Uses
-  ACBrLibConsts, ACBrLibConfig, ACBrLibPIXCDConfig, ACBrPIXCD, ACBrPIXBase, ACBrLibPIXCDRespostas, ACBrLibPIXCDMateraRespostas, ACBrLibHelpers,
+  ACBrLibConsts, ACBrLibConfig, ACBrLibPIXCDConsts, ACBrLibPIXCDConfig, ACBrPIXCD, ACBrPIXBase, ACBrLibPIXCDRespostas, ACBrLibPIXCDMateraRespostas, ACBrLibHelpers,
   ACBrUtil.Strings, ACBrUtil.Base, ACBrPIXSchemasCob, ACBrPIXSchemasCobV, ACBrSchemasMatera;
 
 { TACBrLibPIXCD }
@@ -399,7 +399,7 @@ begin
 
       if Ok then
       begin
-        Resp := TLibPIXCDCobResposta.Create(Config.TipoResposta, Config.CodResposta);
+        Resp := TLibPIXCDCobResposta.Create(CSessaoRespCobGerada, Config.TipoResposta, Config.CodResposta);
         try
           Resp.ProcessarCobGerada(PIXCDDM.ACBrPixCD1.PSP.epCob.CobGerada);
           Resposta := Resp.Gerar;
@@ -452,7 +452,7 @@ begin
 
       if Ok then
       begin
-        Resp := TLibPIXCDCobResposta.Create(Config.TipoResposta, Config.CodResposta);
+        Resp := TLibPIXCDCobResposta.Create(CSessaoRespCobGerada, Config.TipoResposta, Config.CodResposta);
         try
           Resp.ProcessarCobCompleta(PIXCDDM.ACBrPixCD1.PSP.epCob.CobCompleta);
           Resposta := Resp.Gerar;
@@ -566,7 +566,7 @@ begin
 
       if Ok then
       begin
-        Resp := TLibPIXCDCobResposta.Create(Config.TipoResposta, Config.CodResposta);
+        Resp := TLibPIXCDCobResposta.Create(CSessaoRespCobGerada, Config.TipoResposta, Config.CodResposta);
         try
           Resp.ProcessarCobGerada(PIXCDDM.ACBrPixCD1.PSP.epCob.CobGerada);
           Resposta := Resp.Gerar;
@@ -625,7 +625,7 @@ begin
 
       if Ok then
       begin
-        Resp := TLibPIXCDCobResposta.Create(Config.TipoResposta, Config.CodResposta);
+        Resp := TLibPIXCDCobResposta.Create(CSessaoRespCobGerada, Config.TipoResposta, Config.CodResposta);
         try
           Resp.ProcessarCobGerada(PIXCDDM.ACBrPixCD1.PSP.epCob.CobGerada);
           Resposta := Resp.Gerar;
@@ -682,7 +682,7 @@ begin
 
       if Ok then
       begin
-        Resp := TLibPIXCDCobVResposta.Create(Config.TipoResposta, Config.CodResposta);
+        Resp := TLibPIXCDCobVResposta.Create(CSessaoRespCobVGerada, Config.TipoResposta, Config.CodResposta);
         try
           Resp.ProcessarCobVGerada(PIXCDDM.ACBrPixCD1.PSP.epCobV.CobVGerada);
           Resposta := Resp.Gerar;
@@ -735,7 +735,7 @@ begin
 
       if Ok then
       begin
-        Resp := TLibPIXCDCobVResposta.Create(Config.TipoResposta, Config.CodResposta);
+        Resp := TLibPIXCDCobVResposta.Create(CSessaoRespCobVGerada, Config.TipoResposta, Config.CodResposta);
         try
           Resp.ProcessarCobVCompleta(PIXCDDM.ACBrPixCD1.PSP.epCobV.CobVCompleta);
           Resposta := Resp.Gerar;
@@ -849,7 +849,7 @@ begin
 
       If Ok Then
       begin
-        Resp := TLibPIXCDCobVResposta.Create(Config.TipoResposta, Config.CodResposta);
+        Resp := TLibPIXCDCobVResposta.Create(CSessaoRespCobVGerada, Config.TipoResposta, Config.CodResposta);
         try
           Resp.ProcessarCobVGerada(PIXCDDM.ACBrPixCD1.PSP.epCobV.CobVGerada);
           Resposta := Resp.Gerar;
@@ -908,7 +908,7 @@ begin
 
       If Ok Then
       begin
-        Resp := TLibPIXCDCobVResposta.Create(Config.TipoResposta, Config.CodResposta);
+        Resp := TLibPIXCDCobVResposta.Create(CSessaoRespCobVGerada, Config.TipoResposta, Config.CodResposta);
         try
           Resp.ProcessarCobVGerada(PIXCDDM.ACBrPixCD1.PSP.epCobV.CobVGerada);
           Resposta := Resp.Gerar;
@@ -1141,6 +1141,9 @@ begin
   except
     on E: EACBrLibException do
       Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
+
+    on E: EACBrPixHttpException do
+      Result := SetRetorno(ErrHttp, ConverterStringSaida(E.Message + sLineBreak + 'Resposta HTTP: ' + PIXCDDM.ACBrPSPMatera1.ErroResposta.AsJSON));
 
     on E: Exception do
       Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
@@ -1403,6 +1406,9 @@ begin
     on E: EACBrLibException do
       Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
+    on E: EACBrPixHttpException do
+      Result := SetRetorno(ErrHttp, ConverterStringSaida(E.Message + sLineBreak + 'Resposta HTTP: ' + PIXCDDM.ACBrPSPMatera1.ErroResposta.AsJSON));
+
     on E: Exception do
       Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
@@ -1434,6 +1440,9 @@ begin
   except
     on E: EACBrLibException do
       Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
+
+    on E: EACBrPixHttpException do
+      Result := SetRetorno(ErrHttp, ConverterStringSaida(E.Message + sLineBreak + 'Resposta HTTP: ' + PIXCDDM.ACBrPSPMatera1.ErroResposta.AsJSON));
 
     on E: Exception do
       Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
@@ -1493,6 +1502,9 @@ begin
     on E: EACBrLibException do
       Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
 
+    on E: EACBrPixHttpException do
+      Result := SetRetorno(ErrHttp, ConverterStringSaida(E.Message + sLineBreak + 'Resposta HTTP: ' + PIXCDDM.ACBrPSPMatera1.ErroResposta.AsJSON));
+
     on E: Exception do
       Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
@@ -1531,6 +1543,9 @@ begin
   except
     on E: EACBrLibException do
       Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
+
+    on E: EACBrPixHttpException do
+      Result := SetRetorno(ErrHttp, ConverterStringSaida(E.Message + sLineBreak + 'Resposta HTTP: ' + PIXCDDM.ACBrPSPMatera1.ErroResposta.AsJSON));
 
     on E: Exception do
       Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
@@ -1588,6 +1603,9 @@ begin
   except
     on E: EACBrLibException do
       Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
+
+    on E: EACBrPixHttpException do
+      Result := SetRetorno(ErrHttp, ConverterStringSaida(E.Message + sLineBreak + 'Resposta HTTP: ' + PIXCDDM.ACBrPSPMatera1.ErroResposta.AsJSON));
 
     on E: Exception do
       Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));

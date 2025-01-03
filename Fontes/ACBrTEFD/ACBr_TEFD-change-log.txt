@@ -46,6 +46,221 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+27/12/2024
+-- ACBrTEFComum --
+[*] Ajustes para a classe 'TACBrTEFArquivo' usar a busca por Chave alfanumérica
+
+-- ACBrTEFAPIScope, ACBrTEFScopeAPI --
+[*] Refatoração de classes e métodos, para simplificação, e melhor isolamento de
+    classes
+
+-- ACBrTEFAPIScope --
+[+] Implementação de Definiçoes de Campo e Validação em 'QuandoPerguntarCampoAPI'
+
+-- ACBrTEFPayGoWebComum --
+[*] Métodos 'ValidarMMAA' e 'ValidarDDMMAA' movidos para ACBrUtil.Base
+    (por: DSA)
+
+23/12/2024
+-- ACBrTEFCliSiTefComum --
+[*] Ajustes nos textos de mensagens de resolução de transação Pendente
+
+-- ACBrTEFAPICliSiTef --
+[*] Ajuste em 'TACBrTEFAPIClassCliSiTef.ResolverTransacaoPendente' para exibir
+    mensagens quando Confirmar ou Estornar a transação Pendente, conforme
+    requisito de homologação
+[*] Ajuste para que todas as transações iniciadas, possuam um identificados único
+    Se nada for informado, usa a Data e Hora com a mascara 'yyyymmddhhmmss'
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=80973
+
+-- ACBrTEFAPIComum --
+[*] Método 'TACBrTEFAPIRespostas.AcharTransacao', modificado para não considerar
+    o Case na busca por 'REDE'
+    (por: DSA)
+
+18/12/2024
+-- ACBrTEFAPI --
+[-] Remoção da propriedade 'NaoRemoverMascaraResposta'.
+
+-- ACBrTEFAPICliSiTef, ACBrTEFAPIElgin, ACBrTEFAPIPaygoWeb --
+[-] Ajuste por removação da propriedade 'NaoRemoverMascaraResposta'.
+
+-- ACBrTEFAPIDestaxa --
+[+] Inclusão da função 'AplicarMascaraData()' para tratar automaticamente a resposta
+    do evento QuandoPerguntarCampoAPI().
+    por: Elias César
+
+17/12/2024
+-- ACBrTEFDestaxaComum --
+[-] Correção de exibição do QRCode na tela.
+    por: Elias César
+
+17/12/2024
+-- ACBrTEFAPICliSiTef, ACBrTEFAPIElgin, ACBrTEFAPIPaygoWeb --
+[*] Altera para definir a propriedade 'NaoRemoverMascaraResposta' ao chamar evento
+    'QuandoPerguntarCampo' nos demais TEFs.
+    por: Elias César
+
+11/12/2024
+-- ACBrTEFAPIDestaxaComum --
+[+] Criação de função para possibilitar executar transação sem alterar último sequencial
+
+-- ACBrTEFAPIDestaxa --
+[*] Alterada TACBrTEFRespDestaxa para possibilitar o acesso às propriedades da resposta
+    original do TEF Destaxa;
+[*] Ajuste para confirmar as Transações que estão pendentes dentro da venda.
+    por: Elias César
+
+11/12/2024
+-- ACBrTEFAPIDestaxa --
+[-] Correção para retorno correto ao efetuar Venda Pix.
+    por: Digital Way
+[+] Correção de problema ao imprimir comprovantes de Cancelamento.
+    por: Elias César
+
+10/12/2024
+-- ACBrTEFAPICliSiTef, ACBrTEFCliSiTefComum --
+[-] Ajuste para que o método "ConteudoToProperty" sempre considere a resposta
+    lida pelo método "CarregarRespostasPendentes" com o Status de Confirmar = True
+
+-- ACBrTEFAPICliSiTef --
+[*] Ajuste no método "EfetuarPagamento", para não adicionar restrições na
+    transação, quando a operação for igual a 0
+    (por: DSA)
+
+09/12/2024
+-- ACBrTEFAPIDestaxa --
+[*] Correção para parâmetro "Confirmar Transação Automaticamente";
+[+] Inclusão dos campos BIN e UltimosQuatroDigitos  no "ConteudoToProperty".
+    por: Elias César
+
+05/12/2024
+-- ACBrTEFAPIDestaxa --
+[*] Alteração para não utilizar o comando Administracao Pendente para carregar
+    as transações pendentes ao inicializar o TEF. Será utilizado o arquivo bkp.
+    por: Elias César
+
+04/12/2024
+-- ACBrTEFAPIDestaxa --
+[*] Correção para respeitar o parâmetro "Perguntar" para Transações Pendentes.
+
+-- ACBrTEFAPIDestaxaComum --
+[*] Ajuste na leitura da mensagem com quebra de linha;
+[*] Ajuste para não enviar comandos após finalizar a transação;
+[+] Incluído sleep para não concatenar os comandos enviados ao client.
+    por: Elias César
+
+03/12/2024
+-- ACBrTEFDestaxaComum --
+[*] Ajuste para não exibir QRCode e não enviar como mensagem o hexa da imagem.
+    por: Elias César
+
+02/12/2024
+-- ACBrTEFAPIDestaxa, ACBrTEFDestaxaComum --
+[+] Inclusão de eventos para envio do QRCode pra tela.
+    por: Elias César
+
+29/11/2024
+-- ACBrTEFDestaxaComum --
+[-] Correção da máscara de envio de valores float ao client.
+    por: Elias César
+
+28/11/2024
+-- ACBrTEFAPIDestaxaComum --
+[+] Criada função para possibilitar executar uma AdministracaoPendente sem exibir
+    mensagens para a aplicação.
+[*] Ajustes após retorno de homologação do parceiro CertaSoluções (Ademir P. Voigt);
+[-] Remoção de parâmetro desnecessário na function FinalizarRequisicao e Finalizar;
+[-] Remoção da procedure TratarRetorno, pois estava causando funcionamento inesperado
+    no fluxo.
+    por: Elias César
+
+28/11/2024
+-- ACBrTEFAPIDestaxa --
+[*] Ajuste em CarregarRespostasPendentes e ResolverTransacaoPendente para utilizarem
+    a nova função ExecutarTransacaoSilenciosa;
+[*] Após orientação da Destaxa, foi alterado para não utilizar a tag estado para 
+    verificar se o pinpad foi encontrado, pois o retorno dessa tag está incorreto.
+    A função TesteConexao considerará apenas a conexão com o V$PagueServer.
+
+-- ACBrTEFAPIDestaxaComum --
+[-] Correção de problema ao Reimprimir apenas a 2ªvia (portador)
+    por: Elias César
+
+27/11/2024
+-- ACBrTEFAPIDestaxa --
+[+] Criada função TesteComunicacao para se comportar como o TEF PayGo.
+
+-- ACBrTEFAPIDestaxaComum --
+[-] Correção da consulta dos bits no retorno do campo Estado.
+    por: Elias César
+
+26/11/2024
+-- ACBrTEFAPIDestaxa --
+[+] Inclusão de campos referentes à credenciadora em ConteudoToProperty.
+    por: Elias César
+
+25/11/2024
+-- ACBrTEFAPIDestaxa --
+[+] Alteração para carregar as respostas pendentes do próprio V$PagueClient
+    através do comando "Adminitracao Pendente".
+[*] Alteração para também utilizar o comando "Administracao Pendente" ao 
+    resolver uma transacao pendente.
+    por: Elias César
+
+-- ACBrTEFAPIDestaxaComum --
+[*] Ajuste no ProcessarColeta para exibição correta das mensagens.
+[-] Correção do tipo da propriedade automacao_coleta_transacao_resposta para String.
+
+-- ACBrTEFAPI --
+[+] Inclusão de nova propriedade para não remover a máscara no momento de enviar
+    a resposta em OnObterCampo.
+
+24/11/2024
+-- ACBrTEFAPIAditum --
+[-] Ajuste em 'TACBrTEFAPIClassAditum.TransmitirHttp' para evitar loop infinito,
+    e considerar erros na inicialização
+[-] Correção em 'TACBrTEFAPIClassAditum.Autenticar', no tratamento de resposta
+    com erro
+[*] Ajuste para simular Menu Administrativo quando chamar EfetuarAdministrativa,
+    sem parâmetros
+    (por: DSA)
+
+21/11/2024
+-- ACBrTEFAPIStoneAutoTEF --
+[-] Correção para transações Credito A VISTA e Parcelado
+[*] Ajuste para simular Menu Administrativo quando chamar EfetuarAdministrativa,
+    sem parâmetros
+    (por: DSA)
+
+14/11/2024
+-- ACBrTEFDestaxaComum, ACBrTEFAPIDestaxa --
+[*] Ajustes para integração com a Destaxa
+
+12/11/2024
+-- ACBrTEFDestaxaComum, ACBrTEFAPIDestaxa --
+[*] Continuação das alterações para integração TEF Destaxa
+    por: Elias César
+
+12/11/2024
+-- ACBrTEFDestaxaComum --
+[-] Ajuste para utilização em Delphi
+
+-- ACBrTEFAPIDestaxa --
+[*] Ajuste para utilizar endereço IP e porta padrão, caso não informado no componente
+    por: Elias César
+
+11/11/2024
+-- ACBrTEFDestaxaComum, ACBrTEFAPIDestaxa --
+[*] Ajustes no controle do Sequencial;
+[*] Ajuste na confirmação de transação.
+    por: Elias César 
+
+04/11/2024
+-- ACBrTEFDestaxaComum --
+[+] Início do desenvolvimento do novo modelo de TEF "Destaxa"
+    por: Elias César
+
 14/10/2024
 -- ACBrTEFAPI, ACBrTEFAPIAditum --
 [+] Inicio do desenvolvimento de novo modelo de TEF "tefAditumAPI"

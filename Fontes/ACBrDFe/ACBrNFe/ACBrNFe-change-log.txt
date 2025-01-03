@@ -44,9 +44,104 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+23/12/2024
+-- ACBrNFeDANFEClass --
+[*] #TK-6398: Ajustado a quantidade de casas decimais do campo qLote. 
+   Por: Italo Giurizzato Junior
+-- pcnNFeConsts --
+[*] Remoção de unit sem uso.
+   Por: Italo Giurizzato Junior
+
+20/12/2024
+-- pcnNFe --
+[*] #TK-6132: Altera o tipo dos campos qCom/qTrib para Double visando corrigir divergência no comportamento das compilações x86 e x64.
+  Por: Diego Folieni
+
+19/12/2024
+-- ACBrNFe.XmlWriter --
+[*] Imposta uma condição para que as tags do ICMS 51 sejam obrigatórias se a UF for PR.
+   Por: Italo Giurizzato Junior
+
+13/12/2024
+-- Diversos --
+[+] #TK-5944: Implementado a unit especifica para imprimir a DANFE em Etiqueta
+    em Fortes.
+  Por: Rodrigo Ogioni/Italo Giurizzato Junior
+
+12/12/2024
+-- ACBrNFeWebService --
+[*] #TK-5992: Trocado a unit pcnRetEnvNFe pela ACBrDFeComum.RetEnvio que não
+    utiliza a pcnLeitor para realizar a leitura do XML de retorno do envio da
+    NF-e.
+  Por: Italo Giurizzato Junior
+
+11/12/2024
+-- ACBrNFe.Classes --
+[+] #TK-6346: Criação da nova unit que contem as classes do NF-e.
+   Por: Italo Giurizzato Junior
+
+04/12/2024
+-- ACBrNFe.XmlWriter --
+[-] Corrigido as condições para gerar algumas tags do CST 60 e CSOSN 500.
+   Por: Italo Giurizzato Junior
+
+03/12/2024
+-- pcnModeloNFe --
+[*] Removida a referida unit por ela não ser utilizada pelo componente.
+   Por: Italo Giurizzato Junior
+-- ACBrNFeWebServices/ACBrNFe.AdmCSC/ACBrNFe.ConsSit/ACBrNFe.EnvEvento --
+-- ACBrNFe.Inut/ACBrNFe.RetConsSit/pcnNFeW/pcnProcNFe --
+[*] #TK-5993: Realizado a substituição da unit de constantes de: pcnNFeConsts
+    por: ACBrNFe.Consts 
+   Por: Italo Giurizzato Junior
+
+02/12/2024
+-- ACBrNFe.XmlWriter --
+[-] Corrigido a geração da tag vICMSSubstituto para o ICMS60.
+   Por: Italo Giurizzato Junior
+
+29/11/2024
+-- ACBrNFeNotasFiscais --
+[*] Alterado a condição na leitura do arquivo INI que determina se vai ler os
+    campos referente a Retirada e Entrega.
+   Por: Italo Giurizzato Junior
+
+27/11/2024
+-- ACBrNFe.Consts --
+[+] #TK-5993: Disponibilizado a nova Unit de Constantes do NFe, mas ela ainda não esta
+    em uso.
+   Por: Italo Giurizzato Junior
+
+26/11/2024
+-- pcnEnvNFe --
+[*] TK-5991: Removida a referida unit por ela não ser utilizada pelo componente.
+   Por: Italo Giurizzato Junior
+
+25/11/2024
+-- ACBrNFe.XmlReader --
+[*] TK-6266: Adiciona leitura da tag pesoB.
+   Por: Diego Folieni 
+
+22/11/2024
+-- ACBrNFeNotasFiscais --
+[*] Corrige o nome da função
+   Por: Diego Folieni
+[*] #TK-6139: Adiciona tratativa para arquivos UTF8BOM.
+   Por: Diego Folieni 
+
+14/11/2024
+-- ACBrNFe.EnvEvento --
+[-] Correção na grafia da seção de detalhamento de pagamento ao ler o arquivo INI.
+   Por: Italo Giurizzato Junior
+
+04/11/2024
+-- ACBrNFe.XmlReader --
+[*] #TK-6202: Ajuste visando a correta leitura das informações do grupo ICMSST
+  Por: Diego Folieni 
+
 21/10/2024
 -- pcnConversaoNFe --
-[+] acrescentado o enumerador: teRegistroPassagemMDFe.
+[+] Acrescentado o enumerador: teRegistroPassagemMDFe.
    Por: Italo Giurizzato Junior
 -- ACBrDFeDANFeReport --
 [*] Adiciona validação que verifica se propriedade tem valor diferente de nil antes de utilizar.

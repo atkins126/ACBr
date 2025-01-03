@@ -1484,10 +1484,26 @@ begin
         qCarga := 10;
       end;
 
-      {Informações dos Documentos}
+      {Informações dos Documentos - NF-e}
       with infDoc.infNFe.New do
         // chave da NFe emitida pelo remente da carga
         chave := '33190100127817000125650080000000581000384589';
+
+      (*
+         Usado para informar os dados do documento que não seja uma NF-e
+
+      {Informações dos Documentos - Outros}
+      with infDoc.infOutros.New do
+      begin
+        // tdDeclaracao, tdDutoviario, tdCFeSAT, tdNFCe, tdOutros
+        tpDoc := tdOutros;
+        descOutros := 'Carta Remessa de Mercadoria';
+        nDoc := '1234';
+        dEmi := StrToDate('10/12/2024');
+        vDocFisc := 100;
+        dPrev := StrToDate('20/12/2024');
+      end;
+      *)
 
       // o bloco de código abaixo devemos utilizar para informar documentos
       // anteriores emitidos por outras transportadoras que chamamos de
@@ -2319,6 +2335,13 @@ begin
   MemoResp.Lines.Text   := ACBrCTe1.WebServices.Consulta.RetWS;
   memoRespWS.Lines.Text := ACBrCTe1.WebServices.Consulta.RetornoWS;
 
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Consulta Pela Chave');
+  MemoDados.Lines.Add('versao: ' + ACBrCTe1.WebServices.Consulta.versao);
+  MemoDados.Lines.Add('verAplic: ' + ACBrCTe1.WebServices.Consulta.verAplic);
+  MemoDados.Lines.Add('cStat: ' + IntToStr(ACBrCTe1.WebServices.Consulta.cStat));
+  MemoDados.Lines.Add('xMotivo: ' + ACBrCTe1.WebServices.Consulta.xMotivo);
+
   LoadXML(ACBrCTe1.WebServices.Consulta.RetWS, WBResposta);
 end;
 
@@ -3101,8 +3124,6 @@ begin
 end;
 
 procedure TfrmACBrCTe.btnLerArqINIClick(Sender: TObject);
-var
-  vNumLote: string;
 begin
   OpenDialog1.Title := 'Selecione o Arquivo INI';
   OpenDialog1.DefaultExt := '*.ini';

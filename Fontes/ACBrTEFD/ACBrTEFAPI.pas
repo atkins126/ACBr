@@ -48,7 +48,9 @@ type
                       tefApiCliSiTEF,
                       tefApiElgin,
                       tefStoneAutoTEF,
-                      tefAditumAPI );
+                      tefAditumAPI,
+                      tefScopeAPI,
+                      tefDestaxaAPI);
 
   TACBrTEFAPIExibicaoQRCode = ( qrapiNaoSuportado,
                                 qrapiAuto,
@@ -132,7 +134,7 @@ type
     MsgErroDadoMenor: String;
     MsgConfirmacaoDuplaDigitacao: String;
     TipoEntradaCodigoBarras: TACBrTEFAPITipoBarras;
-    TipoCampo: integer;
+    TipoCampo: Integer;
   end;
 
   TACBrTEFAPIQuandoEsperarFluxoAPI = procedure(
@@ -241,7 +243,9 @@ uses
   ACBrTEFAPICliSiTef,
   ACBrTEFAPIElgin,
   ACBrTEFAPIStoneAutoTEF,
-  ACBrTEFAPIAditum;
+  ACBrTEFAPIAditum,
+  ACBrTEFAPIScope,
+  ACBrTEFAPIDestaxa;
 
 { TACBrTEFAPIClass }
 
@@ -426,6 +430,8 @@ begin
     tefApiElgin    : fpTEFAPIClass := TACBrTEFAPIClassElgin.Create( Self );
     tefStoneAutoTEF: fpTEFAPIClass := TACBrTEFAPIClassStoneAutoTEF.Create( Self );
     tefAditumAPI   : fpTEFAPIClass := TACBrTEFAPIClassAditum.Create( Self );
+    tefScopeAPI    : fpTEFAPIClass := TACBrTEFAPIClassScope.Create( Self );
+    tefDestaxaAPI  : fpTEFAPIClass := TACBrTEFAPIClassDestaxa.Create( Self );
   else
     fpTEFAPIClass := TACBrTEFAPIClass.Create( Self );
   end;

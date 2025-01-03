@@ -14,7 +14,9 @@ uses
   ACBrTEFCliSiTefComum, ACBrTEFPayGoComum, ACBrTEFPayGoWebComum, ACBrPOS, 
   ACBrPOSPGWebAPI, ACBrPicpay, ACBrTEFPayGoRedes, ACBrTEFAPI, ACBrTEFAPIComum, 
   ACBrTEFAPIPayGoWeb, ACBrTEFAPICliSiTef, ACBrTEFDCliSiTefModular, 
-  ACBrTEFDDirecao, ACBrTEFDDialScopeGetcard, ACBrTEFDElgin, LazarusPackageIntf;
+  ACBrTEFDDirecao, ACBrTEFDDialScopeGetcard, ACBrTEFDElgin, 
+  ACBrTEFDestaxaComum, ACBrTEFAPIDestaxa, ACBrTEFScopeAPI, ACBrTEFAPIScope, 
+  LazarusPackageIntf;
 
 implementation
 

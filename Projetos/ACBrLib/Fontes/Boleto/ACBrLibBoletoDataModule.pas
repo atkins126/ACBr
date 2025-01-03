@@ -95,6 +95,7 @@ procedure TLibBoletoDM.AplicarConfiguracoes;
 var
   LibConfig: TLibBoletoConfig;
   wVersaoLote, wVersaoArquivo, wNumeroCorrespondente: Integer;
+  LDensidadeGravacao, LKeySoftwareHouse :string;
 begin
 
   LibConfig := TLibBoletoConfig(Lib.Config);
@@ -128,7 +129,8 @@ begin
     wVersaoArquivo := LibConfig.BoletoBancoConfig.LayoutVersaoArquivo;
     wVersaoLote := LibConfig.BoletoBancoConfig.LayoutVersaoLote;
     CasasDecimaisMoraJuros := LibConfig.BoletoBancoConfig.CasasDecimaisMoraJuros;
-    //DensidadeGravacao := LibConfig.BoletoBancoConfig.DensidadeGravacao;
+    LDensidadeGravacao := LibConfig.BoletoBancoConfig.DensidadeGravacao;
+    LKeySoftwareHouse := LibConfig.BoletoBancoConfig.KeySoftwareHouse;
     CIP := LibConfig.BoletoBancoConfig.CIP;
   end;
 
@@ -146,6 +148,14 @@ begin
   begin
     ACBrBoleto1.Banco.LayoutVersaoLote:= wVersaoLote;
   end;
+
+  if NaoEstaVazio(LDensidadeGravacao) then
+     ACBrBoleto1.Banco.DensidadeGravacao := LDensidadeGravacao;
+
+  if NaoEstaVazio(LKeySoftwareHouse) then
+     ACBrBoleto1.KeySoftwareHouse := LKeySoftwareHouse;
+
+
 
   with ACBrBoleto1.Cedente do
   begin
@@ -177,6 +187,7 @@ begin
     DigitoVerificadorAgenciaConta := LibConfig.BoletoCedenteConfig.DigitoVerificadorAgenciaConta;
     IdentDistribuicao := LibConfig.BoletoCedenteConfig.IdentDistribuicao;
     Operacao := LibConfig.BoletoCedenteConfig.Operacao;
+    CodigoFlash := LibConfig.BoletoCedenteConfig.CodigoFlash;
     PIX.Chave := LibConfig.BoletoCedenteConfig.PIXChave;
     PIX.TipoChavePIX := LibConfig.BoletoCedenteConfig.PIXTipoChave;
   end;
@@ -196,7 +207,7 @@ begin
       Arquivos.NomeArquivoLog := LibConfig.BoletoConfigWS.NomeArquivoLog;
       Arquivos.PathGravarRegistro := LibConfig.BoletoConfigWS.PathGravarRegistro;
 
-      WebService.Ambiente := LibConfig.BoletoDFeConfigWS.WebServices.Ambiente;
+      WebService.Ambiente := LibConfig.BoletoConfigWS.Ambiente;
       WebService.Operacao := LibConfig.BoletoConfigWS.Operacao;
       WebService.VersaoDF := LibConfig.BoletoConfigWS.VersaoDF;
       WebService.ArquivoCRT:= LibConfig.BoletoConfigWS.ArquivoCRT;
