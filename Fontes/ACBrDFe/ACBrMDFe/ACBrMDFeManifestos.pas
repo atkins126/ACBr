@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -41,7 +41,7 @@ uses
   SysUtils, 
   StrUtils,
   ACBrMDFeConfiguracoes,
-  pmdfeMDFe, 
+  ACBrMDFe.Classes,
   {$IfDef USE_ACBr_XMLDOCUMENT}
   ACBrMDFe.XmlReader,
   ACBrMDFe.XmlWriter,
@@ -1150,15 +1150,16 @@ begin
       INIRec.WriteString('infRespTec', 'xContato', infRespTec.xContato);
       INIRec.WriteString('infRespTec', 'email', infRespTec.email);
       INIRec.WriteString('infRespTec', 'fone', infRespTec.fone);
-
-      INIRec.WriteString('procMDFe', 'tpAmb', TpAmbToStr(procMDFe.tpAmb));
+      {
+      INIRec.WriteString('procMDFe', 'tpAmb', TipoAmbienteToStr(procMDFe.tpAmb));
       INIRec.WriteString('procMDFe', 'verAplic', procMDFe.verAplic);
-      INIRec.WriteString('procMDFe', 'chMDFe', procMDFe.chMDFe);
+      INIRec.WriteString('procMDFe', 'chMDFe', procMDFe.chDFe);
       INIRec.WriteString('procMDFe', 'dhRecbto', DateTimeToStr(procMDFe.dhRecbto));
       INIRec.WriteString('procMDFe', 'nProt', procMDFe.nProt);
       INIRec.WriteString('procMDFe', 'digVal', procMDFe.digVal);
       INIRec.WriteString('procMDFe', 'cStat', IntToStr(procMDFe.cStat));
       INIRec.WriteString('procMDFe', 'xMotivo', procMDFe.xMotivo);
+      }
     end;
 
     IniDFe := TStringList.Create;

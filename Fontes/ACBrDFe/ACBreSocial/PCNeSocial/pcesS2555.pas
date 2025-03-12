@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                              Jean Carlo Cantu                                }
 {                              Tiago Ravache                                   }
 {                              Guilherme Costa                                 }
@@ -61,7 +61,6 @@ uses
   pcesCommon, pcesConversaoeSocial, pcesGerador, pcnLeitor;
 
 type
-
   TIdeProc = class(TObject)
   private
     FnrProcTrab: String;
@@ -198,11 +197,12 @@ begin
     GerarRodape;
 
     FXML := Gerador.ArquivoFormatoXML;
-
   except
     on E:Exception do
       raise Exception.Create('ID: ' + Self.Id + sLineBreak + ' ' + e.Message);
   end;
+
+  Result := (Gerador.ArquivoFormatoXML <> '')
 end;
 
 function TEvtConsolidContProc.LerArqIni(const AIniString: String): Boolean;

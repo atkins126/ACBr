@@ -364,8 +364,11 @@ begin
     Def.MascaraDeCaptura := '**/**'
   else if (aMascara = CDESTAXA_MASCARA_DECIMAL) then
     Def.MascaraDeCaptura := '@,@@'
-  else
-    Def.MascaraDeCaptura := aMascara;
+  else if (Pos('#', aMascara) > 0) then
+  begin
+    Def.TamanhoMaximo := Length(aMascara);
+    Def.MascaraDeCaptura := StringReplace(aMascara, '#', '*', [rfReplaceAll]);
+  end;
 
   case aTipo of
     dctNaoExibivel: Def.TipoDeEntrada := tedApenasLeitura;
@@ -455,22 +458,25 @@ procedure TACBrTEFAPIClassDestaxa.Inicializar;
 var
   wErro: Integer;
 begin
-  inherited;
-  wErro := DestaxaClient.Socket.Conectar;
-  if NaoEstaZerado(wErro) then
-    raise EACBrTEFDestaxaErro.Create(
-      ACBrStr(
-        'Erro ao conectar Destaxa Client' + sLineBreak +
-        'Endereço: ' + DestaxaClient.EnderecoIP + sLineBreak +
-        'Porta: ' + DestaxaClient.Porta + sLineBreak +
-        'Erro: ' + IntToStr(wErro) + '-' + DestaxaClient.Socket.LastErrorDesc));
-  fpInicializado := True;
+  try
+    wErro := DestaxaClient.Socket.Conectar;
+    if NaoEstaZerado(wErro) then
+      raise EACBrTEFDestaxaErro.Create(
+        ACBrStr(
+          'Erro ao conectar Destaxa Client' + sLineBreak +
+          'Endereço: ' + DestaxaClient.EnderecoIP + sLineBreak +
+          'Porta: ' + DestaxaClient.Porta + sLineBreak +
+          'Erro: ' + IntToStr(wErro) + '-' + DestaxaClient.Socket.LastErrorDesc));
+    fpInicializado := True;
+  finally
+    DestaxaClient.Socket.Desconectar;
+  end;
 end;
 
 procedure TACBrTEFAPIClassDestaxa.DesInicializar;
 begin
-  DestaxaClient.Socket.Conectar;
-  inherited DesInicializar;
+  DestaxaClient.Socket.Desconectar;
+  fpInicializado := False;
 end;
 
 function TACBrTEFAPIClassDestaxa.EfetuarPagamento(ValorPagto: Currency; Modalidade: TACBrTEFModalidadePagamento; CartoesAceitos: TACBrTEFTiposCartao;
@@ -633,7 +639,10 @@ begin
     begin
       DestaxaClient.Requisicao.retorno := retorno;
       DestaxaClient.Requisicao.sequencial := TACBrTEFRespDestaxa(fpACBrTEFAPI.RespostasTEF[i]).DestaxaResposta.sequencial;
-      DestaxaClient.ExecutarTransacaoAnterior(CDESTAXA_CARTAO_VENDER);
+      if (TACBrTEFRespDestaxa(fpACBrTEFAPI.RespostasTEF[i]).DestaxaResposta.transacao = CDESTAXA_DIGITAL_PAGAR) then
+        DestaxaClient.ExecutarTransacaoAnterior(CDESTAXA_DIGITAL_PAGAR)
+      else
+        DestaxaClient.ExecutarTransacaoAnterior(CDESTAXA_CARTAO_VENDER);
     end;
 
     if (fpACBrTEFAPI.UltimaRespostaTEF.NSU = NSU) then

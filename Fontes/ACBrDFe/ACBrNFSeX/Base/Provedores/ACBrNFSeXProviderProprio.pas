@@ -145,8 +145,7 @@ type
     procedure GerarMsgDadosConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
     procedure TratarRetornoConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
 
-    function AplicarXMLtoUTF8(const AXMLRps: String): String; virtual;
-    function AplicarLineBreak(const AXMLRps: String; const ABreak: String): String; virtual;
+    function AplicarLineBreak(const AXMLRps: string; const ABreak: string): string; virtual;
 
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
@@ -323,8 +322,10 @@ begin
 
     Nota.GerarXML;
 
-    Nota.XmlRps := AplicarXMLtoUTF8(Nota.XmlRps);
+    Nota.XmlRps := ConverteXMLtoUTF8(Nota.XmlRps);
     Nota.XmlRps := AplicarLineBreak(Nota.XmlRps, '');
+
+//    Nota.XmlRps := AplicarXMLtoUTF8(Nota.XmlRps);
 
     if (ConfigAssinar.Rps and (Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono, meTeste])) or
        (ConfigAssinar.RpsGerarNFSe and (Response.ModoEnvio = meUnitario)) then
@@ -478,6 +479,12 @@ procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultaNFSe(
   Response: TNFSeConsultaNFSeResponse; Params: TNFSeParamsResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+function TACBrNFSeProviderProprio.AplicarLineBreak(const AXMLRps,
+  ABreak: string): string;
+begin
+  Result := ChangeLineBreak(AXMLRps, ABreak);
 end;
 
 procedure TACBrNFSeProviderProprio.AssinarConsultaNFSe(
@@ -770,7 +777,7 @@ begin
 
   Nota.GerarXML;
 
-  Nota.XmlRps := AplicarXMLtoUTF8(Nota.XmlRps);
+  Nota.XmlRps := ConverteXMLtoUTF8(Nota.XmlRps);
   Nota.XmlRps := AplicarLineBreak(Nota.XmlRps, '');
 
   if ConfigAssinar.RpsSubstituirNFSe then
@@ -840,16 +847,6 @@ end;
 procedure TACBrNFSeProviderProprio.TratarRetornoSubstituiNFSe(Response: TNFSeSubstituiNFSeResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
-end;
-
-function TACBrNFSeProviderProprio.AplicarXMLtoUTF8(const AXMLRps: String): String;
-begin
-  Result := ConverteXMLtoUTF8(AXMLRps);
-end;
-
-function TACBrNFSeProviderProprio.AplicarLineBreak(const AXMLRps: String; const ABreak: String): String;
-begin
-  Result := ChangeLineBreak(AXMLRps, ABreak);
 end;
 
 procedure TACBrNFSeProviderProprio.GerarMsgDadosGerarToken(

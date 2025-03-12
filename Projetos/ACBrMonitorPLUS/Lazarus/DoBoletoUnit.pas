@@ -1357,6 +1357,7 @@ begin
       begin
         ArquivoKEY := fACBrBoleto.Configuracoes.WebService.ArquivoKEY;
         ArquivoCRT := fACBrBoleto.Configuracoes.WebService.ArquivoCRT;
+        CertificadoHTTP:= fACBrBoleto.Configuracoes.WebService.UseCertificateHTTP;;
       end;
 
     with RemessaRetorno do
@@ -1373,6 +1374,8 @@ begin
     CNAB := Integer(fACBrBoleto.LayoutRemessa);
   with MonitorConfig.BOLETO.RemessaRetorno do
     KeySoftwareHouse := fACBrBoleto.KeySoftwareHouse;
+  with MonitorConfig.BOLETO.RemessaRetorno do
+    VersaoArquivo := inttostr(fACBrBoleto.banco.LayoutVersaoArquivo);
 
   {Parametros da Conta}
   with MonitorConfig.BOLETO.Conta do

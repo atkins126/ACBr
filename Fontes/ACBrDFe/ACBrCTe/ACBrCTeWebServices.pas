@@ -41,7 +41,7 @@ uses
   ACBrDFe, ACBrDFeWebService,
   ACBrDFeConsts,
   ACBrDFeUtil,
-  pcteCTe,
+  ACBrCTe.Classes,
   pcnRetConsReciDFe,
   ACBrDFeComum.RetConsCad,
   ACBrDFeComum.RetEnvio,
@@ -3715,7 +3715,8 @@ begin
         *)
         schprocCTe,
         schprocCTeOS,
-        schprocGTVe:
+        schprocGTVe,
+		schprocCTeSimp:
           FNomeArq := FretDistDFeInt.docZip.Items[I].resDFe.chDFe + '-cte.xml';
 
         schprocEventoCTe:
@@ -3735,7 +3736,7 @@ begin
           FPDFeOwner.Gravar(FNomeArq, AXML, aPath);
 
         if (FretDistDFeInt.docZip.Items[I].schema in [schprocCTe, schprocCTeOS,
-             schprocGTVe]) then
+             schprocGTVe, schprocCTeSimp]) then
           FPDFeOwner.Gravar(FNomeArq, AXML, aPath);
       end;
     end;

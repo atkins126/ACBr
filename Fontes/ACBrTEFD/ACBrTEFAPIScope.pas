@@ -65,7 +65,7 @@ type
     fTEFScopeAPI: TACBrTEFScopeAPI;
 
     procedure QuandoGravarLogAPI(const ALogLine: String; var Tratado: Boolean);
-    procedure QuandocopeTransacaoEmAndamentoAPI( EstadoOperacao: TACBrTEFScopeEstadoOperacao;
+    procedure QuandoTransacaoEmAndamentoAPI( EstadoOperacao: TACBrTEFScopeEstadoOperacao;
       out Cancelar: Boolean);
 
     procedure QuandoExibirMensagemAPI(const Mensagem: String;
@@ -75,11 +75,14 @@ type
     procedure QuandoPerguntarCampoAPI( const TituloCampo: String;
        const Param_Coleta_Ext: TParam_Coleta_Ext;
        var Resposta: String; var AcaoResposta: Byte);
+    procedure QuandoExibirQRCodeAPI(const Dados: String);
 
     procedure SetDiretorioTrabalho(const AValue: String);
     function DadoPinPadToMsg(ADadoPinPad: TACBrTEFAPIDadoPinPad): Word;
 
   protected
+    function IniciarTransacao(OperacaoScope: TACBrTEFScopeOperacao;
+       const Param1: String = ''; const Param2: String = ''; const Param3: String = ''): LongInt;
     function ExecutarTransacaoScopeSessaoUnica(OperacaoScope: TACBrTEFScopeOperacao;
        const Param1: String = ''; const Param2: String = ''; const Param3: String = ''): Boolean;
 
@@ -131,6 +134,14 @@ type
     function MenuPinPad(const Titulo: String; Opcoes: TStrings; TimeOut: Integer = 30000): Integer; override;
     function VerificarPresencaPinPad: Byte; override;
 
+    procedure ObterListaImagensPinPad(ALista: TStrings); override;
+    procedure ObterDimensoesVisorPinPad(out Width: Word; out Height: Word); override;
+
+    procedure ExibirImagemPinPad(const NomeImagem: String); override;
+    procedure ApagarImagemPinPad(const NomeImagem: String); override;
+    procedure CarregarImagemPinPad(const NomeImagem: String; AStream: TStream;
+      TipoImagem: TACBrTEFAPIImagemPinPad); override;
+
     property TEFScopeAPI: TACBrTEFScopeAPI read fTEFScopeAPI;
     property DiretorioTrabalho: String read fDiretorioTrabalho write SetDiretorioTrabalho;
   end;
@@ -138,7 +149,7 @@ type
 implementation
 
 uses
-  math, TypInfo, DateUtils,
+  math, TypInfo, DateUtils, StrUtils,
   ACBrUtil.Strings,
   ACBrUtil.Base,
   ACBrUtil.Math,
@@ -149,265 +160,187 @@ uses
 procedure TACBrTEFRespScope.ConteudoToProperty;
   procedure TrataCamposMask1(const IDCampo: Int64; Linha: TACBrTEFLinha);
   begin
-    case IDCampo of
-      MASK1_Numero_Conta_PAN:
-        ;
-      MASK1_Valor_transacao:
-        ValorTotal := Linha.Informacao.AsFloat;
-      MASK1_NSU_transacao:
-        NSU_TEF := Linha.Informacao.AsString;
-      MASK1_Hora_local_transacao:
-        DataHoraTransacaoLocal := DateOf(DataHoraTransacaoLocal) + Linha.Informacao.AsTime;
-      MASK1_Data_local_transacao:
+    //MASK1_Numero_Conta_PAN
+    //MASK1_Data_referencia
+    //MASK1_Codigo_Origem_Mensagem
+    //MASK1_Cod_Servico    // Ver tabela Código serviços página 340
+    //MASK1_Texto_BIT_62   // Parece muito o espelho do comprovante????
+    //MASK1_Cartao_Trilha02
+    //MASK1_Numero_Promissorias
+    //MASK1_Cod_Estab_Impresso //<-- CNPJ do Estabelecimento
+    //MASK1_CGC_Convenio
+    //MASK1_Msg_Autentic_Cheque
+    //MASK1_Saldo_Disponivel
+
+    if IDCampo = MASK1_Numero_Conta_PAN then
+      NFCeSAT.UltimosQuatroDigitos := RightStr(Linha.Informacao.AsString, 4)
+    else if IDCampo = MASK1_Valor_transacao then
+      ValorTotal := Linha.Informacao.AsFloat
+    else if IDCampo = MASK1_NSU_transacao then
+      NSU_TEF := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Hora_local_transacao then
+      DataHoraTransacaoLocal := DateOf(DataHoraTransacaoLocal) + Linha.Informacao.AsTime
+    else if IDCampo = MASK1_Data_local_transacao then
+    begin
+      if Trim(Linha.Informacao.AsString) <> '' then
         DataHoraTransacaoLocal := Linha.Informacao.AsDate + TimeOf(DataHoraTransacaoLocal);
-      MASK1_Data_vencimento_cartao:
-        NFCeSAT.DataExpiracao := Linha.Informacao.AsString;
-      //MASK1_Data_referencia:
-      //  ;
-      MASK1_Numero_cheque:
-        Cheque := Linha.Informacao.AsString;
-      MASK1_Codigo_autorizacao:
-        CodigoAutorizacaoTransacao := Linha.Informacao.AsString;
-      MASK1_Codigo_resposta:
-        CodigoRedeAutorizada := Linha.Informacao.AsString;
-      MASK1_Identificacao_terminal:
-        Estabelecimento := Linha.Informacao.AsString; //???
-      //MASK1_Codigo_Origem_Mensagem:
-      //  ;
-      MASK1_Plano_Pagamento:
-        QtdParcelas := Linha.Informacao.AsInteger;
-      MASK1_Valor_Taxa_Servico:
-        TaxaServico := Linha.Informacao.AsFloat;
-      MASK1_NSU_Host:
-        NSU := Linha.Informacao.AsString;
-      MASK1_Cod_Banco:
-        Banco := Linha.Informacao.AsString;
-      MASK1_Cod_Agencia:
-        Agencia := Linha.Informacao.AsString;
-      MASK1_Data_Vencimento:
+    end
+    else if IDCampo = MASK1_Data_vencimento_cartao then
+      NFCeSAT.DataExpiracao := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Numero_cheque then
+      Cheque := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Codigo_autorizacao then
+    begin
+      CodigoAutorizacaoTransacao := Linha.Informacao.AsString;
+      NFCeSAT.Autorizacao := CodigoAutorizacaoTransacao;
+    end
+    else if IDCampo = MASK1_Codigo_resposta then
+      CodigoRedeAutorizada := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Identificacao_terminal then
+      SerialPOS := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Num_Parcelas then
+      QtdParcelas := Linha.Informacao.AsInteger
+    else if IDCampo = MASK1_Valor_Taxa_Servico then
+      TaxaServico := Linha.Informacao.AsFloat
+    else if IDCampo = MASK1_NSU_Host then
+      NSU := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Cod_Banco then
+      Banco := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Cod_Agencia then
+      Agencia := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Data_Vencimento then
+    begin
+      if Trim(Linha.Informacao.AsString) <> '' then
         DataVencimento := Linha.Informacao.AsTimeStamp;
-      MASK1_Cod_Bandeira:
-        CodigoBandeiraPadrao := Linha.Informacao.AsString;
-      MASK1_Cod_Servico:
-        ;//Ver tabela Código serviços página 40
-      MASK1_Texto_BIT_62:
-        ;// Parece muito o espelho do comprovante????
-      MASK1_Controle_Dac:
-        Finalizacao := Linha.Informacao.AsString;
-      MASK1_Cod_Rede:
-        CodigoRedeAutorizada := Linha.Informacao.AsString;
-      MASK1_Nome_Bandeira:
-        NFCeSAT.Bandeira := Linha.Informacao.AsString;
-      MASK1_Nome_Rede:
-        Rede := Linha.Informacao.AsString;
-      MASK1_Cartao_Trilha02:
-        ; //????
-      //MASK1_Numero_Promissorias:
-      //  ;
-      MASK1_Cod_Estab_Impresso:
-        ;
-      MASK1_Numero_CMC7:
-        ;
-      MASK1_CGC_Convenio:
-        ;
-      MASK1_Msg_Autentic_Cheque:
-        ;
-    else
-      // Case Delphi não permite valores fora do range 32 bits
-      if IDCampo =  MASK1_Saldo_Disponivel then
-      begin
+    end
+    else if IDCampo = MASK1_Cod_Bandeira then
+      CodigoBandeiraPadrao := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Controle_Dac then
+      Finalizacao := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Cod_Rede then
+      Rede := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Nome_Bandeira then
+      NFCeSAT.Bandeira := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Nome_Rede then
+      NomeAdministradora := Linha.Informacao.AsString
+    else if IDCampo = MASK1_Numero_CMC7 then
+      CMC7 := Linha.Informacao.AsString
 
-      end
-      else
-      begin
-
-      end;
-
-    end;
   end;
 
   procedure TrataCamposMask2(const IDCampo: Int64; Linha: TACBrTEFLinha);
+  var
+    s: String;
   begin
-    case IDCampo of
-      MASK2_NSU_transacao_Original:
-        NSUTransacaoCancelada := Linha.Informacao.AsBinary;
-      MASK2_Cliente_Com_Seguro:
-        ;
-      MASK2_Dados_Parcelado_Cetelem:
-        ;
-      MASK2_Data_Movimento:
-        ;
-      MASK2_Nome_Convenio:
-        ;
-      MASK2_Lista_TEF_Permitidas:
-        ;
-      MASK2_Linha_Autenticacao:
-        ;
-      MASK2_Dados_Consulta_Fatura:
-        ;
-      MASK2_Forma_Financiamento:
-        ;
-      MASK2_Codigo_Resposta_AVS:
-        ;
-      MASK2_Pontos_AdquiridosOuResgatados:
-        ;
-      MASK2_Fator_Compra:
-        ;
-      MASK2_NSU_Host_Transacao_Original:
-        ;
-      MASK2_Identificacao_Cliente_PBM:
-        ;
-      MASK2_Cod_Operadora:
-        ;
-      MASK2_Cod_Local_Telefone:
-        ;
-      MASK2_Num_Telefone:
-        ;
-      MASK2_Dados_ValeGas:
-        ;
-      MASK2_Codigo_IF:
-        ;
-      MASK2_Num_Item_Finivest_ou_Contrato:
-        ;
-      MASK2_Valor_Taxa_Embarque:
-        ;
-      MASK2_Digitos_TR2SON:
-        ;
-      MASK2_Taxa_Cliente_Lojista:
-        ;
-      MASK2_Cod_Servico_Original:
-        ;
-      MASK2_Cod_Barras:
-        ;
-      MASK2_Permite_Desfazimento:
-        ;
-      MASK2_Logo_PAN:
-        ;
-      MASK2_Cod_Empresa:
-        ;
-      MASK2_Cod_Autenticacao:
-        ;
-      MASK2_Dados_Pagto_ISOGCB:
-        ;
-      MASK2_UsoRes_63:
-        ;
-    else
-      // Case Delphi não permite valores fora do range 32 bits
-      if idcampo = MASK2_Numero_PDV then
-      begin
+    //MASK2_Cliente_Com_Seguro:
+    //MASK2_Dados_Parcelado_Cetelem:
+    //MASK2_Data_Movimento:
+    //MASK2_Nome_Convenio:
+    //MASK2_Lista_TEF_Permitidas:
+    //MASK2_Dados_Consulta_Fatura:
+    //MASK2_Codigo_Resposta_AVS:
+    //MASK2_Pontos_AdquiridosOuResgatados:
+    //MASK2_Fator_Compra:
+    //MASK2_NSU_Host_Transacao_Original:
+    //MASK2_Identificacao_Cliente_PBM:
+    //MASK2_Cod_Local_Telefone:
+    //MASK2_Num_Telefone:
+    //MASK2_Dados_ValeGas:
+    //MASK2_Num_Item_Finivest_ou_Contrato:
+    //MASK2_Valor_Taxa_Embarque:
+    //MASK2_Digitos_TR2SON:
+    //MASK2_Taxa_Cliente_Lojista:
+    //MASK2_Cod_Servico_Original:
+    //MASK2_Cod_Barras:
+    //MASK2_Logo_PAN:
+    //MASK2_Cod_Empresa:
+    //MASK2_Cod_Autenticacao:
+    //MASK2_Dados_Pagto_ISOGCB:
+    //MASK2_UsoRes_63:
+    //MASK2_Numero_PDV
 
-      end
-      else;
-
-
-
+    if IDCampo = MASK2_Linha_Autenticacao then
+      Autenticacao := Linha.Informacao.AsString
+    else if IDCampo = MASK2_NSU_transacao_Original then
+      NSUTransacaoCancelada := Linha.Informacao.AsString
+    else if IDCampo = MASK2_Cod_Operadora then
+      CodigoOperadoraCelular := Linha.Informacao.AsString
+    else if IDCampo = MASK2_Codigo_IF then
+      CodigoPSP := Linha.Informacao.AsString
+    else if IDCampo = MASK2_Permite_Desfazimento then
+      Confirmar := (Linha.Informacao.AsString = '1')
+    else if IDCampo = MASK2_Cod_Empresa then
+      Estabelecimento := Linha.Informacao.AsString
+    else if IDCampo = MASK2_Forma_Financiamento then
+    begin
+      s := UpperCase(Trim(Linha.Informacao.AsString));
+      if s = 'A' then
+        ParceladoPor := parcADM
+      else if s = 'E' then
+        ParceladoPor := parcLoja
+      else
+        ParceladoPor := parcNenhum;
     end;
   end;
 
   procedure TrataCamposMask3(const IDCampo: Int64; Linha: TACBrTEFLinha);
   begin
-    case IDCampo of
-      MASK3_DadosQtdeECupons:
-        ;
-      MASK3_DescResgateMonetario:
-        ;
-      MASK3_Dados_Pagto_Bit48_BRADESCO:
-        ;
-      MASK3_Modo_Entrada:
-        ;
-      MASK3_Valor_Saque:
-        ;
-      MASK3_Resposta_Consulta_Infocards:
-        ;
-      MASK3_Dados_Resposta_Consulta_EPAY_INCOMM:
-        ;
-      //MASK3_Dados_Resposta_Consulta_INCOMM:
-      //  ;
-      MASK3_Max_Mercadorias_TicketCar:
-        ;
-      MASK3_Codigo_SAT:
-        ; //Ver tabela Código das redes página 322
-      MASK3_Versao_Carga_Tabelas_Host:
-        ;
-      MASK3_CNPJ_Rede_Credenciadora_SAT:
-        NFCeSAT.CNPJCredenciadora := Linha.Informacao.AsString;
-      MASK3_Dados_Correspondente_Bancario:
-        ;
-      MASK3_Dados_Adicionais_Gift_Card:
-        ;
-      MASK3_Dados_Operacao_Fidelidade_SGF:
-        ;
-      MASK3_Valor_Total_Pagamento:
-        ;
-      MASK3_Valor_Descontos_Pagamento:
-        Desconto := Linha.Informacao.AsFloat ;
-      MASK3_Valor_Entrada_IATA:
-        ;
-      MASK3_Valor_Acrescimos_Pagamento:
-        ;
-      MASK3_Dados_Perfil_Pagamento_Recorrente:
-        ;
-      MASK3_Dados_Assinatura_Pagamento:
-        ;
-      MASK3_Dados_Consulta_BACEN:
-        ;
-      MASK3_Valor_Documento:
-        ;
-      MASK3_Resposta_Consulta_BACEN_Comprovante:
-        ;
-      MASK3_Modo_Pagamento:
-        ;
-      MASK3_Consulta_Cedente_BACEN_BRADESCO:
-        ;
+    //MASK3_DadosQtdeECupons:
+    //MASK3_DescResgateMonetario:
+    //MASK3_Dados_Pagto_Bit48_BRADESCO:
+    //MASK3_Modo_Entrada:
+    //MASK3_Resposta_Consulta_Infocards:
+    //MASK3_Dados_Resposta_Consulta_EPAY_INCOMM:
+    //MASK3_Dados_Resposta_Consulta_INCOMM:
+    //MASK3_Max_Mercadorias_TicketCar:
+    //MASK3_Versao_Carga_Tabelas_Host:
+    //MASK3_Dados_Correspondente_Bancario:
+    //MASK3_Dados_Adicionais_Gift_Card:
+    //MASK3_Dados_Operacao_Fidelidade_SGF:
+    //MASK3_Valor_Total_Pagamento:
+    //MASK3_Valor_Entrada_IATA:
+    //MASK3_Valor_Acrescimos_Pagamento:
+    //MASK3_Dados_Perfil_Pagamento_Recorrente:
+    //MASK3_Dados_Assinatura_Pagamento:
+    //MASK3_Dados_Consulta_BACEN:
+    //MASK3_Valor_Documento:
+    //MASK3_Resposta_Consulta_BACEN_Comprovante:
+    //MASK3_Modo_Pagamento:
+    //MASK3_Consulta_Cedente_BACEN_BRADESCO:
+    //MASK3_Data_Vencimento_CORBAN
 
-    else
-      // Case Delphi não permite valores fora do range 32 bits
-      if idcampo = MASK3_Data_Vencimento_CORBAN then
-      begin
-
-      end
-      else;
-
-    end;
+    if IDCampo = MASK3_Codigo_SAT then
+      NFCeSAT.CodCredenciadora := Linha.Informacao.AsString
+    else if IDCampo = MASK3_CNPJ_Rede_Credenciadora_SAT then
+        NFCeSAT.CNPJCredenciadora := Linha.Informacao.AsString
+    else if IDCampo = MASK3_Valor_Descontos_Pagamento then
+      Desconto := Linha.Informacao.AsFloat
+    else if IDCampo = MASK3_Valor_Saque then
+      Saque := Linha.Informacao.AsFloat;
   end;
 
   procedure TrataCamposMask4(const IDCampo: Int64; Linha: TACBrTEFLinha);
   begin
-    case IDCampo of
-      MASK4_Nome_Portador_Cartao:
-        ;
-      MASK4_Data_Validade_Cartao:
-        ;
-      MASK4_Merchant_ID:
-        ;
-      MASK4_Codigo_Estab_Externo:
-        ;
-      MASK4_String_QRCode:
-        QRCode := Linha.Informacao.AsBinary;
-      MASK4_Relacao_Descontos_Item:
-        ;
-      MASK4_Indicador_Saldo_Disponivel:
-        ;
-      MASK4_Numero_CPF:
-        ;
-      MASK4_ARQC_Chip:
-        ;
-      MASK4_AID_Chip:
-        ;
-      MASK4_Transacao_Autorizada_Por_Senha:
-        ;
-      //MASK4_????????
-      MASK4_Campo_TID_Pix:
-        ;
-      MASK4_Campo_Referencia_Pix:
-        ;
-      MASK4_Tamanho_BIN:
-        ;
-      MASK4_Dados_DCC:
-        ;
-      MASK4_Status_DCC:
-        ;
-    end;
+    //MASK4_Merchant_ID:
+    //MASK4_Codigo_Estab_Externo:
+    //MASK4_Relacao_Descontos_Item:
+    //MASK4_Indicador_Saldo_Disponivel:
+    //MASK4_Numero_CPF:
+    //MASK4_ARQC_Chip:
+    //MASK4_AID_Chip:
+    //MASK4_Transacao_Autorizada_Por_Senha:
+    //MASK4_Campo_TID_Pix:
+    //MASK4_Campo_Referencia_Pix:
+    //MASK4_Tamanho_BIN:
+    //MASK4_Dados_DCC:
+    //MASK4_Status_DCC:
+
+    if (IDCampo = MASK4_Nome_Portador_Cartao) then
+      NFCeSAT.DonoCartao := Linha.Informacao.AsString
+    else if (IDCampo = MASK4_Data_Validade_Cartao) and (NFCeSAT.DataExpiracao = '') then
+      NFCeSAT.DataExpiracao := Linha.Informacao.AsString
+    else if (IDCampo = MASK4_String_QRCode) and (QRCode = '') then
+      QRCode := Linha.Informacao.AsString;
   end;
 
 
@@ -432,22 +365,30 @@ begin
     Linha := Conteudo.Linha[I];
     LinChave := Linha.Chave;
 
-    if (LinChave = RET_CUPOM_LOJA) then
-      ImagemComprovante1aVia.Text := StringToBinaryString( Linha.Informacao.AsString )
-    else if (LinChave = RET_CUPOM_CLIENTE) then
+    if (LinChave = RET_STATUS) then
+      Sucesso := (StrToIntDef(Trim(Linha.Informacao.AsString), -1) = RCS_SUCESSO)
+    else if (LinChave = RET_CUPOM_LOJA) then
       ImagemComprovante2aVia.Text := StringToBinaryString( Linha.Informacao.AsString )
+    else if (LinChave = RET_CUPOM_CLIENTE) then
+      ImagemComprovante1aVia.Text := StringToBinaryString( Linha.Informacao.AsString )
     else if (LinChave = RET_CUPOM_REDUZIDO) and ViaClienteReduzida then
       ImagemComprovante1aVia.Text := StringToBinaryString( Linha.Informacao.AsString )
     else if (LinChave = RET_CHEQUE_BANCO) then
       Banco := Linha.Informacao.AsString
     else if (LinChave = RET_CHEQUE_AGENCIA) then
-      Banco := Linha.Informacao.AsString
+      Agencia := Linha.Informacao.AsString
     else if (LinChave = RET_CHEQUE_NUMERO) then
       Cheque := Linha.Informacao.AsString
     else if (LinChave = RET_CHEQUE_DATA) then
-      DataCheque := Linha.Informacao.AsDate;
+      DataCheque := Linha.Informacao.AsDate
+    else if (LinChave = RET_MSG_OPERADOR) then
+      TextoEspecialOperador := StringToBinaryString( Linha.Informacao.AsString )
+    else if (LinChave = RET_MSG_CLIENTE) then
+      TextoEspecialCliente := StringToBinaryString( Linha.Informacao.AsString )
+    else if (LinChave = RET_QRCODE) then
+      QRCode := Linha.Informacao.AsString;
 
-    //Ex.: mask1-$00000001:
+    // Ex.: mask1-$00000001:
     P := pos('-', LinChave);
     mask := copy(LinChave, 1, P - 1);
     sIDCampo := copy(LinChave, P + 1, Length(LinChave));
@@ -464,12 +405,8 @@ begin
       ProcessarTipoInterno(Linha);
   end;
 
-  //ConteudoToComprovantes;
-  //ConteudoToParcelas;
-  //TODO: verificar???
   QtdLinhasComprovante := max(ImagemComprovante1aVia.Count, ImagemComprovante2aVia.Count);
-  Sucesso := Trim(ImagemComprovante1aVia.Text) <> '';
-  Confirmar := True;
+  Confirmar := Confirmar or (QtdLinhasComprovante > 0);
 end;
 
 
@@ -482,11 +419,12 @@ begin
   fpTEFRespClass := TACBrTEFRespScope;
 
   fTEFScopeAPI := TACBrTEFScopeAPI.Create;
-  fTEFScopeAPI.OnTransacaoEmAndamento := QuandocopeTransacaoEmAndamentoAPI;
+  fTEFScopeAPI.OnTransacaoEmAndamento := QuandoTransacaoEmAndamentoAPI;
   fTEFScopeAPI.OnGravarLog := QuandoGravarLogAPI;
   fTEFScopeAPI.OnExibeMensagem := QuandoExibirMensagemAPI;
   fTEFScopeAPI.OnExibeMenu := QuandoPerguntarMenuAPI;
   fTEFScopeAPI.OnPerguntaCampo := QuandoPerguntarCampoAPI;
+  fTEFScopeAPI.OnExibeQRCode := QuandoExibirQRCodeAPI;
 end;
 
 destructor TACBrTEFAPIClassScope.Destroy;
@@ -517,6 +455,7 @@ begin
     IpStr := copy(IpStr, 1, p-1);
   end;
 
+  fTEFScopeAPI.PathLib := PathDLL;
   fTEFScopeAPI.DiretorioTrabalho := ADir;
   fTEFScopeAPI.EnderecoIP := IpStr;
   fTEFScopeAPI.PortaTCP := PortaStr;
@@ -545,7 +484,7 @@ var
   i: Integer;
   AChave, AValue: String;
 begin
-  //inherited;
+  fpACBrTEFAPI.UltimaRespostaTEF.Clear;
   fpACBrTEFAPI.UltimaRespostaTEF.ViaClienteReduzida := fpACBrTEFAPI.DadosAutomacao.ImprimeViaClienteReduzida;
 
   for i := 0 to fTEFScopeAPI.DadosDaTransacao.Count-1 do
@@ -631,7 +570,7 @@ begin
   Tratado := True;
 end;
 
-procedure TACBrTEFAPIClassScope.QuandocopeTransacaoEmAndamentoAPI(
+procedure TACBrTEFAPIClassScope.QuandoTransacaoEmAndamentoAPI(
   EstadoOperacao: TACBrTEFScopeEstadoOperacao; out Cancelar: Boolean);
 var
   i: Integer;
@@ -672,6 +611,7 @@ var
   Validado, Cancelado: Boolean;
   DefCampo: TACBrTEFAPIDefinicaoCampo;
   Inferior, Superior, ValResp: Double;
+  s: String;
 begin
   DefCampo.TituloPergunta := TituloCampo;
   DefCampo.MascaraDeCaptura := '';
@@ -798,14 +738,13 @@ begin
     if Cancelado then
       Break;
 
-    if not Validado then
+    Validado := True;
+    if (DefCampo.MascaraDeCaptura = '') then
     begin
       case DefCampo.TipoDeEntrada of
         tedNumerico: Validado := StrIsNumber(Resposta);
         tedAlfabetico: Validado := StrIsAlpha(Resposta);
         tedAlfaNum: Validado := StrIsAlphaNum(Resposta);
-      else
-        Validado := True;
       end;
     end;
 
@@ -823,14 +762,22 @@ begin
     if Validado then
     begin
       case DefCampo.TipoCampo of
-        0: Validado := ValidarDDMMAA(Resposta);
-        1: Validado := ValidarDDMM(Resposta);
-        2: Validado := ValidarMMAA(Resposta);
-        3: Validado := ValidarHHMMSS(Resposta);
-        8: Validado := ValidarDDMMAAAA(Resposta);
-       10: Validado := ValidarMMAAAA(Resposta);
-       12: Validado := ValidarHHMM(Resposta);
-       13: Validado := (Resposta = '0') or (Resposta = '1');
+        TM_DDMMAA: Validado := ValidarDDMMAA(Resposta);
+        TM_DDMM: Validado := ValidarDDMM(Resposta);
+        TM_MMAA: Validado := ValidarMMAA(Resposta);
+        TM_HHMMSS: Validado := ValidarHHMMSS(Resposta);
+        TM_DDMMAAAA: Validado := ValidarDDMMAAAA(Resposta);
+        TM_MMAAAA: Validado := ValidarMMAAAA(Resposta);
+        TM_HHMM: Validado := ValidarHHMM(Resposta);
+        TM_BOOL: Validado := (Resposta = '0') or (Resposta = '1');
+        TM_NUM_DECIMAL, TM_VALOR_MONETARIO:
+          begin
+            s := Trim(Resposta);
+            s := StringReplace(s, ',', '', [rfReplaceAll]);
+            s := StringReplace(s, '.', '', [rfReplaceAll]);
+            s := StringReplace(s, 'R$', '', [rfReplaceAll]);
+            Validado := StrIsNumber(s);
+          end
       else
         Validado := True;
       end;
@@ -848,12 +795,29 @@ begin
     AcaoResposta := ACAO_PROXIMO_ESTADO;
 end;
 
+procedure TACBrTEFAPIClassScope.QuandoExibirQRCodeAPI(const Dados: String);
+begin
+  if not Assigned(TACBrTEFAPI(fpACBrTEFAPI).QuandoExibirQRCode) then
+    fpACBrTEFAPI.DoException( Format(ACBrStr(sACBrTEFAPIEventoInvalidoException),
+                                     ['QuandoExibirQRCode']));
+
+  with TACBrTEFAPI(fpACBrTEFAPI) do
+  begin
+    {$IfNDef NOGUI}
+    if ExibicaoQRCode in [qrapiAuto, qrapiExibirPinPad] then
+      ExibirQRCodePinPad(Dados, fTEFScopeAPI.Empresa + fTEFScopeAPI.PDV );
+    {$EndIf}
+
+    QuandoExibirQRCode(Dados);
+  end;
+end;
 
 function TACBrTEFAPIClassScope.EfetuarAdministrativa(CodOperacaoAdm: TACBrTEFOperacao): Boolean;
 var
   OpScope: TACBrTEFScopeOperacao;
   Param1: String;
 begin
+  fTEFScopeAPI.DadosDaTransacao.Clear;
   Result := False;
   if CodOperacaoAdm = tefopAdministrativo then
     CodOperacaoAdm := PerguntarMenuAdmScope;
@@ -921,8 +885,7 @@ begin
   if (CodigoFinalizacao <> '') then
     fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_CONTROLE)] := CodigoFinalizacao;
 
-  ExecutarTransacaoScopeSessaoUnica(scoCanc, Param1, Param2);
-  Result := fpACBrTEFAPI.UltimaRespostaTEF.Sucesso;
+  Result := ExecutarTransacaoScopeSessaoUnica(scoCanc, Param1, Param2);
 end;
 
 function TACBrTEFAPIClassScope.EfetuarPagamento(ValorPagto: Currency;
@@ -932,6 +895,7 @@ function TACBrTEFAPIClassScope.EfetuarPagamento(ValorPagto: Currency;
 var
   Param1, Param2: string;
   op: TACBrTEFScopeOperacao;
+  ret: LongInt;
 begin
   VerificarIdentificadorVendaInformado;
   if (ValorPagto <= 0) then
@@ -945,6 +909,12 @@ begin
   else if (Financiamento > tefmfAVista) then   // Parcelado
     fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_DECIDE_AVISTA)] := '0';
 
+  // NAO TESTADO
+  if (Financiamento = tefmfParceladoEmissor) then
+    fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_DECIDE_P_ADM_EST)] := '1'
+  else if (Financiamento = tefmfParceladoEstabelecimento) then
+    fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_DECIDE_P_ADM_EST)] := '0';
+
   if (Parcelas > 0) then
     fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_QTDE_PARCELAS)] := IntToStr(Parcelas);
 
@@ -952,8 +922,9 @@ begin
     op := scoCheque
   else if (Modalidade = tefmpCarteiraVirtual) then
   begin
-    op := scoPagto;
-    Param1 := '432';  // 432=PIX
+    op := scoCarteiraVirtual;
+    Param2 := '432';  // 432=PIX
+    fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_COLETA_VALOR)] := Param1;
   end
   else if (Financiamento = tefmfPredatado) then
     op := scoPreAutCredito
@@ -962,10 +933,11 @@ begin
   else  // Debito, Voucher, Frota
     op := scoDebito;
 
-  fTEFScopeAPI.IniciarTransacao(op, Param1, Param2);
-  fTEFScopeAPI.ExecutarTransacao;
+  ret := IniciarTransacao(op, Param1, Param2);
+  if (ret = RCS_SUCESSO) then
+    ret := fTEFScopeAPI.ExecutarTransacao;
 
-  Result := fpACBrTEFAPI.UltimaRespostaTEF.Sucesso;
+  Result := (ret = RCS_SUCESSO);
 end;
 
 procedure TACBrTEFAPIClassScope.FinalizarTransacao(const Rede, NSU,
@@ -1049,12 +1021,70 @@ begin
   end;
 end;
 
+function TACBrTEFAPIClassScope.IniciarTransacao(
+  OperacaoScope: TACBrTEFScopeOperacao; const Param1: String;
+  const Param2: String; const Param3: String): LongInt;
+begin
+  fpACBrTEFAPI.UltimaRespostaTEF.Clear;
+  fTEFScopeAPI.DadosDaTransacao.Clear;
+  Result := fTEFScopeAPI.IniciarTransacao(OperacaoScope, Param1, Param2, Param3);
+end;
+
 function TACBrTEFAPIClassScope.VerificarPresencaPinPad: Byte;
 var
   s: String;
 begin
   s := fTEFScopeAPI.AcharPortaPinPad;
   Result := StrToIntDef(s, 0);
+end;
+
+procedure TACBrTEFAPIClassScope.ObterListaImagensPinPad(ALista: TStrings);
+begin
+  fTEFScopeAPI.ObterListaImagensPinPad(ALista);
+end;
+
+procedure TACBrTEFAPIClassScope.ObterDimensoesVisorPinPad(out Width: Word; out
+  Height: Word);
+begin
+  fTEFScopeAPI.ObterDimensoesVisorPinPad(Width, Height);
+end;
+
+procedure TACBrTEFAPIClassScope.ExibirImagemPinPad(const NomeImagem: String);
+begin
+  fTEFScopeAPI.ExibirImagemPinPad(NomeImagem);
+end;
+
+procedure TACBrTEFAPIClassScope.ApagarImagemPinPad(const NomeImagem: String);
+begin
+  fTEFScopeAPI.ApagarImagemPinPad(NomeImagem);
+end;
+
+procedure TACBrTEFAPIClassScope.CarregarImagemPinPad(const NomeImagem: String;
+  AStream: TStream; TipoImagem: TACBrTEFAPIImagemPinPad);
+var
+  tmpFile, ext: String;
+  ms: TMemoryStream;
+begin
+  ext := IfThen(TipoImagem=imgPNG, '.png', '.jpg');
+  tmpFile := PathWithDelim(fTEFScopeAPI.DiretorioTrabalho) + NomeImagem + ext;
+  ms := TMemoryStream.Create;
+  try
+    AStream.Position := 0;
+    ms.LoadFromStream(AStream);
+    ms.Position := 0;
+    ms.SaveToFile(tmpFile);
+  finally
+    ms.Free;
+  end;
+
+  if FileExists(tmpFile) then
+  begin
+    try
+      fTEFScopeAPI.CarregarImagemPinPad(NomeImagem, tmpFile);
+    finally
+      DeleteFile(tmpFile);
+    end;
+  end;
 end;
 
 procedure TACBrTEFAPIClassScope.SetDiretorioTrabalho(const AValue: String);
@@ -1071,15 +1101,25 @@ end;
 function TACBrTEFAPIClassScope.ExecutarTransacaoScopeSessaoUnica(
   OperacaoScope: TACBrTEFScopeOperacao; const Param1: String;
   const Param2: String; const Param3: String): Boolean;
+var
+  ret: LongInt;
 begin
+  fTEFScopeAPI.DadosDaTransacao.Clear;
   Result := False;
-  fTEFScopeAPI.IniciarTransacao(OperacaoScope, Param1, Param2,Param3);
-  try
-    fTEFScopeAPI.ExecutarTransacao;
-  finally
+  if fTEFScopeAPI.SessaoAberta then
     fTEFScopeAPI.FecharSessaoTEF;
-    Result := True;
+
+  ret := IniciarTransacao(OperacaoScope, Param1, Param2, Param3);
+  if (ret = RCS_SUCESSO) then
+  begin
+    try
+      ret := fTEFScopeAPI.ExecutarTransacao;
+    finally
+      fTEFScopeAPI.FecharSessaoTEF;
+    end;
   end;
+
+  Result := (ret = RCS_SUCESSO);
 end;
 
 end.

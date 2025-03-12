@@ -82,7 +82,7 @@ type
     FretEvento: TRetInfEventoCollection;
     FInfEvento: TInfEvento;
     Fsignature: Tsignature;
-    FXML: AnsiString;
+    FXML: string;
     FXmlRetorno: string;
 
   protected
@@ -113,7 +113,7 @@ type
     property InfEvento: TInfEvento              read FInfEvento write FInfEvento;
     property signature: Tsignature              read Fsignature write Fsignature;
     property retEvento: TRetInfEventoCollection read FretEvento write FretEvento;
-    property XML: AnsiString                    read FXML       write FXML;
+    property XML: string                        read FXML       write FXML;
 
     property XmlRetorno: string read FXmlRetorno write FXmlRetorno;
   end;
@@ -123,7 +123,7 @@ implementation
 
 uses
   pmdfeConversaoMDFe,
-  pmdfeMDFe,
+  ACBrMDFe.Classes,
   ACBrUtil.Strings,
   ACBrUtil.XMLHTML;
 
@@ -188,7 +188,7 @@ end;
 procedure TRetEventoMDFe.Ler_DetEvento(const ANode: TACBrXmlNode);
 var
   sAux: string;
-  AuxNode: TACBrXmlNode;
+  AuxNode, AuxNodeCond: TACBrXmlNode;
   ANodes: TACBrXmlNodeArray;
   i: Integer;
 begin
@@ -223,8 +223,14 @@ begin
     InfEvento.detEvento.cUF := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cUF'), tcInt);
     InfEvento.detEvento.cMun := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cMun'), tcInt);
     InfEvento.DetEvento.xJust := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('xJust'), tcStr);
-    InfEvento.detEvento.xNome := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('xNome'), tcStr);
-    InfEvento.detEvento.CPF := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CPF'), tcStr);
+
+    AuxNodeCond := AuxNode.Childrens.FindAnyNs('condutor');
+
+    if AuxNodeCond <> nil then
+    begin
+      InfEvento.detEvento.xNome := ObterConteudoTag(AuxNodeCond.Childrens.FindAnyNs('xNome'), tcStr);
+      InfEvento.detEvento.CPF := ObterConteudoTag(AuxNodeCond.Childrens.FindAnyNs('CPF'), tcStr);
+    end;
 
     sAux := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('indEncPorTerceiro'), tcStr);
 
@@ -442,6 +448,8 @@ var
   i: Integer;
 begin
   Document := TACBrXmlDocument.Create;
+
+  Result := False;
 
   try
     try

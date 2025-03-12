@@ -100,7 +100,7 @@ uses
   StrUtils, DateUtils,
   ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime,
   ACBrValidador, ACBrDFeUtil,
-  ACBrDFeReportFortes, pcnNFe, pcnConversao, pcnConversaoNFe;
+  ACBrDFeReportFortes, ACBrNFe.Classes, pcnConversao, pcnConversaoNFe;
 
 {$IfNDef FPC}
   {$R *.dfm}
@@ -271,7 +271,7 @@ procedure TfrlDANFeRLEtiqueta.InicializarDados;
 begin
   if fpDANFe.Etiqueta then
   begin
-    RLLabel17.Caption := 'DANFE Etiqueta - Etiqueta';
+    RLLabel17.Caption := 'DANFE Etiqueta';
   end
   else
   begin

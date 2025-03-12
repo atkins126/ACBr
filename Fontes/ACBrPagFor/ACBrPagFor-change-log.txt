@@ -42,6 +42,22 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+22/02/2025
+-- Diversos --
+[*] TK-6636: Implementado o Segmento 5 utilizado pelo Banco Bradesco.
+  Por: Italo Giurizzato Junior
+
+03/02/2025
+-- PagFor.Sicredi.GravarTxtRemessa --
+[*] TK-6570: Ajustes para gerar o Segmento J52 com a chave PIX e TX ID.
+  Por: Italo Giurizzato Junior
+
+07/01/2025
+-- ACBrPagForConversao --
+[+] TK-6451: Acrescentado a função de conversão: FmLancamentoToDesc para converter
+    o enumerado de Lançamento na descrição do mesmo.
+  Por: Fernando Batista
+
 02/01/2025
 -- PagFor.Safra.GravarTxtRemessa --
 [-] A unit estava gerando o CEP com 11 dígitos em vez de 8.

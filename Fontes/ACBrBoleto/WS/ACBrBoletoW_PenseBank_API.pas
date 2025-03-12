@@ -37,9 +37,11 @@ unit ACBrBoletoW_PenseBank_API;
 interface
 
 uses
+  strutils,
   ACBrBoletoWS,
   ACBrBoletoWS.Rest,
-  ACBrJSON;
+  ACBrJSON, 
+  ACBrUtil.Strings;
 
 type
   { TBoletoW_PenseBank_API }
@@ -69,6 +71,7 @@ type
     procedure GerarDesconto(AJson: TACBrJSONObject);
 
     procedure AlteraDataVencimento(AJson: TACBrJSONObject);
+    procedure AlteraPedidoNegativacao(AJson: TACBrJSONObject);
     procedure AlterarProtesto(AJson: TACBrJSONObject);
 
   public
@@ -85,40 +88,45 @@ const
 
   C_ACCEPT         = 'application/json';
   C_AUTHORIZATION  = 'Authorization';
+
+  CHARS_VALIDOS : TSetOfChars = ['A'..'Z','0'..'9',
+                                 ' ','-','.',
+                                 'À','Á','Â','Ã','Ä','Å',
+                                 'È','É','Ê','Ë',
+                                 'Ì','Í','Î','Ï',
+                                 'Ò','Ó','Ô','Õ','Ö',
+                                 'Ù','Ú','Û','Ü'];
 implementation
 
 uses
-  strutils,
-  ACBrUtil.Strings,
   ACBrUtil.DateTime,
   ACBrBoleto,
   SysUtils,
   pcnConversao,
-  ACBrBoletoConversao;
+  ACBrBoletoConversao, 
+  ACBrBancoPenseBank;
 
 { TBoletoW_PenseBank_API }
 
 procedure TBoletoW_PenseBank_API.DefinirURL;
-var
-  ID, NConvenio : string;
 begin
   FPURL     := IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao,C_URL, C_URL_HOM);
-
-  if ATitulo <> nil then
-    ID      := ATitulo.ACBrBoleto.Banco.MontarCampoNossoNumero(ATitulo);
-
-  NConvenio := OnlyNumber(Boleto.Cedente.Convenio);
 
   case Boleto.Configuracoes.WebService.Operacao of
     tpInclui           : FPURL := FPURL + '/Boleto';
     tpConsulta         : FPURL := FPURL + '/BoletoConsulta';
     tpConsultaDetalhe  : FPURL := FPURL + '/BoletoConsultaLista';
-    tpAltera           : begin
-                           if ATitulo.OcorrenciaOriginal.Tipo = ACBrBoleto.toRemessaAlterarVencimento then
-                             FPURL := FPURL + '/BoletoProrrogacao'
-                           else if ATitulo.OcorrenciaOriginal.Tipo = ACBrBoleto.toRemessaProtestar then
-                             FPURL := FPURL + '/BoletoProtesto';
-                         end;
+    tpAltera           :
+      begin
+        case ATitulo.OcorrenciaOriginal.Tipo of
+         ToRemessaAlterarVencimento:
+           FPURL := FPURL + '/BoletoProrrogacao';
+          ToRemessaProtestar:
+            FPURL := FPURL + '/BoletoProtesto';
+          ToRemessaPedidoNegativacao, ToRemessaNegativacaoSerasa, ToRemessaExcluirNegativacaoBaixar, ToRemessaExcluirNegativacaoSerasaBaixar:
+            FPURL := FPURL + '/BoletoNegativacao';
+        end;
+      end;
     tpBaixa            : FPURL := FPURL + '/BoletoBaixa';
     tpCancelar         : FPURL := FPURL + '/BoletoCancelamento';
   end;
@@ -234,6 +242,11 @@ begin
       begin
         LJsonObject.AddPair('indicadorAceiteTituloVencido', 'S');
         LJsonObject.AddPair('numeroDiasLimiteRecebimento', Trunc(ATitulo.DataLimitePagto - ATitulo.Vencimento));
+      end
+      else
+      begin
+        LJsonObject.AddPair('indicadorAceiteTituloVencido', 'N');
+        LJsonObject.AddPair('numeroDiasLimiteRecebimento', 0);
       end;
 
       LJsonObject.AddPair('codigoAceite', IfThen(ATitulo.Aceite = atSim,'A','N'));
@@ -243,10 +256,11 @@ begin
       if ATitulo.TipoPagamento = tpAceita_Qualquer_Valor then
         LJsonObject.AddPair('indicadorPermissaoRecebimentoParcial', 'S');
 
-      LJsonObject.AddPair('numeroTituloBeneficiario', Copy(Trim(UpperCase(ATitulo.NumeroDocumento)),0,15));
-      LJsonObject.AddPair('campoUtilizacaoBeneficiario', Copy(Trim(StringReplace(UpperCase(ATitulo.Mensagem.Text),'\r\n',' ',[rfReplaceAll])),0,30));
-      LJsonObject.AddPair('numeroTituloCliente', Boleto.Banco.MontarCampoNossoNumero(ATitulo));
-      LJsonObject.AddPair('mensagemBloquetoOcorrencia', UpperCase(Copy(Trim(ATitulo.Instrucao1 +' '+ATitulo.Instrucao2+' '+ATitulo.Instrucao3),0,165)));
+      LJsonObject.AddPair('campoUtilizacaoBeneficiario',Trim(Copy(OnlyCharsInSet(AnsiUpperCase(ATitulo.NumeroDocumento),CHARS_VALIDOS),0,30)));
+      LJsonObject.AddPair('numeroTituloBeneficiario', Copy(Trim(UpperCase(IfThen(ATitulo.SeuNumero<>'',ATitulo.SeuNumero,ATitulo.NumeroDocumento))),0,15));
+      //LJsonObject.AddPair('numeroTituloCliente', Boleto.Banco.MontarCampoNossoNumero(ATitulo));
+      LJsonObject.AddPair('mensagemBloquetoOcorrencia', UpperCase(Copy(Trim(ATitulo.Mensagem.Text),0,105)));
+
 
       GerarDesconto(LJsonObject);
       GerarJuros(LJsonObject);
@@ -258,6 +272,7 @@ begin
       LJsonObject.AddPair('pix', Boleto.Cedente.CedenteWS.IndicadorPix);
       LJsonObject.AddPair('emailGeracao', Boleto.Cedente.CedenteWS.IndicadorEmail);
       LJsonObject.AddPair('sms', Boleto.Cedente.CedenteWS.IndicadorSMS);
+      LJsonObject.AddPair('fatura', False);
 
       FPDadosMsg := LJsonObject.ToJSON;
     finally
@@ -274,15 +289,13 @@ begin
   begin
     LJsonObject := TACBrJSONObject.Create;
     try
-      case Integer(ATitulo.OcorrenciaOriginal.Tipo) of
-        7: //RemessaAlterarVencimento
-          begin
-            AlteraDataVencimento(LJsonObject);
-          end;
-        9:  //RemessaProtestar
-          begin
-            AlterarProtesto(LJsonObject);
-          end;
+      case ATitulo.OcorrenciaOriginal.Tipo of
+        ToRemessaAlterarVencimento:
+          AlteraDataVencimento(LJsonObject);
+        ToRemessaProtestar:
+          AlterarProtesto(LJsonObject);
+        ToRemessaPedidoNegativacao, ToRemessaNegativacaoSerasa, ToRemessaExcluirNegativacaoBaixar, ToRemessaExcluirNegativacaoSerasaBaixar:
+          AlteraPedidoNegativacao(LJsonObject);
       end;
       FPDadosMsg := LJsonObject.ToJSON;
     finally
@@ -299,7 +312,7 @@ begin
   begin
     LJsonObject := TACBrJSONObject.Create;
     LJsonObject.AddPair('idboleto', ATitulo.NumeroDocumento);
-    LJsonObject.AddPair('numeroTituloCliente', ATitulo.NossoNumero);
+    LJsonObject.AddPair('numeroTituloCliente', Boleto.Banco.MontarCampoNossoNumero(ATitulo));
 
     FPDadosMsg := LJsonObject.ToJSON;
   end;
@@ -314,7 +327,7 @@ begin
     LJsonObject := TACBrJSONObject.Create;
 
     LJsonObject.AddPair('idboleto', ATitulo.NumeroDocumento);
-    LJsonObject.AddPair('numeroTituloCliente', ATitulo.NossoNumero);
+    LJsonObject.AddPair('numeroTituloCliente', Boleto.Banco.MontarCampoNossoNumero(ATitulo));
 
     FPDadosMsg := LJsonObject.ToJSON;
   end;
@@ -323,13 +336,28 @@ end;
 procedure TBoletoW_PenseBank_API.RequisicaoConsulta;
 var
   LJsonObject: TACBrJSONObject;
+  LIdBoleto : string;
+  LNossoNumero : Boolean;
+  LTamNossoNumero : Integer;
 begin
   if Assigned(ATitulo) then
   begin
     LJsonObject := TACBrJSONObject.Create;
 
-    LJsonObject.AddPair('idboleto', ATitulo.NumeroDocumento);
-    LJsonObject.AddPair('numeroTituloCliente', ATitulo.NossoNumero);
+    LIdBoleto := IfThen(ATitulo.SeuNumero <> '',ATitulo.SeuNumero,ATitulo.NumeroDocumento);
+    LTamNossoNumero := ATitulo.ACBrBoleto.Banco.CalcularTamMaximoNossoNumero(ATitulo.Carteira,
+                                                                             ATitulo.NossoNumero,
+                                                                             ATitulo.ACBrBoleto.Cedente.Convenio);
+
+    LNossoNumero := (ATitulo.NossoNumero = '') or (ATitulo.NossoNumero = '0') or (ATitulo.NossoNumero = PadLeft(ATitulo.NossoNumero,LTamNossoNumero,'0'));
+
+    if (LIdBoleto <> '') and (LNossoNumero) then
+      LJsonObject.AddPair('idexterno', LIdBoleto)
+    else
+    begin
+      LJsonObject.AddPair('idboleto', LIdBoleto);
+      LJsonObject.AddPair('numeroTituloCliente', Boleto.Banco.MontarCampoNossoNumero(ATitulo));
+    end;
 
     FPDadosMsg := LJsonObject.ToJSON;
   end;
@@ -426,7 +454,9 @@ begin
     if (ATitulo.DataMulta > 0) then
     begin
       LJsonObject.AddPair('tipo', LCodMulta);
-      LJsonObject.AddPair('data', FormatDateBr(ATitulo.DataMulta, 'DD.MM.YYYY'));
+
+      if LCodMulta in [1, 2] then
+        LJsonObject.AddPair('data', FormatDateBr(ATitulo.DataMulta, 'DD.MM.YYYY'));
       case LCodMulta of
         1 : LJsonObject.AddPair('valor', ATitulo.PercentualMulta);
         2 : LJsonObject.AddPair('porcentagem', ATitulo.PercentualMulta);
@@ -467,9 +497,38 @@ begin
   begin
     AJson.AddPair('idboleto', ATitulo.NumeroDocumento);
     AJson.AddPair('dataVencimento', FormatDateBr(ATitulo.Vencimento, 'DD/MM/YYYY'));
-    AJson.AddPair('numeroTituloCliente', ATitulo.NossoNumero);
+    AJson.AddPair('numeroTituloCliente', Boleto.Banco.MontarCampoNossoNumero(ATitulo));
   end;
 
+end;
+
+procedure TBoletoW_PenseBank_API.AlteraPedidoNegativacao(AJson: TACBrJSONObject);
+begin
+  if Assigned(ATitulo) then
+  begin
+    if Assigned(AJson) then
+    begin
+      AJson.AddPair('idboleto', ATitulo.NumeroDocumento);
+      AJson.AddPair('numeroTituloCliente', Boleto.Banco.MontarCampoNossoNumero(ATitulo));
+
+      case ATitulo.OcorrenciaOriginal.Tipo of
+        ToRemessaPedidoNegativacao: // Inclusão
+          begin
+            AJson.AddPair('quantidadeDiasNegativacao', ATitulo.DiasDeNegativacao);
+            AJson.AddPair('tipoNegativacao', 1);
+          end;
+        ToRemessaNegativacaoSerasa: // Alteração
+          begin
+            AJson.AddPair('quantidadeDiasNegativacao', ATitulo.DiasDeNegativacao);
+            AJson.Addpair('tipoNegativacao', 2);
+          end;
+        ToRemessaExcluirNegativacaoBaixar: // Cacelamento
+          AJson.AddPair('tipoNegativacao', 3);
+        ToRemessaExcluirNegativacaoSerasaBaixar: // Exclusão
+          AJson.AddPair('tipoNegativacao', 4);
+      end;
+    end;
+  end;
 end;
 
 procedure TBoletoW_PenseBank_API.AlterarProtesto(AJson: TACBrJSONObject);
@@ -477,7 +536,7 @@ begin
   if Assigned(ATitulo) and Assigned(AJson) and (ATitulo.DiasDeProtesto > 0) then
   begin
     AJson.AddPair('idboleto', ATitulo.NumeroDocumento);
-    AJson.AddPair('numeroTituloCliente', ATitulo.NossoNumero);
+    AJson.AddPair('numeroTituloCliente', Boleto.Banco.MontarCampoNossoNumero(ATitulo));
     AJson.AddPair('quantidadeDiasProtesto', ATitulo.DiasDeProtesto);
   end;
 end;

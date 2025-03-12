@@ -49,6 +49,89 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+13/02/2025
+-- ACBrBoleto.pas --
+[*] TK-6565 - Ajustado exception para ser utilizado da classe de boleto
+  https://www.projetoacbr.com.br/forum/topic/81638-acbrboleto-sugest%C3%A3o-de-melhoria/
+  Por:  samuel.parastchuk, Victor H. Gonzales Pandaaa, Daniel Morais InfoCotidiano
+
+11/02/2025
+-- ACBrBancoSantander.pas --
+[*] TK-6533 - Ajustado para ler NossoNumeroCompleto no CNAB400 
+  https://www.projetoacbr.com.br/forum/topic/81533-retorno-banco-santander/
+  Por: Daniel Morais InfoCotidiano
+
+03/02/2025
+-- ACBrBancoBanrisul.pas --
+[*] TK-6494 - Ajustado nova formatação para CodigoCedente impresso no boleto.
+  https://www.projetoacbr.com.br/forum/topic/81360-rejei%C3%A7%C3%A3o-no-layout-do-boleto-banrisul/
+  Por: Daniel Morais InfoCotidiano
+
+30/01/2025
+-- ACBrBoletoW_Santander_API.pas --
+[-] TK-6122 - Ajustado Ambiente para Producao/Homologacao e Sandbox, ajustado NossoNumero consulta sandbox para 8 carac
+  https://www.projetoacbr.com.br/forum/topic/80208-erro-na-consulta-detalhada-de-um-boleto-via-api-do-santander-em-sandbox/
+  Por: Victor Gonzales Pandaaa / Daniel Morais
+
+23/01/2025
+-- ACBrBoletoRetorno.pas --
+[-] TK-6141-2 - Estava tentando acessar uma classe q nao estava instanciada.
+  Por: Daniel Morais InfoCotidiano / Pandaaaa
+
+15/01/2025
+-- ACBrBoletoW_Inter_API.pas --
+[*] TK-6095 - Correção de paginação retorno titulos.
+  https://www.projetoacbr.com.br/forum/topic/80132-queryparams-de-pagina%C3%A7%C3%A3o-do-banco-inter-boleto-com-pix-incorretos/
+  Por: Caio Cinel
+
+15/01/2025
+-- ACBrBoletoRetorno.pas --
+[*] TK-6141 - Retorno INI devolver o banco que foi liquidado, propriedade LiquidadoBanco
+  https://www.projetoacbr.com.br/forum/topic/80275-mapear-campo-banco-cobrador-237-bradesco-carteira-09/
+  Por: Daniel de Morais InfoCotidiano
+
+14/01/2025
+-- ACBrBoleto.pas --
+[-] TK-6479 - Ajustado para que a propriedade VersaoArquivo possa aceitar NumeroNegativo. 
+  Por: Daniel de Morais InfoCotidiano
+
+10/01/2025
+-- ACBrBancoSicoob.pas --
+[*] TK-6456 - Ajustado para ser possivel imprimir boletos que estão com problemas linha digitavel e consultar boletos que não está sendo devolvido nas consultas. 
+  Por: Daniel de Morais InfoCotidiano
+
+09/01/2025
+-- ACBrBancoSulcredi --
+[+] TK-6068 - Implementação do banco Sulcredi.
+  Por: christian@adminfo.com.br
+
+07/01/2025
+-- ACBrBancoSantander --
+[*] TK-6376 Acrescentado a geração das mensagens 4 e 5.
+  Por: P Junior
+
+-- ACBrBoletoW_Safra.pas --
+[*] TK-6163 Ajustado Assigned para não acontecer o AV na consulta.
+  https://www.projetoacbr.com.br/forum/topic/81079-consulta-e-consulta-detalhe-banco-safra/
+  Por: Daniel Morais Infocotidiano
+
+03/01/2025
+-- ACBrBoletoW_C6.pas --
+[-] Ajustado quando jurosmora = cjTaxaDiaria, enviar o valormora com "P" no json
+  https://discord.com/channels/798697718800318484/1316413204146159678/1324746699671077036
+  Por: Daniel Morais Infocotidiano
+
+03/01/2025
+-- ACBrBoletoW_C6.pas --
+[-] Ajustado quando jurosmora = cjTaxaMensal, enviar percentual dia
+  https://discord.com/channels/798697718800318484/1316413204146159678/1324746699671077036
+  Por: Daniel Morais Infocotidiano
+
+03/01/2025
+-- ACBrBoletoRet_Cresol/ACBrBoletoW_Cresol --
+[*] TK-6163 Ajustes para o envio do NossoNumero do título e na leitura do retorno.
+  Por: Delcio
+
 02/01/2025
 -- ACBrBancoSafra.pas --
 [*] TK-6429 Ajustado p novo layout. Seg P. 061-061/062-062 qdo LayoutVersaoLote=60

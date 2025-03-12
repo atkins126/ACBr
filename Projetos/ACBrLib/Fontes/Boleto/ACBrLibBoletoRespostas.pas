@@ -176,7 +176,7 @@ type
     FRejeicoes: TObjectList;
     FHoraBaixa: String;
     FEstadoTituloCobranca : String;
-
+    FLiquidadoBanco:integer;
 
 
   public
@@ -215,10 +215,7 @@ type
     property Rejeicoes: TObjectList read FRejeicoes write FRejeicoes;
     property EstadoTituloCobranca: String read FEstadoTituloCobranca write FEstadoTituloCobranca;
     property HoraBaixa: String read FHoraBaixa write FHoraBaixa;
-   
-
-
-
+    property LiquidadoBanco: integer read FLiquidadoBanco write FLiquidadoBanco;
   end;
 
   { TRetornoBoleto }
@@ -372,6 +369,7 @@ type
     FCodigoCanalTituloCobranca: String;
     FCodigoEstadoTituloCobranca: string;
     FEstadoTituloCobranca: String;
+    FLiquidadoBanco : integer;
 
   public
     constructor Create( AID: Integer; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
@@ -449,9 +447,7 @@ type
     property CodigoCanalTituloCobranca: String read FCodigoCanalTituloCobranca write FCodigoCanalTituloCobranca;
     property EstadoTituloCobranca: String read FEstadoTituloCobranca write FEstadoTituloCobranca;
     property CodigoEstadoTituloCobranca: String read FCodigoEstadoTituloCobranca write FCodigoEstadoTituloCobranca;
-
-
-
+    property LiquidadoBanco: integer read FLiquidadoBanco write FLiquidadoBanco;
   end;
 
   { TRetornoRejeicoesWeb }
@@ -503,7 +499,8 @@ type
     FHeader_Operacao: String;
     FHeader_Indice: Integer;
     FHeader_Sistema_Origem: String;
-    FHeader_Agencia: Integer;
+    FHeader_Agencia: String;
+    FHeader_ContaCorrente: String;
     FHeader_Id_Origem: String;
     FHeader_Data_Hora: TDateTime;
     FHeader_Id_Processo: String;
@@ -547,7 +544,8 @@ type
     property Header_Operacao: String             read FHeader_Operacao             write FHeader_Operacao;
     property Header_Indice: Integer              read FHeader_Indice               write FHeader_Indice;
     property Header_Sistema_Origem: String       read FHeader_Sistema_Origem       write FHeader_Sistema_Origem;
-    property Header_Agencia: Integer             read FHeader_Agencia              write FHeader_Agencia;
+    property Header_Agencia: String              read FHeader_Agencia              write FHeader_Agencia;
+    property Header_ContaCorrente: String        read FHeader_ContaCorrente        write FHeader_ContaCorrente;
     property Header_Id_Origem: String            read FHeader_Id_Origem            write FHeader_Id_Origem;
     property Header_Data_Hora: TDateTime         read FHeader_Data_Hora            write FHeader_Data_Hora;
     property Header_Id_Processo: String          read FHeader_Id_Processo          write FHeader_Id_Processo;
@@ -734,8 +732,8 @@ begin
     CodigoCanalTituloCobranca:=DadosRet.TituloRet.CodigoCanalTituloCobranca;
     EstadoTituloCobranca:=DadosRet.TituloRet.EstadoTituloCobranca;;
     CodigoEstadoTituloCobranca:=DadosRet.TituloRet.CodigoEstadoTituloCobranca;
-
-
+    if DadosRet.TituloRet.LiquidadoBanco > 0 then
+       LiquidadoBanco :=DadosRet.TituloRet.LiquidadoBanco;
     if (NaoEstaVazio(DadosRet.TituloRet.EMV)) then
     begin
       emv:= DadosRet.TituloRet.EMV;
@@ -795,6 +793,7 @@ begin
   Header_Indice:= RetEnvio.Header.Indice;
   Header_Sistema_Origem:= RetEnvio.Header.Sistema_Origem;
   Header_Agencia:= RetEnvio.Header.Agencia;
+  Header_ContaCorrente:= RetEnvio.Header.ContaCorrente;
   Header_Id_Origem:= RetEnvio.Header.Id_Origem;
   Header_Data_Hora:= RetEnvio.Header.Data_Hora;
   Header_Id_Processo:= RetEnvio.Header.Id_Processo;
@@ -839,7 +838,11 @@ end;
 procedure TRetornoRejeicoesTitulo.Processar(const ACBrBoleto: TACBrBoleto);
 begin
   MotivoRejeicao := ACBrBoleto.ListadeBoletos[FID].DescricaoMotivoRejeicaoComando[FIDRej];
-  MotivoRejeicaoComando := ACBrBoleto.ListadeBoletos[FID].MotivoRejeicaoComando[FIDRej];
+  if ACBrBoleto.ListadeBoletos[FID].MotivoRejeicaoComando.Count > 0 then
+  begin
+    ACBrBoleto.ListadeBoletos[FID].MotivoRejeicaoComando.Delimiter:='|';
+    MotivoRejeicaoComando := ACBrBoleto.ListadeBoletos[FID].MotivoRejeicaoComando.CommaText;
+  end;
 end;
 
 { TRetornoBoleto }
@@ -940,6 +943,8 @@ begin
     SeuNumero := ACBrBoleto.ListadeBoletos[FID].SeuNumero;
     CodTipoOcorrencia := GetEnumName( TypeInfo(TACBrTipoOcorrencia),
                                              Integer(ACBrBoleto.ListadeBoletos[FID].OcorrenciaOriginal.Tipo));
+    if ACBrBoleto.ListadeBoletos[FID].Liquidacao.Banco > 0 then
+       LiquidadoBanco := ACBrBoleto.ListadeBoletos[FID].Liquidacao.Banco;
     DescricaoTipoOcorrencia := ACBrBoleto.ListadeBoletos[FID].OcorrenciaOriginal.Descricao;
 
     for I:= 0 to  ACBrBoleto.ListadeBoletos[FID].DescricaoMotivoRejeicaoComando.Count-1 do

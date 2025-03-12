@@ -10,6 +10,7 @@ Adm                  2.01
 ADPM                 2.00
 AEG                  2.02
 Agili                1.00  08/09/2022
+Aspec                1.00
 AssessorPublico      1.00  23/08/2022
 Asten                2.02
 Bauhaus              1.00  20/10/2022
@@ -36,7 +37,7 @@ DSF                  2.03
 eGoverneISS          1.00  06/09/2022
 eISS                 1.00
 EL                   1.00
-EL                   2.04
+EL                   2.04  21/01/2025
 Elmar                2.02
 EloTech              2.03  10/08/2022
 Equiplano            1.00  22/11/2022

@@ -39,7 +39,7 @@ interface
 
 uses
   Classes, SysUtils, StrUtils,
-  ACBrNFeConfiguracoes, pcnNFe,
+  ACBrNFeConfiguracoes, ACBrNFe.Classes,
   {$IfDef USE_ACBr_XMLDOCUMENT}
     ACBrNFe.XmlReader, ACBrNFe.XmlWriter,
   {$Else}
@@ -948,9 +948,9 @@ begin
           if (nfe.Cobr.Fat.vDesc > nfe.Cobr.Fat.vOrig) then
             AdicionaErro('895-Rejeição: Valor do Desconto da Fatura maior que Valor Original da Fatura');
 
-          GravaLog('Validar: 896-Valor Líquido da Fatura (vLiq, id:Y06) difere do Valor Original da Fatura (vOrig; id:Y04) – Valor do Desconto (vDesc, id:Y05)');
+          GravaLog('Validar: 902-Valor Líquido da Fatura (vLiq, id:Y06) difere do Valor Original da Fatura (vOrig; id:Y04) – Valor do Desconto (vDesc, id:Y05)');
           if (nfe.Cobr.Fat.vLiq <> (nfe.Cobr.Fat.vOrig - nfe.Cobr.Fat.vDesc)) then
-            AdicionaErro('896-Rejeição: Valor Liquido da Fatura difere do Valor Original menos o Valor do Desconto');
+            AdicionaErro('902-Rejeição: Valor Liquido da Fatura difere do Valor Original menos o Valor do Desconto');
 
 //          GravaLog('Validar: 897-Valor Líquido da Fatura/Valor Original da Fatura maior que o Valor Total da Nota Fiscal');
 //          if (((nfe.Cobr.Fat.vLiq > 0) and (nfe.Cobr.Fat.vLiq > nfe.Total.ICMSTot.vNF)) or
@@ -980,11 +980,11 @@ begin
             UltVencto := nfe.Cobr.Dup.Items[I].dVenc;
           end;
 
-          GravaLog('Validar: 872-Se informado o grupo de Parcelas de cobrança (tag:dup, Id:Y07) e a soma do valor das parcelas (vDup, id: Y10) difere do Valor Líquido da Fatura (vLiq, id:Y06).');
+          GravaLog('Validar: 851-Se informado o grupo de Parcelas de cobrança (tag:dup, Id:Y07) e a soma do valor das parcelas (vDup, id: Y10) difere do Valor Líquido da Fatura (vLiq, id:Y06).');
           //porque se não tiver parcela não tem valor para ser verificado
           if (nfe.Cobr.Dup.Count > 0) and (((nfe.Cobr.Fat.vLiq > 0) and (fsvDup < nfe.Cobr.Fat.vLiq)) or
              (fsvDup < (nfe.Cobr.Fat.vOrig-nfe.Cobr.Fat.vDesc))) then
-            AdicionaErro('872-Rejeição: Soma do valor das parcelas difere do Valor Líquido da Fatura');
+            AdicionaErro('851-Rejeição: Soma do valor das parcelas difere do Valor Líquido da Fatura');
         end;
       end;
     end;
@@ -1066,10 +1066,6 @@ begin
           GravaLog('Validar: 736-NFCe Grupo veiculos novos [nItem: '+IntToStr(Prod.nItem)+']');
           if (NaoEstaVazio(Prod.veicProd.chassi)) then
             AdicionaErro('736-Rejeição: NFC-e com grupo de Veículos novos [nItem: '+IntToStr(Prod.nItem)+']');
-
-          GravaLog('Validar: 737-NCM info [nItem: '+IntToStr(Prod.nItem)+']');
-          if (Prod.med.Count > 0) then
-            AdicionaErro('737-Rejeição: NFC-e com grupo de Medicamentos [nItem: '+IntToStr(Prod.nItem)+']');
 
           GravaLog('Validar: 738-NFCe grupo Armamentos [nItem: '+IntToStr(Prod.nItem)+']');
           if (Prod.arma.Count > 0) then
@@ -2784,11 +2780,23 @@ begin
         end;
       end;
 
-      sSecao := 'defensivo';
-      if INIRec.SectionExists(sSecao) then
+      I := 1;
+      while true do
       begin
-        agropecuario.defensivo.nReceituario := INIRec.ReadString(sSecao, 'nReceituario', '');
-        agropecuario.defensivo.CPFRespTec := INIRec.ReadString(sSecao, 'CPFRespTec', '');
+        // I varia de 01 a 20
+        sSecao := 'defensivo' + IntToStrZero(I, 2);
+        sFim := INIRec.ReadString(sSecao ,'nReceituario', 'FIM');
+
+        if (sFim = 'FIM') or (Length(sFim) <= 0) then
+          break;
+
+        with agropecuario.defensivo.New do
+        begin
+          nReceituario := sFim;
+          CPFRespTec := INIRec.ReadString(sSecao, 'CPFRespTec', '');
+        end;
+
+        Inc(I);
       end;
 
       sSecao := 'guiaTransito';
@@ -3735,10 +3743,14 @@ begin
       INIRec.WriteString('infRespTec', 'email', infRespTec.email);
       INIRec.WriteString('infRespTec', 'fone', infRespTec.fone);
 
-      if Trim(agropecuario.defensivo.nReceituario) <> '' then
+      for J := 0 to agropecuario.defensivo.Count - 1 do
       begin
-        INIRec.WriteString('defensivo', 'nReceituario', agropecuario.defensivo.nReceituario);
-        INIRec.WriteString('defensivo', 'CPFRespTec', agropecuario.defensivo.CPFRespTec);
+        sSecao := 'defensivo' + IntToStrZero(J + 1, 2);
+        with agropecuario.defensivo.Items[J] do
+        begin
+          INIRec.WriteString(sSecao, 'nReceituario', nReceituario);
+          INIRec.WriteString(sSecao, 'CPFRespTec', CPFRespTec);
+        end;
       end;
 
       if agropecuario.guiaTransito.tpGuia <> tpgNenhum then
@@ -4295,7 +4307,7 @@ var
 begin
   // Verifica se precisa Converter de UTF8 para a String nativa da IDE //
 
-  if (XmlEhUTF8BOM(AXMLString)) then
+  if (Trim(AXMLString) <> '') and (XmlEhUTF8BOM(AXMLString)) then
   begin
     //Se tiver o BOM, eu ignoro os bytes do mesmo.
     XMLStr := Copy(AXMLString, 4, Length(AXMLString));

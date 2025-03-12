@@ -198,9 +198,6 @@ begin
   httpsend.ProxyPort := BoletoWS.ProxyPort;
   httpsend.ProxyUser := BoletoWS.ProxyUser;
   httpsend.ProxyPass := BoletoWS.ProxyPass;
-
-  if (BoletoWS.TimeOut <> 0) then
-    httpsend.TimeOut := BoletoWS.TimeOut;
 end;
 
 procedure TBoletoWSREST.setDefinirAccept(const AValue: String);
@@ -306,13 +303,13 @@ begin
       WriteStrToStream(httpsend.Document, NativeStringToUTF8(FPDadosMsg));
 
     BoletoWS.DoLog('URL: [' + MetodoHTTPToStr(FMetodoHTTP) + '] ' + FPURL, logSimples);
-    BoletoWS.DoLog('Header:', logParanoico);
-    BoletoWS.DoLog(httpsend.Headers.Text, logParanoico);
+    BoletoWS.DoLog('Header:' + LineBreak
+                             + httpsend.Headers.Text, logParanoico);
 
     httpsend.HTTPMethod(MetodoHTTPToStr(FMetodoHTTP), FPURL);
   finally
     httpsend.Document.Position := 0;
-
+    FRetornoWS       := '';
     try
       if LStream.Size > 0 then
       begin
@@ -327,7 +324,8 @@ begin
       end;
     except
       LStream.Position := 0;
-      FRetornoWS       := ReadStrFromStream(LStream, LStream.Size);
+      if LStream.Size > 0 then
+        FRetornoWS       := ReadStrFromStream(LStream, LStream.Size);
     end;
 
     FRetornoWS                       := String(UTF8ToNativeString(FRetornoWS));

@@ -43,6 +43,62 @@ Símbolo : Significado
 [+]     : Novo recurso
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
+
+24/02/2025
+-- ACBrMonitor1, ACBrMonitorConfig, ACBrMonitorConsts, DoACBrNFSeUnit --
+[*] #TK-6556 Adiciona informações de endereço opcionais para o emitente para usar no DANFSe quando não houver no XML.
+  Por: Diego Folieni 
+
+17/02/2025  
+-- ACBrMonitor.hnd --  
+[*] #TK-6137 Corrigido exemplos de respostas da DistribuicaoDFe adicionando informações para refletir retorno mais recente.  
+    Por: Júlio Cavalcanti e Diego Folieni
+
+10/02/2025
+-- ACBrMonitor.hnd --
+[*] #TK-6521 Incluído observação para as chaves TipoData, tpPer, TipoHora e tpHor. 
+    Por: Júlio Cavalcanti
+
+06/02/2025
+-- DoACBrReinfUnit.pas, ACBrMonitorConsts.pas --
+[*] #TK-6528 Implementado método Reinf.ValidarReinf().
+    Por: Renato Rubinho
+-- ACBrMonitor.hnd --
+[*] #TK-6528 Revisada e atualizada documentação do Reinf.
+    Por: Renato Rubinho
+
+05/02/2025
+-- ACBrMonitor.hnd --
+[*] #TK-6585 Incluído novo valor válido para o Ambiente no ACBrBoleto.
+    Por: Júlio Cavalcanti
+-- DoACBrReinfUnit.pas --
+[*] #TK-6528 Implementado método Reinf.ObterCertificados().
+    Por: Renato Rubinho
+
+14/01/2025
+-- ACBrMonitor1.pas, DoBoletoUnit.pas, ACBrMonitorConfig.pas  --
+[*] #TK-6479 Ajustado para Ler o INI VersaoArquivo utilizado no Boleto.
+    Por: Daniel de Morais InfoCotidiano
+
+07/01/2025
+-- ACBrMonitor1.lfm, ACBrMonitor1.pas, DoBoletoUnit.pas  --
+[-] #TK-6452-1 Adicionado a propriedade para config. UseCertificateHTTP para autenticação nas APIs de Boleto.
+    Por: Daniel de Morais InfoCotidiano
+
+07/01/2025
+-- DoACBrNFeUnit --
+[*] #TK-6415: Realizado a substituição da unit de classes de: pcnNFe
+    por: ACBrNFe.Classes 
+   Por: Italo Giurizzato Junior
+-- DoACBrMDFeUnit --
+[*] #TK-6409: Realizado a substituição da unit de classes de: pmdfeMDFe
+    por: ACBrMDFe.Classes 
+   Por: Italo Giurizzato Junior
+-- DoACBrCTeUnit --
+[*] #TK-6403: Realizado a substituição da unit de classes de: pcteCTe
+    por: ACBrCTe.Classes 
+   Por: Italo Giurizzato Junior
+
 30/12/2024
 -- ACBrMonitorConfig.pas, DoBoletoUnit.pas, ACBrMonitor1.pas, ACBrMonitor1.lfm, ACBrMonitorConsts.pas  --
 [*] #TK-6431 Criado a propriedade KeySoftwareHouse para uso parceria BB API

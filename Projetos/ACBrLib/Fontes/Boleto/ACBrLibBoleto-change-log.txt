@@ -42,6 +42,44 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+05/03/2025
+-- ACBrLibBoleto.lpi, ACBrLibBoletoDemo.lpi, ACBrLibBoletoConsoleMT.lpi e ACBrLibBoletoConsoleMTDemo.lpi--
+[*] Realizado ajustes nos paths para compilação com os novos scripts do Jenkins.
+    Por: Antonio Carlos Junior
+
+18/02/2025
+-- ACBrLibBoletoRespostas --
+[+] Realizado inclusão e alteração das propriedades FHeader_Agencia e FHeader_ContaCorrente na classe TRetornoRegistroWeb.
+    Por: Victor Panda / Antonio Carlos Junior
+
+11/02/2025
+-- RetornoBanco.cs, RetornoTitulo.cs --
+[*] #TK-6596 - Novos campos na leitura de retornos de cobrança.
+[*] Gerada nova versão dos nugets.
+  Por: SWAPI / Renato Rubinho
+
+07/02/2025
+-- ACBrLibBoletoConsoleMTDemo.lpi --
+[+] Adicionado novo Projeto, 100% CONSOLE e MT versão Demonstração.
+[+] Compatível com compilação em Linux 64 e Android 32 e 64
+
+23/01/2025
+-- ACBrLibBoletoRespostas.pas --
+[-] TK-6508 - Ajustado para validar o conteudo antes de MotivoRejeicaoComando 
+  https://www.projetoacbr.com.br/forum/topic/81409-boleto-banco-inter-arquivo-retorno-fora-de-padr%C3%B5es-quando-tem-erro/
+  Por: Daniel Morais InfoCotidiano / Panda
+
+23/01/2025
+-- ACBrLibBoletoRespostas.pas --
+[-] TK-6141-2 - Ajustado para evitar AV
+  Por: Daniel Morais InfoCotidiano 
+  
+15/01/2025
+-- ACBrLibBoletoRespostas.pas --
+[*] TK-6141 - Retorno INI devolver o banco que foi liquidado, propriedade LiquidadoBanco
+  https://www.projetoacbr.com.br/forum/topic/80275-mapear-campo-banco-cobrador-237-bradesco-carteira-09/
+  Por: Daniel de Morais InfoCotidiano
+
 30/12/2024
 --- ACBrLibBoletoConfig.pas,ACBrLibBoletoRespostas.pas, ACBrLibBoletoDataModule.pas, ACBrLibBoletoConsts.pas ---
 [*] TK-6431 Ajustado a lib para ler a nova propriedade KeySoftwareHouse, utilizado parceria BB

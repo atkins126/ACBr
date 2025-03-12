@@ -44,6 +44,70 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+08/03/2025
+-- ACBrCTe.Classes/ACBrCTe.XmlReader/ACBrCTe.XmlWriter --
+[*] #TK-5814: Alteração visando contemplar a Reforma Tributária.
+  Por: Italo Giurizzato Junior
+
+27/02/2025
+-- ACBrCTe.XmlWriter --
+[*] #TK-5814: Alteração visando contemplar a Reforma Tributária.
+  Por: Italo Giurizzato Junior
+
+23/02/2025
+-- ACBrCTeWebServices --
+[*] #TK-6647: Ajustes para identificar o CT-e Simplificado no DistribuicaoDFe.
+   Por: galegoga
+
+14/02/2025
+-- ACBrCTe.Classes/ACBrCTe.Consts --
+[+] Inclusão de novas contantes e ajustes nas novas classes para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+10/02/2025
+-- ACBrCTe.Classes --
+[+] Inclusão das novas classes para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+31/01/2025
+-- ACBrCTe.XmlWriter --
+[*] Correção para alguns campos do ICMS que são opcionais e estavam como obrigatórios.
+   Por: devFortes/Italo Giurizzato Junior
+-- ACBrCTeConhecimentos, pcteConversaoCTe --
+[*] #Tk-6521 - Altera o tipo dos enumerados TpcteTipoDataPeriodo e TpcteTipoHorarioIntervalo de não preenchido e N para -1
+  Por: Diego Folieni
+
+27/01/2025
+-- ACBrCTe.XmlHandler --
+[*] Correção na procedure LerToma4, não estava lendo o CNPJ/CPF do nó correto.
+   Por: devFortes
+
+24/01/2025
+-- ACBrCTeConhecimentos --
+[*] Alteração visando os campos do grupo <fluxo>
+   Por: Italo Giurizzato Junior
+
+20/01/2025
+-- pcteCTe --
+[*] Remoção de unit por estar em desuso.
+   Por: Italo Giurizzato Junior
+
+10/01/2025
+-- ACBrCTe.Conversao/ACBrCTe.EventoClass/ACBrCTe.RetEnvEvento --
+[*] Ajustes para a leitura de Eventos do Fisco.
+   Por: Italo Giurizzato Junior
+
+08/01/2025
+-- ACBrCTe.EnvEvento --
+[*] Melhorias no código.
+   Por: Italo Giurizzato Junior
+
+07/01/2025
+-- Diversos --
+[*] #TK-6403: Realizado a substituição da unit de classes de: pcteCTe
+    por: ACBrCTe.Classes 
+   Por: Italo Giurizzato Junior
+
 23/12/2024
 -- pcteConsts --
 [*] Remoção de unit sem uso.

@@ -38,8 +38,9 @@ interface
 
 uses
   SysUtils, Classes,
+  ACBrXmlBase,
   pcnConversao, pcnGerador,
-  pmdfeConversaoMDFe, pmdfeMDFe,
+  pmdfeConversaoMDFe, ACBrMDFe.Classes,
   ACBrUtil.Strings,
   ACBrUtil.Base,
   ACBrUtil.DateTime,
@@ -235,9 +236,9 @@ begin
      xProtMDFe :=
            '<protMDFe ' + VersaoStr + '>' +
              '<infProt>'+
-               '<tpAmb>'+TpAmbToStr(MDFe.procMDFe.tpAmb)+'</tpAmb>'+
+               '<tpAmb>'+TipoAmbienteToStr(MDFe.procMDFe.tpAmb)+'</tpAmb>'+
                '<verAplic>'+MDFe.procMDFe.verAplic+'</verAplic>'+
-               '<chMDFe>'+MDFe.procMDFe.chMDFe+'</chMDFe>'+
+               '<chMDFe>'+MDFe.procMDFe.chDFe+'</chMDFe>'+
                '<dhRecbto>'+FormatDateTime('yyyy-mm-dd"T"hh:nn:ss',MDFe.procMDFe.dhRecbto)+'</dhRecbto>'+
                '<nProt>'+MDFe.procMDFe.nProt+'</nProt>'+
                '<digVal>'+MDFe.procMDFe.digVal+'</digVal>'+

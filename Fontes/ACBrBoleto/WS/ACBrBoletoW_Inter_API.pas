@@ -266,6 +266,7 @@ var
   LDocumento, LSituacaoAbertos, LSituacaoBaixados, LSituacaoVencidos, LSituacaoCancelados: String;
   LFiltroDataVencimento,LFiltroDataEmissao, LFiltroDataPagamento : string;
   LOrdenarDataEmissao, LOrdenarDataVencimento, LOrdenarDataSituacao : string;
+  LPaginacaoQuantidade, LPaginacaoAtual: string;
 begin
   if Assigned(Boleto.Configuracoes.WebService.Filtro) then
   begin
@@ -281,6 +282,8 @@ begin
       LOrdenarDataEmissao   := 'DATA_EMISSAO';
       LOrdenarDataVencimento:= 'DATA_VENCIMENTO';
       LOrdenarDataSituacao  := 'DATA_VENCIMENTO';
+      LPaginacaoQuantidade  := 'paginacao.itensPorPagina';
+      LPaginacaoAtual       := 'paginacao.paginaAtual';
     end
     else
     begin
@@ -294,6 +297,8 @@ begin
       LOrdenarDataEmissao   := 'DATASITUACAO';
       LOrdenarDataVencimento:= 'DATAVENCIMENTO';
       LOrdenarDataSituacao  := 'DATASITUACAO';
+      LPaginacaoQuantidade  := 'itensPorPagina';
+      LPaginacaoAtual       := 'paginaAtual';
     end;
 
     LDocumento := OnlyNumber
@@ -303,10 +308,10 @@ begin
     LConsulta.Delimiter := '&';
     try
 
-      LConsulta.Add( 'itensPorPagina=1000' );
+      LConsulta.Add( LPaginacaoQuantidade+'=1000' );
 
       if Boleto.Configuracoes.WebService.Filtro.indiceContinuidade > 0 then
-        LConsulta.Add('paginaAtual='+ FloatToStr(Boleto.Configuracoes.WebService.Filtro.indiceContinuidade));
+        LConsulta.Add(LPaginacaoAtual+'='+ FloatToStr(Boleto.Configuracoes.WebService.Filtro.indiceContinuidade));
 
       case Boleto.Configuracoes.WebService.Filtro.indicadorSituacao of
         isbBaixado:
@@ -343,10 +348,11 @@ begin
             if Boleto.Configuracoes.WebService.Filtro.dataRegistro.DataInicio > 0 then
             {por data de registro, devolve qq status, pois o boleto pode ter sido pago ou baixado}
             begin
-              LConsulta.Add('filtrarDataPor='+'EMISSAO' );
+              LConsulta.Add( 'filtrarDataPor='+LFiltroDataEmissao );
+              LConsulta.Add('situacao='+LSituacaoAbertos);
               LConsulta.Add('dataInicial=' +DateTimeToDateInter(Boleto.Configuracoes.WebService.Filtro.dataRegistro.DataInicio));
-              LConsulta.Add('dataFinal=' +DateTimeToDateInter(Boleto.Configuracoes.WebService.Filtro.dataRegistro.DataFinal));
-              LConsulta.Add( 'ordenarPor='+'STATUS' );
+              LConsulta.Add('dataFinal=' +DateTimeToDateInter(Boleto.Configuracoes.WebService.Filtro.DataRegistro.DataFinal));
+              LConsulta.Add( 'ordenarPor='+LOrdenarDataSituacao);
             end;
           end;
       end;
@@ -446,7 +452,7 @@ end;
 procedure TBoletoW_Inter_API.GerarPagador(AJson: TACBrJSONObject);
 var
   LJsonDadosPagador: TACBrJSONObject;
-
+  LTelefone : String;
 begin
   if Assigned(ATitulo) and Assigned(AJson) then
   begin
@@ -463,7 +469,20 @@ begin
     LJsonDadosPagador.AddPair('cep',OnlyNumber(ATitulo.Sacado.CEP));
     LJsonDadosPagador.AddPair('cidade',ATitulo.Sacado.Cidade);
     LJsonDadosPagador.AddPair('uf',ATitulo.Sacado.UF);
-    LJsonDadosPagador.AddPair('telefone',IfThen(ATitulo.Sacado.Fone = '', '0', ATitulo.Sacado.Fone));
+
+
+    LTelefone := OnlyNumber(ATitulo.Sacado.Fone);
+
+    if Length(LTelefone) = 0 then
+      LTelefone := '0';
+
+    if Length(LTelefone) >= 10  then
+    begin
+      LJsonDadosPagador.AddPair('ddd',copy(LTelefone,0,2));
+      LJsonDadosPagador.AddPair('telefone',copy(LTelefone,3,Length(LTelefone)));
+    end else
+      LJsonDadosPagador.AddPair('telefone', LTelefone);
+
     LJsonDadosPagador.AddPair('email',ATitulo.Sacado.Email);
 
 
@@ -637,96 +656,24 @@ var
 begin
   if Assigned(ATitulo) and Assigned(AJson) then
   begin
-    LJsonDesconto := TACBrJSONObject.Create; // verificar
+    LJsonDesconto := TACBrJSONObject.Create;
     if (ATitulo.DataDesconto > 0) then
     begin
-
-      LJsonDesconto.AddPair('data',DateTimeToDateInter(ATitulo.DataDesconto ));
-
-      case Integer(ATitulo.TipoDesconto) of
-        1: // Valor Fixo até a data informada
+      case ATitulo.TipoDesconto of
+        tdValorFixoAteDataInformada: // Valor Fixo até a data informada
           begin
-            if Boleto.Cedente.CedenteWS.IndicadorPix then
-              begin
-                LJsonDesconto.AddPair('codigo','VALORFIXODATAINFORMADA');
-                LJsonDesconto.AddPair('valor',ATitulo.ValorDesconto);
-                LJsonDesconto.AddPair('quantidadeDias',(ATitulo.Vencimento - ATitulo.DataDesconto));
-              end
-            else
-              begin
-                LJsonDesconto.AddPair('codigoDesconto','VALORFIXODATAINFORMADA');
-                LJsonDesconto.AddPair('valor',ATitulo.ValorDesconto);
-                LJsonDesconto.AddPair('taxa',0);
-              end;
+            LJsonDesconto.AddPair('codigo','VALORFIXODATAINFORMADA');
+            LJsonDesconto.AddPair('valor',ATitulo.ValorDesconto);
+            LJsonDesconto.AddPair('quantidadeDias',(ATitulo.Vencimento - ATitulo.DataDesconto));
           end;
-        2: // percentual até a data informada
+        tdPercentualAteDataInformada: // percentual até a data informada
           begin
-            if Boleto.Cedente.CedenteWS.IndicadorPix then
-              begin
-                LJsonDesconto.AddPair('codigo','PERCENTUALDATAINFORMADA');
-                LJsonDesconto.AddPair('taxa',ATitulo.ValorDesconto);
-                LJsonDesconto.AddPair('quantidadeDias',(ATitulo.Vencimento - ATitulo.DataDesconto));
-              end
-            else
-              begin
-                LJsonDesconto.AddPair('codigoDesconto','PERCENTUALDATAINFORMADA');
-                LJsonDesconto.AddPair('taxa',ATitulo.ValorDesconto);
-                LJsonDesconto.AddPair('valor',0);
-              end;
+            LJsonDesconto.AddPair('codigo','PERCENTUALDATAINFORMADA');
+            LJsonDesconto.AddPair('taxa',ATitulo.ValorDesconto);
+            LJsonDesconto.AddPair('quantidadeDias',(ATitulo.Vencimento - ATitulo.DataDesconto));
           end;
-      else
-        begin
-          if not Boleto.Cedente.CedenteWS.IndicadorPix then
-            begin
-              LJsonDesconto.AddPair('codigoDesconto','NAOTEMDESCONTO');
-              LJsonDesconto.AddPair('valor',0);
-              LJsonDesconto.AddPair('taxa',0);
-            end;
-        end;
       end;
-    end
-    else
-    begin
-      if not Boleto.Cedente.CedenteWS.IndicadorPix then
-        begin
-          LJsonDesconto.AddPair('codigoDesconto','NAOTEMDESCONTO');
-          LJsonDesconto.AddPair('valor',0);
-          LJsonDesconto.AddPair('taxa',0);
-        end;
-    end;
-
-    if ((Boleto.Cedente.CedenteWS.IndicadorPix) and (ATitulo.DataDesconto > 0))  then
-       AJson.AddPair('desconto', LJsonDesconto)
-    else if not Boleto.Cedente.CedenteWS.IndicadorPix then
-       AJson.AddPair('desconto1', LJsonDesconto) ;
-
-    if ((ATitulo.DataDesconto2 > 0) and (not Boleto.Cedente.CedenteWS.IndicadorPix)) then
-    begin
-      LJsonDesconto2 := TACBrJSONObject.Create;
-      LJsonDesconto2.AddPair('data',ATitulo.DataDesconto2);
-
-      case Integer(ATitulo.TipoDesconto) of
-        1:
-          begin
-            LJsonDesconto2.AddPair('codigoDesconto','VALORFIXODATAINFORMADA');
-            LJsonDesconto2.AddPair('valor',ATitulo.ValorDesconto2);
-            LJsonDesconto2.AddPair('taxa',0);
-          end;
-        2:
-          begin
-            LJsonDesconto2.AddPair('codigoDesconto','PERCENTUALDATAINFORMADA');
-            LJsonDesconto2.AddPair('taxa',ATitulo.ValorDesconto2);
-            LJsonDesconto2.AddPair('valor',0);
-          end;
-      else
-        begin
-          LJsonDesconto2.AddPair('codigoDesconto','NAOTEMDESCONTO');
-          LJsonDesconto2.AddPair('valor',0);
-          LJsonDesconto2.AddPair('taxa',0);
-        end;
-      end;
-
-      AJson.AddPair('desconto2',LJsonDesconto2);
+      AJson.AddPair('desconto', LJsonDesconto);
     end;
   end;
 end;

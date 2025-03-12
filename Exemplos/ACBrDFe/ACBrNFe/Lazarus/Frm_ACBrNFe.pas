@@ -40,7 +40,7 @@ uses
   SynEdit, SynHighlighterXML,
   ACBrPosPrinter, ACBrNFeDANFeESCPOS, ACBrNFeDANFEClass, ACBrDANFCeFortesFr,
   ACBrDFeReport, ACBrDFeDANFeReport, ACBrNFeDANFeRLClass, ACBrBase, ACBrDFe,
-  ACBrNFe, ACBrUtil, ACBrMail, ACBrIntegrador, ACBrDANFCeFortesFrA4;
+  ACBrNFe, ACBrUtil, ACBrMail, ACBrDANFCeFortesFrA4;
 
 type
 
@@ -277,7 +277,6 @@ type
     btnImprimirDANFCEOffline: TButton;
     rgDANFCE: TRadioGroup;
     btnStatusServ: TButton;
-    ACBrIntegrador1: TACBrIntegrador;
     btVersao: TButton;
     ACBrNFeDANFCeFortesA41: TACBrNFeDANFCeFortesA4;
     Label51: TLabel;
@@ -380,7 +379,7 @@ implementation
 uses
   strutils, math, TypInfo, DateUtils, synacode, blcksock, FileCtrl, Grids,
   IniFiles, Printers,
-  pcnAuxiliar, pcnNFe, pcnConversao, pcnConversaoNFe, pcnNFeRTXT, pcnRetConsReciDFe,
+  pcnAuxiliar, ACBrNFe.Classes, pcnConversao, pcnConversaoNFe, pcnNFeRTXT, pcnRetConsReciDFe,
   ACBrDFeConfiguracoes, ACBrDFeSSL, ACBrDFeOpenSSL, ACBrDFeUtil,
   ACBrNFeNotasFiscais, ACBrNFeConfiguracoes,
   Frm_Status, Frm_SelecionarCertificado, Frm_ConfiguraSerial;
@@ -1020,6 +1019,8 @@ var
 //    Reboque: TreboqueCollectionItem;
 //    Lacre: TLacresCollectionItem;
 //    ProcReferenciado: TprocRefCollectionItem;
+//  Agropecuario: Tagropecuario;
+//  Defensivo: TdefensivoCollectionItem;
   InfoPgto: TpagCollectionItem;
 begin
   NotaF := ACBrNFe1.NotasFiscais.Add;
@@ -1301,6 +1302,22 @@ begin
   Arma.nCano  := 0;
   Arma.descr  := '';
   *)
+
+//Campos específicos para agropecuario / defensivo
+// Devemos gerar somente o grupo defensivo ou o grupo guiaTransito
+(*
+  Defensivo := Agropecuario.defensivo.Add;
+  Defensivo.nReceituario := '123';
+  Defensivo.CPFRespTec := '12345678901';
+*)
+
+//Campos específicos para agropecuario / guiaTransito
+(*
+  Agropecuario.guiaTransito.tpGuia := tpgGuiaFlorestal;
+  Agropecuario.guiaTransito.UFGuia := 'SP';
+  Agropecuario.guiaTransito.serieGuia := '1';
+  Agropecuario.guiaTransito.nGuia := '1';
+*)
 
 //Campos específicos para venda de combustível(distribuidoras)
 
@@ -2240,19 +2257,8 @@ begin
     MemoDados.Lines.Add('xMotivo: ' + ACBrNFe1.WebServices.Enviar.xMotivo);
     MemoDados.Lines.Add('Recibo: '+ ACBrNFe1.WebServices.Enviar.Recibo);
 
-    if (ACBrNFe1.Integrador= ACBrIntegrador1) then
-    begin
-      if (ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo <> '') then
-      begin
-        MemoResp.Lines.Add('[Integrador]');
-        MemoResp.Lines.Add('Codigo=' + ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo);
-        MemoResp.Lines.Add('Valor=' + ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Valor);
-
-        ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo := '';
-        ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Valor := '';
-      end;
-    end;
   end;
+
   (*
   ACBrNFe1.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].tpAmb
   ACBrNFe1.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].verAplic
@@ -3605,19 +3611,6 @@ begin
   MemoDados.Lines.Add('tMed: '     +IntToStr(ACBrNFe1.WebServices.StatusServico.TMed));
   MemoDados.Lines.Add('dhRetorno: '+DateTimeToStr(ACBrNFe1.WebServices.StatusServico.dhRetorno));
   MemoDados.Lines.Add('xObs: '     +ACBrNFe1.WebServices.StatusServico.xObs);
-
-  if (ACBrNFe1.Integrador= ACBrIntegrador1) then
-  begin
-    if (ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo <> '') then
-    begin
-      MemoDados.Lines.Add('[Integrador]');
-      MemoDados.Lines.Add('Codigo=' + ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo);
-      MemoDados.Lines.Add('Valor=' + ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Valor);
-
-      ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo := '';
-      ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Valor := '';
-    end;
-  end;
 end;
 
 procedure TfrmACBrNFe.btnSubNameClick(Sender: TObject);

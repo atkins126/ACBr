@@ -281,11 +281,12 @@ const
     'URL-ConsultaNFCe');
 
 type
-  TpcnFinalidadeNFe = (fnNormal, fnComplementar, fnAjuste, fnDevolucao);
+  TpcnFinalidadeNFe = (fnNormal, fnComplementar, fnAjuste, fnDevolucao,
+    fnCredito, fnDebito);
 
 const
   TFinalidadeNFeArrayStrings: array[TpcnFinalidadeNFe] of string = ('1', '2', '3',
-    '4');
+    '4', '5', '6');
 
 type
   TpcnModeloDF = (moNFe, moNFCe);
@@ -394,6 +395,25 @@ type
 const
   TtpGuiaArrayStrings: array[TtpGuia] of string = ('', '1', '2', '3', '4', '5', '6', '7');
 
+// Reforma Tributária
+type
+  TindMultaJuros  = (timjNenhum, timjMulta, timjJuros);
+
+const
+  TindMultaJurosArrayStrings: array[TindMultaJuros] of string = ('', '0', '1');
+
+type
+  TtpCompraGov  = (tcgUniao, tcgEstados, tcgDistritoFederal, tcgMunicipios);
+
+const
+  TtpCompraGovArrayStrings: array[TtpCompraGov] of string = ('1', '2', '3', '4');
+
+type
+  TindPerecimento  = (tipNenhum, tipPercimento);
+
+const
+  TindPerecimentoArrayStrings: array[TindPerecimento] of string = ('', '1');
+
 {
   Declaração das funções de conversão
 }
@@ -474,6 +494,16 @@ function StrTotpMotivo(out ok: boolean; const s: string): TtpMotivo;
 
 function TtpGuiaToStr(const t: TtpGuia): string;
 function StrToTtpGuia(const s: String): TtpGuia;
+
+// Reforma Tributária
+function indMultaJurosToStr(const t: TindMultaJuros): string;
+function StrToindMultaJuros(const s: string): TindMultaJuros;
+
+function tpCompraGovToStr(const t: TtpCompraGov): string;
+function StrTotpCompraGov(const s: string): TtpCompraGov;
+
+function indPerecimentoToStr(const t: TindPerecimento): string;
+function StrToindPerecimento(const s: string): TindPerecimento;
 
 implementation
 
@@ -1187,14 +1217,14 @@ end;
 // B25 - Finalidade de emissão da NF-e *****************************************
 function FinNFeToStr(const t: TpcnFinalidadeNFe): String;
 begin
-  Result := EnumeradoToStr(t, ['1', '2', '3', '4'],
-    [fnNormal, fnComplementar, fnAjuste, fnDevolucao]);
+  Result := EnumeradoToStr(t, ['1', '2', '3', '4', '5', '6'],
+    [fnNormal, fnComplementar, fnAjuste, fnDevolucao, fnCredito, fnDebito]);
 end;
 
 function StrToFinNFe(out ok: Boolean; const s: String): TpcnFinalidadeNFe;
 begin
-  Result := StrToEnumerado(ok, s, ['1', '2', '3', '4'],
-    [fnNormal, fnComplementar, fnAjuste, fnDevolucao]);
+  Result := StrToEnumerado(ok, s, ['1', '2', '3', '4', '5', '6'],
+    [fnNormal, fnComplementar, fnAjuste, fnDevolucao, fnCredito, fnDebito]);
 end;
 
 function IndicadorNFeToStr(const t: TpcnIndicadorNFe): String;
@@ -1637,6 +1667,67 @@ begin
     end;
   end;
   raise EACBrException.CreateFmt('Valor string inválido para TtpGuia: %s', [s]);
+end;
+
+// Reforma Tributária
+function indMultaJurosToStr(const t: TindMultaJuros): string;
+begin
+  Result := TindMultaJurosArrayStrings[t];
+end;
+
+function StrToindMultaJuros(const s: string): TindMultaJuros;
+var
+  idx: TindMultaJuros;
+begin
+  for idx:= Low(TindMultaJurosArrayStrings) to High(TindMultaJurosArrayStrings)do
+  begin
+    if(TindMultaJurosArrayStrings[idx] = s)then
+    begin
+      Result := idx;
+      exit;
+    end;
+  end;
+  raise EACBrException.CreateFmt('Valor string inválido para TindMultaJuros: %s', [s]);
+end;
+
+function tpCompraGovToStr(const t: TtpCompraGov): string;
+begin
+  Result := TtpCompraGovArrayStrings[t];
+end;
+
+function StrTotpCompraGov(const s: string): TtpCompraGov;
+var
+  idx: TtpCompraGov;
+begin
+  for idx:= Low(TtpCompraGovArrayStrings) to High(TtpCompraGovArrayStrings)do
+  begin
+    if(TtpCompraGovArrayStrings[idx] = s)then
+    begin
+      Result := idx;
+      exit;
+    end;
+  end;
+  raise EACBrException.CreateFmt('Valor string inválido para TtpCompraGov: %s', [s]);
+end;
+
+function indPerecimentoToStr(const t: TindPerecimento): string;
+begin
+  Result := TindPerecimentoArrayStrings[t];
+end;
+
+function StrToindPerecimento(const s: string): TindPerecimento;
+var
+  idx: TindPerecimento;
+begin
+  for idx:= Low(TindPerecimentoArrayStrings) to High(TindPerecimentoArrayStrings)do
+  begin
+    if(TindPerecimentoArrayStrings[idx] = s)then
+    begin
+      Result := idx;
+      exit;
+    end;
+  end;
+  raise EACBrException.CreateFmt('Valor string inválido para TindPerecimento: %s', [s]);
 end;
 
 initialization

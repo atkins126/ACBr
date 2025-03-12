@@ -66,7 +66,7 @@ type
     function CodOcorrenciaToTipo(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
     function TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
     function CodMotivoRejeicaoToDescricao(const TipoOcorrencia:TACBrTipoOcorrencia; CodMotivo:Integer): String; override;
-
+    function CalcularTamMaximoNossoNumero(const Carteira: String; const NossoNumero : String = ''; const Convenio: String = ''): Integer; override;
     function CodOcorrenciaToTipoRemessa(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
    end;
 
@@ -82,7 +82,7 @@ begin
    fpDigito                := 0;
    fpNome                  := 'SICOOB';
    fpNumero                := 756;
-   fpTamanhoMaximoNossoNum := 8;
+   fpTamanhoMaximoNossoNum := 9;
    fpTamanhoCarteira       := 1;
    fpTamanhoConta          := 12;
    fpCodigosMoraAceitos    := '0123'; {0 isento CNAB, 3 IsentoAPI}
@@ -95,6 +95,7 @@ function TACBrBancoSicoob.CalcularDigitoVerificador(const ACBrTitulo: TACBrTitul
 var
   Num, Res :String;
   i, base, digito : Integer;
+  LNossoNumero : string;
 const
   indice = '319731973197319731973';
 begin
@@ -104,9 +105,17 @@ begin
      Result := '';
      Exit;
    end;
+
+   if fpLayoutVersaoArquivo =-81 then
+     LNossoNumero := PadLeft(copy(ACBrTitulo.NossoNumero,1,6), 7, '0')
+   else
+     LNossoNumero := PadLeft(trim(ACBrUtil.Strings.RemoveZerosEsquerda(ACBrTitulo.NossoNumero)), 7, '0') ;
+
    Num :=  PadLeft(ACBrTitulo.ACBrBoleto.Cedente.Agencia, 4, '0') +
            PadLeft(ACBrTitulo.ACBrBoleto.Cedente.CodigoCedente, 10, '0') +
-           PadLeft(trim(ACBrTitulo.NossoNumero), 7, '0');
+           LNossoNumero;
+
+         //  PadLeft(trim(ACBrTitulo.NossoNumero), 7, '0'); alterado pq estava cortando ultimo digito do nosso numero.
 
 
    base := 0;
@@ -170,7 +179,8 @@ var
 begin
 
     FatorVencimento := CalcularFatorVencimento(ACBrTitulo.Vencimento);
-    ANossoNumero := ACBrTitulo.NossoNumero+CalcularDigitoVerificador(ACBrTitulo);
+    ANossoNumero := RemoveZerosEsquerda(ACBrTitulo.NossoNumero)+CalcularDigitoVerificador(ACBrTitulo);
+    //ACBrTitulo.NossoNumero + CalcularDigitoVerificador(ACBrTitulo);
 
     if (ACBrTitulo.Carteira = '1') or (ACBrTitulo.Carteira = '3') or (ACBrTitulo.Carteira = '9')then
        ACarteira := ACBrTitulo.Carteira
@@ -222,11 +232,11 @@ end;
 
 function TACBrBancoSicoob.MontarCampoNossoNumero (const ACBrTitulo: TACBrTitulo ) : String;
 begin
-  if fpLayoutVersaoArquivo = 810 then
-    Result := ACBrTitulo.NossoNumero
+  case fpLayoutVersaoArquivo of
+    810: Result := ACBrTitulo.NossoNumero;
   else
-    Result := ACBrTitulo.NossoNumero + '-' + CalcularDigitoVerificador(ACBrTitulo);
-
+    Result := PadLeft(RemoveZerosEsquerda(ACBrTitulo.NossoNumero), fpTamanhoMaximoNossoNum, '0') + '-' + CalcularDigitoVerificador(ACBrTitulo);
+  end;
 end;
 
 procedure TACBrBancoSicoob.GerarRegistroHeader400(NumeroRemessa : Integer; aRemessa:TStringList);
@@ -450,7 +460,7 @@ var
   Titulo   : TACBrTitulo;
   Linha, rCedente, rCNPJCPF: String;
   rAgencia, rConta,rDigitoConta: String;
-  MotivoLinha, I, CodMotivo: Integer;
+  MotivoLinha, I, CodMotivo, LLayoutArquivo: Integer;
   codOcorrencia: String;
 begin
  
@@ -551,8 +561,27 @@ begin
 
             ValorDocumento       := StrToFloatDef(Copy(Linha,82,15),0)/100;
             ValorDespesaCobranca := StrToFloatDef(Copy(Linha,199,15),0)/100;
-            NossoNumero          := Copy(Linha,40,7);
+
             Carteira             := Copy(Linha,58,1);
+
+            try
+
+              LLayoutArquivo := fpLayoutVersaoArquivo;
+
+              if ACBrBoleto.LerNossoNumeroCompleto or (ACBrBoleto.Banco.LayoutVersaoArquivo = 810) then
+              begin
+                fpLayoutVersaoArquivo   := 810;
+                NossoNumero             := Copy(Linha,40,8);
+              end
+              else
+              begin
+                fpLayoutVersaoArquivo   := 81;
+                NossoNumero          := Copy(Linha,40,7);
+              end;
+            finally
+              fpLayoutVersaoArquivo := LLayoutArquivo;
+            end;
+
 
             if (CodOcorrencia  = '06' ) or (CodOcorrencia  = '09' ) or
                (CodOcorrencia  = '17' ) then
@@ -564,7 +593,7 @@ begin
             if (Copy(Linha,133,1) = '1') then
              begin 
               Sacado.Pessoa  := pFisica;
-	      Sacado.CNPJCPF := Copy(Linha,138,11);
+	          Sacado.CNPJCPF := Copy(Linha,138,11);
              end
             else if (Copy(Linha,133,1) = '2') then
              begin 
@@ -730,7 +759,7 @@ var
 begin
   FNumeroSequencialRegistroNoLote := 0;
 
-  if fpLayoutVersaoArquivo = 810 then
+  if (fpLayoutVersaoArquivo = 810) or (fpLayoutVersaoArquivo = -81)then
     LLayoutVersaoArquivo := 81
   else
     LLayoutVersaoArquivo := fpLayoutVersaoArquivo;
@@ -1458,6 +1487,23 @@ begin
       Result := toRetornoOutrasOcorrencias;
    end;
 
+end;
+
+function TACBrBancoSicoob.CalcularTamMaximoNossoNumero(const Carteira: String; const NossoNumero : String = ''; const Convenio: String = ''): Integer;
+begin
+
+  case StrToIntDef(Carteira,0) of
+    1 : begin
+        if fpLayoutVersaoArquivo = 810 then
+          Result := 8
+        else
+          Result := 7
+      end;
+    9 : Result := 9;
+    else
+      Result := 7;
+  end;
+  fpTamanhoMaximoNossoNum := Result;
 end;
 
 function TACBrBancoSicoob.CodOcorrenciaToTipoRemessa(const CodOcorrencia: Integer): TACBrTipoOcorrencia;

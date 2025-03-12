@@ -44,6 +44,85 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+08/03/2025
+-- ACBrNFe.Classes/ACBrNFe.XmlReader/ACBrNFe.XmlWriter --
+[*] #TK-5816: Ajustes visando atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+07/03/2025
+-- ACBrNFeNotasFiscais --
+[*] #TK-6620: Removida a validação para cStat 737 que estava incorreta no ValidarRegrasDeNegocio.
+   Por: Diego Folieni 
+   
+03/03/2025
+-- ACBrNFe.XmlWriter --
+[*] Ajuste visando evitar erro caso não preencha cMunFGIBS
+   Por: Diego Folieni
+
+28/02/2025
+-- ACBrNFe.Classes --
+[-]  incluido o gCompraGov no Create e no Destroy da classe Ide.
+   Por: Italo Giurizzato Junior
+
+25/02/2025
+-- Diversos --
+[+] Ajustes na escrita e leitura do XML para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+14/02/2025
+-- ACBrNFe.Classes/ACBrNFe.Consts --
+[+] Inclusão de novas contantes e ajustes nas novas classes para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+11/02/2025
+-- ACBrNFe.XmlWriter --
+[-] Possível solução para o erro que estava ocorrendo ao gerar o grupo detExport.
+   Por: Italo Giurizzato Junior
+
+10/02/2025
+-- ACBrNFe.Classes/ACBrNFe.Conversao/pcnConversaoNFe--
+[+] Inclusão das novas classes e tipos para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+20/01/2025
+-- ACBrNFeServicos --
+[*] Atualizado a URL do serviço ConsultaCadastro do RS.
+   Por: Italo Giurizzato Junior
+
+27/01/2025
+-- ACBrNFe.XmlReader --
+[-] #TK-6488: Corrige problema na leitura do grupo NVE.
+  Por: Jeanny Paiva Lopes
+
+20/01/2025
+-- pcnNFe --
+[*] Remoção de unit por estar em desuso.
+   Por: Italo Giurizzato Junior
+
+09/01/2025
+-- ACBrNFe.XmlWriter --
+[*] Corrige problema na geração do grupo agropecuário.
+  Por: Diego Folieni
+
+08/01/2025
+-- ACBrNFe.EnvEvento --
+[*] Melhorias no código.
+   Por: Italo Giurizzato Junior
+
+07/01/2025
+-- ACBrNFeDANFeESCPOS/ACBrDANFCeFortesFr/ACBrDANFCeFortesFrA4 --
+[+] #TK-6435: Incluído no DANFE a impressão do endereço de entrega caso este esteja
+    no XML da NFC-e.
+   Por: Italo Giurizzato Junior
+
+-- ACBrNFe.Classes/pcnNFe/pcnNFeR/pcnNFeW --
+[-] Ajustes para corrigir erro de compilação/instalação se o uso do ACBrXmlDocument.
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[*] #TK-6415: Realizado a substituição da unit de classes de: pcnNFe
+    por: ACBrNFe.Classes 
+   Por: Italo Giurizzato Junior
+
 23/12/2024
 -- ACBrNFeDANFEClass --
 [*] #TK-6398: Ajustado a quantidade de casas decimais do campo qLote. 

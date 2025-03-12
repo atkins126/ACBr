@@ -111,7 +111,7 @@ begin
     begin
       Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('dsDiscriminacaoServico'), tcStr);
       Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
 
       VerificarSeConteudoEhLista(Discriminacao);
 
@@ -246,6 +246,8 @@ begin
         if (ItemListaServico = '00.00') and (ObterConteudo(ANodes[i].Childrens.FindAnyNs('nrServico'), tcStr) <> '') then
           ItemListaServico := PadLeft(ObterConteudo(ANodes[i].Childrens.FindAnyNs('nrServico'), tcStr), 5, '0');
 
+        xItemListaServico := ItemListaServicoDescricao(ItemListaServico);
+
         ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('vlServico'), tcDe2);
         Aliquota := ObterConteudo(ANodes[i].Childrens.FindAnyNs('vlAliquota'), tcDe2);
 
@@ -262,7 +264,7 @@ begin
         ValorISS := ObterConteudo(ANodes[i].Childrens.FindAnyNs('vlIssServico'), tcDe2);
         Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('dsDiscriminacaoServico'), tcStr);
         Descricao := StringReplace(Descricao, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
 
         ValorTotal := Quantidade * ValorUnitario;
       end;
@@ -279,6 +281,7 @@ begin
       if i = 0 then
       begin
         NFSe.Servico.ItemListaServico := NFSe.Servico.ItemServico[i].ItemListaServico;
+        NFSe.Servico.xItemListaServico := ItemListaServicoDescricao(NFSe.Servico.ItemListaServico);
         NFSe.Servico.Valores.Aliquota := NFSe.Servico.ItemServico[i].Aliquota;
       end;
 
@@ -294,7 +297,7 @@ begin
     end;
 
     NFSe.Servico.Discriminacao := StringReplace(NFSe.Servico.Discriminacao, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
   end;
 end;
 

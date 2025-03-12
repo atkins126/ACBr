@@ -180,6 +180,8 @@ type
     function GerarQuartos: TACBrXmlNode; virtual;
     function GerarQuarto: TACBrXmlNodeArray; virtual;
 
+    function GerarCodigoPaisServico: TACBrXmlNode; virtual;
+    function GerarCodigoPaisTomador: TACBrXmlNode; virtual;
   public
     function GerarXml: Boolean; override;
 
@@ -432,8 +434,6 @@ begin
 
   ListaDeAlertas.Clear;
 
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
-
   case VersaoNFSe of
     ve203:
       begin
@@ -553,12 +553,12 @@ begin
                                         NFSe.ValorCargaTributariaEstadual, ''));
 
   Result.AppendChild(AddNode(tcStr, '#9', 'OutrasInformacoes', 0, 255, NrOcorrOutrasInformacoes,
-    StringReplace(NFSe.OutrasInformacoes, ';', FpAOwner.ConfigGeral.QuebradeLinha,
-                                 [rfReplaceAll, rfIgnoreCase]), DSC_OUTRASINF));
+    StringReplace(NFSe.OutrasInformacoes, Opcoes.QuebraLinha,
+           FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), DSC_OUTRASINF));
 
   Result.AppendChild(AddNode(tcStr, '#9', 'InformacoesComplementares', 0, 2000, NrOcorrInformacoesComplemetares,
-    StringReplace(NFSe.InformacoesComplementares, ';', FpAOwner.ConfigGeral.QuebradeLinha,
-                                            [rfReplaceAll, rfIgnoreCase]), ''));
+    StringReplace(NFSe.InformacoesComplementares, Opcoes.QuebraLinha,
+                      FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), ''));
 
   Result.AppendChild(AddNode(tcInt, '#9', 'TipoNota', 1, 3, NrOcorrTipoNota,
                                                             NFSe.TipoNota, ''));
@@ -679,8 +679,8 @@ begin
                      NFSe.Servico.CodigoTributacaoMunicipio, DSC_CSERVTRIBMUN));
 
     Result.AppendChild(AddNode(tcStr, '#32', 'Discriminacao', 1, 2000, NrOcorrDiscriminacao_1,
-      StringReplace(NFSe.Servico.Discriminacao, ';', FpAOwner.ConfigGeral.QuebradeLinha,
-                                     [rfReplaceAll, rfIgnoreCase]), DSC_DISCR));
+      StringReplace(NFSe.Servico.Discriminacao, Opcoes.QuebraLinha,
+               FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), DSC_DISCR));
 
     Result.AppendChild(AddNode(tcStr, '#33', 'CodigoMunicipio', 1, 7, NrOcorrCodigoMunic_1,
                            OnlyNumber(NFSe.Servico.CodigoMunicipio), DSC_CMUN));
@@ -692,14 +692,13 @@ begin
                                  OnlyNumber(NFSe.Servico.CodigoNBS), DSC_CMUN));
 
     Result.AppendChild(AddNode(tcStr, '#33', 'Discriminacao', 1, 2000, NrOcorrDiscriminacao_2,
-      StringReplace(NFSe.Servico.Discriminacao, ';', FpAOwner.ConfigGeral.QuebradeLinha,
-                                     [rfReplaceAll, rfIgnoreCase]), DSC_DISCR));
+      StringReplace(NFSe.Servico.Discriminacao, Opcoes.QuebraLinha,
+               FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), DSC_DISCR));
 
     Result.AppendChild(AddNode(tcStr, '#34', 'CodigoMunicipio', 1, 7, NrOcorrCodigoMunic_2,
                            OnlyNumber(NFSe.Servico.CodigoMunicipio), DSC_CMUN));
 
-    Result.AppendChild(AddNode(tcInt, '#35', 'CodigoPais', 4, 4, NrOcorrCodigoPaisServico,
-                                           NFSe.Servico.CodigoPais, DSC_CPAIS));
+    Result.AppendChild(GerarCodigoPaisServico);
 
     Result.AppendChild(AddNode(tcInt, '#36', 'ExigibilidadeISS',
                                NrMinExigISS, NrMaxExigISS, NrOcorrExigibilidadeISS,
@@ -985,8 +984,7 @@ begin
 
     if (OnlyNumber(NFSe.Tomador.Endereco.CodigoMunicipio) = '9999999') or
        (NrOcorrCodigoPaisTomador = 1) then
-      Result.AppendChild(AddNode(tcInt, '#44', 'CodigoPais', 4, 4, NrOcorrCodigoPaisTomador,
-                                  NFSe.Tomador.Endereco.CodigoPais, DSC_CPAIS));
+      Result.AppendChild(GerarCodigoPaisTomador);
 
     Result.AppendChild(AddNode(tcStr, '#45', 'Cep', 8, 8, NrOcorrCepTomador,
                                OnlyNumber(NFSe.Tomador.Endereco.CEP), DSC_CEP));
@@ -1070,6 +1068,18 @@ begin
     Result.AppendChild(AddNode(tcStr, '#50', 'InscricaoMunicipal', 1, 15, NrOcorrInscEstInter,
                   NFSe.Intermediario.Identificacao.InscricaoMunicipal, DSC_IM));
   end;
+end;
+
+function TNFSeW_ABRASFv2.GerarCodigoPaisServico: TACBrXmlNode;
+begin
+  Result := AddNode(tcInt, '#35', 'CodigoPais', 4, 4, NrOcorrCodigoPaisServico,
+                                           NFSe.Servico.CodigoPais, DSC_CPAIS);
+end;
+
+function TNFSeW_ABRASFv2.GerarCodigoPaisTomador: TACBrXmlNode;
+begin
+  Result := AddNode(tcInt, '#44', 'CodigoPais', 4, 4, NrOcorrCodigoPaisTomador,
+                                  NFSe.Tomador.Endereco.CodigoPais, DSC_CPAIS);
 end;
 
 function TNFSeW_ABRASFv2.GerarConstrucaoCivil: TACBrXmlNode;

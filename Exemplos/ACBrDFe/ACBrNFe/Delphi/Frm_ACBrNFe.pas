@@ -38,8 +38,7 @@ uses
   Spin, Buttons, ComCtrls, OleCtrls, SHDocVw, ACBrMail,
   ACBrPosPrinter, ACBrNFeDANFeESCPOS, ACBrNFeDANFEClass, ACBrDANFCeFortesFr,
   ACBrDFeReport, ACBrDFeDANFeReport, ACBrNFeDANFeRLClass, ACBrBase, ACBrDFe,
-  ACBrNFe, ShellAPI, XMLIntf, XMLDoc, zlib, ACBrIntegrador,
-  ACBrDANFCeFortesFrA4;
+  ACBrNFe, ShellAPI, XMLIntf, XMLDoc, zlib, ACBrDANFCeFortesFrA4;
 
 type
   TfrmACBrNFe = class(TForm)
@@ -263,7 +262,6 @@ type
     btnImprimirDANFCEOffline: TButton;
     rgDANFCE: TRadioGroup;
     btnStatusServ: TButton;
-    ACBrIntegrador1: TACBrIntegrador;
     btVersao: TButton;
     ACBrNFeDANFCeFortesA41: TACBrNFeDANFCeFortesA4;
     Label51: TLabel;
@@ -285,6 +283,10 @@ type
     btnCancInsucessoEntrega: TButton;
     btnEventoECONF: TButton;
     btnEventoCancECONF: TButton;
+    Label41: TLabel;
+    edtIdCSRT: TEdit;
+    Label46: TLabel;
+    edtCSRT: TEdit;
 
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
@@ -381,7 +383,7 @@ uses
   IniFiles, Printers,
   ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.DateTime, ACBrUtil.Strings,
   ACBrUtil.XMLHTML,
-  pcnNFe, pcnConversao, pcnConversaoNFe, pcnNFeRTXT, pcnRetConsReciDFe,
+  ACBrNFe.Classes, pcnConversao, pcnConversaoNFe, pcnNFeRTXT, pcnRetConsReciDFe,
   ACBrDFeConfiguracoes, ACBrDFeSSL, ACBrDFeOpenSSL, ACBrDFeUtil,
   ACBrNFeNotasFiscais, ACBrNFeConfiguracoes,
   Frm_Status, Frm_SelecionarCertificado, Frm_ConfiguraSerial;
@@ -984,6 +986,8 @@ var
 //    Reboque: TreboqueCollectionItem;
 //    Lacre: TLacresCollectionItem;
 //    ProcReferenciado: TprocRefCollectionItem;
+//  Agropecuario: Tagropecuario;
+//  Defensivo: TdefensivoCollectionItem;
   InfoPgto: TpagCollectionItem;
 begin
   NotaF := ACBrNFe1.NotasFiscais.Add;
@@ -1265,6 +1269,22 @@ begin
   Arma.nCano  := 0;
   Arma.descr  := '';
   *)
+
+//Campos específicos para agropecuario / defensivo
+// Devemos gerar somente o grupo defensivo ou o grupo guiaTransito
+(*
+  Defensivo := Agropecuario.defensivo.Add;
+  Defensivo.nReceituario := '123';
+  Defensivo.CPFRespTec := '12345678901';
+*)
+
+//Campos específicos para agropecuario / guiaTransito
+(*
+  Agropecuario.guiaTransito.tpGuia := tpgGuiaFlorestal;
+  Agropecuario.guiaTransito.UFGuia := 'SP';
+  Agropecuario.guiaTransito.serieGuia := '1';
+  Agropecuario.guiaTransito.nGuia := '1';
+*)
 
 //Campos específicos para venda de combustível(distribuidoras)
 
@@ -1968,6 +1988,8 @@ begin
 
   LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
 
+//  ArqXML := ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.XML;
+
   MemoDados.Lines.Add('');
   MemoDados.Lines.Add('Retorno do Evento');
   MemoDados.Lines.Add('');
@@ -2556,19 +2578,6 @@ begin
     MemoDados.Lines.Add('cUF: ' + IntToStr(ACBrNFe1.WebServices.Enviar.cUF));
     MemoDados.Lines.Add('xMotivo: ' + ACBrNFe1.WebServices.Enviar.xMotivo);
     MemoDados.Lines.Add('Recibo: '+ ACBrNFe1.WebServices.Enviar.Recibo);
-
-    if (ACBrNFe1.Integrador= ACBrIntegrador1) then
-    begin
-      if (ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo <> '') then
-      begin
-        MemoResp.Lines.Add('[Integrador]');
-        MemoResp.Lines.Add('Codigo=' + ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo);
-        MemoResp.Lines.Add('Valor=' + ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Valor);
-
-        ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo := '';
-        ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Valor := '';
-      end;
-    end;
   end;
   (*
   ACBrNFe1.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].tpAmb
@@ -3992,6 +4001,8 @@ begin
 
   pgRespostas.ActivePageIndex := 1;
 
+//  ArqXML := ACBrNFe1.WebServices.Inutilizacao.XML_ProcInutNFe;
+
   MemoDados.Lines.Add('');
   MemoDados.Lines.Add('Inutilização');
   MemoDados.Lines.Add('tpAmb: ' + TpAmbToStr(ACBrNFe1.WebServices.Inutilizacao.tpAmb));
@@ -4178,19 +4189,6 @@ begin
   MemoDados.Lines.Add('tMed: '     +IntToStr(ACBrNFe1.WebServices.StatusServico.TMed));
   MemoDados.Lines.Add('dhRetorno: '+DateTimeToStr(ACBrNFe1.WebServices.StatusServico.dhRetorno));
   MemoDados.Lines.Add('xObs: '     +ACBrNFe1.WebServices.StatusServico.xObs);
-
-  if (ACBrNFe1.Integrador= ACBrIntegrador1) then
-  begin
-    if (ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo <> '') then
-    begin
-      MemoDados.Lines.Add('[Integrador]');
-      MemoDados.Lines.Add('Codigo=' + ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo);
-      MemoDados.Lines.Add('Valor=' + ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Valor);
-
-      ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo := '';
-      ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Valor := '';
-    end;
-  end;
 end;
 
 procedure TfrmACBrNFe.btnSubNameClick(Sender: TObject);
@@ -4522,6 +4520,10 @@ begin
     Ini.WriteString('Emitente', 'UF',          edtEmitUF.Text);
     Ini.WriteInteger('Emitente', 'CRT',        cbTipoEmpresa.ItemIndex);
 
+    // Responsável Técnico
+    Ini.WriteString('RespTecnico', 'IdCSRT', edtIdCSRT.Text);
+    Ini.WriteString('RespTecnico', 'CSRT', edtCSRT.Text);
+
     Ini.WriteString('Email', 'Host',    edtSmtpHost.Text);
     Ini.WriteString('Email', 'Port',    edtSmtpPort.Text);
     Ini.WriteString('Email', 'User',    edtSmtpUser.Text);
@@ -4645,6 +4647,10 @@ begin
     edtEmitUF.Text         := Ini.ReadString('Emitente', 'UF',          '');
 
     cbTipoEmpresa.ItemIndex := Ini.ReadInteger('Emitente', 'CRT', 2);
+
+    // Responsável Técnico
+    edtIdCSRT.Text := Ini.ReadString('RespTecnico', 'IdCSRT', '');
+    edtCSRT.Text := Ini.ReadString('RespTecnico', 'CSRT', '');
 
     edtSmtpHost.Text     := Ini.ReadString('Email', 'Host',    '');
     edtSmtpPort.Text     := Ini.ReadString('Email', 'Port',    '');
@@ -4775,6 +4781,10 @@ begin
     PathMensal       := GetPathNFe(0);
     PathSalvar       := PathMensal;
   end;
+
+  // IdCSRT e CSRT do Responsável Técnico, no momento só a SEFAZ-PR esta exigindo
+  ACBrNFe1.Configuracoes.RespTec.idCSRT := StrToIntDef(edtIdCSRT.Text, 0);
+  ACBrNFe1.Configuracoes.RespTec.CSRT := edtCSRT.Text;
 
   if ACBrNFe1.DANFE <> nil then
   begin

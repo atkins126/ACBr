@@ -1411,6 +1411,7 @@ begin
       AWriter.Opcoes.RetirarAcentos := Configuracoes.Geral.RetirarAcentos;
       AWriter.Opcoes.RetirarEspacos := Configuracoes.Geral.RetirarEspacos;
       AWriter.Opcoes.IdentarXML := Configuracoes.Geral.IdentarXML;
+      AWriter.Opcoes.QuebraLinha := Configuracoes.WebServices.QuebradeLinha;
     end;
 
     Result := AWriter.GerarXml;
@@ -2715,7 +2716,7 @@ procedure TACBrNFSeXProvider.CancelaNFSe;
 var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
-  aConfig: TConfiguracoesNFSe;
+//  aConfig: TConfiguracoesNFSe;
 begin
   CancelaNFSeResponse.Sucesso := False;
   CancelaNFSeResponse.Erros.Clear;
@@ -2758,7 +2759,7 @@ begin
       else
         AService.Prefixo := CancelaNFSeResponse.InfCancelamento.ChaveNFSe;
 
-      aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
+//      aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
 
 //      AService.Path := aConfig.Arquivos.GetPathCan(0, aConfig.Geral.Emitente.CNPJ,
 //                        aConfig.Geral.Emitente.DadosEmitente.InscricaoEstadual);
@@ -2803,6 +2804,7 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
   Cancelamento: TNFSeCancelaNFSeResponse;
+  i: Integer;
 begin
   SubstituiNFSeResponse.Sucesso := False;
   SubstituiNFSeResponse.Erros.Clear;
@@ -2827,11 +2829,20 @@ begin
       MotCancelamento := SubstituiNFSeResponse.InfCancelamento.MotCancelamento;
       NumeroLote := SubstituiNFSeResponse.InfCancelamento.NumeroLote;
       CodVerificacao := SubstituiNFSeResponse.InfCancelamento.CodVerificacao;
+      NumeroNFSeSubst := SubstituiNFSeResponse.InfCancelamento.NumeroNFSeSubst;
+      CodMunicipio := SubstituiNFSeResponse.InfCancelamento.CodMunicipio;
     end;
 
     PrepararCancelaNFSe(Cancelamento);
     if (Cancelamento.Erros.Count > 0) then
     begin
+      for i := 0 to Cancelamento.Erros.Count -1 do
+      begin
+        AErro := SubstituiNFSeResponse.Erros.New;
+        AErro.Codigo := Cancelamento.Erros[i].Codigo;
+        AErro.Descricao := Cancelamento.Erros[i].Descricao;
+      end;
+
       TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
       Exit;
     end;
@@ -2839,6 +2850,13 @@ begin
     AssinarCancelaNFSe(Cancelamento);
     if (Cancelamento.Erros.Count > 0) then
     begin
+      for i := 0 to Cancelamento.Erros.Count -1 do
+      begin
+        AErro := SubstituiNFSeResponse.Erros.New;
+        AErro.Codigo := Cancelamento.Erros[i].Codigo;
+        AErro.Descricao := Cancelamento.Erros[i].Descricao;
+      end;
+
       TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
       Exit;
     end;

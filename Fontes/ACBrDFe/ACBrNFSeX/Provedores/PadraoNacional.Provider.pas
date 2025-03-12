@@ -332,8 +332,8 @@ begin
 
     Nota.GerarXML;
 
-    Nota.XmlRps := AplicarXMLtoUTF8(Nota.XmlRps);
-    Nota.XmlRps := AplicarLineBreak(Nota.XmlRps, '');
+    Nota.XmlRps := ConverteXMLtoUTF8(Nota.XmlRps);
+    Nota.XmlRps := ChangeLineBreak(Nota.XmlRps, '');
 
     if (ConfigAssinar.Rps and (Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono])) or
        (ConfigAssinar.RpsGerarNFSe and (Response.ModoEnvio = meUnitario)) then
@@ -712,8 +712,8 @@ begin
                  '</infPedReg>' +
                '</pedRegEvento>';
 
-    xEvento := AplicarXMLtoUTF8(xEvento);
-    xEvento := AplicarLineBreak(xEvento, '');
+    xEvento := ConverteXMLtoUTF8(xEvento);
+    xEvento := ChangeLineBreak(xEvento, '');
 
     Response.ArquivoEnvio := xEvento;
     FpChave := chNFSe;
@@ -777,6 +777,19 @@ begin
             Response.Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('dhProc'), tcDatHor);
             Response.idEvento := IDEvento;
             Response.tpEvento := StrTotpEvento(Ok, Copy(IDEvento, 51, 6));
+
+            case Response.tpEvento of
+              teCancelamento:
+                begin
+                  Response.SucessoCanc := True;
+                  Response.DescSituacao := 'Nota Cancelada';
+                end
+            else
+              begin
+                Response.SucessoCanc := False;
+                Response.DescSituacao := '';
+              end;
+            end;
 
             ANode := ANode.Childrens.FindAnyNs('pedRegEvento');
             ANode := ANode.Childrens.FindAnyNs('infPedReg');
@@ -1314,7 +1327,7 @@ begin
   begin
     inherited ValidarSchema(Response, aMetodo);
 
-    Response.ArquivoEnvio := AplicarLineBreak(Response.ArquivoEnvio, '');
+    Response.ArquivoEnvio := ChangeLineBreak(Response.ArquivoEnvio, '');
     Response.ArquivoEnvio := EncodeBase64(GZipCompress(Response.ArquivoEnvio));
 
     case aMetodo of

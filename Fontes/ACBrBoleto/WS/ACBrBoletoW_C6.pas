@@ -272,9 +272,9 @@ begin
       begin
         case ATitulo.CodigoMoraJuros of
           cjValorDia    : LValorMoraJuros := ATitulo.ValorMoraJuros;
-          cjTaxaDiaria  : LValorMoraJuros := RoundABNT((ATitulo.ValorDocumento / 100 ) * ATitulo.ValorMoraJuros, 2);
+          cjTaxaDiaria  : LValorMoraJuros := ATitulo.ValorMoraJuros;
           cjValorMensal : LValorMoraJuros := RoundABNT(ATitulo.ValorMoraJuros / 30, 2);
-          cjTaxaMensal  : LValorMoraJuros := RoundABNT((ATitulo.ValorDocumento / 100 ) * (ATitulo.ValorMoraJuros / 30), 2);
+          cjTaxaMensal  : LValorMoraJuros := RoundABNT(ATitulo.ValorMoraJuros / 30, 2);
           else
             LValorMoraJuros := ATitulo.ValorMoraJuros;
         end;

@@ -42,6 +42,27 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+10/03/2025
+-- ACBrLibPIXCDConsts, ACBrLibPIXCDConfig, ACBrLibPIXCDDataModule --
+[*] #TK-6732: Adiciona config para definir ChavePrivada e Certificado para o PSP Bradesco
+    Por: Diego Folieni
+
+06/03/2025
+-- ACBrLibPIXCDDataModule.pas --
+[*] Adicionado propriedade Scopes para PSP Banrisul e C6Bank.
+    Por: Antonio Carlos Junior
+
+05/03/2025
+-- ACBrLibPIXCD.lpi, ACBrLibPIXCDDemo.lpi, ACBrLibPIXCDConsoleMT.lpi e ACBrLibPIXCDConsoleMTDemo.lpi--
+[*] Realizado ajustes nos paths para compilação com os novos scripts do Jenkins.
+    Por: Antonio Carlos Junior
+
+24/02/2025
+-- ACBrLibPIXCDDataModule.pas --
+[*] Implementado evento ACBrPSPBancoDoBrasil1QuandoReceberRespostaHttp para retornar informações do Pagador (Nome, CPF/CNPJ) utilizado apenas no PSP Banco do Brasil.
+#TK-6644 - AcbrpixCD.dll não retorna informações do pagador.
+  Por: Antonio Carlos Junior
+
 31/12/2024
 -- ACBrLibPIXCDBase --
 [*] Mapeando exceção EACBrPixHttpException no método MateraIncluirChavePix para exibir o 

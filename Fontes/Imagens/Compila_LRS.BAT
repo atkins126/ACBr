@@ -34,7 +34,7 @@ echo "****************************************"
 echo.
 
 :Serial
-%1\tools\lazres.exe ACBrSerial.lrs TACBrECF.png TACBrGAV.png TACBrCHQ.png TACBrLCB.png TACBrDIS.png TACBrBAL.png TACBrTER.png TACBrETQ.png TACBrRFD.png TACBrSMS.png TACBrPosPrinter.png TACBrECFVirtualNaoFiscal.png
+%1\tools\lazres.exe ACBrSerial.lrs TACBrECF.png TACBrGAV.png TACBrCHQ.png TACBrLCB.png TACBrDIS.png TACBrBAL.png TACBrTER.png TACBrETQ.png TACBrRFD.png TACBrSMS.png TACBrPosPrinter.png TACBrECFVirtualNaoFiscal.png TACBrAbecsPinPad.png
 move ACBrSerial.lrs ..\ACBrSerial
 echo.
 echo "****************************************"
@@ -70,7 +70,7 @@ echo "***********************************************"
 echo.
 
 :TCP
-%1\tools\lazres.exe ACBrTCP.lrs TACBrTCPServer.png TACBrCEP.png TACBrIBGE.png TACBrNFPws.png TACBrCNIEE.png TACBrSuframa.png TACBrDownload.png TACBrIBPTax.png TACBrConsultaCNPJ.png TACBrMail.png TACBrConsultaCPF.png TACBrSpedTabelas.png TACBrSedex.png TACBrNCMs.png
+%1\tools\lazres.exe ACBrTCP.lrs TACBrTCPServer.png TACBrCEP.png TACBrIBGE.png TACBrNFPws.png TACBrCNIEE.png TACBrSuframa.png TACBrDownload.png TACBrIBPTax.png TACBrConsultaCNPJ.png TACBrMail.png TACBrConsultaCPF.png TACBrSpedTabelas.png TACBrSedex.png TACBrNCMs.png TACBrCupomVerde.png
 move ACBrTCP.lrs ..\ACBrTCP
 echo.
 echo "****************************************"
@@ -340,7 +340,7 @@ move ACBrIntegrador.lrs ..\ACBrIntegrador
 
 echo.
 echo "********************************************************************"
-echo "*   Arquivos   ACBrIntegrador.lrs  gerado     			 *"
+echo "*   Arquivos   ACBrIntegrador.lrs  gerado                          *"
 echo "********************************************************************"
 echo.
 

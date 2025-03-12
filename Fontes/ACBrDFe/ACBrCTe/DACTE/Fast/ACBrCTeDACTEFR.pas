@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                              Wemerson Souto                                  }
 {                              André Ferreira de Moraes                        }
 {                              Jeickson Gobeti                                 }
@@ -41,7 +41,7 @@ interface
 
 uses
   SysUtils, Classes, ACBrCTeDACTEClass, ACBrBase,
-  pcteCTe, pcnConversao, frxClass, DBClient, frxDBSet, frxBarcode, frxExportPDF,
+  ACBrCTe.Classes, pcnConversao, frxClass, DBClient, frxDBSet, frxBarcode, frxExportPDF,
   ACBrCTe.EnvEvento, pcteInutCTe, pcteRetInutCTe, ACBrCTe,
   ACBrUtil.Base,
   ACBrUtil.Strings,
@@ -2490,11 +2490,12 @@ begin
       FieldByName('dhEmi').AsDateTime := dhEmi;
 
       case tpCTe of
-        tcNormal: FieldByName('TpCT').AsString      := 'Normal';
-        tcComplemento: FieldByName('TpCT').AsString := 'Complemento';
-        tcAnulacao: FieldByName('TpCT').AsString    := 'Anulação';
-        tcSubstituto: FieldByName('TpCT').AsString  := 'Substituto';
-        tcCTeSimp: FieldByName('TpCT').AsString     := 'CTe Simplificado';
+        tcNormal: FieldByName('TpCT').AsString        := 'Normal';
+        tcComplemento: FieldByName('TpCT').AsString   := 'Complemento';
+        tcAnulacao: FieldByName('TpCT').AsString      := 'Anulação';
+        tcSubstituto: FieldByName('TpCT').AsString    := 'Substituto';
+        tcCTeSimp: FieldByName('TpCT').AsString       := 'CTe Simplificado';
+        tcSubstCTeSimpl: FieldByName('TpCT').AsString := 'CTe Simplificado - Substituto';
       end;
 
       FieldByName('cMunEmi').AsString := IntToStr(cMunEnv);

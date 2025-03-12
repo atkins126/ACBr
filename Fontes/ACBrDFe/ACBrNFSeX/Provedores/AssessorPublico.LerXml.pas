@@ -76,8 +76,11 @@ begin
   DataCancel := ObterConteudo(ANode.Childrens.FindAnyNs('DATACANCEL'), tcStr);
   HoraCancel := ObterConteudo(ANode.Childrens.FindAnyNs('HORACANCEL'), tcStr);
 
-  if (OnlyNumber(DataCancel) <> '') and (OnlyNumber(HoraCancel) <> '') then
-    NFSe.NfseCancelamento.DataHora := StringToDateTime(DataCancel + ' ' + HoraCancel, 'DD/MM/YYYY hh:nn:ss');
+  if OnlyNumber(HoraCancel) <> '' then
+    DataCancel := DataCancel + ' ' + HoraCancel;
+
+  if OnlyNumber(DataCancel) <> '' then
+    NFSe.NfseCancelamento.DataHora := StringToDateTime(DataCancel, 'DD/MM/YYYY hh:nn:ss');
 
   NFSe.MotivoCancelamento := ObterConteudo(ANode.Childrens.FindAnyNs('MOTIVOCANCEL'), tcStr);
   NFSe.JustificativaCancelamento := ObterConteudo(ANode.Childrens.FindAnyNs('JUSTCANCEL'), tcStr);
@@ -132,7 +135,7 @@ end;
 function TNFSeR_AssessorPublico.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
 var
   AuxNode: TACBrXmlNode;
-  aValor: String;
+  aValor, aHora: string;
   ANodes: TACBrXmlNodeArray;
   i, mes, ano: integer;
 begin
@@ -164,10 +167,13 @@ begin
   if (ano > 0) and (mes > 0) then
     NFSe.Competencia := EncodeDataHora(IntToStr(Ano)+ '/' + Poem_Zeros(mes, 2));
 
-  aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('DATA'), tcStr) + ' ' +
-            ObterConteudo(AuxNode.Childrens.FindAnyNs('HORA'), tcStr);
+  aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('DATA'), tcStr);
+  aHora := ObterConteudo(AuxNode.Childrens.FindAnyNs('HORA'), tcStr);
 
-  if Trim(aValor) <> '' then
+  if OnlyNumber(aHora) <> '' then
+    aValor := aValor + ' ' + aHora;
+
+  if OnlyNumber(aValor) <> '' then
     NFSe.DataEmissao := StringToDateTime(aValor, 'DD/MM/YYYY hh:nn:ss');
 
   NFSe.OptanteSimplesNacional := snNao;
@@ -179,7 +185,7 @@ begin
 
   NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('OBSSERVICO'), tcStr);
   NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
 
   with NFSe.Servico do
   begin
@@ -289,7 +295,7 @@ begin
         CodServ       := ObterConteudo(ANodes[i].Childrens.FindAnyNs('CODIGO'), tcStr);
         Descricao     := ObterConteudo(ANodes[i].Childrens.FindAnyNs('DESCRICAO'), tcStr);
         Descricao := StringReplace(Descricao, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
         Quantidade    := ObterConteudo(ANodes[i].Childrens.FindAnyNs('QUANTIDADE'), tcDe2);
         ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('VALOR'), tcDe2);
 
@@ -341,7 +347,7 @@ begin
 
     Servico.Discriminacao := ObterConteudo(ANode.Childrens.FindAnyNs('OBSERVACAO'), tcStr);
     Servico.Discriminacao := StringReplace(Servico.Discriminacao, FpQuebradeLinha,
-                                    sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
 
     aValor := ObterConteudo(ANode.Childrens.FindAnyNs('RETIDO'), tcStr);
 
@@ -408,7 +414,7 @@ begin
 
         NFSe.Servico.ItemServico[i].Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('DESCRICAO'), tcStr);
         NFSe.Servico.ItemServico[i].Descricao := StringReplace(NFSe.Servico.ItemServico[i].Descricao, FpQuebradeLinha,
-                                    sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
 
         NFSe.Servico.ItemServico[i].ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('VALORUNIT'), tcDe2);
 

@@ -69,7 +69,10 @@ var
 begin
   if not Assigned(ANode) then Exit;
 
-  AuxNode := ANode.Childrens.FindAnyNs('ListaItensServico');
+  //Conforme schema, <ListaItensServico> está dentro de <Servico>
+  AuxNode := ANode.Childrens.FindAnyNs('Servico');
+  if Assigned(AuxNode) then
+    AuxNode := AuxNode.Childrens.FindAnyNs('ListaItensServico');
 
   if AuxNode <> nil then
     LerServicos(AuxNode);
@@ -92,11 +95,12 @@ begin
     begin
       CodigoItemServico := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ItemListaServico'), tcStr);
       ItemListaServico := NormatizarItemListaServico(CodigoItemServico);
+      xItemListaServico := ItemListaServicoDescricao(ItemListaServico);
 
       CodigoCnae := ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoCnae'), tcStr);
       Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Descricao'), tcStr);
       Descricao := StringReplace(Descricao, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
       Tributavel := FpAOwner.StrToSimNao(Ok, ObterConteudo(ANodes[i].Childrens.FindAnyNs('Tributavel'), tcStr));
       Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Quantidade'), tcDe5);
       ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorUnitario'), tcDe5);

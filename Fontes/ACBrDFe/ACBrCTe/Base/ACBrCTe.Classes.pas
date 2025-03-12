@@ -50,15 +50,165 @@ uses
   pcnConversao, pcnSignature, pcteProcCTe, pcteConversaoCTe;
 
 type
+  {======== Inicio das Classes da Reforma Tributária }
+  { TgDif }
+
+  TgDif = class(TObject)
+  private
+    FpDif: Double;
+    FvDif: Double;
+  public
+    property pDif: Double read FpDif write FpDif;
+    property vDif: Double read FvDif write FvDif;
+  end;
+
+  { TgDevTrib }
+
+  TgDevTrib = class(TObject)
+  private
+    FvDevTrib: Double;
+  public
+    property vDevTrib: Double read FvDevTrib write FvDevTrib;
+  end;
+
+  { TgRed }
+
+  TgRed = class(TObject)
+  private
+    FpRedAliq: Double;
+    FpAliqEfet: Double;
+  public
+    property pRedAliq: Double read FpRedAliq write FpRedAliq;
+    property pAliqEfet: Double read FpAliqEfet write FpAliqEfet;
+  end;
+
+  { TgDeson }
+
+  TgDeson = class(TObject)
+  private
+    FCST: Integer;
+    FcClassTrib: Integer;
+    FvBC: Double;
+    FpAliq: Double;
+    FvDeson: Double;
+  public
+    property CST: Integer read FCST write FCST;
+    property cClassTrib: Integer read FcClassTrib write FcClassTrib;
+    property vBC: Double read FvBC write FvBC;
+    property pAliq: Double read FpAliq write FpAliq;
+    property vDeson: Double read FvDeson write FvDeson;
+  end;
+
+  { TgIBSValores }
+
+  TgIBSValores = class(TObject)
+  private
+    FpIBS: Double;
+    FvTribOp: Double;
+    FgDif: TgDif;
+    FgDevTrib: TgDevTrib;
+    FgRed: TgRed;
+    FgDeson: TgDeson;
+    FvIBS: Double;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property pIBS: Double read FpIBS write FpIBS;
+    property vTribOp: Double read FvTribOp write FvTribOp;
+    property gDif: TgDif read FgDif write FgDif;
+    property gDevTrib: TgDevTrib read FgDevTrib write FgDevTrib;
+    property gRed: TgRed read FgRed write FgRed;
+    property gDeson: TgDeson read FgDeson write FgDeson;
+    property vIBS: Double read FvIBS write FvIBS;
+  end;
+
+  { TgCBSValores }
+
+  TgCBSValores = class(TObject)
+  private
+    FpCBS: Double;
+    FvTribOp: Double;
+    FgDif: TgDif;
+    FgDevTrib: TgDevTrib;
+    FgRed: TgRed;
+    FgDeson: TgDeson;
+    FvCBS: Double;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property pCBS: Double read FpCBS write FpCBS;
+    property vTribOp: Double read FvTribOp write FvTribOp;
+    property gDif: TgDif read FgDif write FgDif;
+    property gDevTrib: TgDevTrib read FgDevTrib write FgDevTrib;
+    property gRed: TgRed read FgRed write FgRed;
+    property gDeson: TgDeson read FgDeson write FgDeson;
+    property vCBS: Double read FvCBS write FvCBS;
+  end;
+
+  { TgIBSCBSCredPres }
+
+  TgIBSCBSCredPres = class(TObject)
+  private
+    FcCredPres: Integer;
+    FpCredPres: Double;
+    FvCredPres: Double;
+    FvCredPresCondSus: Double;
+  public
+    property cCredPres: Integer read FcCredPres write FcCredPres;
+    property pCredPres: Double read FpCredPres write FpCredPres;
+    property vCredPres: Double read FvCredPres write FvCredPres;
+    property vCredPresCondSus: Double read FvCredPresCondSus write FvCredPresCondSus;
+  end;
+
+  { TgIBSCBS }
+
+  TgIBSCBS = class(TObject)
+  private
+    FvBC: Double;
+    FgIBSUF: TgIBSValores;
+    FgIBSMun: TgIBSValores;
+    FgCBS: TgCBSValores;
+    FgIBSCredPres: TgIBSCBSCredPres;
+    FgCBSCredPres: TgIBSCBSCredPres;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property vBC: Double read FvBC write FvBC;
+    property gIBSUF: TgIBSValores read FgIBSUF write FgIBSUF;
+    property gIBSMun: TgIBSValores read FgIBSMun write FgIBSMun;
+    property gCBS: TgCBSValores read FgCBS write FgCBS;
+    property gIBSCredPres: TgIBSCBSCredPres read FgIBSCredPres write FgIBSCredPres;
+    property gCBSCredPres: TgIBSCBSCredPres read FgCBSCredPres write FgCBSCredPres;
+  end;
+
+  { TIBSCBS }
+
+  TIBSCBS = class(TObject)
+  private
+    FCST: Integer;
+    FcClassTrib: Integer;
+    FgIBSCBS: TgIBSCBS;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property CST: Integer read FCST write FCST;
+    property cClassTrib: Integer read FcClassTrib write FcClassTrib;
+    property gIBSCBS: TgIBSCBS read FgIBSCBS write FgIBSCBS;
+  end;
+
+  {======== Fim das Classes da Reforma Tributária }
+
   TInfCTe = class(TObject)
   private
     FId: string;
     FVersao: Double;
-//    function GetVersaoStr: string;
   public
     property Id: string     read FId     write FId;
     property versao: Double read FVersao write FVersao;
-//    property VersaoStr: string read GetVersaoStr;
   end;
 
   TToma03 = class(TObject)
@@ -820,6 +970,8 @@ type
     FInfAdFisco: string;
     FICMSUFFim: TICMSUFFim;
     FinfTribFed: TinfTribFed;
+    FIBSCBS: TIBSCBS;
+    FvTotDFe: Double;
   public
     constructor Create;
     destructor Destroy; override;
@@ -829,6 +981,9 @@ type
     property infAdFisco: string      read FInfAdFisco  write FInfAdFisco;
     property ICMSUFFim: TICMSUFFim   read FICMSUFFim   write FICMSUFFim;
     property infTribFed: TinfTribFed read FinfTribFed  write FinfTribFed;
+    // Reforma Tributaria
+    property IBSCBS: TIBSCBS read FIBSCBS write FIBSCBS;
+    property vTotDFe: Double read FvTotDFe write FvTotDFe;
   end;
 
   TInfQCollectionItem = class(TObject)
@@ -937,7 +1092,7 @@ type
     property qtdRat: Double                          read FqtdRat        write FqtdRat;
   end;
 
-  TinfUnidTranspNFCollection = class(TACBrObjectList)
+  TinfUnidTranspCollection = class(TACBrObjectList)
   private
     function GetItem(Index: Integer): TinfUnidTranspCollectionItem;
     procedure SetItem(Index: Integer; Value: TinfUnidTranspCollectionItem);
@@ -967,7 +1122,7 @@ type
     FnPeso: Currency;
     FPIN: string;
     FdPrev: TDateTime;
-    FinfUnidTransp: TinfUnidTranspNFCollection;
+    FinfUnidTransp: TinfUnidTranspCollection;
     FinfUnidCarga: TinfUnidCargaNFCollection;
   public
     constructor Create; reintroduce;
@@ -989,7 +1144,7 @@ type
     property nPeso: Currency                           read FnPeso         write FnPeso;
     property PIN: string                               read FPIN           write FPIN;
     property dPrev: TDateTime                          read FdPrev         write FdPrev;
-    property infUnidTransp: TinfUnidTranspNFCollection read FinfUnidTransp write FinfUnidTransp;
+    property infUnidTransp: TinfUnidTranspCollection read FinfUnidTransp write FinfUnidTransp;
     property infUnidCarga: TinfUnidCargaNFCollection   read FinfUnidCarga  write FinfUnidCarga;
   end;
 
@@ -1003,17 +1158,13 @@ type
     property Items[Index: Integer]: TInfNFCollectionItem read GetItem write SetItem; default;
   end;
 
-  TinfUnidTranspNFeCollection = TinfUnidTranspNFCollection;
-
-  TinfUnidCargaNFeCollection = TinfUnidCargaCollection;
-
   TInfNFeCollectionItem = class(TObject)
   private
     Fchave: string;
     FPIN: string;
     FdPrev: TDateTime;
-    FinfUnidTransp: TinfUnidTranspNFeCollection;
-    FinfUnidCarga: TinfUnidCargaNFeCollection;
+    FinfUnidTransp: TinfUnidTranspCollection;
+    FinfUnidCarga: TinfUnidCargaCollection;
 
   public
     constructor Create;
@@ -1022,8 +1173,8 @@ type
     property chave: string                              read Fchave         write Fchave;
     property PIN: string                                read FPIN           write FPIN;
     property dPrev: TDateTime                           read FdPrev         write FdPrev;
-    property infUnidTransp: TinfUnidTranspNFeCollection read FinfUnidTransp write FinfUnidTransp;
-    property infUnidCarga: TinfUnidCargaNFeCollection   read FinfUnidCarga  write FinfUnidCarga;
+    property infUnidTransp: TinfUnidTranspCollection read FinfUnidTransp write FinfUnidTransp;
+    property infUnidCarga: TinfUnidCargaCollection   read FinfUnidCarga  write FinfUnidCarga;
   end;
 
   TInfNFeCollection = class(TACBrObjectList)
@@ -1036,18 +1187,6 @@ type
     property Items[Index: Integer]: TInfNFeCollectionItem read GetItem write SetItem; default;
   end;
 
-  TinfUnidTranspOutrosCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TinfUnidTranspCollectionItem;
-    procedure SetItem(Index: Integer; Value: TinfUnidTranspCollectionItem);
-  public
-    function Add: TinfUnidTranspCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TinfUnidTranspCollectionItem;
-    property Items[Index: Integer]: TinfUnidTranspCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TinfUnidCargaOutrosCollection = TinfUnidCargaCollection;
-
   TInfOutrosCollectionItem = class(TObject)
   private
     FtpDoc: TpcteTipoDocumento;
@@ -1056,8 +1195,8 @@ type
     FdEmi: TdateTime;
     FvDocFisc: Currency;
     FdPrev: TDateTime;
-    FinfUnidTransp: TinfUnidTranspOutrosCollection;
-    FinfUnidCarga: TinfUnidCargaOutrosCollection;
+    FinfUnidTransp: TinfUnidTranspCollection;
+    FinfUnidCarga: TinfUnidCargaCollection;
   public
     constructor Create;
     destructor Destroy; override;
@@ -1068,8 +1207,8 @@ type
     property dEmi: TdateTime                               read FdEmi          write FdEmi;
     property vDocFisc: Currency                            read FvDocFisc      write FvDocFisc;
     property dPrev: TDateTime                              read FdPrev         write FdPrev;
-    property infUnidTransp: TinfUnidTranspOutrosCollection read FinfUnidTransp write FinfUnidTransp;
-    property infUnidCarga: TinfUnidCargaOutrosCollection   read FinfUnidCarga  write FinfUnidCarga;
+    property infUnidTransp: TinfUnidTranspCollection read FinfUnidTransp write FinfUnidTransp;
+    property infUnidCarga: TinfUnidCargaCollection   read FinfUnidCarga  write FinfUnidCarga;
   end;
 
   TInfOutrosCollection = class(TACBrObjectList)
@@ -1713,10 +1852,12 @@ type
   private
     FrespFat: TpcteTrafegoMutuo;
     FferrEmi: TpcteTrafegoMutuo;
+    FvFrete: Currency;
     FchCTeFerroOrigem: string;
   public
     property respFat: TpcteTrafegoMutuo read FrespFat          write FrespFat;
     property ferrEmi: TpcteTrafegoMutuo read FferrEmi          write FferrEmi;
+    property vFrete: Currency           read FvFrete           write FvFrete;
     property chCTeFerroOrigem: string   read FchCTeFerroOrigem write FchCTeFerroOrigem;
   end;
 
@@ -2498,7 +2639,8 @@ const
 implementation
 
 uses
-  ACBrUtil.Base;
+  ACBrUtil.Base,
+  ACBrCTe.Consts;
 
 { TCTe }
 
@@ -2533,8 +2675,8 @@ begin
   Fdestino := TEnderEmit.Create;
   FdetGTV := TdetGTV.Create;
 
-  FProcCTe := TProcCTe.create;
-  Fsignature := Tsignature.create;
+  FProcCTe := TProcCTe.Create;
+  Fsignature := Tsignature.Create;
   {
    CT-e Simplificado
   }
@@ -2604,16 +2746,6 @@ begin
   FinfCteComp10 := Value;
 end;
 
-{ TInfCTe }
-{
-function TInfCTe.GetVersaoStr: string;
-begin
-  if FVersao <= 0 then
-     Result := 'versao="2.00"'
-  else
-     Result := 'versao="' + FloatToString(FVersao, '.', '#0.00') + '"';
-end;
-}
 { TIde }
 
 constructor TIde.Create;
@@ -2947,6 +3079,7 @@ begin
   FICMS := TICMS.Create;
   FICMSUFFim := TICMSUFFim.Create;
   FinfTribFed := TinfTribFed.Create;
+  FIBSCBS := TIBSCBS.Create;
 end;
 
 destructor TImp.Destroy;
@@ -2954,6 +3087,7 @@ begin
   FICMS.free;
   FICMSUFFim.free;
   FinfTribFed.Free;
+  FIBSCBS.Free;
 
   inherited;
 end;
@@ -3181,7 +3315,7 @@ constructor TInfNFCollectionItem.Create;
 begin
   inherited Create;
 
-  FinfUnidTransp := TInfUnidTranspNFCollection.Create;
+  FinfUnidTransp := TInfUnidTranspCollection.Create;
   FinfUnidCarga := TInfUnidCargaNFCollection.Create;
 end;
 
@@ -3193,26 +3327,26 @@ begin
   inherited;
 end;
 
-{ TinfUnidTranspNFCollection }
+{ TinfUnidTranspCollection }
 
-function TinfUnidTranspNFCollection.Add: TinfUnidTranspCollectionItem;
+function TinfUnidTranspCollection.Add: TinfUnidTranspCollectionItem;
 begin
   Result := Self.New;
 end;
 
-function TinfUnidTranspNFCollection.GetItem(
+function TinfUnidTranspCollection.GetItem(
   Index: Integer): TinfUnidTranspCollectionItem;
 begin
   Result := TinfUnidTranspCollectionItem(inherited Items[Index]);
 end;
 
-procedure TinfUnidTranspNFCollection.SetItem(Index: Integer;
+procedure TinfUnidTranspCollection.SetItem(Index: Integer;
   Value: TinfUnidTranspCollectionItem);
 begin
   inherited Items[Index] := Value;
 end;
 
-function TinfUnidTranspNFCollection.New: TinfUnidTranspCollectionItem;
+function TinfUnidTranspCollection.New: TinfUnidTranspCollectionItem;
 begin
   Result := TinfUnidTranspCollectionItem.Create;
   Self.Add(Result);
@@ -3307,8 +3441,8 @@ constructor TInfNFeCollectionItem.Create;
 begin
   inherited Create;
 
-  FinfUnidTransp := TInfUnidTranspNFeCollection.Create;
-  FinfUnidCarga := TInfUnidCargaNFeCollection.Create;
+  FinfUnidTransp := TInfUnidTranspCollection.Create;
+  FinfUnidCarga := TInfUnidCargaCollection.Create;
 end;
 
 destructor TInfNFeCollectionItem.Destroy;
@@ -3350,8 +3484,8 @@ constructor TInfOutrosCollectionItem.Create;
 begin
   inherited Create;
 
-  FinfUnidTransp := TInfUnidTranspOutrosCollection.Create;
-  FinfUnidCarga := TInfUnidCargaOutrosCollection.Create;
+  FinfUnidTransp := TInfUnidTranspCollection.Create;
+  FinfUnidCarga := TInfUnidCargaCollection.Create;
 end;
 
 destructor TInfOutrosCollectionItem.Destroy;
@@ -3360,31 +3494,6 @@ begin
   FinfUnidCarga.Free;
 
   inherited;
-end;
-
-{ TinfUnidTranspOutrosCollection }
-
-function TinfUnidTranspOutrosCollection.Add: TinfUnidTranspCollectionItem;
-begin
-  Result := Self.New;
-end;
-
-function TinfUnidTranspOutrosCollection.GetItem(
-  Index: Integer): TinfUnidTranspCollectionItem;
-begin
-  Result := TinfUnidTranspCollectionItem(inherited Items[Index]);
-end;
-
-procedure TinfUnidTranspOutrosCollection.SetItem(Index: Integer;
-  Value: TinfUnidTranspCollectionItem);
-begin
-  inherited Items[Index] := Value;
-end;
-
-function TinfUnidTranspOutrosCollection.New: TinfUnidTranspCollectionItem;
-begin
-  Result := TinfUnidTranspCollectionItem.Create;
-  Self.Add(Result);
 end;
 
 { TDocAnt }
@@ -4010,7 +4119,6 @@ begin
   inherited Items[Index] := Value;
 end;
 
-//////////////////////////////////////////////////////////////////////////////
 function TInfNFeAquavCollection.New: TInfNFeAquavCollectionItem;
 begin
   Result := TInfNFeAquavCollectionItem.Create;
@@ -4704,5 +4812,91 @@ begin
 
   inherited;
 end;
+
+{======== Inicio das Classes da Reforma Tributária }
+{ TgIBSCBS }
+
+constructor TgIBSCBS.Create;
+begin
+  inherited Create;
+
+  FgIBSUF := TgIBSValores.Create;
+  FgIBSMun := TgIBSValores.Create;
+  FgCBS := TgCBSValores.Create;
+  FgIBSCredPres := TgIBSCBSCredPres.Create;
+  FgCBSCredPres := TgIBSCBSCredPres.Create;
+end;
+
+destructor TgIBSCBS.Destroy;
+begin
+  FgIBSUF.Free;
+  FgIBSMun.Free;
+  FgCBS.Free;
+  FgIBSCredPres.Free;
+  FgCBSCredPres.Free;
+
+  inherited Destroy;
+end;
+
+{ TIBSCBSSEL }
+
+constructor TIBSCBS.Create;
+begin
+  inherited Create;
+
+  FgIBSCBS := TgIBSCBS.Create;
+end;
+
+destructor TIBSCBS.Destroy;
+begin
+  FgIBSCBS.Free;
+
+  inherited Destroy;
+end;
+
+{ TgIBSValores }
+
+constructor TgIBSValores.Create;
+begin
+  inherited Create;
+
+  FgDif := TgDif.Create;
+  FgDevTrib := TgDevTrib.Create;
+  FgRed := TgRed.Create;
+  FgDeson := TgDeson.Create;
+end;
+
+destructor TgIBSValores.Destroy;
+begin
+  FgDif.Free;
+  FgDevTrib.Free;
+  FgRed.Free;
+  FgDeson.Free;
+
+  inherited Destroy;
+end;
+
+{ TgCBSValores }
+
+constructor TgCBSValores.Create;
+begin
+  inherited Create;
+
+  FgDif := TgDif.Create;
+  FgDevTrib := TgDevTrib.Create;
+  FgRed := TgRed.Create;
+  FgDeson := TgDeson.Create;
+end;
+
+destructor TgCBSValores.Destroy;
+begin
+  FgDif.Free;
+  FgDevTrib.Free;
+  FgRed.Free;
+  FgDeson.Free;
+
+  inherited Destroy;
+end;
+{======== Fim das Classes da Reforma Tributária }
 
 end.

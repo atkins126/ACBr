@@ -41,8 +41,9 @@ uses
 {$IFNDEF VER130}
   Variants,
 {$ENDIF}
+  ACBrXmlBase,
   pcnConversao, pcnLeitor,
-  pmdfeConversaoMDFe, pmdfeMDFe,
+  pmdfeConversaoMDFe, ACBrMDFe.Classes,
   ACBrUtil.Strings,
   ACBrUtil.Base;
 
@@ -1071,9 +1072,9 @@ begin
   (* Grupo da TAG <protMDFe> **************************************************)
   if Leitor.rExtrai(1, 'protMDFe') <> '' then
   begin
-    MDFe.procMDFe.tpAmb    := StrToTpAmb(ok, Leitor.rCampo(tcStr, 'tpAmb'));
+    MDFe.procMDFe.tpAmb    := StrToTipoAmbiente(ok, Leitor.rCampo(tcStr, 'tpAmb'));
     MDFe.procMDFe.verAplic := Leitor.rCampo(tcStr, 'verAplic');
-    MDFe.procMDFe.chMDFe   := Leitor.rCampo(tcStr, 'chMDFe');
+    MDFe.procMDFe.chDFe   := Leitor.rCampo(tcStr, 'chMDFe');
     MDFe.procMDFe.dhRecbto := Leitor.rCampo(tcDatHor, 'dhRecbto');
     MDFe.procMDFe.nProt    := Leitor.rCampo(tcStr, 'nProt');
     MDFe.procMDFe.digVal   := Leitor.rCampo(tcStr, 'digVal');

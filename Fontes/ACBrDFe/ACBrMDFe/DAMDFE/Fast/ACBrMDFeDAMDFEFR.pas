@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -38,7 +38,7 @@ interface
 
 uses
   SysUtils, Classes, DB, DBClient, ACBrBase, ACBrMDFeDAMDFeClass, pcnConversao,
-  pmdfeMDFe, frxClass, ACBrDFeUtil,
+  ACBrMDFe.Classes, frxClass, ACBrDFeUtil,
   ACBrMDFe.EnvEvento,
   frxDBSet,
   frxExportPDF, frxBarcode;
@@ -1138,15 +1138,15 @@ var i:integer;
 begin
   with cdsContratantes, FMDFe.rodo.infANTT do
   begin
-    Append;
     for I := 0 to infContratante.Count - 1 do
     begin
+      Append;
       if Length(infContratante[i].CNPJCPF)=11 then
         FieldByName('CNPJCPF').AsString         := FormatarCPF(infContratante[i].CNPJCPF)
       else
         FieldByName('CNPJCPF').AsString         := FormatarCNPJ(infContratante[i].CNPJCPF);
+      Post;
     end;
-    Post;
   end;
 end;
 
@@ -1761,7 +1761,7 @@ begin
     begin
       FieldByName('placa').AsString     := FieldByName('placa').AsString + #13#10 + FormatarPlaca(veicReboque.Items[i].placa) + ' / ' + veicReboque.Items[i].UF;
       FieldByName('RENAVAM').AsString   := FieldByName('RENAVAM').AsString + #13#10 + veicReboque.Items[i].RENAVAM;
-      FieldByName('RNTRCProp').AsString := FieldByName('RNTRCProp').AsString + #13#10 + IfThen(veicReboque.Items[i].prop.RNTRC <> '', veicReboque.Items[i].prop.RNTRC, FMDFe.rodo.RNTRC);
+      FieldByName('RNTRCProp').AsString := FieldByName('RNTRCProp').AsString + #13#10 + IfThen(veicReboque.Items[i].prop.RNTRC <> '', veicReboque.Items[i].prop.RNTRC, FieldByName('RNTRC').AsString);
       FieldByName('CNPJCPFProp').AsString := FieldByName('CNPJCPFProp').AsString + #13#10 + veicReboque.Items[i].prop.CNPJCPF;
     end;
 

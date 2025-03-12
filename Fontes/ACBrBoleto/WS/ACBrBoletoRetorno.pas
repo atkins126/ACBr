@@ -54,11 +54,16 @@ type
     FOperacao            : TOperacao;
     FIndice              : Integer;
     FSistema_Origem      : String;
-    FAgencia             : Integer;
+    FAgencia             : String;
+    FContaCorrente       : String;
     FId_Origem           : String;
     FData_Hora           : TDateTime;
     FId_Processo         : String;
     FCNPJCPF_Beneficiario: String;
+
+    procedure SetAgencia(const Value: String);
+    procedure SetContaCorrente(const Value: String);
+
   public
     procedure Assign(DeACBrBoletoHeader: TACBrBoletoHeader); reintroduce; virtual;
 
@@ -69,7 +74,8 @@ type
     property Operacao: TOperacao read FOperacao write FOperacao;
     property Indice: Integer read FIndice write FIndice;
     property Sistema_Origem: String read FSistema_Origem write FSistema_Origem;
-    property Agencia: Integer read FAgencia write FAgencia;
+    property Agencia: String read FAgencia write SetAgencia;
+    property ContaCorrente : String read FContaCorrente write SetContaCorrente;
     property Id_Origem: String read FId_Origem write FId_Origem;
     property Data_Hora: TDateTime read FData_Hora write FData_Hora;
     property Id_Processo: String read FId_Processo write FId_Processo;
@@ -126,6 +132,7 @@ type
     property URLPDF: String read FURLPDF write FURLPDF;
 
   end;
+
 
     { TACBrBoletoSacadoAvalistaRet}
 
@@ -256,13 +263,14 @@ type
     FCodigoEstadoTituloCobranca: String;
     FEstadoTituloCobranca      : String;
     FDataMovimento             : TDateTime;
-    Femv                       : String;
-    FurlPix                    : String;
+    FEMV                       : String;
+    FUrlPix                    : String;
     FtxId                      : String;
     FCodigoOcorrenciaCartorio  : String;
     FCodigoCanalTituloCobranca : String;
     FNossoNumeroCorrespondente : string;
     FResponsavelPelaEmissao    : TACBrResponEmissao;
+    FLiquidadoBanco            : Integer;
   public
     constructor Create;
     destructor Destroy; override;
@@ -351,6 +359,7 @@ type
     property TxId: String read FtxId write FtxId;
     property ValorTarifa: Extended read FValorTarifa write FValorTarifa;
     property ResponsavelPelaEmissao: TACBrResponEmissao read FResponsavelPelaEmissao write FResponsavelPelaEmissao;
+    property LiquidadoBanco : integer read FLiquidadoBanco write FLiquidadoBanco;
   end;
 
     { TACBrBoletoDadosRet }
@@ -541,14 +550,26 @@ begin
   Indice               := DeACBrBoletoHeader.Indice;
   Sistema_Origem       := DeACBrBoletoHeader.Sistema_Origem;
   Agencia              := DeACBrBoletoHeader.Agencia;
+  ContaCorrente        := DeACBrBoletoHeader.ContaCorrente;
   Id_Origem            := DeACBrBoletoHeader.Id_Origem;
   Data_Hora            := DeACBrBoletoHeader.Data_Hora;
   Id_Processo          := DeACBrBoletoHeader.Id_Processo;
   CNPJCPF_Beneficiario := DeACBrBoletoHeader.CNPJCPF_Beneficiario;
-
 end;
 
-  { TACBrBoletoListaRejeicao }
+procedure TACBrBoletoHeader.SetAgencia(const Value: String);
+begin
+  if (Value <> '') and (Value <> FAgencia) then
+    FAgencia := Value;
+end;
+
+procedure TACBrBoletoHeader.SetContaCorrente(const Value: String);
+begin
+  if (Value <> '') and (Value <> FContaCorrente) then
+    FContaCorrente := Value;
+end;
+
+{ TACBrBoletoListaRejeicao }
 
 procedure TACBrBoletoListaRejeicao.SetObject(Index: Integer; Item: TACBrBoletoRejeicao);
 begin
@@ -672,8 +693,7 @@ begin
   Sacado.Assign(DeACBrBoletoTituloRet.Sacado);
   SacadoAvalista.Assign(DeACBrBoletoTituloRet.SacadoAvalista);
   NossoNumeroCorrespondente  := DeACBrBoletoTituloRet.NossoNumeroCorrespondente;
-
-
+  LiquidadoBanco             := DeACBrBoletoTituloRet.LiquidadoBanco;
 end;
 
   { TListaACBrBoletoRetEnvio }
@@ -760,7 +780,6 @@ begin
   FTituloRet        := TACBrBoletoTituloRet.Create;
   FComprovante      := TACBrBoletoComprovante.Create;
   FIDBoleto         := TACBrBoletoIDBoleto.Create;
-
 end;
 
 destructor TACBrBoletoDadosRet.Destroy;
@@ -780,7 +799,6 @@ begin
   Comprovante.Assign(DeACBrBoletoDadosRet.Comprovante);
   IDBoleto.Assign(DeACBrBoletoDadosRet.IDBoleto);
   TituloRet.Assign(DeACBrBoletoDadosRet.TituloRet);
-
 end;
 
 end.

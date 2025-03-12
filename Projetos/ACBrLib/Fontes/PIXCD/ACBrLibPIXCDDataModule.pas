@@ -37,7 +37,7 @@ unit ACBrLibPIXCDDataModule;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, ACBrLibComum, ACBrLibDataModule, ACBrPIXCD,
+  Classes, SysUtils, FileUtil, ACBrLibComum, ACBrLibDataModule, ACBrPIXCD, ACBrJSON,
   ACBrPIXPSPBradesco, ACBrPIXPSPItau, ACBrPIXPSPBancoDoBrasil,
   ACBrPIXPSPSantander, ACBrPIXPSPShipay, ACBrPIXPSPSicredi, ACBrPIXPSPSicoob,
   ACBrPIXPSPPagSeguro, ACBrPIXPSPGerenciaNet, ACBrPIXPSPPixPDV, ACBrPIXPSPInter,
@@ -87,6 +87,9 @@ type
     ACBrPSPShipay1: TACBrPSPShipay;
     ACBrPSPSicoob1: TACBrPSPSicoob;
     ACBrPSPSicredi1: TACBrPSPSicredi;
+    procedure ACBrPSPBancoDoBrasil1QuandoReceberRespostaHttp(
+      const AURL: String; const AMethod: String; RespHeaders: TStrings;
+      var AResultCode: Integer; var RespostaHttp: AnsiString);
 
   public
     procedure AplicarConfiguracoes; override;
@@ -100,6 +103,52 @@ uses
 {$R *.lfm}
 
 { TLibPIXCDDM }
+
+procedure TLibPIXCDDM.ACBrPSPBancoDoBrasil1QuandoReceberRespostaHttp(
+  const AURL: String; const AMethod: String; RespHeaders: TStrings;
+  var AResultCode: Integer; var RespostaHttp: AnsiString);
+var
+  jsRet, js: TACBrJSONObject;
+  ja, jsArr: TACBrJSONArray;
+  I: Integer;
+
+  function GetDetalhesPagador(aJson: TACBrJSONObject): String;
+  var
+    jPag: TACBrJSONObject;
+  begin
+    jPag := aJson.AsJSONObject['pagador'];
+    if Assigned(jPag) then
+      Result := aJson.AsString['infoPagador'] + ' ' + jPag.AsString['cpf'] +
+        jPag.AsString['cnpj'] + ' - ' + jPag.AsString['nome'];
+  end;
+
+begin
+  if (AMethod = ChttpMethodGET) and (AResultCode = HTTP_OK) and (Pos(cEndPointPix, AURL) > 0) then
+  begin
+    jsRet := TACBrJSONObject.Parse(String(RespostaHttp));
+    jsArr :=  jsRet.AsJSONArray['pix'];
+    try
+      if Assigned(jsArr) and (jsArr.Count > 0) then
+      begin
+        ja := TACBrJSONArray.Create;
+
+        for i := 0 to jsArr.Count - 1 do
+        begin
+          js := jsArr.ItemAsJSONObject[i];
+          js.AddPair('infoPagador', GetDetalhesPagador(js));
+          ja.AddElementJSONString(js.ToJSON);
+        end;
+        jsRet.AddPair('pix', ja);
+      end
+      else
+        jsRet.AddPair('infoPagador', GetDetalhesPagador(jsRet));
+
+      RespostaHttp := jsRet.ToJSON;
+    finally
+      jsRet.Free;
+    end;
+  end;
+end;
 
 procedure TLibPIXCDDM.AplicarConfiguracoes;
 var
@@ -173,6 +222,8 @@ begin
       ClientSecret := pLibPIXCDConfig.PIXCDBradesco.ClientSecret;
       ArquivoPFX   := pLibPIXCDConfig.PIXCDBradesco.ArqPFX;
       SenhaPFX     := pLibPIXCDConfig.PIXCDBradesco.SenhaPFX;
+      ArquivoChavePrivada := pLibPIXCDConfig.PIXCDBradesco.ArqChavePrivada;
+      ArquivoCertificado := pLibPIXCDConfig.PIXCDBradesco.ArqCertificado;
       Scopes       := pLibPIXCDConfig.PIXCDBradesco.Scopes;
     end;
 
@@ -333,6 +384,7 @@ begin
       ClientSecret       := pLibPIXCDConfig.PIXCDBanrisul.ClientSecret;
       ArquivoCertificado := pLibPIXCDConfig.PIXCDBanrisul.ArquivoCertificado;
       SenhaPFX           := pLibPIXCDConfig.PIXCDBanrisul.SenhaPFX;
+      Scopes             := pLibPIXCDConfig.PIXCDBanrisul.Scopes;
     end;
 
     with ACBrPSPC6Bank1 do
@@ -342,6 +394,7 @@ begin
       ClientSecret        := pLibPIXCDConfig.PIXCDC6Bank.ClientSecret;
       ArquivoChavePrivada := pLibPIXCDConfig.PIXCDC6Bank.ArqChavePrivada;
       ArquivoCertificado  := pLibPIXCDConfig.PIXCDC6Bank.ArqCertificado;
+      Scopes              := pLibPIXCDConfig.PIXCDC6Bank.Scopes;
     end;
 
     {$IFDEF Demo}

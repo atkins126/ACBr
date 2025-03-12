@@ -219,7 +219,6 @@ begin
 
   Opcoes.SuprimirDecimais := True;
   Opcoes.DecimalChar := '.';
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
@@ -470,6 +469,7 @@ begin
   inherited Configuracao;
 
   FormatoAliq := tcDe2;
+  GerarNSRps := False;
 end;
 
 end.

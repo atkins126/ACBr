@@ -43,6 +43,50 @@ Símbolo : Significado
 [-]     : Correção de Bug (assim esperamos)
 
 
+08/03/2025
+-- ACBrNFComClass/ACBrNFComXmlReader/ACBrNFComXmlWriter --
+[*] #TK-5814: Alteração visando contemplar a Reforma Tributária.
+  Por: Italo Giurizzato Junior
+
+27/02/2025
+-- ACBrNFComXmlWriter --
+[*] #TK-5814: Alteração visando contemplar a Reforma Tributária.
+  Por: Italo Giurizzato Junior
+
+15/02/2025
+-- ACBrNFComClass/ACBrNFComConsts --
+[+] Inclusão de novas contantes e ajustes nas novas classes para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+10/02/2025
+-- ACBrNFComClass --
+[+] Inclusão das novas classes para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+-- ACBrNFComServicos --
+[+] Incluído as URLs de produção da SEFAZ-MS.
+   Por: Italo Giurizzato Junior
+
+06/02/2025
+-- ACBrNFCom.DAEventoRLRetrato/ACBrNFCom.DANFComRLRetrato --
+[*] Ajustes para compilar/instalar no Delphi 7.
+   Por: Italo Giurizzato Junior
+
+13/01/2025
+-- ACBrNFComServicos --
+[+] Incluído as URLs de homologação da SEFAZ-MS.
+[*] Alteração na URL de consulta da NFCom da SEFAZ-MG.
+   Por: Italo Giurizzato Junior
+
+08/01/2025
+-- Diversos --
+[*] Ajustes na geração do XML de eventos para usar o ACBrXmlDocument.
+   Por: Italo Giurizzato Junior
+
+03/01/2025
+-- ACBrNFComNotasFiscais/ACBrNFComWebServices/ACBrNFComXmlReader/ACBrNFCom.DANFComRLRetrato --
+[-] Ajustes na montagem do XML protocolado e na leitura do mesmo.
+   Por: Italo Giurizzato Junior
+
 18/11/2024
 -- ACBrNFComXmlWriter --
 [-] Quando o ICMS for SN (Simples Nacional) gerar com o valor 90 para o CST.

@@ -74,7 +74,7 @@ type
   TRetConsSitMDFe = class(TObject)
   private
     Fversao: string;
-    FtpAmb: TpcnTipoAmbiente;
+    FtpAmb: TACBrTipoAmbiente;
     FverAplic: string;
     FcStat: Integer;
     FxMotivo: string;
@@ -93,7 +93,7 @@ type
     function LerXml: Boolean;
 
     property versao: string                           read Fversao         write Fversao;
-    property tpAmb: TpcnTipoAmbiente                  read FtpAmb          write FtpAmb;
+    property tpAmb: TACBrTipoAmbiente                  read FtpAmb          write FtpAmb;
     property verAplic: string                         read FverAplic       write FverAplic;
     property cStat: Integer                           read FcStat          write FcStat;
     property xMotivo: string                          read FxMotivo        write FxMotivo;
@@ -146,6 +146,8 @@ var
 begin
   Document := TACBrXmlDocument.Create;
 
+  Result := False;
+
   try
     try
       if XmlRetorno = '' then Exit;
@@ -158,7 +160,7 @@ begin
       begin
         versao := ObterConteudoTag(ANode.Attributes.Items['versao']);
         verAplic := ObterConteudoTag(ANode.Childrens.FindAnyNs('verAplic'), tcStr);
-        tpAmb := StrToTpAmb(ok, ObterConteudoTag(ANode.Childrens.FindAnyNs('tpAmb'), tcStr));
+        tpAmb := StrToTipoAmbiente(ok, ObterConteudoTag(ANode.Childrens.FindAnyNs('tpAmb'), tcStr));
         cUF := ObterConteudoTag(ANode.Childrens.FindAnyNs('cUF'), tcInt);
         cStat := ObterConteudoTag(ANode.Childrens.FindAnyNs('cStat'), tcInt);
         xMotivo := ObterConteudoTag(ANode.Childrens.FindAnyNs('xMotivo'), tcStr);
@@ -233,8 +235,6 @@ begin
           Result := True;
         end;
       end;
-
-      Result := True;
     except
       Result := False;
     end;

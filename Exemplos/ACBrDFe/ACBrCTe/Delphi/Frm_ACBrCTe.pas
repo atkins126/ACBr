@@ -199,8 +199,6 @@ type
     btnConsultar: TButton;
     btnConsultarChave: TButton;
     btnConsCad: TButton;
-    btnConsultarRecibo: TButton;
-    btnInutilizar: TButton;
     btnInutilizarImprimir: TButton;
     btnValidarRegrasNegocio: TButton;
     btnGerarXML: TButton;
@@ -290,7 +288,6 @@ type
     procedure btnImprimirClick(Sender: TObject);
     procedure btnGerarPDFClick(Sender: TObject);
     procedure btnEnviarEmailClick(Sender: TObject);
-    procedure btnConsultarReciboClick(Sender: TObject);
     procedure btnConsultarClick(Sender: TObject);
     procedure btnConsultarChaveClick(Sender: TObject);
     procedure btnConsCadClick(Sender: TObject);
@@ -299,7 +296,6 @@ type
     procedure btnCartadeCorrecaoClick(Sender: TObject);
     procedure btnImprimirEventoClick(Sender: TObject);
     procedure btnEnviarEventoEmailClick(Sender: TObject);
-    procedure btnInutilizarClick(Sender: TObject);
     procedure btnInutilizarImprimirClick(Sender: TObject);
     procedure btnDistrDFePorUltNSUClick(Sender: TObject);
     procedure ACBrCTe1GerarLog(const ALogLine: string; var Tratado: Boolean);
@@ -349,7 +345,7 @@ uses
   ACBrUtil.FilesIO,
   ACBrUtil.DateTime,
   ACBrUtil.XMLHTML,
-  pcnAuxiliar, pcteCTe, pcnConversao, pcteConversaoCTe, pcnRetConsReciDFe,
+  ACBrCTe.Classes, pcnConversao, pcteConversaoCTe,
   ACBrDFeConfiguracoes, ACBrDFeSSL, ACBrDFeOpenSSL, ACBrDFeUtil,
   ACBrCTeConhecimentos, ACBrCTeConfiguracoes,
   Frm_Status, Frm_SelecionarCertificado;
@@ -422,26 +418,6 @@ begin
           frmStatus := TfrmStatus.Create(Application);
 
         frmStatus.lblStatus.Caption := 'Enviando cancelamento de CTe...';
-        frmStatus.Show;
-        frmStatus.BringToFront;
-      end;
-
-    stCTeInutilizacao:
-      begin
-        if ( frmStatus = nil ) then
-          frmStatus := TfrmStatus.Create(Application);
-
-        frmStatus.lblStatus.Caption := 'Enviando pedido de Inutilização...';
-        frmStatus.Show;
-        frmStatus.BringToFront;
-      end;
-
-    stCTeRecibo:
-      begin
-        if ( frmStatus = nil ) then
-          frmStatus := TfrmStatus.Create(Application);
-
-        frmStatus.lblStatus.Caption := 'Consultando Recibo de Lote...';
         frmStatus.Show;
         frmStatus.BringToFront;
       end;
@@ -538,7 +514,7 @@ begin
     Ide.xMunEnv   := Trim(edtEmitCidade.Text);
     Ide.UFEnv     := Trim(edtEmitUF.Text);
     Ide.modal     := mdRodoviario;
-    Ide.tpServ    := tsTranspValores;
+    Ide.tpServ    := tsTranspPessoas; //tsTranspValores;
     ide.indIEToma := inContribuinte;
     Ide.cMunIni   := 3119401;
     Ide.xMunIni   := 'CORONEL FABRICIANO';
@@ -742,6 +718,7 @@ begin
     //autXML.Add.CNPJCPF := '';
 
     {Informações do Responsável Técnico pela emissão do DF-e}
+    infRespTec.CNPJ := '';
     infRespTec.xContato := '';
     infRespTec.email    := '';
     infRespTec.fone     := '';
@@ -878,7 +855,6 @@ begin
     infCarga.xOutCat     := 'Pacotes';
     infCarga.vCargaAverb := 5000;
 
-    // UnidMed = (uM3,uKG, uTON, uUNIDADE, uLITROS);
     // tpMed usar os valores abaixo
     {
       00-Cubagem da NF-e
@@ -1487,7 +1463,7 @@ begin
       {Informações dos Documentos - NF-e}
       with infDoc.infNFe.New do
         // chave da NFe emitida pelo remente da carga
-        chave := '33190100127817000125650080000000581000384589';
+        chave := '33190100127817000125550080000000581000384589';
 
       (*
          Usado para informar os dados do documento que não seja uma NF-e
@@ -1813,6 +1789,7 @@ begin
     //autXML.Add.CNPJCPF := '';
 
     {Informações do Responsável Técnico pela emissão do DF-e}
+    infRespTec.CNPJ := '';
     infRespTec.xContato := '';
     infRespTec.email    := '';
     infRespTec.fone     := '';
@@ -2081,6 +2058,11 @@ begin
       Emit.IEST              := '';
     end;
 
+    // Parâmetros do método Enviar:
+    // 1o = Número do Lote
+    // 2o = Se True imprime automaticamente o DACTE
+    // 3o = True o envio é no modo Síncrono OBRIGATORIAMENTE
+    // Obs: no modo Síncrono só podemos enviar UM CT-e por vez.
     ACBrCTe1.Enviar(1, True, True);
 
     MemoResp.Lines.Text   := ACBrCTe1.WebServices.Enviar.RetWS;
@@ -2368,36 +2350,6 @@ begin
   end;
 end;
 
-procedure TfrmACBrCTe.btnConsultarReciboClick(Sender: TObject);
-var
-  aux: String;
-begin
-  if not(InputQuery('Consultar Recibo Lote', 'Número do Recibo', aux)) then
-    exit;
-
-  ACBrCTe1.WebServices.Recibo.Recibo := aux;
-  ACBrCTe1.WebServices.Recibo.Executar;
-
-  MemoResp.Lines.Text   := ACBrCTe1.WebServices.Recibo.RetWS;
-  memoRespWS.Lines.Text := ACBrCTe1.WebServices.Recibo.RetornoWS;
-
-  LoadXML(ACBrCTe1.WebServices.Recibo.RetWS, WBResposta);
-
-  pgRespostas.ActivePageIndex := 1;
-
-  MemoDados.Lines.Add('');
-  MemoDados.Lines.Add('Consultar Recibo');
-  MemoDados.Lines.Add('tpAmb: ' + TpAmbToStr(ACBrCTe1.WebServices.Recibo.tpAmb));
-  MemoDados.Lines.Add('versao: ' + ACBrCTe1.WebServices.Recibo.versao);
-  MemoDados.Lines.Add('verAplic: ' + ACBrCTe1.WebServices.Recibo.verAplic);
-  MemoDados.Lines.Add('cStat: ' + IntToStr(ACBrCTe1.WebServices.Recibo.cStat));
-  MemoDados.Lines.Add('xMotivo: ' + ACBrCTe1.WebServices.Recibo.xMotivo);
-  MemoDados.Lines.Add('cUF: ' + IntToStr(ACBrCTe1.WebServices.Recibo.cUF));
-  MemoDados.Lines.Add('xMsg: ' + ACBrCTe1.WebServices.Recibo.xMsg);
-  MemoDados.Lines.Add('cMsg: ' + IntToStr(ACBrCTe1.WebServices.Recibo.cMsg));
-  MemoDados.Lines.Add('Recibo: ' + ACBrCTe1.WebServices.Recibo.Recibo);
-end;
-
 procedure TfrmACBrCTe.btnCriarEnviarSincronoClick(Sender: TObject);
 var
   vAux, vNumLote: String;
@@ -2421,7 +2373,7 @@ begin
   // Parâmetros do método Enviar:
   // 1o = Número do Lote
   // 2o = Se True imprime automaticamente o DACTE
-  // 3o = Se True o envio é no modo Síncrono, caso contrario Assíncrono.
+  // 3o = True o envio é no modo Síncrono OBRIGATORIAMENTE
   // Obs: no modo Síncrono só podemos enviar UM CT-e por vez.
   ACBrCTe1.Enviar(StrToInt(vNumLote), True, True);
 
@@ -2842,7 +2794,7 @@ end;
 
 procedure TfrmACBrCTe.btnGerarXMLClick(Sender: TObject);
 var
-  vAux: String;
+  vAux, Inicio, Fim: String;
 begin
   if not(InputQuery('WebServices Enviar', 'Numero do Conhecimento', vAux)) then
     exit;
@@ -2851,7 +2803,10 @@ begin
 
   AlimentarComponente(vAux);
 
+  Inicio := TimeToStr(Now);
   ACBrCTe1.Conhecimentos.Assinar;
+  Fim := TimeToStr(Now);
+  ShowMessage('Inicio: ' + Inicio + #13 + 'Fim: ' + Fim);
   ACBrCTe1.Conhecimentos.GravarXML();
 
   memoLog.Lines.Add('Arquivo gerado em: ' + ACBrCTe1.Conhecimentos[0].NomeArq);
@@ -3032,49 +2987,6 @@ begin
     ShowMessage(IntToStr(ACBrCTe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cStat));
     ShowMessage(ACBrCTe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nProt);
   end;
-end;
-
-procedure TfrmACBrCTe.btnInutilizarClick(Sender: TObject);
-var
-  Modelo, Serie, Ano, NumeroInicial, NumeroFinal, Justificativa: String;
-begin
- if not(InputQuery('WebServices Inutilização ', 'Ano',    Ano)) then
-    exit;
- if not(InputQuery('WebServices Inutilização ', 'Modelo', Modelo)) then
-    exit;
- if not(InputQuery('WebServices Inutilização ', 'Serie',  Serie)) then
-    exit;
- if not(InputQuery('WebServices Inutilização ', 'Número Inicial', NumeroInicial)) then
-    exit;
- if not(InputQuery('WebServices Inutilização ', 'Número Final', NumeroFinal)) then
-    exit;
- if not(InputQuery('WebServices Inutilização ', 'Justificativa', Justificativa)) then
-    exit;
-
-  ACBrCTe1.WebServices.Inutiliza(edtEmitCNPJ.Text, Justificativa, StrToInt(Ano), StrToInt(Modelo), StrToInt(Serie), StrToInt(NumeroInicial), StrToInt(NumeroFinal));
-
-  MemoResp.Lines.Text   :=  ACBrCTe1.WebServices.Inutilizacao.RetWS;
-  memoRespWS.Lines.Text :=  ACBrCTe1.WebServices.Inutilizacao.RetornoWS;
-
-  LoadXML(ACBrCTe1.WebServices.Inutilizacao.RetWS, WBResposta);
-
-  pgRespostas.ActivePageIndex := 1;
-
-  MemoDados.Lines.Add('');
-  MemoDados.Lines.Add('Inutilização');
-  MemoDados.Lines.Add('tpAmb: ' + TpAmbToStr(ACBrCTe1.WebServices.Inutilizacao.tpAmb));
-  MemoDados.Lines.Add('verAplic: ' + ACBrCTe1.WebServices.Inutilizacao.verAplic);
-  MemoDados.Lines.Add('cStat: ' + IntToStr(ACBrCTe1.WebServices.Inutilizacao.cStat));
-  MemoDados.Lines.Add('xMotivo: ' + ACBrCTe1.WebServices.Inutilizacao.xMotivo);
-  MemoDados.Lines.Add('cUF: ' + IntToStr(ACBrCTe1.WebServices.Inutilizacao.cUF));
-  MemoDados.Lines.Add('Ano: ' + IntToStr(ACBrCTe1.WebServices.Inutilizacao.Ano));
-  MemoDados.Lines.Add('CNPJ: ' + ACBrCTe1.WebServices.Inutilizacao.CNPJ);
-  MemoDados.Lines.Add('Modelo: ' + IntToStr(ACBrCTe1.WebServices.Inutilizacao.Modelo));
-  MemoDados.Lines.Add('Serie: ' + IntToStr(ACBrCTe1.WebServices.Inutilizacao.Serie));
-  MemoDados.Lines.Add('NumeroInicial: ' + IntToStr(ACBrCTe1.WebServices.Inutilizacao.NumeroInicial));
-  MemoDados.Lines.Add('NumeroInicial: ' + IntToStr(ACBrCTe1.WebServices.Inutilizacao.NumeroFinal));
-  MemoDados.Lines.Add('dhRecbto: ' + DateTimeToStr(ACBrCTe1.WebServices.Inutilizacao.dhRecbto));
-  MemoDados.Lines.Add('Protocolo: ' + ACBrCTe1.WebServices.Inutilizacao.Protocolo);
 end;
 
 procedure TfrmACBrCTe.btnInutilizarImprimirClick(Sender: TObject);
@@ -3338,6 +3250,8 @@ begin
 end;
 
 procedure TfrmACBrCTe.btnValidarXMLClick(Sender: TObject);
+var
+  Inicio, Fim: string;
 begin
   OpenDialog1.Title := 'Selecione a CTe';
   OpenDialog1.DefaultExt := '*-CTe.XML';
@@ -3352,7 +3266,10 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrCTe1.Conhecimentos.Clear;
+    Inicio := TimeToStr(Now);
     ACBrCTe1.Conhecimentos.LoadFromFile(OpenDialog1.FileName);
+    Fim := TimeToStr(Now);
+    ShowMessage('Inicio: ' + Inicio + #13 + 'Fim: ' + Fim);
 
     try
       ACBrCTe1.Conhecimentos.Validar;
