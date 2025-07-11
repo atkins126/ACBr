@@ -37,7 +37,8 @@ unit ACBrTEFScopeAPI;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils,
+  ACBrBase;
 
 {------------------------------------------------------------------------------
   DECLARACAO DE CONSTANTES GLOBAIS
@@ -823,7 +824,8 @@ const
   TM_VALOR_MONETARIO = 14; // Valor monetário, de tam=10+2 casas decimais, total=12
   TM_NUM_DECIMAL     = 15; // Número não inteiro (com casas decimais)
   TM_SELECAO         = 16; // Seleção de opção (Menu)
-  TM_PAN             = 17;// PAN do cartão
+  TM_PAN             = 17; // PAN do cartão
+  TM_PARCELAS        = 90; // Número de Parcelas (Interno ACBr)
 
   {--------------------------------------------------------------------------------------------
                 Valores possiveis para o parametro TipoTabela de ScopeMenuRecuperaItens
@@ -1046,7 +1048,7 @@ const
   MASK2_Cod_Local_Telefone                 = $00008000;  { DDD }
   MASK2_Num_Telefone                       = $00010000;  { Telefone }
   MASK2_Dados_ValeGas                      = $00020000;  { ULTRAGAZ: Dados do ValeGás }
-  MASK2_Codigo_IF                          = $00040000;  { Código IF (Instituição Financeira) }
+  MASK2_BIN                                = $00040000;  { Código do BIN do cartão }
   MASK2_Num_Item_Finivest_ou_Contrato      = $00080000;  { Fininvest ou Cetelem
                                                            IBI: Numero do contrato (CPCHEQUE/INSS) }
   MASK2_Valor_Taxa_Embarque                = $00100000;  { Taxa de embarque }
@@ -1388,6 +1390,7 @@ type
     fEmTransacao: Boolean;
     fEnderecoIP: String;
     fFilial: String;
+    fGravarLogScope: Boolean;
     fInicializada: Boolean;
     fIntervaloColeta: Integer;
     fMsgPinPad: String;
@@ -1525,6 +1528,7 @@ type
 
     function PAnsiCharToString(APAnsiChar: PAnsiChar): String;
     function ArrayOfCharToString(Arr: array of AnsiChar): String;
+    procedure SetGravarLogScope(AValue: Boolean);
 
     procedure SetIntervaloColeta(AValue: Integer);
     procedure SetPathLib(const AValue: String);
@@ -1554,7 +1558,7 @@ type
     procedure TratarErroScope(AErrorCode: LongInt);
     procedure TratarErroPinPadScope(AErrorCode: LongInt);
 
-    procedure AbrirComunicacaoScope;
+    procedure AbrirComunicacaoScope(VerificaSessaoAberta: Boolean = True);
     procedure FecharComunicacaoScope;
 
     procedure VerificarCarregada;
@@ -1607,14 +1611,14 @@ type
     function FormatarMsgPinPad(const MsgPinPad: String): String;
 
     function PerguntarValorTransacao: Double;
-    function TratarNomeImagemPinPad(const NomeImagem: String): String;
   public
     constructor Create;
     destructor Destroy; override;
 
     property PathLib: String read fPathLib write SetPathLib;
     property DiretorioTrabalho: String read fDiretorioTrabalho write SetDiretorioTrabalho;
-    property ControleConexao: Boolean read fControleConexao write SetControleConexao default False;
+    property ControleConexao: Boolean read fControleConexao write SetControleConexao default True;
+    property GravarLogScope: Boolean read fGravarLogScope write SetGravarLogScope default False;
 
     property Empresa: String read fEmpresa write SetEmpresa;
     property Filial: String read fFilial write SetFilial;
@@ -1663,7 +1667,8 @@ type
 
     procedure AbrirSessaoTEF;
     procedure FecharSessaoTEF; overload;
-    procedure FecharSessaoTEF(Confirmar: Boolean; out TransacaoFoiDesfeita: Boolean); overload;
+    procedure FecharSessaoTEF(Confirmar: Boolean; out TransacaoFoiDesfeita: Boolean;
+      VerificaSessaoAberta: Boolean = True); overload;
 
     function IniciarTransacao(Operacao: TACBrTEFScopeOperacao;
       const Param1: String = ''; const Param2: String = '';
@@ -1709,7 +1714,8 @@ begin
   fInicializada := False;
   fConectado := False;
   fSessaoAberta := False;
-  fControleConexao := False;
+  fControleConexao := True;
+  fGravarLogScope := False;
   fPathLib := '';
   fDiretorioTrabalho := '';
   fEnderecoIP := '';
@@ -1782,14 +1788,12 @@ begin
 end;
 
 procedure TACBrTEFScopeAPI.DesInicializar;
-var
-  b: Boolean;
 begin
   if not fInicializada then
     Exit;
 
   GravarLog('TACBrTEFScopeAPI.DesInicializar');
-  FecharSessaoTEF(True, b);
+  FecharSessaoTEF;
   FecharComunicacaoScope;
   FecharPinPad;
 
@@ -1837,6 +1841,19 @@ begin
   Result := TrimRight(String(Arr));
 end;
 
+procedure TACBrTEFScopeAPI.SetGravarLogScope(AValue: Boolean);
+begin
+  if fGravarLogScope = AValue then
+    Exit;
+
+  GravarLog('TACBrTEFScopeAPI.SetGravarLogScope( '+BoolToStr(AValue, True)+' )');
+
+  if fInicializada then
+    DoException(sErrLibJaInicializada);
+
+  fGravarLogScope := AValue;
+end;
+
 procedure TACBrTEFScopeAPI.SetIntervaloColeta(AValue: Integer);
 begin
   if fIntervaloColeta = AValue then
@@ -1855,7 +1872,7 @@ begin
   if fInicializada then
     DoException(sErrLibJaInicializada);
 
-  fDiretorioTrabalho := AValue;
+  fDiretorioTrabalho := PathWithDelim(ExtractFilePath(AValue));
 end;
 
 procedure TACBrTEFScopeAPI.SetInicializada(AValue: Boolean);
@@ -2003,7 +2020,7 @@ function TACBrTEFScopeAPI.GetLibFullPath: String;
 begin
   if (PathLib <> '') then
   begin
-    GravarLog(ACBrStr('TACBrTEFScopeAPI.LibFullName: Usando "PathLib" informado pela aplicação: ')+PathLib);
+    GravarLog(ACBrStr('TACBrTEFScopeAPI.GetLibFullPath: Usando "PathLib" informado pela aplicação: ')+PathLib);
     Result := PathLib + CScopeLib
   end
   else
@@ -2044,7 +2061,7 @@ begin
     Exit;
 
   sLibName := GetLibFullPath;
-  GravarLog('TACBrTEFScopeAPI.LoadDLLFunctions - '+sLibName);
+  GravarLog('TACBrTEFScopeAPI.LoadLibFunctions - '+sLibName);
 
   ScopeFunctionDetect(sLibName, 'ScopeOpen', @xScopeOpen);
   ScopeFunctionDetect(sLibName, 'ScopeClose', @xScopeClose);
@@ -2111,7 +2128,7 @@ begin
   if not fCarregada then
     Exit;
 
-  GravarLog('TACBrTEFScopeAPI.UnLoadDLLFunctions');
+  GravarLog('TACBrTEFScopeAPI.UnLoadLibFunctions');
 
   sLibName := GetLibFullPath;
   UnLoadLibrary( sLibName );
@@ -2181,7 +2198,7 @@ begin
   if (Trim(AErrorMsg) = '') then
     Exit;
 
-  GravarLog('TACBrTEFScopeAPI: '+AErrorMsg);
+  GravarLog('EACBrTEFScopeAPI: '+AErrorMsg);
   raise EACBrTEFScopeAPI.Create(ACBrStr(AErrorMsg));
 end;
 
@@ -2194,7 +2211,7 @@ end;
 procedure TACBrTEFScopeAPI.VerificarDiretorioDeTrabalho;
 begin
   if (fDiretorioTrabalho = '') then
-    fDiretorioTrabalho := ApplicationPath + 'TEF' + PathDelim + 'ScopeAPI';
+    fDiretorioTrabalho := ApplicationPath + 'TEF' + PathDelim + 'ScopeAPI' + PathDelim;
 
   if not DirectoryExists(fDiretorioTrabalho) then
     ForceDirectories(fDiretorioTrabalho);
@@ -2222,7 +2239,7 @@ var
     AjustarParamSeNaoExistir(ASessao, 'TraceLevel', '8');
     AjustarParamSeNaoExistir(ASessao, 'LogFiles', '4');
     AjustarParamSeNaoExistir(ASessao, 'LogSize', '3072000');
-    ini.WriteString(ASessao, 'LogPath', fDiretorioTrabalho + PathDelim + 'logs');
+    ini.WriteString(ASessao, 'LogPath', fDiretorioTrabalho + 'logs');
   end;
 
 begin
@@ -2327,11 +2344,11 @@ begin
     AjustarParamSeNaoExistir('PPCOMP', 'NaoAbrirDigitado', IfThen(fPermitirCartaoDigitado, 'n', 's'));
 
     SecName := 'SCOPEAPI';
-    ini.WriteString(SecName, 'ArqControlPath', fDiretorioTrabalho + PathDelim + 'control');
-    ini.WriteString(SecName, 'ArqTracePath', fDiretorioTrabalho + PathDelim + 'logs');
-    AjustarParamSeNaoExistir(SecName, 'TraceApi', 's');
-    AjustarParamSeNaoExistir(SecName, 'TraceSrl', 's');
-    AjustarParamSeNaoExistir(SecName, 'TracePin', 's');
+    ini.WriteString(SecName, 'ArqControlPath', fDiretorioTrabalho + 'control');
+    ini.WriteString(SecName, 'ArqTracePath', fDiretorioTrabalho + 'logs');
+    AjustarParamSeNaoExistir(SecName, 'TraceApi', IfThen(fGravarLogScope, 's', 'n'));
+    AjustarParamSeNaoExistir(SecName, 'TraceSrl', IfThen(fGravarLogScope, 's', 'n'));
+    AjustarParamSeNaoExistir(SecName, 'TracePin', IfThen(fGravarLogScope, 's', 'n'));
     AjustarParamSeNaoExistir(SecName, 'RedecardBit47Tag6', '1');
 
     //AjusarSessaoLogAPI('SCOPELOGAPI');
@@ -2644,7 +2661,7 @@ begin
   sfile := ExtractFileName(warq);
   spath := ExtractFilePath(warq);
   sext := LowerCase(ExtractFileExt(warq));
-  wimg := TratarNomeImagemPinPad(NomeImagem);
+  wimg := NomeImagem;
   if (sext = '.png') then
     ct := '1'
   else
@@ -2670,7 +2687,7 @@ var
   s: AnsiString;
 begin
   VerificarCarregada;
-  s := AnsiString(TratarNomeImagemPinPad(NomeImagem));
+  s := NomeImagem;
   GravarLog('ScopePPMMDisplayImage( '+s+' )');
   ret := xScopePPMMDisplayImage(PAnsiChar(s));
   GravarLog('  ret: '+IntToStr(ret));
@@ -2684,7 +2701,7 @@ var
   s: AnsiString;
 begin
   VerificarCarregada;
-  s := AnsiString(TratarNomeImagemPinPad(NomeImagem));
+  s := NomeImagem;
   GravarLog('ScopePPMMFileDelete( '+s+' )');
   ret := xScopePPMMFileDelete(PAnsiChar(s));
   GravarLog('  ret: '+IntToStr(ret));
@@ -2797,7 +2814,7 @@ begin
     DoException(MsgErro);
 end;
 
-procedure TACBrTEFScopeAPI.AbrirComunicacaoScope;
+procedure TACBrTEFScopeAPI.AbrirComunicacaoScope(VerificaSessaoAberta: Boolean);
 var
   ret: LongInt;
   sEmpresa, sFilial, sPDV, sEnderecoIP, sPorta: String;
@@ -2825,7 +2842,8 @@ begin
   // ExibirMensagem(Format(sMsgConctadoAoServidor, [sEnderecoIP+':'+sPorta]));
 
   ConfigurarColeta;
-  VerificarSessaoTEFAnterior;
+  if VerificaSessaoAberta then
+    VerificarSessaoTEFAnterior;
 end;
 
 procedure TACBrTEFScopeAPI.FecharComunicacaoScope;
@@ -2891,14 +2909,16 @@ begin
 end;
 
 procedure TACBrTEFScopeAPI.FecharSessaoTEF(Confirmar: Boolean; out
-  TransacaoFoiDesfeita: Boolean);
+  TransacaoFoiDesfeita: Boolean; VerificaSessaoAberta: Boolean);
 var
   Acao, DesfezTEF: Byte;
   ret: LongInt;
 begin
   TransacaoFoiDesfeita := False;
-  if not fSessaoAberta then
+  if VerificaSessaoAberta and (not fSessaoAberta) then
     Exit;
+
+  AbrirComunicacaoScope(VerificaSessaoAberta);
 
   if Confirmar then
     Acao := ACAO_FECHA_CONFIRMA_TEF
@@ -2913,6 +2933,9 @@ begin
     TratarErroScope(ret);
 
   TransacaoFoiDesfeita := (DesfezTEF = 1);
+  if TransacaoFoiDesfeita then
+    GravarLog('  ATENÇÃO: A Ultima Transação foi desfeita');
+
   fSessaoAberta := False;
   VerificarSeMantemConexaoScope;
 end;
@@ -3079,17 +3102,7 @@ var
   TipoCaptura: Word;
   Resposta, MsgCli, MsgOpe: String;
   Fluxo: TACBrTEFScopeEstadoOperacao;
-
-  function VerificarSeUsuarioCancelouTransacao(Fluxo: TACBrTEFScopeEstadoOperacao): Boolean;
-  var
-    Cancelar: Boolean;
-  begin
-    // Chama evento, permitindo ao usuário cancelar
-    Cancelar := False;
-    ChamarEventoTransacaoEmAndamento(Fluxo, Cancelar);
-    Result := Cancelar;
-  end;
-
+  Cancelar: Boolean;
 begin
   Result := -1;
   GravarLog('ExecutarTransacao');
@@ -3116,16 +3129,7 @@ begin
       // Enquanto a transacao estiver em andamento, aguarda, mas verifica se o usuário Cancelou //
       if (iStatus = RCS_TRN_EM_ANDAMENTO) then
       begin
-        if (fDadosDaTransacao.Values[RET_QRCODE] <> '') then
-          Fluxo := scoestLeituraQRCode
-        else
-          Fluxo := scoestFluxoAPI;
-
-        if VerificarSeUsuarioCancelouTransacao(Fluxo) then
-          EnviarParametroTransacao(ACAO_CANCELAR, iStatus)
-        else
-          Sleep(fIntervaloColeta);
-
+        Sleep(fIntervaloColeta);
         Continue;
       end;
 
@@ -3133,7 +3137,10 @@ begin
       if (iStatus = TC_COLETA_CARTAO_EM_ANDAMENTO) or   // Efetuando Leitura do Cartão. //
          (iStatus = TC_COLETA_EM_ANDAMENTO) then        // Outra operação no PinPad //
       begin
-        if VerificarSeUsuarioCancelouTransacao(scoestPinPadLerCartao) then
+        // Chama evento, permitindo ao usuário cancelar
+        Cancelar := False;
+        ChamarEventoTransacaoEmAndamento(Fluxo, Cancelar);
+        if Cancelar then
           Acao := ACAO_CANCELAR;
 
         EnviarParametroTransacao(Acao, iStatus);
@@ -3250,6 +3257,12 @@ begin
           TC_COLETA_LISTA_PRECOS:       // coleta Lista para Atualizacao de Precos (TICKET CAR)
             //TODO - Não implementado no momento
             Acao := ACAO_CANCELAR;
+
+          TC_QTDE_PARCELAS:
+          begin
+            rColetaEx.FormatoDado := TM_PARCELAS;
+            Acao := ACAO_COLETAR;
+          end
 
         else                            // deve coletar algo... //
           Acao := ACAO_COLETAR;
@@ -3461,13 +3474,16 @@ begin
     mask := 1;
     for i := 1 to 32 do
     begin
-      pBuffer^ := #0;
-      hmask := '$'+IntToHex(mask, 8);
-      GravarLog('ScopeObtemCampoExt3( '+IntToStr(h)+', '+hmask+', 0, 0, 0 )');
-      ret := xScopeObtemCampoExt3(h, mask, 0, 0, 0, 0, pBuffer);
-      sBuffer := String(pBuffer);
-      GravarLog('  ret: '+IntToStr(ret)+', Buffer: '+sBuffer);
-      fDadosDaTransacao.Add(Format('%s-%s=%s', ['mask1', hmask, sBuffer]));
+      if not (mask = MASK1_Texto_BIT_62) then
+      begin
+        pBuffer^ := #0;
+        hmask := '$'+IntToHex(mask, 8);
+        GravarLog('ScopeObtemCampoExt3( '+IntToStr(h)+', '+hmask+', 0, 0, 0 )');
+        ret := xScopeObtemCampoExt3(h, mask, 0, 0, 0, 0, pBuffer);
+        sBuffer := String(pBuffer);
+        GravarLog('  ret: '+IntToStr(ret)+', Buffer: '+sBuffer);
+        fDadosDaTransacao.Add(Format('%s-%s=%s', ['mask1', hmask, sBuffer]));
+      end;
       mask := mask shl 1;
     end;
 
@@ -3514,8 +3530,8 @@ begin
         sBuffer := String(pBuffer);
         GravarLog('  ret: '+IntToStr(ret)+', Buffer: '+sBuffer);
         fDadosDaTransacao.Add(Format('%s-%s=%s', ['mask4', hmask, sBuffer]));
-        mask := mask shl 1;
       end;
+      mask := mask shl 1;
     end;
   finally
     Freemem(pBuffer);
@@ -3928,6 +3944,8 @@ procedure TACBrTEFScopeAPI.ColetarParametrosScope(const iStatus: Word;
 var
   rColeta: TParam_Coleta;
   ret: LongInt;
+  bandeira: Int64;
+  s: String;
 begin
   // Obtendo informações da Coleta em curso
   FillChar(rColeta, SizeOf(TParam_Coleta), #0);
@@ -3958,8 +3976,13 @@ begin
   end;
 
   // Salva em DadosDaTransacao as informaçoes retornadas na Coleta //;
-  if (Trim(rColetaEx.CodBandeira) <> '') then
-    fDadosDaTransacao.Values[RET_BANDEIRA] := rColetaEx.CodBandeira;
+  bandeira := StrToInt64Def(Trim(String(rColetaEx.CodBandeira)), 0);
+  if (bandeira > 0) then
+  begin
+    s := IntToStr(bandeira);
+    GravarLog('  coletando Bandeira: '+s);
+    fDadosDaTransacao.Values[RET_BANDEIRA] := s;
+  end;
 end;
 
 procedure TACBrTEFScopeAPI.ExibirMsgColeta(const rColetaEx: TParam_Coleta_Ext;
@@ -3979,7 +4002,7 @@ end;
 procedure TACBrTEFScopeAPI.AssignColetaToColetaEx(const rColeta: TParam_Coleta;
   var rColetaEx: TParam_Coleta_Ext);
 var
-  s: String;
+  s: AnsiString;
 begin
   FillChar(rColetaEx, SizeOf(TParam_Coleta_Ext), #0);
   rColetaEx.FormatoDado := rColeta.FormatoDado;
@@ -4037,11 +4060,6 @@ begin
     Result := -2
   else
     Result := -1;
-end;
-
-function TACBrTEFScopeAPI.TratarNomeImagemPinPad(const NomeImagem: String): String;
-begin
-  Result := UpperCase(PadRight(OnlyAlphaNum(NomeImagem), 8, '0'));
 end;
 
 procedure TACBrTEFScopeAPI.AbrirPinPad;
@@ -4157,15 +4175,6 @@ begin
   GravarLog('  ret: '+IntToStr(ret));
   Result := (ret = RCS_SUCESSO);
 end;
-
-{
---- TODO VERIFICAR ---
-- A.V. quando chama ScopenOpen, na segunda vez
-  ocorre quando ControleConexao = True
-- Cancelar uma transação pelo Teclado está retornando o erro RCS_NAO_EXISTE_TRN_SUSPENSA
-- Como fazer Transação de Crédito parcelado pela Administradora ou Lojista
-  - Como usar os Serviços Scope, da Pag 340 ?
-}
 
 end.
 

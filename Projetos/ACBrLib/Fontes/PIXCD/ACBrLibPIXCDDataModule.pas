@@ -42,7 +42,7 @@ uses
   ACBrPIXPSPSantander, ACBrPIXPSPShipay, ACBrPIXPSPSicredi, ACBrPIXPSPSicoob,
   ACBrPIXPSPPagSeguro, ACBrPIXPSPGerenciaNet, ACBrPIXPSPPixPDV, ACBrPIXPSPInter,
   ACBrPIXPSPAilos, ACBrPIXPSPMatera, ACBrPIXPSPCielo, ACBrPIXPSPMercadoPago,
-  ACBrPIXPSPBanrisul, ACBrPIXPSPGate2All, ACBrPIXPSPC6Bank;
+  ACBrPIXPSPBanrisul, ACBrPIXPSPGate2All, ACBrPIXPSPC6Bank, ACBrPIXPSPAppLess;
 
 type
 
@@ -63,12 +63,14 @@ type
                  MercadoPago,
                  Gate2All,
                  Banrisul,
-                 C6Bank);
+                 C6Bank,
+                 AppLess);
 
   { TLibPIXCDDM }
 
   TLibPIXCDDM = class(TLibDataModule)
     ACBrPixCD1: TACBrPixCD;
+    ACBrPSPAppLess1: TACBrPSPAppLess;
     ACBrPSPBanrisul1: TACBrPSPBanrisul;
     ACBrPSPBradesco1: TACBrPSPBradesco;
     ACBrPSPAilos1: TACBrPSPAilos;
@@ -90,6 +92,9 @@ type
     procedure ACBrPSPBancoDoBrasil1QuandoReceberRespostaHttp(
       const AURL: String; const AMethod: String; RespHeaders: TStrings;
       var AResultCode: Integer; var RespostaHttp: AnsiString);
+    procedure ACBrPSPSicoob1QuandoReceberRespostaHttp(const AURL: String;
+      const AMethod: String; RespHeaders: TStrings; var AResultCode: Integer;
+      var RespostaHttp: AnsiString);
 
   public
     procedure AplicarConfiguracoes; override;
@@ -105,6 +110,52 @@ uses
 { TLibPIXCDDM }
 
 procedure TLibPIXCDDM.ACBrPSPBancoDoBrasil1QuandoReceberRespostaHttp(
+  const AURL: String; const AMethod: String; RespHeaders: TStrings;
+  var AResultCode: Integer; var RespostaHttp: AnsiString);
+var
+  jsRet, js: TACBrJSONObject;
+  ja, jsArr: TACBrJSONArray;
+  I: Integer;
+
+  function GetDetalhesPagador(aJson: TACBrJSONObject): String;
+  var
+    jPag: TACBrJSONObject;
+  begin
+    jPag := aJson.AsJSONObject['pagador'];
+    if Assigned(jPag) then
+      Result := aJson.AsString['infoPagador'] + ' ' + jPag.AsString['cpf'] +
+        jPag.AsString['cnpj'] + ' - ' + jPag.AsString['nome'];
+  end;
+
+begin
+  if (AMethod = ChttpMethodGET) and (AResultCode = HTTP_OK) and (Pos(cEndPointPix, AURL) > 0) then
+  begin
+    jsRet := TACBrJSONObject.Parse(String(RespostaHttp));
+    jsArr :=  jsRet.AsJSONArray['pix'];
+    try
+      if Assigned(jsArr) and (jsArr.Count > 0) then
+      begin
+        ja := TACBrJSONArray.Create;
+
+        for i := 0 to jsArr.Count - 1 do
+        begin
+          js := jsArr.ItemAsJSONObject[i];
+          js.AddPair('infoPagador', GetDetalhesPagador(js));
+          ja.AddElementJSONString(js.ToJSON);
+        end;
+        jsRet.AddPair('pix', ja);
+      end
+      else
+        jsRet.AddPair('infoPagador', GetDetalhesPagador(jsRet));
+
+      RespostaHttp := jsRet.ToJSON;
+    finally
+      jsRet.Free;
+    end;
+  end;
+end;
+
+procedure TLibPIXCDDM.ACBrPSPSicoob1QuandoReceberRespostaHttp(
   const AURL: String; const AMethod: String; RespHeaders: TStrings;
   var AResultCode: Integer; var RespostaHttp: AnsiString);
 var
@@ -175,6 +226,7 @@ begin
       Gate2All: ACBrPixCD1.PSP := ACBrPSPGate2All1;
       Banrisul: ACBrPixCD1.PSP := ACBrPSPBanrisul1;
       C6Bank: ACBrPixCD1.PSP := ACBrPSPC6Bank1;
+      AppLess: ACBrPixCD1.PSP := ACBrPSPAppLess1;
     end;
 
     with ACBrPixCD1 do
@@ -217,14 +269,14 @@ begin
 
     with ACBrPSPBradesco1 do
     begin
-      ChavePIX     := pLibPIXCDConfig.PIXCDBradesco.ChavePIX;
-      ClientID     := pLibPIXCDConfig.PIXCDBradesco.ClientID;
-      ClientSecret := pLibPIXCDConfig.PIXCDBradesco.ClientSecret;
-      ArquivoPFX   := pLibPIXCDConfig.PIXCDBradesco.ArqPFX;
-      SenhaPFX     := pLibPIXCDConfig.PIXCDBradesco.SenhaPFX;
+      ChavePIX            := pLibPIXCDConfig.PIXCDBradesco.ChavePIX;
+      ClientID            := pLibPIXCDConfig.PIXCDBradesco.ClientID;
+      ClientSecret        := pLibPIXCDConfig.PIXCDBradesco.ClientSecret;
+      ArquivoPFX          := pLibPIXCDConfig.PIXCDBradesco.ArqPFX;
+      SenhaPFX            := pLibPIXCDConfig.PIXCDBradesco.SenhaPFX;
       ArquivoChavePrivada := pLibPIXCDConfig.PIXCDBradesco.ArqChavePrivada;
-      ArquivoCertificado := pLibPIXCDConfig.PIXCDBradesco.ArqCertificado;
-      Scopes       := pLibPIXCDConfig.PIXCDBradesco.Scopes;
+      ArquivoCertificado  := pLibPIXCDConfig.PIXCDBradesco.ArqCertificado;
+      Scopes              := pLibPIXCDConfig.PIXCDBradesco.Scopes;
     end;
 
     with ACBrPSPSicredi1 do
@@ -262,7 +314,7 @@ begin
       ChavePIX           := pLibPIXCDConfig.PIXCDSantander.ChavePIX;
       ConsumerKey        := pLibPIXCDConfig.PIXCDSantander.ConsumerKey;
       ConsumerSecret     := pLibPIXCDConfig.PIXCDSantander.ConsumerSecret;
-      ArquivoCertificado := pLibPIXCDConfig.PIXCDSantander.ArqCertificadoPFX;
+      ArquivoPFX         := pLibPIXCDConfig.PIXCDSantander.ArqCertificadoPFX;
       SenhaPFX           := pLibPIXCDConfig.PIXCDSantander.SenhaCertificadoPFX;
       APIVersion         := pLibPIXCDConfig.PIXCDSantander.APIVersion;
       Scopes             := pLibPIXCDConfig.PIXCDSantander.Scopes;
@@ -270,9 +322,11 @@ begin
 
     with ACBrPSPPixPDV1 do
     begin
-      CNPJ  := pLibPIXCDConfig.PIXCDPixPDV.CNPJ;
-      Token := pLibPIXCDConfig.PIXCDPixPDV.Token;
-      Scopes:= pLibPIXCDConfig.PIXCDPixPDV.Scopes;
+      CNPJ         := pLibPIXCDConfig.PIXCDPixPDV.CNPJ;
+      Token        := pLibPIXCDConfig.PIXCDPixPDV.Token;
+      APIVersao    := pLibPIXCDConfig.PIXCDPixPDV.PixPDVAPIVersao;
+      ClientSecret := pLibPIXCDConfig.PIXCDPixPDV.SecretKey;
+      Scopes       := pLibPIXCDConfig.PIXCDPixPDV.Scopes;
     end;
 
     with ACBrPSPPagSeguro1 do
@@ -375,6 +429,7 @@ begin
     begin
       AuthenticationApi := pLibPIXCDConfig.PIXCDGate2All.AuthenticationApi;
       AuthenticationKey := pLibPIXCDConfig.PIXCDGate2All.AuthenticationKey;
+      Scopes            := pLibPIXCDConfig.PIXCDGate2All.Scopes;
     end;
 
     with ACBrPSPBanrisul1 do
@@ -395,6 +450,13 @@ begin
       ArquivoChavePrivada := pLibPIXCDConfig.PIXCDC6Bank.ArqChavePrivada;
       ArquivoCertificado  := pLibPIXCDConfig.PIXCDC6Bank.ArqCertificado;
       Scopes              := pLibPIXCDConfig.PIXCDC6Bank.Scopes;
+    end;
+
+    with ACBrPSPAppLess1 do
+    begin
+      ClientID           := pLibPIXCDConfig.PIXCDAppLess.ClientID;
+      ClientSecret       := pLibPIXCDConfig.PIXCDAppLess.ClientSecret;
+      SecretKeyHMAC      := pLibPIXCDConfig.PIXCDAppLess.SecretKeyHMAC;
     end;
 
     {$IFDEF Demo}

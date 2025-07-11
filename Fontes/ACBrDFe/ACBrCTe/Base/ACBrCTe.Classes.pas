@@ -47,6 +47,7 @@ uses
    System.Contnrs,
   {$IFEND}
   ACBrBase,
+  ACBrDFe.Conversao,
   pcnConversao, pcnSignature, pcteProcCTe, pcteConversaoCTe;
 
 type
@@ -82,44 +83,66 @@ type
     property pAliqEfet: Double read FpAliqEfet write FpAliqEfet;
   end;
 
-  { TgDeson }
+  { TgTribRegular }
 
-  TgDeson = class(TObject)
+  TgTribRegular = class(TObject)
   private
-    FCST: Integer;
-    FcClassTrib: Integer;
-    FvBC: Double;
-    FpAliq: Double;
-    FvDeson: Double;
+    FCSTReg: TCSTIBSCBS;
+    FcClassTribReg: TcClassTrib;
+    FpAliqEfetRegIBSUF: Double;
+    FvTribRegIBSUF: Double;
+    FpAliqEfetRegIBSMun: Double;
+    FvTribRegIBSMun: Double;
+    FpAliqEfetRegCBS: Double;
+    FvTribRegCBS: Double;
   public
-    property CST: Integer read FCST write FCST;
-    property cClassTrib: Integer read FcClassTrib write FcClassTrib;
-    property vBC: Double read FvBC write FvBC;
-    property pAliq: Double read FpAliq write FpAliq;
-    property vDeson: Double read FvDeson write FvDeson;
+    property CSTReg: TCSTIBSCBS read FCSTReg write FCSTReg;
+    property cClassTribReg: TcClassTrib read FcClassTribReg write FcClassTribReg;
+    property pAliqEfetRegIBSUF: Double read FpAliqEfetRegIBSUF write FpAliqEfetRegIBSUF;
+    property vTribRegIBSUF: Double read FvTribRegIBSUF write FvTribRegIBSUF;
+    property pAliqEfetRegIBSMun: Double read FpAliqEfetRegIBSMun write FpAliqEfetRegIBSMun;
+    property vTribRegIBSMun: Double read FvTribRegIBSMun write FvTribRegIBSMun;
+    property pAliqEfetRegCBS: Double read FpAliqEfetRegCBS write FpAliqEfetRegCBS;
+    property vTribRegCBS: Double read FvTribRegCBS write FvTribRegCBS;
   end;
 
-  { TgIBSValores }
+  { TgIBSUFValores }
 
-  TgIBSValores = class(TObject)
+  TgIBSUFValores = class(TObject)
   private
     FpIBS: Double;
-    FvTribOp: Double;
     FgDif: TgDif;
     FgDevTrib: TgDevTrib;
     FgRed: TgRed;
-    FgDeson: TgDeson;
     FvIBS: Double;
   public
     constructor Create;
     destructor Destroy; override;
 
     property pIBS: Double read FpIBS write FpIBS;
-    property vTribOp: Double read FvTribOp write FvTribOp;
     property gDif: TgDif read FgDif write FgDif;
     property gDevTrib: TgDevTrib read FgDevTrib write FgDevTrib;
     property gRed: TgRed read FgRed write FgRed;
-    property gDeson: TgDeson read FgDeson write FgDeson;
+    property vIBS: Double read FvIBS write FvIBS;
+  end;
+
+  { TgIBSMunValores }
+
+  TgIBSMunValores = class(TObject)
+  private
+    FpIBS: Double;
+    FgDif: TgDif;
+    FgDevTrib: TgDevTrib;
+    FgRed: TgRed;
+    FvIBS: Double;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property pIBS: Double read FpIBS write FpIBS;
+    property gDif: TgDif read FgDif write FgDif;
+    property gDevTrib: TgDevTrib read FgDevTrib write FgDevTrib;
+    property gRed: TgRed read FgRed write FgRed;
     property vIBS: Double read FvIBS write FvIBS;
   end;
 
@@ -128,22 +151,18 @@ type
   TgCBSValores = class(TObject)
   private
     FpCBS: Double;
-    FvTribOp: Double;
     FgDif: TgDif;
     FgDevTrib: TgDevTrib;
     FgRed: TgRed;
-    FgDeson: TgDeson;
     FvCBS: Double;
   public
     constructor Create;
     destructor Destroy; override;
 
     property pCBS: Double read FpCBS write FpCBS;
-    property vTribOp: Double read FvTribOp write FvTribOp;
     property gDif: TgDif read FgDif write FgDif;
     property gDevTrib: TgDevTrib read FgDevTrib write FgDevTrib;
     property gRed: TgRed read FgRed write FgRed;
-    property gDeson: TgDeson read FgDeson write FgDeson;
     property vCBS: Double read FvCBS write FvCBS;
   end;
 
@@ -151,15 +170,34 @@ type
 
   TgIBSCBSCredPres = class(TObject)
   private
-    FcCredPres: Integer;
+    FcCredPres: TcCredPres;
     FpCredPres: Double;
     FvCredPres: Double;
     FvCredPresCondSus: Double;
   public
-    property cCredPres: Integer read FcCredPres write FcCredPres;
+    property cCredPres: TcCredPres read FcCredPres write FcCredPres;
     property pCredPres: Double read FpCredPres write FpCredPres;
     property vCredPres: Double read FvCredPres write FvCredPres;
     property vCredPresCondSus: Double read FvCredPresCondSus write FvCredPresCondSus;
+  end;
+
+  { TgTribCompraGov }
+
+  TgTribCompraGov = class(TObject)
+  private
+    FpAliqIBSUF: Double;
+    FvTribIBSUF: Double;
+    FpAliqIBSMun: Double;
+    FvTribIBSMun: Double;
+    FpAliqCBS: Double;
+    FvTribCBS: Double;
+  public
+    property pAliqIBSUF: Double read FpAliqIBSUF write FpAliqIBSUF;
+    property vTribIBSUF: Double read FvTribIBSUF write FvTribIBSUF;
+    property pAliqIBSMun: Double read FpAliqIBSMun write FpAliqIBSMun;
+    property vTribIBSMun: Double read FvTribIBSMun write FvTribIBSMun;
+    property pAliqCBS: Double read FpAliqCBS write FpAliqCBS;
+    property vTribCBS: Double read FvTribCBS write FvTribCBS;
   end;
 
   { TgIBSCBS }
@@ -167,37 +205,52 @@ type
   TgIBSCBS = class(TObject)
   private
     FvBC: Double;
-    FgIBSUF: TgIBSValores;
-    FgIBSMun: TgIBSValores;
+    FgIBSUF: TgIBSUFValores;
+    FgIBSMun: TgIBSMunValores;
     FgCBS: TgCBSValores;
+    FgTribRegular: TgTribRegular;
     FgIBSCredPres: TgIBSCBSCredPres;
     FgCBSCredPres: TgIBSCBSCredPres;
+    FgTribCompraGov: TgTribCompraGov;
   public
     constructor Create;
     destructor Destroy; override;
 
     property vBC: Double read FvBC write FvBC;
-    property gIBSUF: TgIBSValores read FgIBSUF write FgIBSUF;
-    property gIBSMun: TgIBSValores read FgIBSMun write FgIBSMun;
+    property gIBSUF: TgIBSUFValores read FgIBSUF write FgIBSUF;
+    property gIBSMun: TgIBSMunValores read FgIBSMun write FgIBSMun;
     property gCBS: TgCBSValores read FgCBS write FgCBS;
+    property gTribRegular: TgTribRegular read FgTribRegular write FgTribRegular;
     property gIBSCredPres: TgIBSCBSCredPres read FgIBSCredPres write FgIBSCredPres;
     property gCBSCredPres: TgIBSCBSCredPres read FgCBSCredPres write FgCBSCredPres;
+    property gTribCompraGov: TgTribCompraGov read FgTribCompraGov write FgTribCompraGov;
   end;
 
   { TIBSCBS }
 
   TIBSCBS = class(TObject)
   private
-    FCST: Integer;
-    FcClassTrib: Integer;
+    FCST: TCSTIBSCBS;
+    FcClassTrib: TcClassTrib;
     FgIBSCBS: TgIBSCBS;
   public
     constructor Create;
     destructor Destroy; override;
 
-    property CST: Integer read FCST write FCST;
-    property cClassTrib: Integer read FcClassTrib write FcClassTrib;
+    property CST: TCSTIBSCBS read FCST write FCST;
+    property cClassTrib: TcClassTrib read FcClassTrib write FcClassTrib;
     property gIBSCBS: TgIBSCBS read FgIBSCBS write FgIBSCBS;
+  end;
+
+  { TgCompraGovReduzido }
+
+  TgCompraGovReduzido = class(TObject)
+  private
+    FtpEnteGov: TtpEnteGov;
+    FpRedutor: Double;
+  public
+    property tpEnteGov: TtpEnteGov read FtpEnteGov write FtpEnteGov;
+    property pRedutor: Double read FpRedutor write FpRedutor;
   end;
 
   {======== Fim das Classes da Reforma Tributária }
@@ -327,6 +380,7 @@ type
 
     FdhCont: TDateTime;
     FxJust: string;
+    FgCompraGov: TgCompraGovReduzido;
 
     procedure SetinfPercurso(Value: TinfPercursoCollection);
   public
@@ -375,6 +429,7 @@ type
 
     property dhCont: TDateTime read FdhCont write FdhCont;
     property xJust: string     read FxJust  write FxJust;
+    property gCompraGov: TgCompraGovReduzido read FgCompraGov write FgCompraGov;
   end;
 
   TPassCollectionItem = class(TObject)
@@ -1221,15 +1276,34 @@ type
     property Items[Index: Integer]: TInfOutrosCollectionItem read GetItem write SetItem; default;
   end;
 
+  TInfDCeCollectionItem = class(TObject)
+  private
+    Fchave: string;
+  public
+    property chave: string read Fchave write Fchave;
+  end;
+
+  TInfDCeCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TInfDCeCollectionItem;
+    procedure SetItem(Index: Integer; Value: TInfDCeCollectionItem);
+  public
+    function Add: TInfDCeCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TInfDCeCollectionItem;
+    property Items[Index: Integer]: TInfDCeCollectionItem read GetItem write SetItem; default;
+  end;
+
   TInfDoc = class(TObject)
   private
     FinfNF: TInfNFCollection;
     FinfNFe: TInfNFeCollection;
     FinfOutros: TInfOutrosCollection;
+    FinfDCe: TInfDCeCollection;
 
     procedure SetInfNF(const Value: TInfNFCollection);
     procedure SetInfNFe(const Value: TInfNFeCollection);
     procedure SetInfOutros(const Value: TInfOutrosCollection);
+    procedure SetInfDCe(const Value: TInfDCeCollection);
   public
     constructor Create;
     destructor Destroy; override;
@@ -1237,6 +1311,7 @@ type
     property infNF: TInfNFCollection         read FinfNF     write SetInfNF;
     property infNFe: TInfNFeCollection       read FinfNFe    write SetInfNFe;
     property infOutros: TInfOutrosCollection read FinfOutros write SetInfOutros;
+    property infDCe: TInfDCeCollection       read FinfDCe    write SetInfDCe;
   end;
 
   TIdDocAntPapCollectionItem = class(TObject)
@@ -1965,10 +2040,20 @@ type
     FvTar: Currency;
     FdIni: TDateTime;
     FdFim: TDateTime;
+    FclassDuto: TclassDuto;
+    FtpContratacao: TtpContratacao;
+    FcodPontoEntrada: string;
+    FcodPontoSaida: string;
+    FnContrato: string;
   public
     property vTar: Currency  read FvTar write FvTar;
     property dIni: TDateTime read FdIni write FdIni;
     property dFim: TDateTime read FdFim write FdFim;
+    property classDuto: TclassDuto read FclassDuto write FclassDuto;
+    property tpContratacao: TtpContratacao read FtpContratacao write FtpContratacao;
+    property codPontoEntrada: string read FcodPontoEntrada write FcodPontoEntrada;
+    property codPontoSaida: string read FcodPontoSaida write FcodPontoSaida;
+    property nContrato: string read FnContrato write FnContrato;
   end;
 
   TMultimodal = class(TObject)
@@ -2756,6 +2841,7 @@ begin
   FToma4 := TToma4.Create;
   FinfPercurso := TinfPercursoCollection.Create;
   FindGlobalizado := tiNao;
+  FgCompraGov := TgCompraGovReduzido.Create;
 end;
 
 destructor TIde.Destroy;
@@ -2763,6 +2849,7 @@ begin
   FToma03.Free;
   FToma4.Free;
   FinfPercurso.Free;
+  FgCompraGov.Free;
 
   inherited;
 end;
@@ -3259,6 +3346,7 @@ begin
   FinfNF := TInfNFCollection.Create;
   FinfNFe := TInfNFeCollection.Create;
   FinfOutros := TInfOutrosCollection.Create;
+  FinfDCe := TInfDCeCollection.Create;
 end;
 
 destructor TInfDoc.Destroy;
@@ -3266,8 +3354,14 @@ begin
   FinfNF.Free;
   FinfNFe.Free;
   FinfOutros.Free;
+  FinfDCe.Free;
 
   inherited;
+end;
+
+procedure TInfDoc.SetInfDCe(const Value: TInfDCeCollection);
+begin
+  FinfDCe := Value;
 end;
 
 procedure TInfDoc.SetInfNF(const Value: TInfNFCollection);
@@ -3494,6 +3588,30 @@ begin
   FinfUnidCarga.Free;
 
   inherited;
+end;
+
+{ TInfDCeCollection }
+
+function TInfDCeCollection.Add: TInfDCeCollectionItem;
+begin
+  Result := Self.New;
+end;
+
+function TInfDCeCollection.GetItem(Index: Integer): TInfDCeCollectionItem;
+begin
+  Result := TInfDCeCollectionItem(inherited Items[Index]);
+end;
+
+function TInfDCeCollection.New: TInfDCeCollectionItem;
+begin
+  Result := TInfDCeCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+procedure TInfDCeCollection.SetItem(Index: Integer;
+  Value: TInfDCeCollectionItem);
+begin
+  inherited Items[Index] := Value;
 end;
 
 { TDocAnt }
@@ -4820,11 +4938,13 @@ constructor TgIBSCBS.Create;
 begin
   inherited Create;
 
-  FgIBSUF := TgIBSValores.Create;
-  FgIBSMun := TgIBSValores.Create;
+  FgIBSUF := TgIBSUFValores.Create;
+  FgIBSMun := TgIBSMunValores.Create;
   FgCBS := TgCBSValores.Create;
+  FgTribRegular := TgTribRegular.Create;
   FgIBSCredPres := TgIBSCBSCredPres.Create;
   FgCBSCredPres := TgIBSCBSCredPres.Create;
+  FgTribCompraGov := TgTribCompraGov.Create;
 end;
 
 destructor TgIBSCBS.Destroy;
@@ -4832,8 +4952,10 @@ begin
   FgIBSUF.Free;
   FgIBSMun.Free;
   FgCBS.Free;
+  FgTribRegular.Free;
   FgIBSCredPres.Free;
   FgCBSCredPres.Free;
+  FgTribCompraGov.Free;
 
   inherited Destroy;
 end;
@@ -4854,24 +4976,42 @@ begin
   inherited Destroy;
 end;
 
-{ TgIBSValores }
+{ TgIBSUFValores }
 
-constructor TgIBSValores.Create;
+constructor TgIBSUFValores.Create;
 begin
   inherited Create;
 
   FgDif := TgDif.Create;
   FgDevTrib := TgDevTrib.Create;
   FgRed := TgRed.Create;
-  FgDeson := TgDeson.Create;
 end;
 
-destructor TgIBSValores.Destroy;
+destructor TgIBSUFValores.Destroy;
 begin
   FgDif.Free;
   FgDevTrib.Free;
   FgRed.Free;
-  FgDeson.Free;
+
+  inherited Destroy;
+end;
+
+{ TgIBSMunValores }
+
+constructor TgIBSMunValores.Create;
+begin
+  inherited Create;
+
+  FgDif := TgDif.Create;
+  FgDevTrib := TgDevTrib.Create;
+  FgRed := TgRed.Create;
+end;
+
+destructor TgIBSMunValores.Destroy;
+begin
+  FgDif.Free;
+  FgDevTrib.Free;
+  FgRed.Free;
 
   inherited Destroy;
 end;
@@ -4885,7 +5025,6 @@ begin
   FgDif := TgDif.Create;
   FgDevTrib := TgDevTrib.Create;
   FgRed := TgRed.Create;
-  FgDeson := TgDeson.Create;
 end;
 
 destructor TgCBSValores.Destroy;
@@ -4893,7 +5032,6 @@ begin
   FgDif.Free;
   FgDevTrib.Free;
   FgRed.Free;
-  FgDeson.Free;
 
   inherited Destroy;
 end;

@@ -422,6 +422,7 @@ begin
     SufixoTitulo := '';
 
   ImprimeTotalNoFinal := (FpNFe.Total.ICMSTot.vDesc > 0) or
+                         ((FpNFe.Total.ICMSTot.vICMSDeson > 0) and ExibeICMSDesoneradoComoDesconto) or
                          ((FpNFe.Total.ICMSTot.vOutro + FpNFe.Total.ICMSTot.vFrete + FpNFe.Total.ICMSTot.vSeg) > 0);
 
   FPosPrinter.Buffer.Add(TagLigaCondensado + PadSpace('Qtde. total de itens|' +
@@ -455,10 +456,13 @@ begin
        ColunasCondensado, '|')));
 
   if ImprimeTotalNoFinal then
-    FPosPrinter.Buffer.Add('</ae>'+TagLigaCondensado+TagLigaExpandido +
-       PadSpace('Valor a Pagar R$|' +
-       FormatFloatBr(FpNFe.Total.ICMSTot.vNF),
-       ColunasCondensado div FatorExp, '|') + TagDesligaExpandido);
+    FPosPrinter.Buffer.Add('</ae>'
+                           + TagLigaCondensado
+                           + TagLigaExpandido
+                           + PadSpace( 'Valor a Pagar R$|' + FormatFloatBr(FpNFe.Total.ICMSTot.vNF),
+                                      ColunasCondensado div FatorExp, '|')
+                           + TagDesligaExpandido
+                          );
 end;
 
 procedure TACBrNFeDANFeESCPOS.GerarPagamentos;
@@ -1002,16 +1006,7 @@ end;
 function TACBrNFeDANFeESCPOS.CalcularDadosQRCode: String;
 begin
   if EstaVazio(Trim(FpNFe.infNFeSupl.qrCode)) then
-    Result := TACBrNFe(ACBrNFe).GetURLQRCode(
-      FpNFe.ide.cUF,
-      FpNFe.ide.tpAmb,
-      FpNFe.infNFe.ID,
-      IfThen(FpNFe.Dest.idEstrangeiro <> '', FpNFe.Dest.idEstrangeiro, FpNFe.Dest.CNPJCPF),
-      FpNFe.ide.dEmi,
-      FpNFe.Total.ICMSTot.vNF,
-      FpNFe.Total.ICMSTot.vICMS,
-      FpNFe.signature.DigestValue,
-      FpNFe.infNfe.Versao)
+    Result := TACBrNFe(ACBrNFe).GetURLQRCode(FpNFe)
   else
     Result := FpNFe.infNFeSupl.qrCode;
 end;

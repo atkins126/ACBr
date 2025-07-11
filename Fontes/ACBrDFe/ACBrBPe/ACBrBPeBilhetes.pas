@@ -38,6 +38,7 @@ interface
 
 uses
   Classes, SysUtils, StrUtils,
+  ACBrBase,
   ACBrBPeConfiguracoes,
   ACBrBPeClass,
   ACBrBPeXmlReader, ACBrBPeXmlWriter,
@@ -103,7 +104,8 @@ type
 
     procedure EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings = nil;
       EnviaPDF: Boolean = True; sCC: TStrings = nil; Anexos: TStrings = nil;
-      sReplyTo: TStrings = nil);
+      sReplyTo: TStrings = nil; ManterPDFSalvo: Boolean = True;
+      sBCC: Tstrings = nil);
 
     property NomeArq: String read FNomeArq write FNomeArq;
     function CalcularNomeArquivoCompleto(NomeArquivo: String = '';
@@ -309,7 +311,7 @@ begin
 
     if Configuracoes.Geral.ModeloDF = moBPe then
     begin
-      BPe.infBPeSupl.qrCodBPe := GetURLQRCode(BPe.Ide.cUF, BPe.Ide.tpAmb, BPe.infBPe.ID);
+      BPe.infBPeSupl.qrCodBPe := GetURLQRCode(BPe);
 
       BPe.infBPeSupl.boardPassBPe := GetURLConsultaBPe(BPe.Ide.cUF, BPe.Ide.tpAmb);
 
@@ -513,11 +515,12 @@ begin
 end;
 
 procedure TBilhete.EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings;
-  EnviaPDF: Boolean; sCC: TStrings; Anexos: TStrings; sReplyTo: TStrings);
+  EnviaPDF: Boolean; sCC: TStrings; Anexos: TStrings; sReplyTo: TStrings;
+  ManterPDFSalvo: Boolean; sBCC: Tstrings);
 var
-  NomeArq_Temp : String;
-  AnexosEmail:TStrings;
-  StreamBPe : TMemoryStream;
+  NomeArqTemp: string;
+  AnexosEmail: TStrings;
+  StreamBPe: TMemoryStream;
 begin
   if not Assigned(TACBrBPe(TBilhetes(Collection).ACBrBPe).MAIL) then
     raise EACBrBPeException.Create('Componente ACBrMail não associado');
@@ -538,15 +541,18 @@ begin
         if Assigned(DABPE) then
         begin
           DABPE.ImprimirDABPEPDF(FBPe);
-          NomeArq_Temp := PathWithDelim(DABPE.PathPDF) + NumID + '-bpe.pdf';
-          AnexosEmail.Add(NomeArq_Temp);
+          NomeArqTemp := PathWithDelim(DABPE.PathPDF) + NumID + '-bpe.pdf';
+          AnexosEmail.Add(NomeArqTemp);
         end;
       end;
 
       EnviarEmail( sPara, sAssunto, sMensagem, sCC, AnexosEmail, StreamBPe,
-                   NumID + '-bpe.xml', sReplyTo);
+                   NumID + '-bpe.xml', sReplyTo, sBCC);
     end;
   finally
+    if not ManterPDFSalvo then
+      DeleteFile(NomeArqTemp);
+
     AnexosEmail.Free;
     StreamBPe.Free;
   end;
@@ -745,6 +751,11 @@ begin
   FBPeIniR.tpEmis := FConfiguracoes.Geral.FormaEmissaoCodigo;
 
   FBPeIniR.LerIni(AIniString);
+
+  if FBPe.ide.tpBPe = tbNormal then
+    FConfiguracoes.Geral.ModeloDF := moBPe
+  else
+    FConfiguracoes.Geral.ModeloDF := moBPeTM;
 
   GerarXML;
 

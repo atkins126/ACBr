@@ -38,7 +38,7 @@ interface
 
 uses
   SysUtils, Classes,
-  ACBrDFe,
+  ACBrBase, ACBrDFe,
   ACBrNFSeXParametros, ACBrNFSeXInterface, ACBrNFSeXClass, ACBrNFSeXConversao,
   ACBrNFSeXLerXml, ACBrNFSeXGravarXml, ACBrNFSeXNotasFiscais,
   ACBrNFSeXWebserviceBase, ACBrNFSeXWebservicesResponse;
@@ -85,7 +85,8 @@ type
     procedure SetXmlNameSpace(const aNameSpace: string);
     procedure SetNameSpaceURI(const aMetodo: TMetodo);
     procedure SalvarXmlRps(aNota: TNotaFiscal);
-    procedure SalvarXmlNfse(aNota: TNotaFiscal);
+    procedure SalvarXmlNfse(aNota: TNotaFiscal); overload;
+    procedure SalvarXmlNfse(const NumeroNFSe: string; const aXml: AnsiString); overload;
     procedure SalvarPDFNfse(const aNome: string; const aPDF: AnsiString);
     procedure SalvarXmlEvento(const aNome: string; const aEvento: AnsiString);
     procedure SalvarXmlCancelamento(const aNome, aCancelamento: string);
@@ -214,6 +215,9 @@ type
     function GerarXml(const aNFSe: TNFSe; var aXml, aAlerts: string): Boolean; virtual;
     function LerXML(const aXML: String; var aNFSe: TNFSe; var ATipo: TtpXML;
       var aXmlTratado: string): Boolean; virtual;
+
+    function GerarIni(const aNFSe: TNFSe): string; virtual;
+    function LerIni(const aINI: String; var aNFSe: TNFSe): Boolean; virtual;
 
     procedure GeraLote; virtual;
     procedure Emite; virtual;
@@ -672,6 +676,7 @@ begin
 
     Particularidades.PermiteMaisDeUmServico := False;
     Particularidades.PermiteTagOutrasInformacoes := False;
+    Particularidades.AtendeReformaTributaria := False;
 
     Provedor := TACBrNFSeX(FAOwner).Configuracoes.Geral.Provedor;
     Versao := TACBrNFSeX(FAOwner).Configuracoes.Geral.Versao;
@@ -1019,10 +1024,16 @@ var
   aPath, aNomeArq, Extensao, aXML: string;
   aConfig: TConfiguracoesNFSe;
   ConteudoEhXml: Boolean;
+  Data: TDateTime;
 begin
   aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
 
-  aPath := aConfig.Arquivos.GetPathNFSe(0, aConfig.Geral.Emitente.CNPJ,
+  if aConfig.Arquivos.EmissaoPathNFSe then
+    Data := aNota.NFSe.DataEmissao
+  else
+    Data := Now;
+
+  aPath := aConfig.Arquivos.GetPathNFSe(Data, aConfig.Geral.Emitente.CNPJ,
                         aConfig.Geral.Emitente.DadosEmitente.InscricaoEstadual);
 
   aNomeArq := TACBrNFSeX(FAOwner).GetNumID(aNota.NFSe) + '-nfse.xml';
@@ -1064,6 +1075,54 @@ begin
     end
     else
       TACBrNFSeX(FAOwner).Gravar(aNota.NomeArq, aXml, '', ConteudoEhXml);
+  end;
+end;
+
+procedure TACBrNFSeXProvider.SalvarXmlNfse(const NumeroNFSe: string;
+  const aXml: AnsiString);
+var
+  aPath, aNomeArq, Extensao, AuxXml: string;
+  aConfig: TConfiguracoesNFSe;
+  ConteudoEhXml: Boolean;
+begin
+  aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
+
+  aPath := aConfig.Arquivos.GetPathNFSe(0, aConfig.Geral.Emitente.CNPJ,
+                        aConfig.Geral.Emitente.DadosEmitente.InscricaoEstadual);
+
+  aNomeArq := NumeroNFSe + '-nfse.xml';
+  aNomeArq := PathWithDelim(aPath) + aNomeArq;
+
+  if FAOwner.Configuracoes.Arquivos.Salvar then
+  begin
+    case ConfigGeral.FormatoArqNota of
+      tfaJson:
+        Extensao := '.json';
+      tfaTxt:
+        Extensao := '.txt';
+    else
+      Extensao := '.xml';
+    end;
+
+    if ConfigGeral.FormatoArqNota <> tfaXml then
+    begin
+      AuxXml := RemoverDeclaracaoXML(aXml);
+      ConteudoEhXml := False;
+    end
+    else
+    begin
+      AuxXml := RemoverDeclaracaoXML(aXml);
+      ConteudoEhXml := True;
+    end;
+
+    if not ConteudoEhXml then
+    begin
+      aNomeArq := StringReplace(aNomeArq, '.xml', Extensao, [rfReplaceAll]);
+
+      WriteToTXT(aNomeArq, AuxXml, False, False);
+    end
+    else
+      TACBrNFSeX(FAOwner).Gravar(aNomeArq, AuxXml, '', ConteudoEhXml);
   end;
 end;
 
@@ -1453,6 +1512,46 @@ begin
 
     if aNFSe.Tomador.RazaoSocial = '' then
       aNFSe.Tomador.RazaoSocial := 'Tomador Não Identificado';
+  finally
+    AReader.Destroy;
+  end;
+end;
+
+function TACBrNFSeXProvider.GerarIni(const aNFSe: TNFSe): string;
+var
+  AWriter: TNFSeWClass;
+begin
+  AWriter := CriarGeradorXml(aNFSe);
+
+  try
+    Result := AWriter.GerarIni;
+
+  finally
+    AWriter.Destroy;
+  end;
+end;
+
+function TACBrNFSeXProvider.LerIni(const aINI: String;
+  var aNFSe: TNFSe): Boolean;
+var
+  AReader: TNFSeRClass;
+begin
+  AReader := CriarLeitorXml(aNFSe);
+  AReader.Arquivo := aINI;
+
+  try
+    with TACBrNFSeX(FAOwner) do
+    begin
+      if Configuracoes.WebServices.AmbienteCodigo = 1 then
+        AReader.Ambiente := taProducao
+      else
+        AReader.Ambiente := taHomologacao;
+
+      AReader.Provedor := Configuracoes.Geral.Provedor;
+      AReader.IniParams := Configuracoes.Geral.PIniParams;
+    end;
+
+    Result := AReader.LerIni;
   finally
     AReader.Destroy;
   end;
@@ -3506,6 +3605,22 @@ var
   IdAttr, Prefixo, PrefixoTS, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
+  if (Response.ModoEnvio = meTeste) and
+     (not GetConfigGeral.ServicosDisponibilizados.TestarEnvio) then
+    Exit;
+
+  if (Response.ModoEnvio = meLoteSincrono) and
+     (not GetConfigGeral.ServicosDisponibilizados.EnviarLoteSincrono) then
+    Exit;
+
+  if (Response.ModoEnvio = meLoteAssincrono) and
+     (not GetConfigGeral.ServicosDisponibilizados.EnviarLoteAssincrono) then
+    Exit;
+
+  if (Response.ModoEnvio = meUnitario) and
+     (not GetConfigGeral.ServicosDisponibilizados.EnviarUnitario) then
+    Exit;
+
   case Response.ModoEnvio of
     meTeste,
     meLoteSincrono,

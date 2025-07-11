@@ -2193,7 +2193,8 @@ function TCTeConsulta.TratarResposta: Boolean;
 
 procedure SalvarEventos(Retorno: TRetConsSitCTe);
 var
-  aIDEvento, sPathEvento, sCNPJ: string;
+  aIDEvento, sPathEvento, sCNPJCPF: string;
+  DhEvt: TDateTime;
   i, Inicio, Fim: Integer;
   TipoEvento: TpcnTpEvento;
   Ok: Boolean;
@@ -2215,12 +2216,17 @@ begin
         aIDEvento := Copy(XML, Inicio, Fim);
 
       TipoEvento  := StrToTpEventoCTe(Ok, SeparaDados(XML, 'tpEvento'));
-      sCNPJ       := SeparaDados(XML, 'CNPJ');
-      sPathEvento := PathWithDelim(FPConfiguracoesCTe.Arquivos.GetPathEvento(TipoEvento, sCNPJ));
+      DhEvt       := EncodeDataHora(SeparaDados(XML, 'dhEvento'), 'YYYY-MM-DD');
+      sCNPJCPF    := SeparaDados(XML, 'CNPJ');
+
+      if EstaVazio(sCNPJCPF) then
+        sCNPJCPF := SeparaDados(XML, 'CPF');
+
+      sPathEvento := PathWithDelim(FPConfiguracoesCTe.Arquivos.GetPathEvento(TipoEvento, sCNPJCPF, '', DhEvt));
 
       XML := StringReplace(XML, 'ds:', '', [rfReplaceAll]);
 
-      if FPConfiguracoesCTe.Arquivos.Salvar then
+      if FPConfiguracoesCTe.Arquivos.SalvarEvento and (XML <> '') then
         FPDFeOwner.Gravar( aIDEvento + '-procEventoCTe.xml', XML, sPathEvento);
     end;
   end;
@@ -2529,7 +2535,7 @@ begin
       else
       begin
         // Salva o XML de eventos retornados ao consultar um CT-e
-        if ExtrairEventos and FPConfiguracoesCTe.Arquivos.Salvar and
+        if ExtrairEventos and FPConfiguracoesCTe.Arquivos.SalvarEvento and
            (NaoEstaVazio(SeparaDados(FPRetWS, 'procEventoCTe'))) then
           SalvarEventos(CTeRetorno);
       end;
@@ -3529,7 +3535,7 @@ begin
                        Texto +
                      '</procEventoCTe>';
 
-            if FPConfiguracoesCTe.Arquivos.Salvar then
+            if FPConfiguracoesCTe.Arquivos.SalvarEvento then
             begin
               NomeArq := OnlyNumber(FEvento.Evento.Items[I].InfEvento.Id) + '-procEventoCTe.xml';
               PathArq := PathWithDelim(GerarPathEvento(FEvento.Evento.Items[I].InfEvento.CNPJ, FEvento.Evento.Items[I].InfEvento.detEvento.IE));

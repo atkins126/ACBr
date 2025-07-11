@@ -229,6 +229,10 @@ type
     Label42: TLabel;
     CheckBox2: TCheckBox;
     Label43: TLabel;
+    ACBr_MDFeDAMDFEFPDF_dpk: TCheckBox;
+    Label44: TLabel;
+    CheckBox3: TCheckBox;
+    Label45: TLabel;
     procedure btnPacotesMarcarTodosClick(Sender: TObject);
     procedure btnPacotesDesmarcarTodosClick(Sender: TObject);
     procedure VerificarCheckboxes(Sender: TObject);

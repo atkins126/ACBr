@@ -375,6 +375,25 @@ begin
 
   TDFeReportFortes.CarregarLogo(rliLogo, fpDANFSe.Logo);
 
+  if (fpDANFSe.TamanhoLogoHeight = 0) and (fpDANFSe.TamanhoLogoWidth = 0) then
+  begin
+    // Expande a logomarca
+    if fpDANFSe.ExpandeLogoMarca then
+    begin
+      rlmPrefeitura.Visible := False;
+
+      with rliLogo do
+      begin
+        Height := 130;
+        Width := 580;
+        Top := 9;
+        Left := 9;
+
+        TDFeReportFortes.AjustarLogo(rliLogo, fpDANFSe.ExpandeLogoMarcaConfig);
+      end;
+    end;
+  end;
+
   rlmPrefeitura.Lines.Clear;
   rlmPrefeitura.Lines.Add(StringReplace(fpDANFSe.Prefeitura,
                                        FQuebradeLinha, #13#10, [rfReplaceAll]));
@@ -395,7 +414,10 @@ begin
 
     rllCodVerificacao.Caption := ACBrStr(CodigoVerificacao);
 
-    rllCompetencia.Caption := IfThen(Competencia > 0, FormatDateTime('mm/yyyy', Competencia), '');
+    if fpDANFSe.DataCompetenciaCompleta then
+      rllCompetencia.Caption := IfThen(Competencia > 0, FormatDateTime('dd/mm/yyyy', Competencia), '')
+    else
+      rllCompetencia.Caption := IfThen(Competencia > 0, FormatDateTime('mm/yyyy', Competencia), '');
 
     rllNumeroRps.Caption := IdentificacaoRps.Numero;
 
@@ -618,6 +640,8 @@ procedure TfrlXDANFSeRLRetrato.rlbTomadorBeforePrint(Sender: TObject;
   var PrintIt: Boolean);
 begin
   inherited;
+
+  fpDANFSe.SetDadosTomador(fpNFSe);
 
   with fpNFSe.Tomador do
   begin

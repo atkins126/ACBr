@@ -180,9 +180,11 @@ type
   private
     FPermiteMaisDeUmServico: Boolean;
     FPermiteTagOutrasInformacoes: Boolean;
+    FAtendeReformaTributaria: Boolean;
   public
     property PermiteMaisDeUmServico: Boolean read FPermiteMaisDeUmServico write FPermiteMaisDeUmServico;
     property PermiteTagOutrasInformacoes: Boolean read FPermiteTagOutrasInformacoes write FPermiteTagOutrasInformacoes;
+    property AtendeReformaTributaria: Boolean read FAtendeReformaTributaria write FAtendeReformaTributaria;
   end;
 
   { TGeralConfNFSe }
@@ -378,10 +380,10 @@ end;
 
 procedure TConfiguracoesNFSe.Assign(DeConfiguracoesNFSe: TConfiguracoesNFSe);
 begin
+  Arquivos.Assign(DeConfiguracoesNFSe.Arquivos);
   Geral.Assign(DeConfiguracoesNFSe.Geral);
   WebServices.Assign(DeConfiguracoesNFSe.WebServices);
   Certificados.Assign(DeConfiguracoesNFSe.Certificados);
-  Arquivos.Assign(DeConfiguracoesNFSe.Arquivos);
 end;
 
 function TConfiguracoesNFSe.GetArquivos: TArquivosConfNFSe;
@@ -549,7 +551,7 @@ begin
   FVersao := StrToVersaoNFSe(Ok, FPIniParams.ReadString(CodIBGE, 'Versao', '1.00'));
 
   if (FxMunicipio <> '') and (FxProvedor = '') and (FLayoutNFSe = lnfsProvedor) then
-    raise EACBrDFeException.Create('CodIBGE/Município: [' + CodIBGE +'/'+FxMunicipio +
+    raise EACBrNFSeException.Create('CodIBGE/Município: [' + CodIBGE +'/'+FxMunicipio +
             '] não está associado a nenhum Provedor.');
 
   FProvedor := StrToProvedor(FxProvedor);
@@ -562,7 +564,7 @@ begin
   end;
 
   if FProvedor = proNenhum then
-    raise EACBrDFeException.Create('Código do Município [' + CodIBGE +
+    raise EACBrNFSeException.Create('Código do Município [' + CodIBGE +
             '] não Encontrado.');
 
   ACBrNFSeXLocal.SetProvider;

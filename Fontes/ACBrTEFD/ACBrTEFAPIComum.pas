@@ -89,6 +89,7 @@ type
   TACBrTEFAPIDadosAutomacao = class( TPersistent )
   private
     fAutoAtendimento: Boolean;
+    fMensagemPinPad: String;
     fNomeSoftwareHouse: String;
     fNomeAplicacao: String;
     fVersaoAplicacao: String;
@@ -113,6 +114,7 @@ type
     property CNPJSoftwareHouse: String read fCNPJSoftwareHouse write fCNPJSoftwareHouse;
     property NomeAplicacao: String read fNomeAplicacao write SetNomeAplicacao ;
     property VersaoAplicacao: String read fVersaoAplicacao write SetVersaoAplicacao ;
+    property MensagemPinPad: String read fMensagemPinPad write fMensagemPinPad;
 
     Property SuportaSaque: Boolean read fSuportaSaque write fSuportaSaque default False;
     Property SuportaDesconto: Boolean read fSuportaDesconto write fSuportaDesconto default False;
@@ -236,6 +238,7 @@ type
       AStatus: TACBrTEFStatusTransacao = tefstsSucessoManual); virtual;
 
     procedure AbortarTransacaoEmAndamento; virtual;
+    procedure FinalizarVenda; virtual;
 
     property Inicializado: Boolean read fpInicializado;
     property OperacaoEmAndamento: TACBrTEFAPIMetodo read fpMetodoOperacao;
@@ -391,6 +394,7 @@ type
     procedure EstornarTransacoesPendentes;
     procedure CancelarOuEstornarTransacoesDiretorioTrabalho;
     procedure FinalizarTransacoesPendentes(Status: TACBrTEFStatusTransacao = tefstsSucessoAutomatico);
+    procedure FinalizarVenda;
 
     procedure GravarLog(const AString: AnsiString); virtual;
 
@@ -459,6 +463,7 @@ begin
   fNomeSoftwareHouse := '';
   fNomeAplicacao := '';
   fVersaoAplicacao := '';
+  fMensagemPinPad := '';
   fImprimeViaClienteReduzida := False;
   fSuportaDesconto := False;
   fSuportaSaque := False;
@@ -479,6 +484,7 @@ begin
     fNomeSoftwareHouse := DadosSource.NomeSoftwareHouse;
     fNomeAplicacao := DadosSource.NomeAplicacao;
     fVersaoAplicacao := DadosSource.VersaoAplicacao;
+    fMensagemPinPad := DadosSource.MensagemPinPad;
     fImprimeViaClienteReduzida := DadosSource.ImprimeViaClienteReduzida;
     fSuportaDesconto := DadosSource.SuportaDesconto;
     fSuportaSaque := DadosSource.SuportaSaque;
@@ -859,6 +865,11 @@ end;
 procedure TACBrTEFAPIComumClass.AbortarTransacaoEmAndamento;
 begin
   ErroAbstract('AbortarTransacaoEmAndamento');
+end;
+
+procedure TACBrTEFAPIComumClass.FinalizarVenda;
+begin
+  { Nada a fazer, sobreescrever se necessário }
 end;
 
 procedure TACBrTEFAPIComumClass.InicializarChamadaAPI(
@@ -1533,6 +1544,8 @@ begin
   finally
     RespostasTEFAtuais.Free;
   end;
+
+  FinalizarVenda;
 end;
 
 procedure TACBrTEFAPIComum.FinalizarTransacoesPendentes(Status: TACBrTEFStatusTransacao);
@@ -1554,6 +1567,17 @@ begin
                           ATEFResp.Finalizacao,
                           Status );
     end;
+  end;
+
+  FinalizarVenda;
+end;
+
+procedure TACBrTEFAPIComum.FinalizarVenda;
+begin
+  if (RespostasTEF.Count > 0) then
+  begin
+    GravarLog('FinalizarVenda');
+    fpTEFAPIClass.FinalizarVenda;
   end;
 end;
 

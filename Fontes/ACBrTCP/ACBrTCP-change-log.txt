@@ -36,6 +36,19 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+28/05/2025
+-- ACBrWinINetReqResp --
+[*] Melhoria em 'TACBrWinINetReqResp.CloseConnection', para limpar dados e
+    arquivos temporários de navegação da sessão
+    https://www.projetoacbr.com.br/forum/topic/83433-acbrtcp-acbrwininetreqresp-encerrar-sess%C3%A3o/
+    (por: DSA)
+
+12/05/2025
+-- ACBrIBGE --
+[-] Workaround para retorno inválido do IBGE, quando "microrregiao": null,
+    https://www.projetoacbr.com.br/forum/topic/83170-acbribge-argument-out-of-range/
+    (por: DSA)
+
 11/02/2025
 -- ACBrCupomVerde --
 [+] Inclusão do novo componente ACBrCupomVerde.

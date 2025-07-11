@@ -42,6 +42,23 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+26/05/2025
+-- ACBrLibBoletoRespostas --
+[*] TK-6783 Mapeado o retorno DataRegistro; 
+    https://www.projetoacbr.com.br/forum/topic/82408-acbrlibboleto-c-m%C3%A9todo-consultartitulosporperiodo-n%C3%A3o-informa-data-de-registro-dos-boletos/#comment-534372
+    Por: Daniel de Morais InfoCotidiano
+
+12/05/2025
+-- ACBrLibBoletoRespostas --
+[*] TK-7041 Realizado o mapeamento das propriedades do pix txid e url no retorno; 
+    https://www.projetoacbr.com.br/forum/topic/83149-%E2%80%8B%E2%80%8B%E2%80%8B%E2%80%8B%E2%80%8B%E2%80%8B%E2%80%8B124y-chavepix-sicred-arquivo-retorno/
+    Por: Daniel de Morais InfoCotidiano
+
+31/03/2025
+-- ACBrBoletoBase, ACBrBoletoMT, ACBrBoletoServicosMT, ACBrBoletoServicosST, ACBrBoletoST --
+[*] #TK-6723: Implementada opção de geração do boleto em arquivo pdf.
+    Por: Renato Rubinho
+
 05/03/2025
 -- ACBrLibBoleto.lpi, ACBrLibBoletoDemo.lpi, ACBrLibBoletoConsoleMT.lpi e ACBrLibBoletoConsoleMTDemo.lpi--
 [*] Realizado ajustes nos paths para compilação com os novos scripts do Jenkins.

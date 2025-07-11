@@ -38,7 +38,7 @@ interface
 
 uses
   SysUtils, Classes, Variants,
-  ACBrDFeSSL,
+  ACBrBase, ACBrDFeSSL,
   ACBrXmlBase, ACBrXmlDocument,
   ACBrNFSeXNotasFiscais,
   ACBrNFSeXClass, ACBrNFSeXConversao,
@@ -135,7 +135,8 @@ begin
       else
         sIndTomador := '3';
 
-    sTomador := sIndTomador + Poem_Zeros(sCPFCNPJTomador, 14);
+//    sTomador := sIndTomador + Poem_Zeros(sCPFCNPJTomador, 14);
+    sTomador := Poem_Zeros(sCPFCNPJTomador, 14);
 
     // Prestador Intermediario
     sCPFCNPJInter := OnlyNumber(NFSe.Intermediario.Identificacao.CpfCnpj);
@@ -160,7 +161,8 @@ begin
                    PadRight(NFSe.IdentificacaoRps.Serie, 5 , ' ') +
                    Poem_Zeros(NFSe.IdentificacaoRps.Numero, 12) +
                    FormatDateTime('yyyymmdd', NFse.DataEmissao) +
-                   PadRight(TipoTributacaoRPSToStr(NFSe.TipoTributacaoRPS), 2, ' ') +
+//                   PadRight(TipoTributacaoRPSToStr(NFSe.TipoTributacaoRPS), 2, ' ') +
+                   PadRight(TributacaoToStr(NFSe.Servico.Tributacao), 2, ' ') +
                    sSituacao +
                    sISSRetido +
                    Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorServicos)), 15) +
@@ -337,6 +339,9 @@ begin
   begin
     Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
     Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr);
+    if Descricao = '' then begin
+       Descricao := ANodeArray[I].AsString;
+    end;
 
     ANodeAux := ANodeArray[I].Childrens.FindAnyNs('ChaveRPS');
     if (ANodeAux <> nil) then

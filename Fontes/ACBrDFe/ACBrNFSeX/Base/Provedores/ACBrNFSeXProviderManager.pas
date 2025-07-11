@@ -201,6 +201,7 @@ uses
   SigISS.Provider,
   SigISSWeb.Provider,
   Simple.Provider,
+  Smart4.Provider,
   SoftPlan.Provider,
   WebFisco.Provider,
   XTRTecnologia.Provider;
@@ -344,6 +345,7 @@ begin
           case Versao of
             ve200: Result := TACBrNFSeProviderfintelISS200.Create(ACBrNFSe);
             ve202: Result := TACBrNFSeProviderfintelISS202.Create(ACBrNFSe);
+            ve204: Result := TACBrNFSeProviderfintelISS204.Create(ACBrNFSe);
           else
             Result := nil;
           end;
@@ -356,7 +358,17 @@ begin
       proGeisWeb:    Result := TACBrNFSeProviderGeisWeb.Create(ACBrNFSe);
       progeNFe:      Result := TACBrNFSeProvidergeNFe.Create(ACBrNFSe);
       proGestaoISS:  Result := TACBrNFSeProviderGestaoISS202.Create(ACBrNFSe);
-      proGiap:       Result := TACBrNFSeProviderGiap.Create(ACBrNFSe);
+
+      proGiap:
+        begin
+          case Versao of
+            ve100: Result := TACBrNFSeProviderGiap.Create(ACBrNFSe);
+            ve101: Result := TACBrNFSeProviderGiap101.Create(ACBrNFSe);
+          else
+            Result := nil;
+          end;
+        end;
+
       proGinfes:     Result := TACBrNFSeProviderGinfes.Create(ACBrNFSe);
       proGiss:       Result := TACBrNFSeProviderGiss204.Create(ACBrNFSe);
       proGovBr:      Result := TACBrNFSeProviderGovBr.Create(ACBrNFSe);
@@ -608,6 +620,7 @@ begin
           end;
         end;
 
+      proSmart4:   Result := TACBrNFSeProviderSmart4.Create(ACBrNFSe);
       proSoftPlan: Result := TACBrNFSeProviderSoftPlan.Create(ACBrNFSe);
       proSpeedGov: Result := TACBrNFSeProviderSpeedGov.Create(ACBrNFSe);
 

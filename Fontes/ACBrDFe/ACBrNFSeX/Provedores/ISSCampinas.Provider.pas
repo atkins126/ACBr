@@ -38,7 +38,7 @@ interface
 
 uses
   SysUtils, Classes, Variants,
-  ACBrDFeSSL,
+  ACBrBase, ACBrDFeSSL,
   ACBrXmlBase, ACBrXmlDocument,
   ACBrNFSeXNotasFiscais,
   ACBrNFSeXClass, ACBrNFSeXConversao,
@@ -1913,7 +1913,7 @@ end;
 function TACBrNFSeXWebserviceISSCampinas203.TratarXmlRetornado(
   const aXML: string): string;
 begin
-  Result := ConverteANSIparaUTF8(aXML);
+  Result := ConverteANSItoUTF8(aXML);
   Result := RemoverDeclaracaoXML(Result);
 
   Result := inherited TratarXmlRetornado(Result);
@@ -1926,6 +1926,7 @@ end;
 procedure TACBrNFSeProviderISSCampinas203.Configuracao;
 begin
   inherited Configuracao;
+  ConfigGeral.QuebradeLinha := '\s\n';
 
   with ConfigWebServices do
   begin

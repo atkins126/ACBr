@@ -36,27 +36,24 @@ unit ACBrBoletoWS;
 interface
 
 uses
-  Classes,
-  SysUtils,
+  Classes, SysUtils, dateutils, strutils,
+  ACBrBase,
   ACBrBoleto,
   pcnGerador,
   pcnLeitor,
-  ACBrUtil.Strings,
   pcnConversao,
-  synacode,
-  synautil,
+  synacode, synautil, httpsend,
   ACBrJSON,
   ACBrBoletoConversao,
   ACBrBoletoRetorno,
   ACBrDFeSSL,
-  dateutils,
-  strutils,
   ACBrUtil.Base,
+  ACBrUtil.Strings,
   ACBrUtil.FilesIO,
   ACBrUtil.XMLHTML,
-  httpsend,
+  ACBrUtil.DateTime,
   ACBrBoletoWS.Rest.OAuth,
-  ACBrUtil.DateTime;
+  ACBrBoletoWS.URL;
 
 type
 
@@ -65,7 +62,9 @@ type
   TBoletoWS          = class;
   TRetornoEnvioClass = class;
 
-    { TBoletoWSClass }
+
+
+  { TBoletoWSClass }
   TBoletoWSClass = class
   private
     FGerador     : TGerador;
@@ -77,7 +76,7 @@ type
     FRetornoBanco: TRetornoEnvioClass;
     FOAuth       : TOAuth;
   protected
-
+    FPURL          : TACBrBoletoWebServiceURL;
     FRetornoWS   : String;
     FPDadosMsg   : String;
     FTipoRegistro: String;
@@ -217,8 +216,6 @@ uses
   ACBrBoletoRet_BancoBrasil,
   ACBrBoletoW_BancoBrasil_API,
   ACBrBoletoRet_BancoBrasil_API,
-  ACBrBoletoW_Itau,
-  ACBrBoletoRet_Itau,
   ACBrBoletoW_Credisis,
   ACBrBoletoRet_Credisis,
   ACBrBoletoW_Sicredi_APIECOMM,
@@ -320,6 +317,8 @@ begin
 
   FIntervaloEnvio := 0;
   FQuantidadeMaximoEnvioIntervalo := 0;
+
+  FPURL           := TACBrBoletoWebServiceURL.Create(FBoletoWS.FBoleto.Configuracoes.WebService);
 end;
 
 destructor TBoletoWSClass.Destroy;
@@ -327,6 +326,7 @@ begin
   FGerador.Free;
   FOAuth.Free;
   FHTTPSend.Destroy;
+  FPURL.Free;
   inherited Destroy;
 end;
 
@@ -406,8 +406,7 @@ begin
         end
         else
         begin
-          FBoletoWSClass := TBoletoW_Itau.Create(Self);
-          FRetornoBanco  := TRetornoEnvio_Itau.Create(FBoleto);
+          raise EACBrBoletoWSException.Create(ACBrStr('Versão não implementada ou descontinuada pelo banco, verifique qual utilizar.'));
         end;
 
       end;

@@ -106,17 +106,25 @@ type
   TStatusACBreSocial      = (stIdle, stEnvLoteEventos, stConsultaLote,
                              stConsultaIdentEvt, stDownloadEvt);
 
-  TTipoEvento             = (teS1000, teS1005, teS1010, teS1020, teS1030, teS1035, teS1040, teS1050,
-                             teS1060, teS1070, teS1080, teS2100, teS1200, teS1202, teS1207, teS1210,
-                             teS1220, teS1250, teS1260, teS1270, teS1280, teS1295, teS1298, teS1299,
-                             teS1300, teS2190, teS2200, teS2205, teS2206, teS2210, teS2220, teS2230,
-                             teS2240, teS2245, teS2250, teS2260, teS2298, teS2299, teS2300, teS2305,
-                             teS2306, teS2399, teS2400, teS3000, teS4000, teS4999, teS2231, teS5002,
-                             teS5003, teS5011, teS5012, teS5013, teS2221, teS2405, teS2410, teS5001,
-                             teS2416, teS2418, teS2420, teS2500, teS2501, teS2555, teS3500, teS5501,
-                             teS5503, teS8299, teConsultaIdentEventos, teConsultaLoteEventos, teDownloadEventos, teEnvioLoteEventos,
-                             teErro, teRetornoEnvioLoteEventos, teRetornoEvento, teRetornoProcessamentoLote,
-                             teInsApo, teAdesao, teCadInicial, teASO, teNaoIdentificado
+  TTipoEvento             = (teS1000, teS1005, teS1010, teS1020, teS1030,
+                             teS1035, teS1040, teS1050, teS1060, teS1070,
+                             teS1080, teS2100, teS1200, teS1202, teS1207,
+                             teS1210, teS1220, teS1250, teS1260, teS1270,
+                             teS1280, teS1295, teS1298, teS1299, teS1300,
+                             teS2190, teS2200, teS2205, teS2206, teS2210,
+                             teS2220, teS2230, teS2240, teS2245, teS2250,
+                             teS2260, teS2298, teS2299, teS2300, teS2305,
+                             teS2306, teS2399, teS2400, teS3000, teS4000,
+                             teS4999, teS2231, teS5002, teS5003, teS5011,
+                             teS5012, teS5013, teS2221, teS2405, teS2410,
+                             teS5001, teS2416, teS2418, teS2420, teS2500,
+                             teS2501, teS2555, teS3500, teS5501, teS5503,
+                             teS8299, teConsultaIdentEventos, teConsultaLoteEventos,
+                             teDownloadEventos, teEnvioLoteEventos,
+                             teErro, teRetornoEnvioLoteEventos,
+                             teRetornoEvento, teRetornoProcessamentoLote,
+                             teInsApo, teAdesao, teCadInicial,
+                             teASO, teNaoIdentificado
                              );
   const
     TTipoEventoString   : array[0..78] of String =('S-1000', 'S-1005', 'S-1010', 'S-1020', 'S-1030',
@@ -128,9 +136,9 @@ type
                                                    'S-2220', 'S-2230', 'S-2240', 'S-2245', 'S-2250',
                                                    'S-2260', 'S-2298', 'S-2299', 'S-2300', 'S-2305',
                                                    'S-2306', 'S-2399', 'S-2400', 'S-3000', 'S-4000',
-                                                   'S-4999', 'S-5001', 'S-5002', 'S-5003', 'S-5011',
+                                                   'S-4999', 'S-2231', 'S-5002', 'S-5003', 'S-5011',
                                                    'S-5012', 'S-5013', 'S-2221', 'S-2405', 'S-2410',
-                                                   'S-2231', 'S-2416', 'S-2418', 'S-2420', 'S-2500',
+                                                   'S-5001', 'S-2416', 'S-2418', 'S-2420', 'S-2500',
                                                    'S-2501', 'S-2555', 'S-3500', 'S-5501', 'S-5503',
                                                    'S-8299', 'S-CONSULTAIDENTEVENTOS', 'S-CONSULTALOTEEVENTOS',
                                                    'S-DOWNLOADEVENTOS', 'S-ENVIOLOTEEVENTOS',
@@ -263,6 +271,9 @@ type
                              ciiIncidenciasuspensajudicialBCIRRFRRA,                             {95}    { Item válido até a versão 2.5 }
                              ciiRendimentoIsentoAuxilioMoradia,                                  {700}   { Item válido a partir da versão simplificada }
                              ciiRendimentoParteNaoTributavelDoValorDeServicoDeTransporte,        {701}   { Item válido a partir da versão simplificada }
+                             ciiRendimentoBolsaMedicoResidenteRemuneracaoMensal,                 {702}
+                             ciiRendimentoBolsaMedicoResidenteDecimoTerceiro,                    {703}
+                             ciiRendimentoJurosMoraRecebidosPeloAtrasoNoPagto,                   {704}
                              ciiRendimentoTributavelExigibilidadeSuspensaRemuneracaoMensal,      {9011}  { Item válido a partir da versão simplificada }
                              ciiRendimentoTributavelExigibilidadeSuspensaDecimoTerceiro,         {9012}  { Item válido a partir da versão simplificada }
                              ciiRendimentoTributavelExigibilidadeSuspensaFerias,                 {9013}  { Item válido a partir da versão simplificada }
@@ -299,7 +310,8 @@ type
                                                               '34',   '35',   '41',   '42',   '43',   '44',   '46',   '47',   '48',   '51',   '52',
                                                               '53',   '54',   '55',   '61',   '62',   '63',   '64',   '65',   '66',   '67',   '68',
                                                               '70',   '71',   '72',   '73',   '74',   '75',   '76',   '77',   '78',   '79',   '81',
-                                                              '82',   '83',   '91',   '92',   '93',   '94',   '95',   '700',  '701',  '9011', '9012',
+                                                              '82',   '83',   '91',   '92',   '93',   '94',   '95',   '700',  '701',  '702',  '703',
+                                                              '704',  '9011', '9012',
                                                               '9013', '9014', '9031', '9032', '9033', '9034', '9831', '9832', '9833', '9834', '9041',
                                                               '9042', '9043', '9046', '9047', '9048', '9051', '9052', '9053', '9054', '9061', '9062',
                                                               '9063', '9064', '9065', '9066', '9067', '9082', '9083'  );

@@ -252,6 +252,7 @@ type
     tsOutros: TTabSheet;
     btnLerArqINI: TButton;
     btnGerarArqINI: TButton;
+    rgReformaTributaria: TRadioGroup;
 
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
@@ -340,6 +341,7 @@ uses
   ACBrUtil.XMLHTML,
   pcnConversao,
   ACBrXmlBase,
+  ACBrDFe.Conversao,
   ACBrDFeConfiguracoes, ACBrDFeSSL, ACBrDFeOpenSSL, ACBrDFeUtil,
   ACBrBPeClass,
   ACBrBPeConversao, ACBrDFeComum.ConsReciDFe,
@@ -481,6 +483,13 @@ begin
     //   Ide.dhCont  := Now;
 //   Ide.xJust   := 'Motivo da Contingência';
 
+    // Reforma tributária
+    if rgReformaTributaria.ItemIndex = 0 then
+    begin
+      Ide.gCompraGov.tpEnteGov := tcgUniao;
+      Ide.gCompraGov.pRedutor := 2;
+    end;
+
     //
     // Dados do Emitente
     //
@@ -509,8 +518,8 @@ begin
     // Dados do Comprador
     //
     Comp.xNome   := 'Nome do Comprador';
-    Comp.CNPJCPF := '06760213874';
-    Comp.IE      := '';
+    Comp.CNPJCPF := '12345678901';
+    Comp.IE      := '12345678';
 
     Comp.EnderComp.xLgr    := 'Nome do Logradouro';
     Comp.EnderComp.Nro     := 'Numero';
@@ -562,7 +571,7 @@ begin
     // Informações sobre o Passageiro
     //
     infPassagem.infPassageiro.xNome := 'Nome do Passageiro';
-    infPassagem.infPassageiro.CPF   := '06760213874';
+    infPassagem.infPassageiro.CPF   := '12345678901';
     infPassagem.infPassageiro.tpDoc := tdRG;
     infPassagem.infPassageiro.nDoc  := '12345678'; // Numero do documento
 //   infPassagem.infPassageiro.dNasc := StrToDate('10/10/1970');
@@ -633,6 +642,67 @@ begin
 
     Imp.vTotTrib   := 0.00;
     Imp.infAdFisco := '';
+
+    // Reforma Tributária
+    if rgReformaTributaria.ItemIndex = 0 then
+    begin
+      Imp.vTotDFe := 100;
+      Imp.IBSCBS.CST := cst000;
+      Imp.IBSCBS.cClassTrib := ct000001;
+
+      Imp.IBSCBS.gIBSCBS.vBC := 100;
+
+      Imp.IBSCBS.gIBSCBS.gIBSUF.pIBS := 5;
+      Imp.IBSCBS.gIBSCBS.gIBSUF.gDif.pDif := 5;
+      Imp.IBSCBS.gIBSCBS.gIBSUF.gDif.vDif := 50;
+      Imp.IBSCBS.gIBSCBS.gIBSUF.gDevTrib.vDevTrib := 50;
+      Imp.IBSCBS.gIBSCBS.gIBSUF.gRed.pRedAliq := 5;
+      Imp.IBSCBS.gIBSCBS.gIBSUF.gRed.pAliqEfet := 5;
+      Imp.IBSCBS.gIBSCBS.gIBSUF.vIBS := 50;
+
+      Imp.IBSCBS.gIBSCBS.gIBSMun.pIBS := 5;
+      Imp.IBSCBS.gIBSCBS.gIBSMun.gDif.pDif := 5;
+      Imp.IBSCBS.gIBSCBS.gIBSMun.gDif.vDif := 50;
+      Imp.IBSCBS.gIBSCBS.gIBSMun.gDevTrib.vDevTrib := 50;
+      Imp.IBSCBS.gIBSCBS.gIBSMun.gRed.pRedAliq := 5;
+      Imp.IBSCBS.gIBSCBS.gIBSMun.gRed.pAliqEfet := 5;
+      Imp.IBSCBS.gIBSCBS.gIBSMun.vIBS := 50;
+
+      Imp.IBSCBS.gIBSCBS.gCBS.pCBS := 5;
+      Imp.IBSCBS.gIBSCBS.gCBS.gDif.pDif := 5;
+      Imp.IBSCBS.gIBSCBS.gCBS.gDif.vDif := 50;
+      Imp.IBSCBS.gIBSCBS.gCBS.gDevTrib.vDevTrib := 50;
+      Imp.IBSCBS.gIBSCBS.gCBS.gRed.pRedAliq := 5;
+      Imp.IBSCBS.gIBSCBS.gCBS.gRed.pAliqEfet := 5;
+      Imp.IBSCBS.gIBSCBS.gCBS.vCBS := 50;
+
+      Imp.IBSCBS.gIBSCBS.gTribRegular.CSTReg := cst000;
+      Imp.IBSCBS.gIBSCBS.gTribRegular.cClassTribReg := ct000001;
+      Imp.IBSCBS.gIBSCBS.gTribRegular.pAliqEfetRegIBSUF := 5;
+      Imp.IBSCBS.gIBSCBS.gTribRegular.vTribRegIBSUF := 50;
+      Imp.IBSCBS.gIBSCBS.gTribRegular.pAliqEfetRegIBSMun := 5;
+      Imp.IBSCBS.gIBSCBS.gTribRegular.vTribRegIBSMun := 50;
+      Imp.IBSCBS.gIBSCBS.gTribRegular.pAliqEfetRegCBS := 5;
+      Imp.IBSCBS.gIBSCBS.gTribRegular.vTribRegCBS := 50;
+
+      Imp.IBSCBS.gIBSCBS.gIBSCredPres.cCredPres := cp01;
+      Imp.IBSCBS.gIBSCBS.gIBSCredPres.pCredPres := 5;
+      Imp.IBSCBS.gIBSCBS.gIBSCredPres.vCredPres := 50;
+      Imp.IBSCBS.gIBSCBS.gIBSCredPres.vCredPresCondSus := 50;
+
+      Imp.IBSCBS.gIBSCBS.gCBSCredPres.cCredPres := cp01;
+      Imp.IBSCBS.gIBSCBS.gCBSCredPres.pCredPres := 5;
+      Imp.IBSCBS.gIBSCBS.gCBSCredPres.vCredPres := 50;
+      Imp.IBSCBS.gIBSCBS.gCBSCredPres.vCredPresCondSus := 50;
+
+      // Tipo Tributação Compra Governamental
+      Imp.IBSCBS.gIBSCBS.gTribCompraGov.pAliqIBSUF := 5;
+      Imp.IBSCBS.gIBSCBS.gTribCompraGov.vTribIBSUF := 50;
+      Imp.IBSCBS.gIBSCBS.gTribCompraGov.pAliqIBSMun := 5;
+      Imp.IBSCBS.gIBSCBS.gTribCompraGov.vTribIBSMun := 50;
+      Imp.IBSCBS.gIBSCBS.gTribCompraGov.pAliqCBS := 5;
+      Imp.IBSCBS.gIBSCBS.gTribCompraGov.vTribCBS := 50;
+    end;
 
     //
     // Informações sobre o Pagamento
@@ -711,6 +781,13 @@ begin
 //   Ide.dhCont  := Now;
 //   Ide.xJust   := 'Motivo da Contingência';
 
+    // Reforma tributária
+    if rgReformaTributaria.ItemIndex = 0 then
+    begin
+      Ide.gCompraGov.tpEnteGov := tcgUniao;
+      Ide.gCompraGov.pRedutor := 2;
+    end;
+
     //
     // Dados do Emitente
     //
@@ -769,6 +846,67 @@ begin
 
         Imp.infAdFisco := '';
 
+        // Reforma Tributária
+        if rgReformaTributaria.ItemIndex = 0 then
+        begin
+          Imp.vTotDFe := 0; // No BPeTM essa informação se encontra em total.
+          Imp.IBSCBS.CST := cst000;
+          Imp.IBSCBS.cClassTrib := ct000001;
+
+          Imp.IBSCBS.gIBSCBS.vBC := 100;
+
+          Imp.IBSCBS.gIBSCBS.gIBSUF.pIBS := 5;
+          Imp.IBSCBS.gIBSCBS.gIBSUF.gDif.pDif := 5;
+          Imp.IBSCBS.gIBSCBS.gIBSUF.gDif.vDif := 50;
+          Imp.IBSCBS.gIBSCBS.gIBSUF.gDevTrib.vDevTrib := 50;
+          Imp.IBSCBS.gIBSCBS.gIBSUF.gRed.pRedAliq := 5;
+          Imp.IBSCBS.gIBSCBS.gIBSUF.gRed.pAliqEfet := 5;
+          Imp.IBSCBS.gIBSCBS.gIBSUF.vIBS := 50;
+
+          Imp.IBSCBS.gIBSCBS.gIBSMun.pIBS := 5;
+          Imp.IBSCBS.gIBSCBS.gIBSMun.gDif.pDif := 5;
+          Imp.IBSCBS.gIBSCBS.gIBSMun.gDif.vDif := 50;
+          Imp.IBSCBS.gIBSCBS.gIBSMun.gDevTrib.vDevTrib := 50;
+          Imp.IBSCBS.gIBSCBS.gIBSMun.gRed.pRedAliq := 5;
+          Imp.IBSCBS.gIBSCBS.gIBSMun.gRed.pAliqEfet := 5;
+          Imp.IBSCBS.gIBSCBS.gIBSMun.vIBS := 50;
+
+          Imp.IBSCBS.gIBSCBS.gCBS.pCBS := 5;
+          Imp.IBSCBS.gIBSCBS.gCBS.gDif.pDif := 5;
+          Imp.IBSCBS.gIBSCBS.gCBS.gDif.vDif := 50;
+          Imp.IBSCBS.gIBSCBS.gCBS.gDevTrib.vDevTrib := 50;
+          Imp.IBSCBS.gIBSCBS.gCBS.gRed.pRedAliq := 5;
+          Imp.IBSCBS.gIBSCBS.gCBS.gRed.pAliqEfet := 5;
+          Imp.IBSCBS.gIBSCBS.gCBS.vCBS := 50;
+
+          Imp.IBSCBS.gIBSCBS.gTribRegular.CSTReg := cst000;
+          Imp.IBSCBS.gIBSCBS.gTribRegular.cClassTribReg := ct000001;
+          Imp.IBSCBS.gIBSCBS.gTribRegular.pAliqEfetRegIBSUF := 5;
+          Imp.IBSCBS.gIBSCBS.gTribRegular.vTribRegIBSUF := 50;
+          Imp.IBSCBS.gIBSCBS.gTribRegular.pAliqEfetRegIBSMun := 5;
+          Imp.IBSCBS.gIBSCBS.gTribRegular.vTribRegIBSMun := 50;
+          Imp.IBSCBS.gIBSCBS.gTribRegular.pAliqEfetRegCBS := 5;
+          Imp.IBSCBS.gIBSCBS.gTribRegular.vTribRegCBS := 50;
+
+          Imp.IBSCBS.gIBSCBS.gIBSCredPres.cCredPres := cp01;
+          Imp.IBSCBS.gIBSCBS.gIBSCredPres.pCredPres := 5;
+          Imp.IBSCBS.gIBSCBS.gIBSCredPres.vCredPres := 50;
+          Imp.IBSCBS.gIBSCBS.gIBSCredPres.vCredPresCondSus := 50;
+
+          Imp.IBSCBS.gIBSCBS.gCBSCredPres.cCredPres := cp01;
+          Imp.IBSCBS.gIBSCBS.gCBSCredPres.pCredPres := 5;
+          Imp.IBSCBS.gIBSCBS.gCBSCredPres.vCredPres := 50;
+          Imp.IBSCBS.gIBSCBS.gCBSCredPres.vCredPresCondSus := 50;
+
+          // Tipo Tributação Compra Governamental
+          Imp.IBSCBS.gIBSCBS.gTribCompraGov.pAliqIBSUF := 5;
+          Imp.IBSCBS.gIBSCBS.gTribCompraGov.vTribIBSUF := 50;
+          Imp.IBSCBS.gIBSCBS.gTribCompraGov.pAliqIBSMun := 5;
+          Imp.IBSCBS.gIBSCBS.gTribCompraGov.vTribIBSMun := 50;
+          Imp.IBSCBS.gIBSCBS.gTribCompraGov.pAliqCBS := 5;
+          Imp.IBSCBS.gIBSCBS.gTribCompraGov.vTribCBS := 50;
+        end;
+
         //
         // Informações sobre os Componentes da Viagem
         //
@@ -793,6 +931,31 @@ begin
     total.vBP   := 100;
     total.vBC   := 100;
     total.vICMS := 18;
+
+    // Reforma Tributária
+    if rgReformaTributaria.ItemIndex = 0 then
+    begin
+      total.vTotDFe := 100;
+      total.IBSCBSTot.vBCIBSCBS := 100;
+
+      total.IBSCBSTot.gIBS.gIBSUFTot.vDif := 100;
+      total.IBSCBSTot.gIBS.gIBSUFTot.vDevTrib := 100;
+      total.IBSCBSTot.gIBS.gIBSUFTot.vIBSUF := 100;
+
+      total.IBSCBSTot.gIBS.gIBSMunTot.vDif := 100;
+      total.IBSCBSTot.gIBS.gIBSMunTot.vDevTrib := 100;
+      total.IBSCBSTot.gIBS.gIBSMunTot.vIBSMun := 100;
+
+      total.IBSCBSTot.gIBS.vCredPres := 100;
+      total.IBSCBSTot.gIBS.vCredPresCondSus := 100;
+      total.IBSCBSTot.gIBS.vIBS := 100;
+
+      total.IBSCBSTot.gCBS.vDif := 100;
+      total.IBSCBSTot.gCBS.vDevTrib := 100;
+      total.IBSCBSTot.gCBS.vCBS := 100;
+      total.IBSCBSTot.gCBS.vCredPres := 100;
+      total.IBSCBSTot.gCBS.vCredPresCondSus := 100;
+    end;
 
     //
     // Autorizados para o Download do XML do BPe
@@ -1331,7 +1494,7 @@ begin
   try
     ArqINI.Text := ACBrBPe1.Bilhetes.GerarIni;
 
-    SaveDlg.Title := 'Escolha o local onde gerar o INI';
+    SaveDlg.Title := 'Escolha o local onde salvar o INI';
     SaveDlg.DefaultExt := '*.INI';
     SaveDlg.Filter := 'Arquivo INI(*.INI)|*.INI|Arquivo ini(*.ini)|*.ini|Todos os arquivos(*.*)|*.*';
 
@@ -1382,6 +1545,7 @@ begin
   ACBrBPe1.Bilhetes.Assinar;
 
   ACBrBPe1.Bilhetes.Items[0].GravarXML();
+  ACBrBPe1.Bilhetes.Validar;
 
   ShowMessage('Arquivo gerado em: ' + ACBrBPe1.Bilhetes.Items[0].NomeArq);
   MemoDados.Lines.Add('Arquivo gerado em: ' + ACBrBPe1.Bilhetes.Items[0].NomeArq);
@@ -1539,7 +1703,7 @@ begin
       if ACBrBPe1.Bilhetes[0].Alertas <> '' then
         MemoDados.Lines.Add('Alertas: '+ACBrBPe1.Bilhetes[0].Alertas);
 
-      ShowMessage('Conhecimento de Transporte Eletrônico Valido');
+      ShowMessage('Bilhete de Passagem Eletrônico Valido');
     except
       on E: Exception do
       begin

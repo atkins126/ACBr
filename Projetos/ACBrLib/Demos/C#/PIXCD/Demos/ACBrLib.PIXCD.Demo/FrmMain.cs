@@ -46,6 +46,7 @@ namespace ACBrLibPIXCD.Demo
                 cmbPSP.EnumDataSource(PSP.pspBradesco);
                 cmbAmbiente.EnumDataSource(Ambiente.ambTeste);
                 cmbBBAPIVersao.EnumDataSource(BBAPIVersao.apiVersao1);
+                cmbPixPDVAPIVersao.EnumDataSource(PixPDVAPIVersao.apiVersao1);
                 cmbNivelLogPSP.EnumDataSource(NivelLogPSP.logPSPNenhum);
                 cmbTipoChave.EnumDataSource(TipoChave.tchNenhuma);
                 ACBrPIXCD.Config.ProxyPort = 0;
@@ -157,6 +158,7 @@ namespace ACBrLibPIXCD.Demo
                 ACBrPIXCD.Config.PixPDV.CNPJ = txtCNPJPixPDV.Text;
                 ACBrPIXCD.Config.PixPDV.Token = txtPixPDVToken.Text;
                 ACBrPIXCD.Config.PixPDV.SecretKey = txtSecretKeyPixPDV.Text;
+                ACBrPIXCD.Config.PixPDV.PixPDVAPIVersao = cmbPixPDVAPIVersao.GetSelectedValue<PixPDVAPIVersao>();
                 ACBrPIXCD.Config.PixPDV.Scopes = txtScopesPixPDV.Text;
 
                 //PagSeguro
@@ -234,6 +236,12 @@ namespace ACBrLibPIXCD.Demo
                 ACBrPIXCD.Config.MercadoPago.ChavePIX = txtChavePIXMercadoPago.Text;
                 ACBrPIXCD.Config.MercadoPago.AccessToken = txtAccessTokenMercadoPago.Text;
                 ACBrPIXCD.Config.MercadoPago.Scopes = txtScopesMercadoPago.Text;
+
+                //AppLess
+                ACBrPIXCD.Config.AppLess.ClientID = txtClientIDAppLess.Text;
+                ACBrPIXCD.Config.AppLess.ClientSecret = txtClientSecretAppLess.Text;
+                ACBrPIXCD.Config.AppLess.SecretKeyHMAC = txtSecretKeyHMACAppLess.Text;
+                ACBrPIXCD.Config.AppLess.Scopes = txtScopesAppLess.Text;
 
                 ACBrPIXCD.ConfigGravar();
 
@@ -317,6 +325,7 @@ namespace ACBrLibPIXCD.Demo
             txtCNPJPixPDV.Text = ACBrPIXCD.Config.PixPDV.CNPJ;
             txtPixPDVToken.Text = ACBrPIXCD.Config.PixPDV.Token;
             txtSecretKeyPixPDV.Text = ACBrPIXCD.Config.PixPDV.SecretKey;
+            cmbPixPDVAPIVersao.SetSelectedValue(ACBrPIXCD.Config.PixPDV.PixPDVAPIVersao);
             txtScopesPixPDV.Text = ACBrPIXCD.Config.PixPDV.Scopes;
 
             //PagSeguro
@@ -394,6 +403,12 @@ namespace ACBrLibPIXCD.Demo
             txtChavePIXMercadoPago.Text = ACBrPIXCD.Config.MercadoPago.ChavePIX;
             txtAccessTokenMercadoPago.Text = ACBrPIXCD.Config.MercadoPago.AccessToken;
             txtScopesMercadoPago.Text = ACBrPIXCD.Config.MercadoPago.Scopes;
+
+            //AppLess
+            txtClientIDAppLess.Text = ACBrPIXCD.Config.AppLess.ClientID;
+            txtClientSecretAppLess.Text = ACBrPIXCD.Config.AppLess.ClientSecret;
+            txtSecretKeyHMACAppLess.Text = ACBrPIXCD.Config.AppLess.SecretKeyHMAC;
+            txtScopesAppLess.Text = ACBrPIXCD.Config.AppLess.Scopes;
         }
 
         private void btnCertificadoBradesco_Click(object sender, EventArgs e)
@@ -656,7 +671,7 @@ namespace ACBrLibPIXCD.Demo
         {
             try
             {
-                var ret = ACBrPIXCD.CriarCobrancaImediata(rtbCriarCobranca.Text, txtTxIdCriarCobranca.Text);
+                var ret = ACBrPIXCD.CriarCobranca(rtbCriarCobranca.Text, txtTxIdCriarCobranca.Text);
                 rtbRespostas.AppendText(ret);
             }
             catch (Exception ex)

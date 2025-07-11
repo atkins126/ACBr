@@ -637,6 +637,9 @@ begin
 
   Result.AppendChild(AddNode(tcStr, 'HP19', 'descEvento', 4, 60, 1,
                                             Evento[Idx].FInfEvento.DescEvento));
+
+  Result.AppendChild(AddNode(tcStr, 'HP20', 'xJust', 15, 255, 0,
+                                       Evento[Idx].FInfEvento.detEvento.xJust));
 end;
 
 function TEventoNFe.Gerar_Evento_ManifDestOperNaoRealizada(
@@ -1292,9 +1295,9 @@ begin
               while true do
               begin
                 sSecao := 'detPag' + IntToStrZero(J, 3);
-                sFim := OnlyNumber(INIRec.ReadString(sSecao,'vPag', 'FIM'));
+                sFim := INIRec.ReadString(sSecao,'vPag', 'FIM');
 
-                if (sFim = 'FIM') or (Length(sFim) <= 0) then
+                if (sFim = 'FIM') or (Length(OnlyNumber(sFim)) <= 0) then
                   break;
 
                 ItemDetPag := infEvento.detEvento.detPag.New;

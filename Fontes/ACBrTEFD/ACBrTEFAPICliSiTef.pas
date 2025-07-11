@@ -48,7 +48,7 @@ uses
 const
   CSUBDIRETORIO_PAYGOWEB = 'PGWeb';
 
-// https://dev.softwareexpress.com.br/en/docs/clisitef/clisitef_documento_principal/
+// https://dev.softwareexpress.com.br/docs/clisitef/clisitef_documento_principal/
 
 type
 
@@ -123,6 +123,8 @@ type
     procedure ExibirMensagemPinPad(const MsgPinPad: String); override;
     function ObterDadoPinPad(TipoDado: TACBrTEFAPIDadoPinPad; TimeOut: integer = 30000;
       MinLen: SmallInt = 0; MaxLen: SmallInt = 0): String; override;
+    function VerificarPresencaPinPad: Byte; override;
+    function VersaoAPI: String; override;
 
     property TEFCliSiTefAPI: TACBrTEFCliSiTefAPI read fTEFCliSiTefAPI;
 
@@ -713,6 +715,7 @@ begin
         TefAPI.QuandoExibirMensagem('', telaTodas, -1);
 
       StrPCopy(Buffer, Resposta);
+      //Move(Resposta[1], Buffer[0], Length(Resposta));
     until (fUltimoRetornoAPI <> 10000);
   finally
     fIniciouRequisicao := False;
@@ -1144,6 +1147,20 @@ begin
   TACBrTEFAPI(fpACBrTEFAPI).QuandoExibirMensagem(ACBrStr(AMsg), telaOperador, 0);
 end;
 
+function TACBrTEFAPIClassCliSiTef.VerificarPresencaPinPad: Byte;
+begin
+  Result := Ord(fTEFCliSiTefAPI.VerificaPresencaPinPad);
+end;
+
+function TACBrTEFAPIClassCliSiTef.VersaoAPI: String;
+var
+  lVersaoCliSiTef: String;
+  lVersaoCliSiTefI: String;
+begin
+  InterpretarRetornoCliSiTef( fTEFCliSiTefAPI.ObtemVersao(lVersaoCliSiTef, lVersaoCliSiTefI) );
+  Result := lVersaoCliSiTef;
+end;
+
 procedure TACBrTEFAPIClassCliSiTef.AbortarTransacaoEmAndamento;
 begin
   fUltimoRetornoAPI := -10000;
@@ -1186,10 +1203,16 @@ begin
   if (MinLen = 0) and (MaxLen = 0) then
     CalcularTamanhosCampoDadoPinPad(TipoDado, MinLen, MaxLen);
 
+  // SiTef espera o tempo em Segundos.. convertendo de milisegundos
+  if (TimeOut > 1000) then
+    TimeOut := trunc(TimeOut/1000)
+  else if (TimeOut > 100)then
+    TimeOut := trunc(TimeOut/100);
+
   fRespostasPorTipo.ValueInfo[2967] := DadoPortador;
   fRespostasPorTipo.ValueInfo[2968] := IntToStr(MinLen);
   fRespostasPorTipo.ValueInfo[2969] := IntToStr(MaxLen);
-  fRespostasPorTipo.ValueInfo[2970] := IntToStr(trunc(TimeOut/100));
+  fRespostasPorTipo.ValueInfo[2970] := IntToStr(TimeOut);
 
   Ok := ExecutarTransacaoSiTef(CSITEF_OP_DadosPinPadAberto, 0);
   if Ok then

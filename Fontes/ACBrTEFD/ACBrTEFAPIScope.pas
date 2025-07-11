@@ -141,6 +141,7 @@ type
     procedure ApagarImagemPinPad(const NomeImagem: String); override;
     procedure CarregarImagemPinPad(const NomeImagem: String; AStream: TStream;
       TipoImagem: TACBrTEFAPIImagemPinPad); override;
+    function VersaoAPI: String; override;
 
     property TEFScopeAPI: TACBrTEFScopeAPI read fTEFScopeAPI;
     property DiretorioTrabalho: String read fDiretorioTrabalho write SetDiretorioTrabalho;
@@ -159,12 +160,14 @@ uses
 
 procedure TACBrTEFRespScope.ConteudoToProperty;
   procedure TrataCamposMask1(const IDCampo: Int64; Linha: TACBrTEFLinha);
+  var
+    s: String;
+    d: TDateTime;
   begin
     //MASK1_Numero_Conta_PAN
     //MASK1_Data_referencia
     //MASK1_Codigo_Origem_Mensagem
     //MASK1_Cod_Servico    // Ver tabela Código serviços página 340
-    //MASK1_Texto_BIT_62   // Parece muito o espelho do comprovante????
     //MASK1_Cartao_Trilha02
     //MASK1_Numero_Promissorias
     //MASK1_Cod_Estab_Impresso //<-- CNPJ do Estabelecimento
@@ -173,7 +176,7 @@ procedure TACBrTEFRespScope.ConteudoToProperty;
     //MASK1_Saldo_Disponivel
 
     if IDCampo = MASK1_Numero_Conta_PAN then
-      NFCeSAT.UltimosQuatroDigitos := RightStr(Linha.Informacao.AsString, 4)
+      PAN := Linha.Informacao.AsString
     else if IDCampo = MASK1_Valor_transacao then
       ValorTotal := Linha.Informacao.AsFloat
     else if IDCampo = MASK1_NSU_transacao then
@@ -182,8 +185,10 @@ procedure TACBrTEFRespScope.ConteudoToProperty;
       DataHoraTransacaoLocal := DateOf(DataHoraTransacaoLocal) + Linha.Informacao.AsTime
     else if IDCampo = MASK1_Data_local_transacao then
     begin
-      if Trim(Linha.Informacao.AsString) <> '' then
-        DataHoraTransacaoLocal := Linha.Informacao.AsDate + TimeOf(DataHoraTransacaoLocal);
+      s  := Trim(Linha.Informacao.AsString);
+      if (s <> '') then
+        if TryEncodeDate(YearOf(Date()), StrToIntDef(copy(s, 1, 2), 0), StrToIntDef(copy(s, 3, 2), 0), d) then
+          DataHoraTransacaoLocal := d + TimeOf(DataHoraTransacaoLocal);
     end
     else if IDCampo = MASK1_Data_vencimento_cartao then
       NFCeSAT.DataExpiracao := Linha.Informacao.AsString
@@ -265,8 +270,8 @@ procedure TACBrTEFRespScope.ConteudoToProperty;
       NSUTransacaoCancelada := Linha.Informacao.AsString
     else if IDCampo = MASK2_Cod_Operadora then
       CodigoOperadoraCelular := Linha.Informacao.AsString
-    else if IDCampo = MASK2_Codigo_IF then
-      CodigoPSP := Linha.Informacao.AsString
+    else if IDCampo = MASK2_BIN then
+      BIN := Linha.Informacao.AsString
     else if IDCampo = MASK2_Permite_Desfazimento then
       Confirmar := (Linha.Informacao.AsString = '1')
     else if IDCampo = MASK2_Cod_Empresa then
@@ -436,7 +441,7 @@ end;
 procedure TACBrTEFAPIClassScope.Inicializar;
 var
   P: Integer;
-  ADir, IpStr, PortaStr: String;
+  ADir, IpStr, PortaStr, s: String;
 begin
   if Inicializado then
     Exit;
@@ -463,10 +468,15 @@ begin
   fTEFScopeAPI.Empresa := fpACBrTEFAPI.DadosTerminal.CodEmpresa;
   fTEFScopeAPI.Filial := fpACBrTEFAPI.DadosTerminal.CodFilial;
   fTEFScopeAPI.PDV := fpACBrTEFAPI.DadosTerminal.CodTerminal;
-  fTEFScopeAPI.MsgPinPad := fpACBrTEFAPI.DadosAutomacao.NomeSoftwareHouse + '|' +
-                            fpACBrTEFAPI.DadosAutomacao.NomeAplicacao + ' ' +
-                            fpACBrTEFAPI.DadosAutomacao.VersaoAplicacao;
+
+  s := fpACBrTEFAPI.DadosAutomacao.MensagemPinPad;
+  if (s = '') then
+    s := fpACBrTEFAPI.DadosAutomacao.NomeSoftwareHouse + '|' +
+         fpACBrTEFAPI.DadosAutomacao.NomeAplicacao + ' ' +
+         fpACBrTEFAPI.DadosAutomacao.VersaoAplicacao;
+  fTEFScopeAPI.MsgPinPad := s;
   fTEFScopeAPI.PortaPinPad := fpACBrTEFAPI.DadosTerminal.PortaPinPad;
+  fTEFScopeAPI.GravarLogScope := (fpACBrTEFAPI.ArqLOG <> '');
 
   fTEFScopeAPI.Inicializar;
 
@@ -728,6 +738,14 @@ begin
         DefCampo.TamanhoMaximo := 16;
         DefCampo.MascaraDeCaptura := '@@@@.@@@@.@@@@.@@@@';
       end;
+    TM_PARCELAS:
+      begin
+        DefCampo.TipoDeEntrada := tedNumerico;
+        DefCampo.TamanhoMinimo := 1;
+        DefCampo.TamanhoMaximo := 2;
+        DefCampo.MascaraDeCaptura := '@@';
+        DefCampo.ValidacaoDado := valdQuantidadeParcelas;
+      end;
   end;
 
   Validado := False;
@@ -907,13 +925,16 @@ begin
   if (Financiamento = tefmfAVista) then
     fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_DECIDE_AVISTA)] := '1'
   else if (Financiamento > tefmfAVista) then   // Parcelado
+  begin
     fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_DECIDE_AVISTA)] := '0';
+    fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_DECIDE_CREDIARIO)] := '0';
+  end;
 
   // NAO TESTADO
   if (Financiamento = tefmfParceladoEmissor) then
     fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_DECIDE_P_ADM_EST)] := '1'
   else if (Financiamento = tefmfParceladoEstabelecimento) then
-    fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_DECIDE_P_ADM_EST)] := '0';
+    fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_DECIDE_P_ADM_EST)] := '2';
 
   if (Parcelas > 0) then
     fTEFScopeAPI.RespostasPorEstados.Values[IntToStr(TC_QTDE_PARCELAS)] := IntToStr(Parcelas);
@@ -950,7 +971,7 @@ begin
   //i := fpACBrTEFAPI.RespostasTEF.AcharTransacao(Rede, NSU, CodigoFinalizacao);
 
   Confirmar := (AStatus in [tefstsSucessoAutomatico, tefstsSucessoManual]);
-  fTEFScopeAPI.FecharSessaoTEF(Confirmar, TransacaoFoiDesfeita);
+  fTEFScopeAPI.FecharSessaoTEF(Confirmar, TransacaoFoiDesfeita, False);
   if TransacaoFoiDesfeita then
     TACBrTEFAPI(fpACBrTEFAPI).QuandoExibirMensagem(ACBrStr(sErrUltTransDesfeita), telaOperador, 0);
 end;
@@ -1085,6 +1106,11 @@ begin
       DeleteFile(tmpFile);
     end;
   end;
+end;
+
+function TACBrTEFAPIClassScope.VersaoAPI: String;
+begin
+  Result := Trim(fTEFScopeAPI.ObterVersaoScope);
 end;
 
 procedure TACBrTEFAPIClassScope.SetDiretorioTrabalho(const AValue: String);

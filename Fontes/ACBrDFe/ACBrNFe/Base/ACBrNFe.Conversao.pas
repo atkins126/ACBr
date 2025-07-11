@@ -292,11 +292,13 @@ const
   TIndicadorNFeArrayStrings: array[TpcnIndicadorNFe] of string = ('0', '1', '2');
 
 type
-  TpcnVersaoQrCode = (veqr000, veqr100, veqr200);
+  TpcnVersaoQrCode = (veqr000, veqr100, veqr200, veqr300);
 
 const
-  TVersaoQrCodeArrayStrings: array[TpcnVersaoQrCode] of string = ('0', '1', '2');
-  TVersaoQrCodeArrayDouble: array[TpcnVersaoQrCode] of Double = (0, 1.00, 2.00);
+  TVersaoQrCodeArrayStrings: array[TpcnVersaoQrCode] of string = ('0', '1', '2',
+    '3');
+  TVersaoQrCodeArrayDouble: array[TpcnVersaoQrCode] of Double = (0, 1.00, 2.00,
+    3.00);
 
 type
   TpcnTipoOperacao = (toVendaConcessionaria, toFaturamentoDireto, toVendaDireta,
@@ -387,22 +389,44 @@ const
 
 // Reforma Tributária
 type
-  TindMultaJuros  = (timjNenhum, timjMulta, timjJuros);
+  TtpNFDebito = (tdNenhum, tdTransferenciaCreditoCooperativa, tdAnulacao,
+                 tdDebitosNaoProcessadas, tdMultaJuros,
+                 tdTransferenciaCreditoSucessao, tdPagamentoAntecipado,
+                 tdPerdaEmEstoque);
 
 const
-  TindMultaJurosArrayStrings: array[TindMultaJuros] of string = ('', '0', '1');
+  TtpNFDebitoArrayStrings: array[TtpNFDebito] of string = ('', '01', '02', '03',
+    '04', '05', '06', '07');
 
 type
-  TtpCompraGov  = (tcgUniao, tcgEstados, tcgDistritoFederal, tcgMunicipios);
+  TtpNFCredito = (tcNenhum, tcMultaJuros, tcApropriacaoCreditoPresumido);
 
 const
-  TtpCompraGovArrayStrings: array[TtpCompraGov] of string = ('1', '2', '3', '4');
+  TtpNFCreditoArrayStrings: array[TtpNFCredito] of string = ('', '01', '02');
 
 type
-  TindPerecimento  = (tipNenhum, tipPercimento);
+  TCSTIS = (cstisNenhum,
+    cstis000);
 
 const
-  TindPerecimentoArrayStrings: array[TindPerecimento] of string = ('', '1');
+  TCSTISArrayStrings: array[TCSTIS] of string = ('',
+    '000');
+
+type
+  TcClassTribIS = (ctisNenhum,
+    ctis000001);
+
+const
+  TcClassTribISArrayStrings: array[TcClassTribIS] of string = ('',
+    '000001');
+
+type
+  TTpCredPresIBSZFM = (tcpNenhum, tcpSemCredito, tcpBensConsumoFinal, tcpBensCapital,
+                       tcpBensIntermediarios, tcpBensInformaticaOutros);
+
+const
+  TTpCredPresIBSZFMArrayStrings: array[TTpCredPresIBSZFM] of string = ('', '0',
+    '1', '2', '3', '4');
 
 {
   Declaração das funções de conversão
@@ -486,14 +510,20 @@ function TtpGuiaToStr(const t: TtpGuia): string;
 function StrToTtpGuia(const s: string): TtpGuia;
 
 // Reforma Tributária
-function indMultaJurosToStr(const t: TindMultaJuros): string;
-function StrToindMultaJuros(const s: string): TindMultaJuros;
+function tpNFDebitoToStr(const t: TtpNFDebito): string;
+function StrTotpNFDebito(const s: string): TtpNFDebito;
 
-function tpCompraGovToStr(const t: TtpCompraGov): string;
-function StrTotpCompraGov(const s: string): TtpCompraGov;
+function tpNFCreditoToStr(const t: TtpNFCredito): string;
+function StrTotpNFCredito(const s: string): TtpNFCredito;
 
-function indPerecimentoToStr(const t: TindPerecimento): string;
-function StrToindPerecimento(const s: string): TindPerecimento;
+function CSTISToStr(const t: TCSTIS): string;
+function StrToCSTIS(const s: string): TCSTIS;
+
+function cClassTribISToStr(const t: TcClassTribIS): string;
+function StrTocClassTribIS(const s: string): TcClassTribIS;
+
+function TpCredPresIBSZFMToStr(const t: TTpCredPresIBSZFM): string;
+function StrToTpCredPresIBSZFM(const s: string): TTpCredPresIBSZFM;
 
 implementation
 
@@ -1231,14 +1261,14 @@ end;
 
 function VersaoQrCodeToStr(const t: TpcnVersaoQrCode): String;
 begin
-  Result := EnumeradoToStr(t, ['0', '1', '2'],
-    [veqr000, veqr100, veqr200]);
+  Result := EnumeradoToStr(t, ['0', '1', '2', '3'],
+    [veqr000, veqr100, veqr200, veqr300]);
 end;
 
 function StrToVersaoQrCode(out ok: Boolean; const s: String): TpcnVersaoQrCode;
 begin
-  Result := StrToEnumerado(ok, s, ['0', '1', '2'],
-    [veqr000, veqr100, veqr200]);
+  Result := StrToEnumerado(ok, s, ['0', '1', '2', '3'],
+    [veqr000, veqr100, veqr200, veqr300]);
 end;
 
 function VersaoQrCodeToDbl(const t: TpcnVersaoQrCode): Real;
@@ -1247,6 +1277,7 @@ begin
     veqr000: Result := 0;
     veqr100: Result := 1;
     veqr200: Result := 2;
+    veqr300: Result := 3;
   else
     Result := 0;
   end;
@@ -1354,8 +1385,8 @@ begin
     3: result := '3-RESERVA DE DOMÍNIO';
     4: result := '4-PENHOR DE VEÍCULOS';
     9: result := '9-OUTRAS'
-    else
-      result := IntToStr(iRestricao)+ 'NÃO DEFINIDO' ;
+  else
+    result := IntToStr(iRestricao)+ 'NÃO DEFINIDO' ;
   end;
 end;
 
@@ -1378,8 +1409,8 @@ begin
     14: result := '14-VERDE';
     15: result := '15-VERMELHA';
     16: result := '16-FANTASIA'
-    else
-      result := sCorDENATRAN + 'NÃO DEFINIDA' ;
+  else
+    result := sCorDENATRAN + 'NÃO DEFINIDA' ;
   end;
 end;
 
@@ -1414,9 +1445,9 @@ begin
     5: result := '05-TRAÇÃO';
     6: result := '06-ESPECIAL';
     7: result := '07-COLEÇÃO'
-    else
+  else
       result := IntToStr(iEspecie ) + 'NÃO DEFINIDA' ;
-    end;
+  end;
 end;
 
 function VeiculosTipoStr( const iTipoVeic : Integer ): String;
@@ -1448,9 +1479,9 @@ begin
     24: result := '24-SIDE-CAR';
     25: result := '25-UTILITÁRIO';
     26: result := '26-MOTOR-CASA'
-    else
+  else
       result := IntToStr(iTipoVeic)+'NÃO DEFINIDO' ;
-    end;
+  end;
 end;
 
 function VeiculosCombustivelStr( const sTpComb : String ): String;
@@ -1474,9 +1505,9 @@ begin
     16: result := '16-ÁLCOOL/GASOLINA';
     17: result := '17-GASOLINA/ÁLCOOL/GNV';
     18: result := '18-GASOLINA/ELÉTRICO'
-    else
+  else
       result := stpComb +'NÃO DEFINIDO' ;
-    end;
+  end;
 end;
 
 function VeiculosTipoOperStr( const TtpOP : TpcnTipoOperacao ): String;
@@ -1487,7 +1518,6 @@ begin
     toVendaDireta         : result := '3-VENDA DIRETA';
     toOutros              : result := '0-OUTROS';
   end;
-
 end;
 
 function ArmaTipoStr( const TtpArma : TpcnTipoArma ): String;
@@ -1648,7 +1678,7 @@ function StrToTtpGuia(const s: String): TtpGuia;
 var
   idx: TtpGuia;
 begin
-  for idx:= Low(TtpGuiaArrayStrings) to High(TtpGuiaArrayStrings)do
+  for idx:= Low(TtpGuiaArrayStrings) to High(TtpGuiaArrayStrings) do
   begin
     if(TtpGuiaArrayStrings[idx] = s)then
     begin
@@ -1660,64 +1690,104 @@ begin
 end;
 
 // Reforma Tributária
-function indMultaJurosToStr(const t: TindMultaJuros): string;
+function tpNFDebitoToStr(const t: TtpNFDebito): string;
 begin
-  Result := TindMultaJurosArrayStrings[t];
+  Result := TtpNFDebitoArrayStrings[t];
 end;
 
-function StrToindMultaJuros(const s: string): TindMultaJuros;
+function StrTotpNFDebito(const s: string): TtpNFDebito;
 var
-  idx: TindMultaJuros;
+  idx: TtpNFDebito;
 begin
-  for idx:= Low(TindMultaJurosArrayStrings) to High(TindMultaJurosArrayStrings)do
+  for idx:= Low(TtpNFDebitoArrayStrings) to High(TtpNFDebitoArrayStrings) do
   begin
-    if(TindMultaJurosArrayStrings[idx] = s)then
+    if(TtpNFDebitoArrayStrings[idx] = s)then
     begin
       Result := idx;
       exit;
     end;
   end;
-  raise EACBrException.CreateFmt('Valor string inválido para TindMultaJuros: %s', [s]);
+  raise EACBrException.CreateFmt('Valor string inválido para TtpNFDebito: %s', [s]);
 end;
 
-function tpCompraGovToStr(const t: TtpCompraGov): string;
+function tpNFCreditoToStr(const t: TtpNFCredito): string;
 begin
-  Result := TtpCompraGovArrayStrings[t];
+  Result := TtpNFCreditoArrayStrings[t];
 end;
 
-function StrTotpCompraGov(const s: string): TtpCompraGov;
+function StrTotpNFCredito(const s: string): TtpNFCredito;
 var
-  idx: TtpCompraGov;
+  idx: TtpNFCredito;
 begin
-  for idx:= Low(TtpCompraGovArrayStrings) to High(TtpCompraGovArrayStrings)do
+  for idx:= Low(TtpNFCreditoArrayStrings) to High(TtpNFCreditoArrayStrings) do
   begin
-    if(TtpCompraGovArrayStrings[idx] = s)then
+    if(TtpNFCreditoArrayStrings[idx] = s)then
     begin
       Result := idx;
       exit;
     end;
   end;
-  raise EACBrException.CreateFmt('Valor string inválido para TtpCompraGov: %s', [s]);
+  raise EACBrException.CreateFmt('Valor string inválido para TtpNFCredito: %s', [s]);
 end;
 
-function indPerecimentoToStr(const t: TindPerecimento): string;
+function CSTISToStr(const t: TCSTIS): string;
 begin
-  Result := TindPerecimentoArrayStrings[t];
+  Result := TCSTISArrayStrings[t];
 end;
 
-function StrToindPerecimento(const s: string): TindPerecimento;
+function StrToCSTIS(const s: string): TCSTIS;
 var
-  idx: TindPerecimento;
+  idx: TCSTIS;
 begin
-  for idx:= Low(TindPerecimentoArrayStrings) to High(TindPerecimentoArrayStrings)do
+  for idx:= Low(TCSTISArrayStrings) to High(TCSTISArrayStrings) do
   begin
-    if(TindPerecimentoArrayStrings[idx] = s)then
+    if(TCSTISArrayStrings[idx] = s)then
     begin
       Result := idx;
       exit;
     end;
   end;
-  raise EACBrException.CreateFmt('Valor string inválido para TindPerecimento: %s', [s]);
+  raise EACBrException.CreateFmt('Valor string inválido para TCSTIS: %s', [s]);
+end;
+
+function cClassTribISToStr(const t: TcClassTribIS): string;
+begin
+  Result := TcClassTribISArrayStrings[t];
+end;
+
+function StrTocClassTribIS(const s: string): TcClassTribIS;
+var
+  idx: TcClassTribIS;
+begin
+  for idx:= Low(TcClassTribISArrayStrings) to High(TcClassTribISArrayStrings) do
+  begin
+    if(TcClassTribISArrayStrings[idx] = s)then
+    begin
+      Result := idx;
+      exit;
+    end;
+  end;
+  raise EACBrException.CreateFmt('Valor string inválido para TcClassTribIS: %s', [s]);
+end;
+
+function TpCredPresIBSZFMToStr(const t: TTpCredPresIBSZFM): string;
+begin
+  Result := TTpCredPresIBSZFMArrayStrings[t];
+end;
+
+function StrToTpCredPresIBSZFM(const s: string): TTpCredPresIBSZFM;
+var
+  idx: TTpCredPresIBSZFM;
+begin
+  for idx:= Low(TTpCredPresIBSZFMArrayStrings) to High(TTpCredPresIBSZFMArrayStrings) do
+  begin
+    if(TTpCredPresIBSZFMArrayStrings[idx] = s)then
+    begin
+      Result := idx;
+      exit;
+    end;
+  end;
+  raise EACBrException.CreateFmt('Valor string inválido para TTpCredPresIBSZFM: %s', [s]);
 end;
 
 initialization
