@@ -84,6 +84,7 @@ type
  private
    FCNPJ: String;
    FInscMun: String;
+   FCodigoImobiliario: String;
    FRazSocial: String;
    FWSUser: String;
    FWSSenha: String;
@@ -98,14 +99,15 @@ type
    procedure Assign(Source: TPersistent); override;
 
  published
-   property CNPJ: String           read FCNPJ           write FCNPJ;
-   property InscMun: String        read FInscMun        write FInscMun;
-   property RazSocial: String      read FRazSocial      write FRazSocial;
-   property WSUser: String         read FWSUser         write FWSUser;
-   property WSSenha: String        read FWSSenha        write FWSSenha;
-   property WSFraseSecr: String    read FWSFraseSecr    write FWSFraseSecr;
-   property WSChaveAcesso: String  read FWSChaveAcesso  write FWSChaveAcesso;
-   property WSChaveAutoriz: String read FWSChaveAutoriz write FWSChaveAutoriz;
+   property CNPJ: String              read FCNPJ              write FCNPJ;
+   property InscMun: String           read FInscMun           write FInscMun;
+   property CodigoImobiliario: String read FCodigoImobiliario write FCodigoImobiliario;
+   property RazSocial: String         read FRazSocial         write FRazSocial;
+   property WSUser: String            read FWSUser            write FWSUser;
+   property WSSenha: String           read FWSSenha           write FWSSenha;
+   property WSFraseSecr: String       read FWSFraseSecr       write FWSFraseSecr;
+   property WSChaveAcesso: String     read FWSChaveAcesso     write FWSChaveAcesso;
+   property WSChaveAutoriz: String    read FWSChaveAutoriz    write FWSChaveAutoriz;
 
    property DadosEmitente: TDadosEmitente read FDadosEmitente write FDadosEmitente;
  end;
@@ -197,6 +199,7 @@ type
     FProvedor: TnfseProvedor;
     FVersao: TVersaoNFSe;
     FxProvedor: String;
+    FxProvedorOrigem: String;
     FxMunicipio: String;
     FxUF: String;
     FCNPJPrefeitura: String;
@@ -211,6 +214,7 @@ type
     FServicosDisponibilizados: TServicosDispobilizados;
     FFormDiscriminacao: TFormatoDiscriminacao;
     FParticularidades: TParticularidades;
+    FAPIPropria: Boolean;
 
     procedure SetCodigoMunicipio(const Value: Integer);
   public
@@ -227,6 +231,7 @@ type
     property Provedor: TnfseProvedor read FProvedor write FProvedor;
     property Versao: TVersaoNFSe read FVersao write FVersao;
     property xProvedor: String read FxProvedor;
+    property xProvedorOrigem: String read FxProvedorOrigem;
     property xMunicipio: String read FxMunicipio;
     property xUF: String read FxUF;
     property CNPJPrefeitura: String read FCNPJPrefeitura write FCNPJPrefeitura;
@@ -245,6 +250,7 @@ type
     property ServicosDisponibilizados: TServicosDispobilizados read FServicosDisponibilizados;
     property FormatoDiscriminacao: TFormatoDiscriminacao read FFormDiscriminacao write FFormDiscriminacao default fdNenhum;
     property Particularidades: TParticularidades read FParticularidades write FParticularidades;
+    property APIPropria: Boolean read FAPIPropria;
   end;
 
   { TArquivosConfNFSe }
@@ -330,14 +336,15 @@ constructor TEmitenteConfNFSe.Create;
 begin
   inherited Create;
 
-  FCNPJ           := '';
-  FInscMun        := '';
-  FRazSocial      := '';
-  FWSUser         := '';
-  FWSSenha        := '';
-  FWSFraseSecr    := '';
-  FWSChaveAcesso  := '';
-  FWSChaveAutoriz := '';
+  FCNPJ              := '';
+  FInscMun           := '';
+  FCodigoImobiliario := '';
+  FRazSocial         := '';
+  FWSUser            := '';
+  FWSSenha           := '';
+  FWSFraseSecr       := '';
+  FWSChaveAcesso     := '';
+  FWSChaveAutoriz    := '';
 
   FDadosEmitente := TDadosEmitente.Create;
 end;
@@ -346,14 +353,15 @@ procedure TEmitenteConfNFSe.Assign(Source: TPersistent);
 begin
   if Source is TEmitenteConfNFSe then
   begin
-    FCNPJ           := TEmitenteConfNFSe(Source).CNPJ;
-    FInscMun        := TEmitenteConfNFSe(Source).InscMun;
-    FRazSocial      := TEmitenteConfNFSe(Source).RazSocial;
-    FWSUser         := TEmitenteConfNFSe(Source).WSUser;
-    FWSSenha        := TEmitenteConfNFSe(Source).WSSenha;
-    FWSFraseSecr    := TEmitenteConfNFSe(Source).WSFraseSecr;
-    FWSChaveAcesso  := TEmitenteConfNFSe(Source).WSChaveAcesso;
-    FWSChaveAutoriz := TEmitenteConfNFSe(Source).WSChaveAutoriz;
+    FCNPJ              := TEmitenteConfNFSe(Source).CNPJ;
+    FInscMun           := TEmitenteConfNFSe(Source).InscMun;
+    FCodigoImobiliario := TEmitenteConfNFSe(Source).CodigoImobiliario;
+    FRazSocial         := TEmitenteConfNFSe(Source).RazSocial;
+    FWSUser            := TEmitenteConfNFSe(Source).WSUser;
+    FWSSenha           := TEmitenteConfNFSe(Source).WSSenha;
+    FWSFraseSecr       := TEmitenteConfNFSe(Source).WSFraseSecr;
+    FWSChaveAcesso     := TEmitenteConfNFSe(Source).WSChaveAcesso;
+    FWSChaveAutoriz    := TEmitenteConfNFSe(Source).WSChaveAutoriz;
 
     FDadosEmitente.Assign(TEmitenteConfNFSe(Source).DadosEmitente);
   end
@@ -428,6 +436,7 @@ begin
   FAutenticacao := TAutenticacao.Create;
   FServicosDisponibilizados := TServicosDispobilizados.Create;
   FParticularidades := TParticularidades.Create;
+  FAPIPropria := False;
 end;
 
 destructor TGeralConfNFSe.Destroy;
@@ -453,12 +462,14 @@ begin
   AIni.WriteInteger(fpConfiguracoes.SessaoIni, 'LayoutNFSe', Integer(LayoutNFSe));
   AIni.WriteInteger(fpConfiguracoes.SessaoIni, 'Assinaturas', Integer(Assinaturas));
   AIni.WriteInteger(fpConfiguracoes.SessaoIni, 'FormatoDiscriminacao', Integer(FormatoDiscriminacao));
+  AIni.WriteBool(fpConfiguracoes.SessaoIni, 'APIPropria', APIPropria);
 
   // Emitente
   with Emitente do
   begin
     AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.CNPJ', CNPJ);
     AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.InscMun', InscMun);
+    AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.CodigoImobiliario', CodigoImobiliario);
     AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.RazSocial', RazSocial);
     AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.WSUser', WSUser);
     AIni.WriteString(fpConfiguracoes.SessaoIni, 'Emitente.WSSenha', WSSenha);
@@ -493,12 +504,14 @@ begin
   LayoutNFSe := TLayoutNFSe(AIni.ReadInteger(fpConfiguracoes.SessaoIni, 'LayoutNFSe', Integer(LayoutNFSe)));
   Assinaturas := TAssinaturas(AIni.ReadInteger(fpConfiguracoes.SessaoIni, 'Assinaturas', Integer(Assinaturas)));
   FormatoDiscriminacao := TFormatoDiscriminacao(AIni.ReadInteger(fpConfiguracoes.SessaoIni, 'FormatoDiscriminacao', Integer(FormatoDiscriminacao)));
+  FAPIPropria := AIni.ReadBool(fpConfiguracoes.SessaoIni, 'APIPropria', APIPropria);
 
   // Emitente
   with Emitente do
   begin
     CNPJ := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.CNPJ', CNPJ);
     InscMun := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.InscMun', InscMun);
+    CodigoImobiliario := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.CodigoImobiliario', CodigoImobiliario);
     RazSocial := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.RazSocial', RazSocial);
     WSUser := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.WSUser', WSUser);
     WSSenha := AIni.ReadString(fpConfiguracoes.SessaoIni, 'Emitente.WSSenha', WSSenha);
@@ -524,7 +537,7 @@ end;
 procedure TGeralConfNFSe.LerParamsMunicipio;
 var
   Ok: Boolean;
-  CodIBGE: string;
+  CodIBGE, aValor: string;
   ACBrNFSeXLocal: TACBrNFSeX;
 begin
   if not Assigned(fpConfiguracoes.Owner) then
@@ -548,20 +561,49 @@ begin
   FxMunicipio := FPIniParams.ReadString(CodIBGE, 'Nome', '');
   FxUF := FPIniParams.ReadString(CodIBGE, 'UF', '');
   FxProvedor := FPIniParams.ReadString(CodIBGE, 'Provedor', '');
-  FVersao := StrToVersaoNFSe(Ok, FPIniParams.ReadString(CodIBGE, 'Versao', '1.00'));
+  FxProvedorOrigem := FxProvedor;
+  FProvedor := StrToProvedor(FxProvedor);
+
+  {
+    Verifica se na seção do Provedor consta a versão,
+    caso contrario usa a versão da seção do município.
+  }
+  aValor := FPIniParams.ReadString(FxProvedor, 'Versao', '');
+
+  if aValor = '' then
+    FVersao := StrToVersaoNFSe(Ok, FPIniParams.ReadString(CodIBGE, 'Versao', '1.00'))
+  else
+    FVersao := StrToVersaoNFSe(Ok, aValor);
+
+  {
+    Verifica se na seção do Provedor consta o Params,
+    caso contrario usa o Params da seção do município.
+  }
+  aValor := FPIniParams.ReadString(FxProvedor, 'Params', '');
+
+  if aValor = '' then
+    FAPIPropria := (Pos('APIPropria:', FPIniParams.ReadString(CodIBGE, 'Params', '')) > 0)
+  else
+    FAPIPropria := (Pos('APIPropria:', aValor) > 0);
+
+  {
+    Verifica se o componente esta configurado com o layout PadraoNacionalv1 ou
+    PadraoNacionalv101.
+  }
+  if (FLayoutNFSe = lnfsPadraoNacionalv1) or
+     (FLayoutNFSe = lnfsPadraoNacionalv101) then
+  begin
+    FxProvedor := 'PadraoNacional';
+    FProvedor := proPadraoNacional;
+    FVersao := ve100;
+
+    if FLayoutNFSe = lnfsPadraoNacionalv101 then
+      FVersao := ve101;
+  end;
 
   if (FxMunicipio <> '') and (FxProvedor = '') and (FLayoutNFSe = lnfsProvedor) then
     raise EACBrNFSeException.Create('CodIBGE/Município: [' + CodIBGE +'/'+FxMunicipio +
             '] não está associado a nenhum Provedor.');
-
-  FProvedor := StrToProvedor(FxProvedor);
-
-  if FLayoutNFSe = lnfsPadraoNacionalv1 then
-  begin
-    FxProvedor := 'PadraoNacional';
-    FVersao := ve100;
-    FProvedor := proPadraoNacional;
-  end;
 
   if FProvedor = proNenhum then
     raise EACBrNFSeException.Create('Código do Município [' + CodIBGE +
@@ -594,6 +636,7 @@ begin
   FLayoutNFSe            := DeGeralConfNFSe.LayoutNFSe;
   FAssinaturas           := DeGeralConfNFSe.Assinaturas;
   FFormDiscriminacao     := DeGeralConfNFSe.FormatoDiscriminacao;
+  FAPIPropria            := DeGeralConfNFSe.APIPropria;
 
   FEmitente.Assign(DeGeralConfNFSe.Emitente);
 

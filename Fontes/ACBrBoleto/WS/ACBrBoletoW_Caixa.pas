@@ -50,9 +50,9 @@ type
   { TBoletoW_Caixa }
   TBoletoW_Caixa  = class(TBoletoWSSOAP)
   private
-    function DefinirSOAPAtributtes: string; override;
-  protected
 
+  protected
+    function DefinirSOAPAtributtes: string; override;
     procedure DefinirEnvelopeSoap; override;
     procedure DefinirURL; override;
     procedure DefinirServicoEAction; override;
@@ -432,8 +432,7 @@ begin
       GerarFicha_Compensacao;
       GerarRecibo_Pagador;
 
-      if not Boleto.Cedente.CedenteWS.IndicadorPix then
-        GerarPagamento;
+      GerarPagamento;
 
       Gerador.wGrupo('/TITULO');
     end;
@@ -570,7 +569,7 @@ begin
           Gerador.wGrupo('DESCONTO');
           Gerador.wCampo(tcDat, '#33', 'DATA', 10, 10, 1, DataDesconto, DSC_DATA_DESCONTO);
 
-          if ( Integer(TipoDesconto) <> 1) then
+          if ( Integer(TipoDesconto) = 1) then
             Gerador.wCampo(tcDe2, '#34', 'VALOR     ', 01, 15, 1, ValorDesconto, DSC_VALOR_DESCONTO)
           else
             Gerador.wCampo(tcDe4, '#35', 'PERCENTUAL', 01, 15, 1, ValorDesconto, DSC_VALOR_DESCONTO);
@@ -582,7 +581,7 @@ begin
            Gerador.wGrupo('DESCONTO');
           Gerador.wCampo(tcDat, '#33', 'DATA', 10, 10, 1, DataDesconto2, DSC_DATA_DESCONTO2);
 
-          if ( Integer(TipoDesconto2) <> 1) then
+          if ( Integer(TipoDesconto2) = 1) then
             Gerador.wCampo(tcDe2, '#34', 'VALOR     ', 01, 15, 1, ValorDesconto2, DSC_VALOR_DESCONTO2)
           else
             Gerador.wCampo(tcDe4, '#35', 'PERCENTUAL', 01, 15, 1, ValorDesconto2, DSC_VALOR_DESCONTO2);
@@ -652,6 +651,8 @@ begin
   if Assigned(ATitulo) then
     with ATitulo do
     begin
+      if QtdePagamentoParcial = 0 then
+        QtdePagamentoParcial := 1;
       Gerador.wGrupo('PAGAMENTO');
       Gerador.wCampo(tcInt, '#40', 'QUANTIDADE_PERMITIDA', 01, 02, 0, QtdePagamentoParcial, DSC_QTDE_PAGAMENTO_PARCIAL);
       Gerador.wCampo(tcStr, '#41', 'TIPO                ', 01, 20, 1, TipoPagamentoToStr(TipoPagamento), DSC_TIPO_PAGAMENTO);

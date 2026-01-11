@@ -42,7 +42,7 @@ uses
    {$ENDIF}
   {$ENDIF}
   ACBrLibConsts,
-  Interfaces, sysutils, Classes, ACBrLibConfig, ACBrLibComum,
+  Interfaces, sysutils, Classes, Forms, ACBrLibConfig, ACBrLibComum,
   ACBrLibNCMsConfig, ACBrLibNCMsDataModule, ACBrLibNCMsBase,
   {$IFDEF MT}ACBrLibNCMsMT{$ELSE}ACBrLibNCMsST{$ENDIF};
 
@@ -83,6 +83,8 @@ begin
    SetHeapTraceOutput( HeapTraceFile );
   {$ENDIF}
 
+  Application.FindGlobalComponentEnabled:= false;
+  Application.Initialize;
   MainThreadID := GetCurrentThreadId();
 end.
 

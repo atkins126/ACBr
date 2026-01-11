@@ -2,7 +2,7 @@
 { Projeto: Componentes ACBr                                                    }
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
-{ Direitos Autorais Reservados (c) 2023 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2025 Daniel Simoes de Almeida               }
 
 
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
@@ -28,29 +28,22 @@
 {       Rua Coronel Aureliano de Camargo, 963 - Tatuí - SP - 18270-170         }
 {******************************************************************************}
 
-{  Algumas funçoes dessa Unit foram extraidas de outras Bibliotecas, veja no   }
-{ cabeçalho das Funçoes no código abaixo a origem das informaçoes, e autores...}
-
-{******************************************************************************}
-
 {$I ACBr.inc}
-
-
 
 unit ACBrUtil.FR;
 
 interface
 uses
+  frxClass,
 {$IFDEF FPC}
   BufDataset
 {$ELSE}
   DBClient
 {$ENDIF}
 ;
+
 type
-
   TACBrFRDataSet = {$IFDEF FPC}TBufDataset{$ELSE}TClientDataSet{$ENDIF};
-
 
 {$IFDEF FPC}
 { THBufDataset }
@@ -60,12 +53,18 @@ type
   end;
 
 {$ENDIF}
+  procedure SetDefaultPrinter(var frxReport : TfrxReport);
+  procedure RemoveExportFastReportPDFDuplicate;
 
 implementation
+uses
+  SysUtils,
+  frxDsgnIntf,
+  Classes,
+  Printers;
 
 {$IFDEF FPC}
 { THBufDataset }
-
 procedure THBufDataset.EmptyDataSet;
 begin
   TBufDataset(Self).Active := True;
@@ -75,5 +74,46 @@ begin
   TBufDataset(Self).Open;
 end;
 {$ENDIF}
+
+procedure RemoveExportFastReportPDFDuplicate;
+var
+  LCount, I: Integer;
+begin
+  //Remove do menu, exportações de PDF "duplicadas"
+  //FastReport varre a aplicação por RTTI buscando TfrxPDFExport
+  //Para cada TfrxPDFExport é criado um item no menu
+  //Este processo varre os plugins de exportação deixando apenas 1 (o ultimo) TfrxPDFExport por rtti
+  //Inserir na chamada do metodo Imprimir do Relatório
+  //proposto por Marcos R Weimer / compatibilizado por BigWings
+  (*LCount := 0;
+
+  for i := Pred(frxExportFilters.Count) downto 0 do
+  begin
+    if AnsiUpperCase(frxExportFilters[i].Filter.ClassName) = 'TFRXPDFEXPORT' then
+    begin
+      if LCount > 0 then
+        frxExportFilters.Delete(i)
+      else
+        Inc(LCount);
+    end;
+  end;*)
+end;
+
+procedure SetDefaultPrinter(var frxReport : TfrxReport);
+begin
+  try
+    frxReport.PrintOptions.Clear;
+    Printer.PrinterIndex := -1;
+    if Printer.PrinterIndex >= 0 then
+      frxReport.PrintOptions.Printer := Printer.Printers.Strings[Printer.PrinterIndex];
+  except
+    //caso ocorrer erro ao setar a impressora padrão, silenciar a exception
+  end;
+end;
+
+initialization
+begin
+
+end;
 
 end.

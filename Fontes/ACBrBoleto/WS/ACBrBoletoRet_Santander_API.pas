@@ -158,6 +158,7 @@ begin
                     begin
                       LTotalObjetos := LJsonArray.Count;
                       LJSONObject := LJsonArray.ItemAsJSONObject[0];
+
                       ARetornoWS.DadosRet.TituloRet.NossoNumero          := LJSONObject.AsString['bankNumber'];
                       ARetornoWS.DadosRet.TituloRet.SeuNumero            := LJSONObject.AsString['clientNumber'];
                       ARetornoWS.DadosRet.TituloRet.Vencimento           := StringToDateTimeDef(LJSONObject.AsString['dueDate'], 0, 'yyyy-mm-dd');
@@ -204,7 +205,13 @@ begin
                          nIndiceOBJ := strtoint(IfThen(LTotalObjetos>1,'1','0'))
                       else
                          nIndiceOBJ := 0;
-                      LJSONObject := LJsonArray.ItemAsJSONObject[nIndiceOBJ];
+
+
+                      if (LJsonArray.ItemAsJSONObject[nIndiceOBJ].AsJSONArray['_content'].Count > 0) then
+                        LJSONObject := LJsonArray.ItemAsJSONObject[nIndiceOBJ].AsJSONArray['_content'].ItemAsJSONObject[0]
+                      else
+                        LJSONObject := LJsonArray.ItemAsJSONObject[nIndiceOBJ];
+
                       if nIndiceOBJ = 0 then
                       begin
                         ARetornoWS.DadosRet.TituloRet.NossoNumero                 := LJSONObject.AsString['bankNumber'];
@@ -215,22 +222,28 @@ begin
                          ARetornoWS.DadosRet.TituloRet.DataDocumento               := StringToDateTimeDef(LJSONObject.AsString['issueDate'], 0, 'yyyy-mm-dd');
                         if ARetornoWS.DadosRet.TituloRet.ValorDocumento = 0 then
                          ARetornoWS.DadosRet.TituloRet.ValorDocumento              := LJSONObject.AsFloat['nominalValue'];
-                        if NaoEstaVazio(ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca) then
-                         ARetornoWS.DadosRet.TituloRet.CodigoEstadoTituloCobranca := RetornaCodigoOcorrencia(LJSONObject.AsString['status']);
+
+                        if EstaVazio(trim(ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca)) then
+                         begin
+                          ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := LJSONObject.AsString['status'];
+                          ARetornoWS.DadosRet.TituloRet.CodigoEstadoTituloCobranca := RetornaCodigoOcorrencia(LJSONObject.AsString['status']);
+                         end;
+
+                        if ARetornoWS.DadosRet.TituloRet.ValorDesconto = 0 then
+                         ARetornoWS.DadosRet.TituloRet.ValorDesconto               := LJSONObject.AsFloat['discountValue'];
+                        if ARetornoWS.DadosRet.TituloRet.ValorPago = 0 then
+                         ARetornoWS.DadosRet.TituloRet.ValorPago                   := LJSONObject.AsFloat['paidValue'];
+                        if ARetornoWS.DadosRet.TituloRet.ValorMoraJuros = 0 then
+                         ARetornoWS.DadosRet.TituloRet.ValorMoraJuros              := LJSONObject.AsFloat['interestValue'];
+                        if ARetornoWS.DadosRet.TituloRet.ValorAbatimento = 0 then
+                         ARetornoWS.DadosRet.TituloRet.ValorAbatimento             := LJSONObject.AsFloat['deductionValue'];
                       end;
 
-                      if EstaVazio(ARetornoWS.DadosRet.TituloRet.CodigoEstadoTituloCobranca) then
-                       ARetornoWS.DadosRet.TituloRet.CodigoEstadoTituloCobranca := RetornaCodigoOcorrencia(LJSONObject.AsString['status']);
-
-                      ARetornoWS.DadosRet.TituloRet.ValorDesconto               := LJSONObject.AsFloat['discountValue'];
-                      ARetornoWS.DadosRet.TituloRet.ValorPago                   := LJSONObject.AsFloat['paidValue'];
-                      ARetornoWS.DadosRet.TituloRet.ValorMoraJuros              := LJSONObject.AsFloat['interestValue'];
-                      ARetornoWS.DadosRet.TituloRet.ValorAbatimento             := LJSONObject.AsFloat['deductionValue'];
-
                       if LExisteBankSlip then
-                         nIndiceOBJ := strtoint(IfThen(LTotalObjetos>2,'2','1'))
+                       nIndiceOBJ := strtoint(IfThen(LTotalObjetos>2,'2','1'))
                       else
-                         nIndiceOBJ := strtoint(IfThen(LTotalObjetos>1,'1','0'));
+                       nIndiceOBJ := strtoint(IfThen(LTotalObjetos>1,'1','0'));
+
                       //settlementData consulta para pegar data do pagamento
                       if (LJsonArray.ItemAsJSONObject[nIndiceOBJ].AsJSONArray['settlementData'].Count > 0) then
                       begin
@@ -249,19 +262,28 @@ begin
                           if EstaVazio(ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca) then
                            ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := LJSONObject.AsString['status'];
                           ARetornoWS.DadosRet.TituloRet.ValorTarifa :=  LJSONObject.AsFloat['settlementDutyValue'];
+
+                          ARetornoWS.DadosRet.TituloRet.ValorDesconto   := LJSONObject.AsFloat['discountValue'];
+                          ARetornoWS.DadosRet.TituloRet.ValorMoraJuros  := LJSONObject.AsFloat['interestValue'];
+                          ARetornoWS.DadosRet.TituloRet.ValorAbatimento := LJSONObject.AsFloat['deductionValue'];
                         end;
                       end;
-                      if (LJsonArray.ItemAsJSONObject[nIndiceOBJ].AsJSONArray['writeOffData'].Count > 0) then
+                      if LJsonArray.ItemAsJSONObject[nIndiceOBJ].ValueExists('writeOffData') then
                       begin
-                        if LJsonArray.ItemAsJSONObject[nIndiceOBJ].ValueExists('writeOffData') then
+                        if  (LJsonArray.ItemAsJSONObject[nIndiceOBJ].AsJSONArray['writeOffData'].Count > 0) then
                         begin
                           LJSONObject := LJsonArray.ItemAsJSONObject[nIndiceOBJ].AsJSONArray['writeOffData'].ItemAsJSONObject[0];
                           if ARetornoWS.DadosRet.TituloRet.DataBaixa = 0 then
                            ARetornoWS.DadosRet.TituloRet.DataBaixa := StringToDateTimeDef(LJSONObject.AsString['writeOffDate'], 0, 'yyyy-mm-dd');
                           if ARetornoWS.DadosRet.TituloRet.ValorPago = 0 then
                            ARetornoWS.DadosRet.TituloRet.ValorPago := LJSONObject.AsFloat['writeOffValue'];
+                          if (ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca = 'BAIXADO') and
+                             (LJSONObject.ValueExists('writeOffDescription')) and
+                             (LJSONObject.AsString['writeOffDescription'] = 'BAIXA DE PAGAMENTO VIA PIX') then
+                           ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'LIQUIDADO';
                           if EstaVazio(ARetornoWS.DadosRet.TituloRet.CodigoEstadoTituloCobranca) then
-                           ARetornoWS.DadosRet.TituloRet.CodigoEstadoTituloCobranca := RetornaCodigoOcorrencia(LJSONObject.AsString['status']);
+                           ARetornoWS.DadosRet.TituloRet.CodigoEstadoTituloCobranca := RetornaCodigoOcorrencia(ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca);
+
                         end;
                       end;
                     end;
@@ -372,7 +394,7 @@ begin
               LJsonArrayErros := LJsonObject.AsJSONArray['_errors'];
               for I := 0 to Pred(LJsonArrayErros.Count) do
               begin
-                LErrosObject                 := LJsonArray.ItemAsJSONObject[I];
+                LErrosObject                 := LJsonArrayErros.ItemAsJSONObject[I];
                 LMensagemRejeicao            := LListaRetorno.CriarRejeicaoLista;
                 LMensagemRejeicao.Codigo     := LErrosObject.AsString['_code'];
                 LMensagemRejeicao.Versao     := LErrosObject.AsString['_field'];
@@ -386,12 +408,12 @@ begin
           begin
             LMensagemRejeicao            := LListaRetorno.CriarRejeicaoLista;
             case HTTPResultCode of
-            401: LMensagemRejeicao.Mensagem   := LErrosObject.AsString['Unauthorized'];
-            403: LMensagemRejeicao.Mensagem   := LErrosObject.AsString['Forbidden'];
-            406: LMensagemRejeicao.Mensagem   := LErrosObject.AsString['Not Acceptable'];
-            500: LMensagemRejeicao.Mensagem   := LErrosObject.AsString['Internal Server Error'];
+            401: LMensagemRejeicao.Mensagem   := LJsonObject.AsString['Unauthorized'];
+            403: LMensagemRejeicao.Mensagem   := LJsonObject.AsString['Forbidden'];
+            406: LMensagemRejeicao.Mensagem   := LJsonObject.AsString['Not Acceptable'];
+            500: LMensagemRejeicao.Mensagem   := LJsonObject.AsString['Internal Server Error'];
             end;
-            LMensagemRejeicao.Codigo     := inttostr(HTTPResultCode);
+            LMensagemRejeicao.Codigo     := IntToStr(HTTPResultCode);
           end;
         end;
 
@@ -504,12 +526,15 @@ begin
 end;
 
 function TRetornoEnvio_Santander_API.RetornaCodigoOcorrencia(pSituacaoGeralBoleto: string) : String;
+var
+LSituacao : string;
 begin
-  if (pSituacaoGeralBoleto  = 'ATIVO') then
+  LSituacao := AnsiUpperCase(pSituacaoGeralBoleto);
+  if (LSituacao  = 'ATIVO') then
     Result := '02'
-  else if (pSituacaoGeralBoleto  = 'LIQUIDADO') then
+  else if (LSituacao  = 'LIQUIDADO') then
     Result := '06'
-  else if (pSituacaoGeralBoleto  = 'BAIXADO') then
+  else if (LSituacao  = 'BAIXADO') then
     Result := '09'
   else
     Result := '99';

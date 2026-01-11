@@ -46,6 +46,9 @@ const
   UF_EXTERIOR = 'EX';
 
 resourcestring
+  // Descrição de Mensagens
+  Msg_ICMS_123_2006 = 'ICMS a ser recolhido conforme LC 123/2006 - Simples Nacional';
+
   // Descrição de Mensagens de Erro
   ERR_MSG_MAIOR = 'Tamanho maior que o máximo permitido';
   ERR_MSG_MENOR = 'Tamanho menor que o mínimo permitido';
@@ -171,6 +174,9 @@ resourcestring
   DSC_PCREDPRES = 'Percentual do Crédito Presumido';
   DSC_VCREDPRES = 'Valor do Crédito Presumido';
   DSC_VCREDPRESCONDSUS = 'Valor do Crédito Presumido em condição suspensiva.';
+  DSC_INDDOACAO = 'Informar quando doação';
+  DSC_VIBSESTCRED = 'Valor do IBS a ser estornado';
+  DSC_VCBSESTCRED = 'Valor do CBS a ser estornado';
 
   DSC_VTOTDFE = 'Valor total do documento fiscal';
 

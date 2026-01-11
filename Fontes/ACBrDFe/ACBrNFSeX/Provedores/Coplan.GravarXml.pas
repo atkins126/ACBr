@@ -40,7 +40,8 @@ uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase,
   ACBrNFSeXGravarXml_ABRASFv2,
-  ACBrNFSeXConversao;
+  ACBrNFSeXConversao,
+  PadraoNacional.GravarXml;
 
 type
   { TNFSeW_Coplan201 }
@@ -52,7 +53,17 @@ type
     function GerarXml: Boolean; override;
   end;
 
+  { TNFSeW_CoplanAPIPropria }
+
+  TNFSeW_CoplanAPIPropria = class(TNFSeW_PadraoNacional)
+  protected
+
+  end;
+
 implementation
+
+uses
+  ACBrDFe.Conversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:

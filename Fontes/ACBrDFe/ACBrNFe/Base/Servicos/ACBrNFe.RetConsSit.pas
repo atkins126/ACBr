@@ -44,7 +44,9 @@ uses
    System.Contnrs,
   {$IfEnd}
   pcnConversao,
-  ACBrBase, ACBrXmlBase,
+  ACBrBase,
+  ACBrXmlBase,
+  ACBrDFe.Conversao,
   ACBrDFeComum.Proc,
   ACBrNFe.Consts,
   ACBrNFe.RetEnvEvento;
@@ -207,7 +209,7 @@ begin
 
             if ANodeAux <> nil then
             begin
-              protNFe.tpAmb := StrToTipoAmbiente(ok, ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('tpAmb'), tcStr));
+              protNFe.tpAmb := StrToTpAmb(ok, ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('tpAmb'), tcStr));
               protNFe.verAplic := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('verAplic'), tcStr);
               protNFe.chDFe := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('chNFe'), tcStr);
               protNFe.dhRecbto := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('dhRecbto'), tcDatHor);
@@ -225,7 +227,7 @@ begin
 
         if cStat in [101, 151, 155] then
         begin
-          ANodeAux := ANode.Childrens.FindAnyNs('retCancNFe ');
+          ANodeAux := ANode.Childrens.FindAnyNs('retCancNFe');
 
           if ANodeAux <> nil then
           begin

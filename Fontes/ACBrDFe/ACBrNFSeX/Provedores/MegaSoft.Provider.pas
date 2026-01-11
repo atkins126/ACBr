@@ -66,6 +66,7 @@ type
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrUtil.XMLHTML,
   ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, MegaSoft.GravarXml, MegaSoft.LerXml;
@@ -180,8 +181,8 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:GerarNfseRequest>';
-  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
-  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '<nfseCabecMsg>' + IncluirCData(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + IncluirCData(AMSG) + '</nfseDadosMsg>';
   Request := Request + '</ws:GerarNfseRequest>';
 
   Result := Executar('http://ws.megasoftarrecadanet.com.br/GerarNfse', Request,

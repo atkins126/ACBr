@@ -42,6 +42,36 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+17/10/2025
+-- pmdfeMDFeR/pmdfeMDFeW --
+[-] Acrescentado a unit ACBrDFe.Conversao para compilar no Lazarus.
+   Por: Italo Giurizzato Junior
+
+09/10/2025
+-- Diversos --
+[*] Ajustes diversos em diversas units.
+  Por: Italo Giurizzato Junior
+
+29/09/2025
+-- ACBrMDFeWebServices --
+[*] A unit passou as novas units ACBrDFeComum.DistDFeInt e ACBrDFeComum.RetDistDFeInt.
+  Por: Italo Giurizzato Junior
+
+27/08/2025
+-- ACBrMDFe.XmlWriter --
+[*] #ACBr-7971: Corrigido a nomenclatura da tag principal do documento para mdfeProc, conforme consta
+    no Schema.
+  Por: THx
+-- ACBrMDFeWebServices --
+[-] #ACBr-7974: Correção na rotina que salva os eventos, estava somando 15 ao tamanho da tag
+    sendo que o correto é 16 e foi colocado uma checagem para testar a presença da tag procInfraSA.
+  Por: CONCEPT AUTOMACAO
+
+18/07/2025
+-- ACBrMDFe.XmlWriter --
+[*] Correção no tamanho mínimo e máximo da tag idCSRT.
+   Por: Italo Giurizzato Junior
+
 18/06/2025
 -- Diversos --
 [*] Substituido o tipo TpcnTipoAmbiente por TACBrTipoAmbiente e consequentemente

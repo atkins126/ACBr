@@ -38,8 +38,12 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXLerXml_ABRASFv2, ACBrNFSeXConversao, ACBrNFSeXLerXml;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrNFSeXLerXml_ABRASFv2,
+  ACBrNFSeXConversao,
+  ACBrNFSeXLerXml,
+  PadraoNacional.LerXml;
 
 type
   { TNFSeR_RLZ }
@@ -63,9 +67,19 @@ type
 
   end;
 
+  { TNFSeR_RLZAPIPropria }
+
+  TNFSeR_RLZAPIPropria = class(TNFSeR_PadraoNacional)
+  protected
+
+  public
+
+  end;
+
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrUtil.Base;
 
 //==============================================================================

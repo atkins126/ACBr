@@ -43,7 +43,8 @@ uses
   ACBrNFe.EnvEvento,
   ACBrNFe.RetInut, ACBrNFe.Classes, pcnConversao,
   ACBrDFeReport, ACBrDFeDANFeReport, ACBrNFeDANFEClass,
-  frxClass, frxExportPDF, frxDBSet, frxBarcode;
+  frxClass, frxExportPDF, frxDBSet, frxBarcode,
+  ACBrUtil.FR;
 
 type
 
@@ -186,7 +187,7 @@ implementation
 uses
   StrUtils, Math, DateUtils,
   ACBrNFe, ACBrNFeDANFEFR, ACBrDFeUtil,
-  ACBrUtil.Strings, 
+  ACBrUtil.Strings,
   ACBrUtil.Math, ACBrUtil.FilesIO, ACBrUtil.Base, ACBrUtil.DateTime, ACBrUtil.XMLHTML,
   ACBrValidador, ACBrImage, ACBrDelphiZXingQRCode,
   pcnConversaoNFe;
@@ -414,7 +415,7 @@ begin
         FieldDefs.Add('ValorAcrescimos' , ftString, 18);
         FieldDefs.Add('ValorDescontos'  , ftString, 18);
         FieldDefs.Add('xPed'            , ftString, 15);
-        FieldDefs.Add('nItemPed'        , ftInteger);
+        FieldDefs.Add('nItemPed'        , ftString, 6);
 
         CreateDataSet;
      end;
@@ -1108,7 +1109,7 @@ begin
         *)
         FieldByName('ValorAcrescimos').AsString   := FormatFloatBr( Prod.vOutro + Prod.vFrete + Prod.vSeg, ',0.00');
         FieldByName('xPed').AsString              := Prod.xPed;
-        FieldByName('nItemPed').AsInteger         := Prod.nItem;
+        FieldByName('nItemPed').AsString          := Prod.nItemPed;
         Post;
       end;
     end;
@@ -1889,7 +1890,6 @@ end;
 
 procedure TACBrNFeFRClass.CarregaDadosEventos;
 var
-  i: Integer;
   CondicoesUso, Correcao: String;
   documentoAtor: String;
 begin
@@ -1922,74 +1922,71 @@ begin
 
     CreateDataSet;
 
-    //for i := 0 to FEvento.Evento.Count - 1 do
-    //begin
-      Append;
+    Append;
 
-      with Evento.Evento[DANFEClassOwner.FIndexImpressaoEventosIndividual -1] do
+    with Evento.Evento[DANFEClassOwner.FIndexImpressaoEventosIndividual -1] do
+    begin
+      FieldByName('DescricaoTipoEvento').AsString := InfEvento.DescricaoTipoEvento(InfEvento.tpEvento);
+
+      // nota fiscal eletronica
+      FieldByName('Modelo').AsString      := Copy(InfEvento.chNFe, 21, 2);
+      FieldByName('Serie').AsString       := Copy(InfEvento.chNFe, 23, 3);
+      FieldByName('Numero').AsString      := Copy(InfEvento.chNFe, 26, 9);
+      FieldByName('MesAno').AsString      := Copy(InfEvento.chNFe, 05, 2) + '/' + copy(InfEvento.chNFe, 03, 2);
+      FieldByName('Barras').AsString      := InfEvento.chNFe;
+      FieldByName('ChaveAcesso').AsString := FormatarChaveAcesso(InfEvento.chNFe);
+
+      // Carta de correção eletrônica
+      FieldByName('cOrgao').AsInteger := InfEvento.cOrgao;
+
+      case InfEvento.tpAmb of
+        taProducao:    FieldByName('tpAmb').AsString := ACBrStr('PRODUÇÃO');
+        taHomologacao: FieldByName('tpAmb').AsString := ACBrStr('HOMOLOGAÇÃO - SEM VALOR FISCAL');
+      end;
+
+      FieldByName('dhEvento').AsDateTime    := InfEvento.dhEvento;
+      FieldByName('TipoEvento').AsString    := InfEvento.TipoEvento;
+      FieldByName('DescEvento').AsString    := InfEvento.DescEvento;
+      FieldByName('nSeqEvento').AsInteger   := InfEvento.nSeqEvento;
+      FieldByName('versaoEvento').AsString  := InfEvento.versaoEvento;
+      FieldByName('cStat').AsInteger        := RetInfEvento.cStat;
+      FieldByName('xMotivo').AsString       := RetInfEvento.xMotivo;
+      FieldByName('nProt').AsString         := RetInfEvento.nProt;
+      FieldByName('dhRegEvento').AsDateTime := RetInfEvento.dhRegEvento;
+
+      if (InfEvento.tpEvento <> teCCe) and (InfEvento.tpEvento <> teAtorInteressadoNFe) then
       begin
-        FieldByName('DescricaoTipoEvento').AsString := InfEvento.DescricaoTipoEvento(InfEvento.tpEvento);
+        FieldByName('xJust').AsString := InfEvento.detEvento.xJust;
+        if InfEvento.tpEvento = teInsucessoEntregaNFe then
+          FieldByName('xJust').AsString := InfEvento.detEvento.xJustMotivo;
+      end
+      else
+      begin
+        CondicoesUso := InfEvento.detEvento.xCondUso;
+        CondicoesUso := StringReplace(CondicoesUso, 'com: I', 'com:'+#13+' I', [rfReplaceAll]);
+        CondicoesUso := StringReplace(CondicoesUso, FDANFEClassOwner.CaractereQuebraDeLinha, FDANFEClassOwner.CaractereQuebraDeLinha + #13, [rfReplaceAll]);
 
-        // nota fiscal eletronica
-        FieldByName('Modelo').AsString      := Copy(InfEvento.chNFe, 21, 2);
-        FieldByName('Serie').AsString       := Copy(InfEvento.chNFe, 23, 3);
-        FieldByName('Numero').AsString      := Copy(InfEvento.chNFe, 26, 9);
-        FieldByName('MesAno').AsString      := Copy(InfEvento.chNFe, 05, 2) + '/' + copy(InfEvento.chNFe, 03, 2);
-        FieldByName('Barras').AsString      := InfEvento.chNFe;
-        FieldByName('ChaveAcesso').AsString := FormatarChaveAcesso(InfEvento.chNFe);
+        Correcao := StringReplace(InfEvento.detEvento.xCorrecao,
+          FDANFEClassOwner.CaractereQuebraDeLinha, #13,
+           [rfReplaceAll]);
 
-        // Carta de correção eletrônica
-        FieldByName('cOrgao').AsInteger := InfEvento.cOrgao;
+        FieldByName('xCondUso').AsString  := CondicoesUso;
+        FieldByName('xCorrecao').AsString := Correcao;
 
-        case InfEvento.tpAmb of
-          taProducao:    FieldByName('tpAmb').AsString := ACBrStr('PRODUÇÃO');
-          taHomologacao: FieldByName('tpAmb').AsString := ACBrStr('HOMOLOGAÇÃO - SEM VALOR FISCAL');
-        end;
-
-        FieldByName('dhEvento').AsDateTime    := InfEvento.dhEvento;
-        FieldByName('TipoEvento').AsString    := InfEvento.TipoEvento;
-        FieldByName('DescEvento').AsString    := InfEvento.DescEvento;
-        FieldByName('nSeqEvento').AsInteger   := InfEvento.nSeqEvento;
-        FieldByName('versaoEvento').AsString  := InfEvento.versaoEvento;
-        FieldByName('cStat').AsInteger        := RetInfEvento.cStat;
-        FieldByName('xMotivo').AsString       := RetInfEvento.xMotivo;
-        FieldByName('nProt').AsString         := RetInfEvento.nProt;
-        FieldByName('dhRegEvento').AsDateTime := RetInfEvento.dhRegEvento;
-
-        if (InfEvento.tpEvento <> teCCe) and (InfEvento.tpEvento <> teAtorInteressadoNFe) then
+        if (InfEvento.tpEvento = teAtorInteressadoNFe) then
         begin
-          FieldByName('xJust').AsString := InfEvento.detEvento.xJust;
-          if InfEvento.tpEvento = teInsucessoEntregaNFe then
-            FieldByName('xJust').AsString := InfEvento.detEvento.xJustMotivo;
-        end
-        else
-        begin
-          CondicoesUso := InfEvento.detEvento.xCondUso;
-          CondicoesUso := StringReplace(CondicoesUso, 'com: I', 'com:'+#13+' I', [rfReplaceAll]);
-          CondicoesUso := StringReplace(CondicoesUso, FDANFEClassOwner.CaractereQuebraDeLinha, FDANFEClassOwner.CaractereQuebraDeLinha + #13, [rfReplaceAll]);
+            documentoAtor := InfEvento.detEvento.autXML[0].CNPJCPF;
 
-          Correcao := StringReplace(InfEvento.detEvento.xCorrecao,
-            FDANFEClassOwner.CaractereQuebraDeLinha, #13,
-             [rfReplaceAll]);
+            FieldByName('xJust').AsString := 'CNPJ: ' + documentoAtor;
+            if (documentoAtor > '') and (length(documentoAtor) < 14) then
+                FieldByName('xJust').AsString := 'CPF: ' + documentoAtor;
 
-          FieldByName('xCondUso').AsString  := CondicoesUso;
-          FieldByName('xCorrecao').AsString := Correcao;
-
-          if (InfEvento.tpEvento = teAtorInteressadoNFe) then
-          begin
-              documentoAtor := InfEvento.detEvento.autXML[0].CNPJCPF;
-
-              FieldByName('xJust').AsString := 'CNPJ: ' + documentoAtor;
-              if (documentoAtor > '') and (length(documentoAtor) < 14) then
-                  FieldByName('xJust').AsString := 'CPF: ' + documentoAtor;
-
-              if (InfEvento.detEvento.tpAutorizacao <> taNaoInformar) then
-                  FieldByName('xJust').AsString := FieldByName('xJust').AsString + ' - Tipo Autorização: ' + AutorizacaoToStr(InfEvento.detEvento.tpAutorizacao);
-          end;
+            if (InfEvento.detEvento.tpAutorizacao <> taNaoInformar) then
+                FieldByName('xJust').AsString := FieldByName('xJust').AsString + ' - Tipo Autorização: ' + AutorizacaoToStr(InfEvento.detEvento.tpAutorizacao);
         end;
       end;
-      Post;
-    //end;
+    end;
+    Post;
   end;
 end;
 
@@ -2078,10 +2075,7 @@ begin
   else
     raise EACBrNFeDANFEFR.Create('Caminho do arquivo de impressão do DANFE não assinalado.');
 
-  frxReport.PrintOptions.Copies := DANFEClassOwner.NumCopias;
-  frxReport.PrintOptions.ShowDialog := DANFEClassOwner.MostraSetup;
-  frxReport.PrintOptions.PrintMode := FPrintMode; //Precisamos dessa propriedade porque impressoras não fiscais cortam o papel quando há muitos itens. O ajuste dela deve ser necessariamente após a carga do arquivo FR3 pois, antes da carga o componente é inicializado
-  frxReport.PrintOptions.PrintOnSheet := FPrintOnSheet; //Essa propriedade pode trabalhar em conjunto com a printmode
+
   frxReport.ShowProgress := DANFEClassOwner.MostraStatus;
   frxReport.PreviewOptions.AllowEdit := False;
   frxReport.PreviewOptions.ShowCaptions := FExibeCaptionButton;
@@ -2102,8 +2096,17 @@ begin
     frxReport.FileName := DANFEClassOwner.NomeDocumento;
 
   // Define a impressora
-  if NaoEstaVazio(DANFEClassOwner.Impressora) then
+  if EstaVazio(DANFEClassOwner.Impressora) then
+  begin
+    frxReport.PrintOptions.Clear;
+    SetDefaultPrinter(FfrxReport);
+  end else
     frxReport.PrintOptions.Printer := DANFEClassOwner.Impressora;
+
+  frxReport.PrintOptions.Copies := DANFEClassOwner.NumCopias;
+  frxReport.PrintOptions.ShowDialog := DANFEClassOwner.MostraSetup;
+  frxReport.PrintOptions.PrintMode := FPrintMode; //Precisamos dessa propriedade porque impressoras não fiscais cortam o papel quando há muitos itens. O ajuste dela deve ser necessariamente após a carga do arquivo FR3 pois, antes da carga o componente é inicializado
+  frxReport.PrintOptions.PrintOnSheet := FPrintOnSheet; //Essa propriedade pode trabalhar em conjunto com a printmode
 
   // preparar relatorio
   if Assigned(ANFE) then
@@ -2111,6 +2114,7 @@ begin
     NFe := ANFE;
     CarregaDadosNFe;
 
+    AjustaMargensReports;
     Result := frxReport.PrepareReport;
   end
   else
@@ -2121,6 +2125,7 @@ begin
       begin
         NFe := TACBrNFe(DANFEClassOwner.ACBrNFe).NotasFiscais[DANFEClassOwner.FIndexImpressaoIndividual-1].NFe;
         CarregaDadosNFe;
+        AjustaMargensReports;
         Result := frxReport.PrepareReport( DANFEClassOwner.FIndexImpressaoIndividual > 0 );
       end else
       begin
@@ -2128,6 +2133,7 @@ begin
         begin
           NFe := TACBrNFe(DANFEClassOwner.ACBrNFe).NotasFiscais[I].NFe;
           CarregaDadosNFe;
+          AjustaMargensReports;
           Result := frxReport.PrepareReport( not (i > 0) );
         end;
       end;
@@ -2135,18 +2141,12 @@ begin
     else
       raise EACBrNFeDANFEFR.Create('Propriedade ACBrNFe não assinalada.');
   end;
-
-  if Assigned(NFe) then
-  begin
-    AjustaMargensReports;
-  end;
-
 end;
 
 function TACBrNFeFRClass.PrepareReportEvento(ANFE: TNFe = nil): Boolean;
 var
- wProjectStream: TStringStream;
-  I, J: Integer;
+  wProjectStream: TStringStream;
+  J: Integer;
   LResetar : Boolean;
 begin
   SetDataSetsToFrxReport;
@@ -2175,8 +2175,6 @@ begin
   else
     raise EACBrNFeDANFEFR.Create('Caminho do arquivo de impressão do EVENTO não assinalado.');
 
-  frxReport.PrintOptions.Copies := DANFEClassOwner.NumCopias;
-  frxReport.PrintOptions.ShowDialog := DANFEClassOwner.MostraSetup;
   frxReport.ShowProgress := DANFEClassOwner.MostraStatus;
   frxReport.PreviewOptions.ShowCaptions := ExibeCaptionButton;
   frxReport.PreviewOptions.ZoomMode     := ZoomModePadrao;
@@ -2186,8 +2184,13 @@ begin
     frxReport.FileName := DANFEClassOwner.NomeDocumento;
 
   // Define a impressora
-  if NaoEstaVazio(DANFEClassOwner.Impressora) then
+  if EstaVazio(DANFEClassOwner.Impressora) then
+    SetDefaultPrinter(FfrxReport)
+  else
     frxReport.PrintOptions.Printer := DANFEClassOwner.Impressora;
+
+  frxReport.PrintOptions.Copies := DANFEClassOwner.NumCopias;
+  frxReport.PrintOptions.ShowDialog := DANFEClassOwner.MostraSetup;
 
   // preparar relatorio
   if Assigned(DANFEClassOwner.ACBrNFe) then
@@ -2221,13 +2224,12 @@ begin
       CarregaDadosNFe;
     end;
 
+    AjustaMargensReports;
     Result := frxReport.PrepareReport(LResetar);
   end
   else
     raise EACBrNFeDANFEFR.Create('Propriedade ACBrNFe não assinalada.');
 
-  AjustaMargensReports;
-  DANFEClassOwner.FIndexImpressaoEventosIndividual := 0;
 end;
 
 function TACBrNFeFRClass.PrepareReportInutilizacao: Boolean;
@@ -2255,8 +2257,6 @@ begin
   else
     raise EACBrNFeDANFEFR.Create('Caminho do arquivo de impressão de INUTILIZAÇÃO não assinalado.');
 
-  frxReport.PrintOptions.Copies := DANFEClassOwner.NumCopias;
-  frxReport.PrintOptions.ShowDialog := DANFEClassOwner.MostraSetup;
   frxReport.ShowProgress := DANFEClassOwner.MostraStatus;
   frxReport.PreviewOptions.ShowCaptions := ExibeCaptionButton;
   frxReport.PreviewOptions.ZoomMode     := ZoomModePadrao;
@@ -2266,8 +2266,13 @@ begin
     frxReport.FileName := DANFEClassOwner.NomeDocumento;
 
   // Define a impressora
-  if NaoEstaVazio(DANFEClassOwner.Impressora) then
+  if EstaVazio(DANFEClassOwner.Impressora) then
+    SetDefaultPrinter(FfrxReport)
+  else
     frxReport.PrintOptions.Printer := DANFEClassOwner.Impressora;
+
+  frxReport.PrintOptions.Copies := DANFEClassOwner.NumCopias;
+  frxReport.PrintOptions.ShowDialog := DANFEClassOwner.MostraSetup;
 
   // preparar relatorio
   if Assigned(DANFEClassOwner.ACBrNFe) then
@@ -2280,13 +2285,11 @@ begin
     else
       raise EACBrNFeDANFEFR.Create('INUTILIZAÇÃO não foi assinalada.');
 
+    AjustaMargensReports;
     Result := frxReport.PrepareReport;
   end
   else
     raise EACBrNFeDANFEFR.Create('Propriedade ACBrNFe não assinalada.');
-
-  AjustaMargensReports;
-
 end;
 
 procedure TACBrNFeFRClass.frxReportBeforePrint(Sender: TfrxReportComponent);
@@ -2404,6 +2407,7 @@ end;
 
 procedure TACBrNFeFRClass.ImprimirDANFE(ANFE: TNFe);
 begin
+  RemoveExportFastReportPDFDuplicate;
   DANFEClassOwner.FIndexImpressaoIndividual := -1;
   if PrepareReport(ANFE) then
   begin
@@ -2420,55 +2424,45 @@ const
 var
   fsShowDialog : Boolean;
   NomeArq: String;
-  I : Integer;
 begin
-  for I := 1 to TACBrNFe(DANFEClassOwner.ACBrNFe).NotasFiscais.Count do
+  RemoveExportFastReportPDFDuplicate;
+  if PrepareReport(ANFE) then
   begin
-    DANFEClassOwner.FIndexImpressaoIndividual := I;
-    if PrepareReport(ANFE) then
-    begin
-      if (AStream <> nil) then
-        frxPDFExport.Stream := AStream;
+    if (AStream <> nil) then
+      frxPDFExport.Stream := AStream;
 
-      frxPDFExport.Author        := DANFEClassOwner.Sistema;
-      frxPDFExport.Creator       := DANFEClassOwner.Sistema;
-      frxPDFExport.Producer      := DANFEClassOwner.Sistema;
-      frxPDFExport.Title         := TITULO_PDF;
-      frxPDFExport.Subject       := TITULO_PDF;
-      frxPDFExport.Keywords      := TITULO_PDF;
-      frxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
-      frxPDFExport.Background    := IncorporarBackgroundPdf;
-      frxPDFExport.PrintOptimized := OtimizaImpressaoPdf;
+    frxPDFExport.Author        := DANFEClassOwner.Sistema;
+    frxPDFExport.Creator       := DANFEClassOwner.Sistema;
+    frxPDFExport.Producer      := DANFEClassOwner.Sistema;
+    frxPDFExport.Title         := TITULO_PDF;
+    frxPDFExport.Subject       := TITULO_PDF;
+    frxPDFExport.Keywords      := TITULO_PDF;
+    frxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
+    frxPDFExport.Background    := IncorporarBackgroundPdf;
+    frxPDFExport.PrintOptimized := OtimizaImpressaoPdf;
 
-      fsShowDialog := frxPDFExport.ShowDialog;
-      try
-        frxPDFExport.ShowDialog := False;
+    fsShowDialog := frxPDFExport.ShowDialog;
+    try
+      frxPDFExport.ShowDialog := False;
+      frxPDFExport.FileName := DefinirNomeArquivo(DANFEClassOwner.PathPDF,
+                               OnlyNumber(NFE.infNFe.ID) + '-nfe.pdf',
+                               DANFEClassOwner.NomeDocumento);
 
-        //NomeArq := Trim(DANFEClassOwner.NomeDocumento);
-        //if EstaVazio(NomeArq) then
-        //  NomeArq := OnlyNumber(NFe.infNFe.ID) + '-nfe.pdf';
-        //frxPDFExport.FileName := PathWithDelim(DANFEClassOwner.PathPDF) +	NomeArq;
+      if not DirectoryExists(ExtractFileDir(frxPDFExport.FileName)) then
+        ForceDirectories(ExtractFileDir(frxPDFExport.FileName));
 
-
-        frxPDFExport.FileName := DefinirNomeArquivo(DANFEClassOwner.PathPDF,
-                                 OnlyNumber(NFe.infNFe.ID) + '-nfe.pdf',
-                                 DANFEClassOwner.NomeDocumento);
-
-        if not DirectoryExists(ExtractFileDir(frxPDFExport.FileName)) then
-          ForceDirectories(ExtractFileDir(frxPDFExport.FileName));
-
-        frxReport.Export(frxPDFExport);
-      finally
-        frxPDFExport.ShowDialog := fsShowDialog;
-      end;
-    end
-    else
-      frxPDFExport.FileName := '';
-  end;
+      frxReport.Export(frxPDFExport);
+    finally
+      frxPDFExport.ShowDialog := fsShowDialog;
+    end;
+  end
+  else
+    frxPDFExport.FileName := '';
 end;
 
 procedure TACBrNFeFRClass.ImprimirDANFEResumido(ANFE: TNFe);
 begin
+  RemoveExportFastReportPDFDuplicate;
   if PrepareReport(ANFE) then
   begin
     if DANFEClassOwner.MostraPreview then
@@ -2479,22 +2473,18 @@ begin
 end;
 
 procedure TACBrNFeFRClass.ImprimirEVENTO(ANFE: TNFe);
-var I : Integer;
+var
   OK : boolean;
 begin
-  for I := 1 to TACBrNFe(DANFEClassOwner.ACBrNFe).EventoNFe.Evento.Count do
-  begin
-    DANFEClassOwner.FIndexImpressaoIndividual        := -2;
-    DANFEClassOwner.FIndexImpressaoEventosIndividual := I;
-    OK := PrepareReportEvento;
-  end;
+  RemoveExportFastReportPDFDuplicate;
+  OK := PrepareReportEvento;
   if OK then
   begin
     if DANFEClassOwner.MostraPreview then
       frxReport.ShowPreparedReport
     else
       frxReport.Print;
-    end;
+  end;
 end;
 
 procedure TACBrNFeFRClass.ImprimirEVENTOPDF(ANFE: TNFe = nil; AStream: TStream = nil);
@@ -2503,56 +2493,44 @@ const
 var
   NomeArq: String;
   fsShowDialog: Boolean;
-  I : integer;
 begin
-  for I := 1 to TACBrNFe(DANFEClassOwner.ACBrNFe).EventoNFe.Evento.Count do
+  if PrepareReportEvento(ANFE) then
   begin
-    DANFEClassOwner.FIndexImpressaoIndividual        := -1;
-    DANFEClassOwner.FIndexImpressaoEventosIndividual := I;
+    if (AStream <> nil) then
+      frxPDFExport.Stream := AStream;
+    frxPDFExport.Author        := DANFEClassOwner.Sistema;
+    frxPDFExport.Creator       := DANFEClassOwner.Sistema;
+    frxPDFExport.Producer      := DANFEClassOwner.Sistema;
+    frxPDFExport.Title         := TITULO_PDF;
+    frxPDFExport.Subject       := TITULO_PDF;
+    frxPDFExport.Keywords      := TITULO_PDF;
+    frxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
+    frxPDFExport.Background    := IncorporarBackgroundPdf;
+    frxPDFExport.PrintOptimized := OtimizaImpressaoPdf;
 
-    if PrepareReportEvento(ANFE) then
-    begin
-      DANFEClassOwner.FIndexImpressaoEventosIndividual := I;
-      if (AStream <> nil) then
-        frxPDFExport.Stream := AStream;
-      frxPDFExport.Author        := DANFEClassOwner.Sistema;
-      frxPDFExport.Creator       := DANFEClassOwner.Sistema;
-      frxPDFExport.Producer      := DANFEClassOwner.Sistema;
-      frxPDFExport.Title         := TITULO_PDF;
-      frxPDFExport.Subject       := TITULO_PDF;
-      frxPDFExport.Keywords      := TITULO_PDF;
-      frxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
-      frxPDFExport.Background    := IncorporarBackgroundPdf;
-      frxPDFExport.PrintOptimized := OtimizaImpressaoPdf;
+    fsShowDialog := frxPDFExport.ShowDialog;
+    try
+      frxPDFExport.ShowDialog := False;
 
-      fsShowDialog := frxPDFExport.ShowDialog;
-      try
-        frxPDFExport.ShowDialog := False;
-        //NomeArq := Trim(DANFEClassOwner.NomeDocumento);
-        //if EstaVazio(NomeArq) then
-        //  NomeArq := OnlyNumber(TACBrNFe(DANFEClassOwner.ACBrNFe).EventoNFe.Evento.Items[0].InfEvento.ID) + '-procEventoNFe.pdf';
-        //frxPDFExport.FileName := PathWithDelim(DANFEClassOwner.PathPDF) + NomeArq;
+      frxPDFExport.FileName := DefinirNomeArquivo(DANFEClassOwner.PathPDF,
+                                 OnlyNumber(Evento.Evento[DANFEClassOwner.FIndexImpressaoEventosIndividual-1].InfEvento.id) + '-procEventoNFe.pdf',
+                                 DANFEClassOwner.NomeDocumento);
 
-        frxPDFExport.FileName := DefinirNomeArquivo(DANFEClassOwner.PathPDF,
-                                   OnlyNumber(Evento.Evento[DANFEClassOwner.FIndexImpressaoEventosIndividual-1].InfEvento.id) + '-procEventoNFe.pdf',
-                                   DANFEClassOwner.NomeDocumento);
+      if not DirectoryExists(ExtractFileDir(frxPDFExport.FileName)) then
+        ForceDirectories(ExtractFileDir(frxPDFExport.FileName));
 
-        if not DirectoryExists(ExtractFileDir(frxPDFExport.FileName)) then
-          ForceDirectories(ExtractFileDir(frxPDFExport.FileName));
-
-        frxReport.Export(frxPDFExport);
-      finally
-        frxPDFExport.ShowDialog := fsShowDialog;
-      end;
-    end
-    else
-      frxPDFExport.Filename := '';
-  end;
+      frxReport.Export(frxPDFExport);
+    finally
+      frxPDFExport.ShowDialog := fsShowDialog;
+    end;
+  end
+  else
+    frxPDFExport.Filename := '';
 end;
 
 procedure TACBrNFeFRClass.ImprimirINUTILIZACAO(ANFE: TNFe);
 begin
-
+  RemoveExportFastReportPDFDuplicate;
   if PrepareReportInutilizacao then
   begin
     if DANFEClassOwner.MostraPreview then
@@ -2587,9 +2565,11 @@ begin
     try
       frxPDFExport.ShowDialog := False;
       NomeArq := Trim(DANFEClassOwner.NomeDocumento);
-      if EstaVazio(NomeArq) then
-        NomeArq := OnlyNumber(TACBrNFe(DANFEClassOwner.ACBrNFe).InutNFe.RetInutNFe.Id) + '-procInutNFe.pdf';
-      frxPDFExport.FileName := PathWithDelim(DANFEClassOwner.PathPDF) + NomeArq;
+
+
+      frxPDFExport.FileName := DefinirNomeArquivo(DANFEClassOwner.PathPDF,
+                                   OnlyNumber(TACBrNFe(DANFEClassOwner.ACBrNFe).InutNFe.Id) + '-procInutNFe.pdf',
+                                   DANFEClassOwner.NomeDocumento);
 
       if not DirectoryExists(ExtractFileDir(frxPDFExport.FileName)) then
         ForceDirectories(ExtractFileDir(frxPDFExport.FileName));
@@ -2608,18 +2588,20 @@ var
   Page: TfrxReportPage;
   I: Integer;
 begin
-  for I := 0 to (frxReport.PreviewPages.Count - 1) do
+  for I := 0 to (frxReport.PagesCount - 1) do
   begin
-    Page := frxReport.PreviewPages.Page[I];
-    if (DANFEClassOwner.MargemSuperior > 0) then
-      Page.TopMargin := DANFEClassOwner.MargemSuperior;
-    if (DANFEClassOwner.MargemInferior > 0) then
-      Page.BottomMargin := DANFEClassOwner.MargemInferior;
-    if (DANFEClassOwner.MargemEsquerda > 0) then
-      Page.LeftMargin := DANFEClassOwner.MargemEsquerda;
-    if (DANFEClassOwner.MargemDireita > 0) then
-      Page.RightMargin := DANFEClassOwner.MargemDireita;
-    frxReport.PreviewPages.ModifyPage(I, Page);
+    if frxReport.Pages[I] is TfrxReportPage then
+    begin
+      Page := TfrxReportPage(frxReport.Pages[I]);
+      if (DANFEClassOwner.MargemSuperior > 0) then
+        Page.TopMargin := DANFEClassOwner.MargemSuperior;
+      if (DANFEClassOwner.MargemInferior > 0) then
+        Page.BottomMargin := DANFEClassOwner.MargemInferior;
+      if (DANFEClassOwner.MargemEsquerda > 0) then
+        Page.LeftMargin := DANFEClassOwner.MargemEsquerda;
+      if (DANFEClassOwner.MargemDireita > 0) then
+        Page.RightMargin := DANFEClassOwner.MargemDireita;
+    end;
   end;
 end;
 

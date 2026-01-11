@@ -136,7 +136,8 @@ type
   function DTtoS( ADateTime : TDateTime) : string;
 
   function Iso8601ToDateTime(const AISODate: string): TDateTime;
-  function DateTimeToIso8601(ADate: TDateTime; const ATimeZone: string = ''): string;
+  function DateTimeToIso8601(ADate: TDateTime; const ATimeZone: string = ''; IncludeMilliseconds: Boolean = True): string;
+  function DateToIso8601(ADate: TDateTime): string;
 
   { Bias = Diferença em minutos do horário atual com o UTC }
   function BiasToTimeZone(const aBias: Integer): string;
@@ -157,7 +158,7 @@ type
 
   function UnixDateTimeBase: TDateTime;
   function DateTimeToUnixMilliseconds(const AValue: TDateTime; InputIsUTC: Boolean = True): Int64;
-  function UnixMillisecondsToDateTime(const AValue: Int64): TDateTime;
+  function UnixMillisecondsToDateTime(const AValue: Int64; InputIsUTC: Boolean = True): TDateTime;
 
 var
   TimeZoneConfInstance: TTimeZoneConf;
@@ -771,17 +772,27 @@ begin
   Result := EncodeDateTime(y,m,d, h,n,s,z);
 end;
 
-function DateTimeToIso8601(ADate: TDateTime; const ATimeZone: string = ''): string;
+function DateTimeToIso8601(ADate: TDateTime; const ATimeZone: string; IncludeMilliseconds: Boolean): string;
 const
   SDateFormat: string = 'yyyy''-''mm''-''dd''T''hh'':''nn'':''ss''.''zzz''Z''';
+  SDateFormatWithoutMill: string = 'yyyy''-''mm''-''dd''T''hh'':''nn'':''ss''Z''';
 begin
-  Result := FormatDateTime(SDateFormat, ADate);
+  if IncludeMilliseconds then
+    Result := FormatDateTime(SDateFormat, ADate)
+  else
+    Result := FormatDateTime(SDateFormatWithoutMill, ADate);
+
   if ATimeZone <> '' then
   begin;
     // Remove the Z, in order to add the UTC_Offset to the string.
     SetLength(Result, Length(Result) - 1);
     Result := Result + ATimeZone;
   end;
+end;
+
+function DateToIso8601(ADate: TDateTime): string;
+begin
+  Result := FormatDateTime('yyyy''-''mm''-''dd', ADate);
 end;
 
 function BiasToTimeZone(const aBias: Integer): string;
@@ -1205,9 +1216,16 @@ end;
 {-----------------------------------------------------------------------------
   Converte um Valor de Unix Time em Milisegundos para Pascal TDateTime
  -----------------------------------------------------------------------------}
-function UnixMillisecondsToDateTime(const AValue: Int64): TDateTime;
+function UnixMillisecondsToDateTime(const AValue: Int64; InputIsUTC: Boolean): TDateTime;
+var
+  tzb: Integer;
 begin
   Result := IncMilliSecond(UnixDateTimeBase, AValue);
+  if (not InputIsUTC) then
+  begin
+    tzb := TimeZoneToBias(GetUTCSistema);
+    Result := IncMinute(Result, -tzb);
+  end;
 end;
 
 initialization

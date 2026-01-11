@@ -38,6 +38,9 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
+  ACBrXmlBase,
+  ACBrDFe.Conversao,
+  ACBrXmlDocument,
   ACBrNFSeXLerXml_ABRASFv2;
 
 type
@@ -45,7 +48,7 @@ type
 
   TNFSeR_Libre204 = class(TNFSeR_ABRASFv2)
   protected
-
+    procedure LerPrestadorServico(const ANode: TACBrXmlNode); override;
   public
 
   end;
@@ -56,5 +59,45 @@ implementation
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
 //     Libre
 //==============================================================================
+
+{ TNFSeR_Libre204 }
+
+procedure TNFSeR_Libre204.LerPrestadorServico(const ANode: TACBrXmlNode);
+var
+  AuxNode, AuxNodePrestador, AuxNodeCpfCnpj: TACBrXmlNode;
+begin
+  if not Assigned(ANode) then Exit;
+
+  AuxNode := ANode.Childrens.FindAnyNs('PrestadorServico');
+  if AuxNode <> nil then
+  begin
+    with NFSe.Prestador do
+    begin
+      RazaoSocial := ObterConteudo(AuxNode.Childrens.FindAnyNs('RazaoSocial'), tcStr);
+      RazaoSocial := StringReplace(RazaoSocial, '&amp;', '&', [rfReplaceAll]);
+      NomeFantasia := ObterConteudo(AuxNode.Childrens.FindAnyNs('NomeFantasia'), tcStr);
+    end;
+
+    LerEnderecoPrestadorServico(AuxNode, 'Endereco');
+    LerContatoPrestador(AuxNode);
+  end;
+
+  AuxNodePrestador := ANode.Childrens.FindAnyNs('Prestador');
+  if AuxNodePrestador <> nil then
+  begin
+    with NFSe.Prestador.IdentificacaoPrestador do
+    begin
+      AuxNodeCpfCnpj := AuxNodePrestador.Childrens.FindAnyNs('CpfCnpj');
+      if AuxNodeCpfCnpj <> nil then
+      begin
+        CpfCnpj := ObterConteudo(AuxNodeCpfCnpj.Childrens.FindAnyNs('Cnpj'), tcStr);
+        if CpfCnpj = '' then
+          CpfCnpj := ObterConteudo(AuxNodeCpfCnpj.Childrens.FindAnyNs('Cpf'), tcStr);
+      end;
+
+      InscricaoMunicipal := ObterConteudo(AuxNodePrestador.Childrens.FindAnyNs('InscricaoMunicipal'), tcStr);
+    end;
+  end;
+end;
 
 end.

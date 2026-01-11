@@ -275,7 +275,7 @@ begin
         Space(2)                                                    +  // 106 a 107 Identificação da Operação no Banco
         IntToStr(aCarteira)                                         +  // 108 a 108 Código da Carteira
         Ocorrencia                                                  +  // 109 a 110 Identificação da Ocorrência
-        PadRight( NumeroDocumento,10,' ')                           +  // 111 a 120
+        PadRight(OnlyAlphaNum(NumeroDocumento),10,' ')              +  // 111 a 120
         FormatDateTime( 'ddmmyy', Vencimento)                       +  // 121 a 126
         IntToStrZero( round( ValorDocumento * 100), 13)             +  // 127 a 139
         '033' + aAgencia                                            +  // 140 a 147
@@ -291,7 +291,8 @@ begin
         IntToStrZero( round( ValorIOF * 100 ), 13)                  +  // 193 a 205
         IntToStrZero( round( ValorAbatimento * 100 ), 13)           +  // 206 a 218
         TipoSacado + PadLeft(OnlyNumber(Sacado.CNPJCPF),14,'0')     +  // 219 a 234
-        PadRight( Sacado.NomeSacado, 40, ' ')                       +  // 235 a 274
+        PadRight( Sacado.NomeSacado, 30, ' ')                       +  // 235 a 264
+        Space(10)                                                   +  // 265 a 274
         PadRight( Sacado.Logradouro + ' '+ Sacado.Numero, 40, ' ')  +  // 275 a 314
         PadRight( Sacado.Bairro,12,' ')                             +  // 315 a 326
         PadRight( OnlyNumber(Sacado.CEP) , 8, ' ' )                 +  // 327 a 334
@@ -312,17 +313,19 @@ begin
       begin
         wLinha:= wLinha + #13#10                         +
                  '2' + '0';
-        for I := 0 to Mensagem.Count - 1 do
+        I := 0;
+        while (I < ACBrTitulo.Mensagem.Count) do
         begin
-          if i = 5  then
+          if I = 5  then
             Break;
 
           wLinha := wLinha +
             PadRight(Mensagem[I],69);
 
+          inc(I);
         end;
 
-        mensagemBranco := (5 - i) * 69;
+        mensagemBranco := (5 - I) * 69;
 
         wLinha := wLinha + Space(mensagemBranco) + Space(47);
         wLinha := wLinha +  IntToStrZero(aRemessa.Count  + 2, 6 );

@@ -110,9 +110,9 @@ type
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
   public
-    constructor Create(const ObjectName: String); override;
+    constructor Create(const ObjectName: String = ''); override;
     destructor Destroy; override;
-    procedure Clear; reintroduce;
+    procedure Clear; override;
     function IsEmpty: Boolean; override;
     procedure Assign(Source: TACBrPIXDevolucao);
 
@@ -313,7 +313,8 @@ begin
   fmotivo := '';
   frtrId := '';
   fstatus := stdNENHUM;
-  fhorario.Clear;
+  if Assigned(fhorario) then
+    fhorario.Clear;
 end;
 
 function TACBrPIXDevolucao.IsEmpty: Boolean;

@@ -2,7 +2,7 @@ object frmACBrNFSe: TfrmACBrNFSe
   Left = 282
   Top = 118
   Caption = 'ACBrNFSeX - Programa Exemplo - Vers'#227'o Delphi'
-  ClientHeight = 612
+  ClientHeight = 643
   ClientWidth = 866
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,7 +17,7 @@ object frmACBrNFSe: TfrmACBrNFSe
     Left = 0
     Top = 0
     Width = 297
-    Height = 612
+    Height = 643
     Align = alLeft
     TabOrder = 0
     object lblColaborador: TLabel
@@ -419,12 +419,11 @@ object frmACBrNFSe: TfrmACBrNFSe
                 Caption = 'Schemas do Provedor:'
               end
               object Label49: TLabel
-                Left = 5
+                Left = 6
                 Top = 279
-                Width = 80
+                Width = 70
                 Height = 13
-                Alignment = taRightJustify
-                Caption = 'Layout da NFS-e'
+                Caption = 'Layout do XML'
                 Color = clBtnFace
                 ParentColor = False
               end
@@ -962,15 +961,15 @@ object frmACBrNFSe: TfrmACBrNFSe
               ParentFont = False
             end
             object Label45: TLabel
-              Left = 150
-              Top = 389
+              Left = 8
+              Top = 408
               Width = 37
               Height = 13
               Caption = 'Vers'#227'o:'
             end
             object lblVersaoSchemas: TLabel
-              Left = 203
-              Top = 390
+              Left = 61
+              Top = 409
               Width = 53
               Height = 13
               Caption = 'lblVersao'
@@ -1382,7 +1381,7 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 0
               Width = 210
               Height = 17
-              Caption = 'Salvar Arquivos em Pastas Separadas'
+              Caption = 'Salvar Arquivos'
               TabOrder = 0
             end
             object cbxPastaMensal: TCheckBox
@@ -1710,14 +1709,14 @@ object frmACBrNFSe: TfrmACBrNFSe
     Left = 297
     Top = 0
     Width = 569
-    Height = 612
+    Height = 643
     Align = alClient
     TabOrder = 1
     object pgRespostas: TPageControl
       Left = 1
       Top = 204
       Width = 567
-      Height = 407
+      Height = 438
       ActivePage = TabSheet8
       Align = alClient
       TabOrder = 0
@@ -1728,7 +1727,7 @@ object frmACBrNFSe: TfrmACBrNFSe
           Left = 0
           Top = 0
           Width = 559
-          Height = 379
+          Height = 410
           Align = alClient
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -1747,11 +1746,11 @@ object frmACBrNFSe: TfrmACBrNFSe
           Left = 0
           Top = 0
           Width = 559
-          Height = 379
+          Height = 410
           Align = alClient
           TabOrder = 0
           ControlData = {
-            4C000000C63900002C2700000000000000000000000000000000000000000000
+            4C000000382E0000E62100000000000000000000000000000000000000000000
             000000004C000000000000000000000001000000E0D057007335CF11AE690800
             2B2E126200000000000000004C0000000114020000000000C000000000000046
             8000000000000000000000000000000000000000000000000000000000000000
@@ -1765,11 +1764,11 @@ object frmACBrNFSe: TfrmACBrNFSe
           Left = 0
           Top = 0
           Width = 559
-          Height = 379
+          Height = 410
           Align = alClient
           TabOrder = 0
           ControlData = {
-            4C000000C63900002C2700000000000000000000000000000000000000000000
+            4C000000382E0000E62100000000000000000000000000000000000000000000
             000000004C000000000000000000000001000000E0D057007335CF11AE690800
             2B2E126200000000000000004C0000000114020000000000C000000000000046
             8000000000000000000000000000000000000000000000000000000000000000
@@ -1782,11 +1781,11 @@ object frmACBrNFSe: TfrmACBrNFSe
           Left = 0
           Top = 0
           Width = 559
-          Height = 379
+          Height = 410
           Align = alClient
           TabOrder = 0
           ControlData = {
-            4C000000C63900002C2700000000000000000000000000000000000000000000
+            4C000000382E0000E62100000000000000000000000000000000000000000000
             000000004C000000000000000000000001000000E0D057007335CF11AE690800
             2B2E126200000000000000004C0000000114020000000000C000000000000046
             8000000000000000000000000000000000000000000000000000000000000000
@@ -2201,6 +2200,21 @@ object frmACBrNFSe: TfrmACBrNFSe
               TabOrder = 0
               OnClick = btnEmitirPNClick
             end
+            object btnLerXml: TButton
+              Left = 3
+              Top = 40
+              Width = 177
+              Height = 25
+              Caption = 'Ler XML'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -13
+              Font.Name = 'Tahoma'
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 3
+              OnClick = btnLerXmlClick
+            end
           end
           object tsEventos1: TTabSheet
             Caption = 'Eventos'
@@ -2334,6 +2348,15 @@ object frmACBrNFSe: TfrmACBrNFSe
               Caption = 'Consultar DFe'
               TabOrder = 4
               OnClick = btnConsultarDFeClick
+            end
+            object btnConsultarDPSporNumeroPN: TButton
+              Left = 369
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Consultar DPS por Numero'
+              TabOrder = 5
+              OnClick = btnConsultarDPSporNumeroPNClick
             end
           end
           object tsConsultarParametros: TTabSheet
@@ -2475,6 +2498,7 @@ object frmACBrNFSe: TfrmACBrNFSe
     Configuracoes.Geral.Emitente.DadosEmitente.Email = 'contato@provedor.com.br'
     Configuracoes.Geral.FormatoDiscriminacao = fdTabulado
     Configuracoes.Arquivos.OrdenacaoPath = <>
+    Configuracoes.Arquivos.TabServicosExt = True
     Configuracoes.WebServices.UF = 'SP'
     Configuracoes.WebServices.AguardarConsultaRet = 0
     Configuracoes.WebServices.QuebradeLinha = '|'

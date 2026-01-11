@@ -592,7 +592,7 @@ begin
   LURL := Trim(Copy(ALinha, 29,77));
   LtxId := Trim(Copy(ALinha,106,35));
   if NaoEstaVazio(lURL) and NaoEstaVazio(LtxId) then
-     ACBrTitulo.QrCode.PIXQRCodeDinamico(Lurl, LtxId, ACBrTitulo);
+    ACBrTitulo.QrCode.PIXQRCodeDinamico(Lurl, LtxId, ACBrTitulo);
 end;
 
 function TACBrBancoBradesco.TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia): String;
@@ -669,7 +669,7 @@ begin
   case CodOcorrencia of
     02: Result := '02-Entrada Confirmada';
     03: Result := '03-Entrada Rejeitada';
-    06: Result := '06-Liquidação Normal';
+    06, 66: Result := '06-Liquidação Normal';
     09: Result := '09-Baixado Automaticamente via Arquivo';
     11: Result := '11-Em Ser - Arquivo de Títulos Pendentes';
     12: Result := '12-Abatimento Concedido';
@@ -758,7 +758,7 @@ begin
   case CodOcorrencia of
     02: Result := toRetornoRegistroConfirmado;
     03: Result := toRetornoRegistroRecusado;
-    06: Result := toRetornoLiquidado;
+    06,66: Result := toRetornoLiquidado;
     09: Result := toRetornoBaixadoViaArquivo;
     11: Result := toRetornoTituloEmSer;
     12: Result := toRetornoAbatimentoConcedido;

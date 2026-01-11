@@ -38,7 +38,9 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrNFSeXLerXml_ABRASFv1, ACBrNFSeXLerXml_ABRASFv2;
+  ACBrNFSeXLerXml_ABRASFv1,
+  ACBrNFSeXLerXml_ABRASFv2,
+  PadraoNacional.LerXml;
 
 type
   { TNFSeR_ISSNet }
@@ -61,11 +63,20 @@ type
 
   end;
 
+  { TNFSeR_ISSNetAPIPropria }
+
+  TNFSeR_ISSNetAPIPropria = class(TNFSeR_PadraoNacional)
+  protected
+
+  public
+
+  end;
+
 implementation
 
 uses
-  ACBrUtil.Strings,
-  ACBrXmlBase;
+  ACBrXmlBase,
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:

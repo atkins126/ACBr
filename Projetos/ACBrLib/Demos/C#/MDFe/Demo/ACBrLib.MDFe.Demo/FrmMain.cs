@@ -1379,16 +1379,23 @@ namespace ACBrLib.MDFe.Demo
                 return;
             }
 
-            var codUf = 35;
             var cnpj = "";
             var eNsu = "";
 
-            if (InputBox.Show("WebServices: Distribuição DFe", "Código da UF", ref codUf) != DialogResult.OK) return;
+ 
             if (InputBox.Show("WebServices: Distribuição DFe", "CNPJ do autor", ref cnpj) != DialogResult.OK) return;
             if (InputBox.Show("WebServices: Distribuição DFe", "Número do NSU", ref eNsu) != DialogResult.OK) return;
 
-            var ret = ACBrMDFe.DistribuicaoDFePorNSU(codUf, cnpj, eNsu);
-            rtbRespostas.AppendText(ret.Resposta);
+            try
+            {
+                var ret = ACBrMDFe.DistribuicaoDFePorNSU(cnpj, eNsu);
+                rtbRespostas.AppendText(ret.Resposta);
+            } catch (Exception exception)
+            {
+               // MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+               ;
+            }
+           
         }
 
         private void btnDFePorUltNSU_Click(object sender, EventArgs e)
@@ -1399,15 +1406,13 @@ namespace ACBrLib.MDFe.Demo
                 return;
             }
 
-            var codUf = 35;
             var cnpj = "";
             var eNsu = "";
 
-            if (InputBox.Show("WebServices: Distribuição DFe", "Código da UF", ref codUf) != DialogResult.OK) return;
             if (InputBox.Show("WebServices: Distribuição DFe", "CNPJ do autor", ref cnpj) != DialogResult.OK) return;
             if (InputBox.Show("WebServices: Distribuição DFe", "Número do último NSU", ref eNsu) != DialogResult.OK) return;
 
-            var ret = ACBrMDFe.DistribuicaoDFePorNSU(codUf, cnpj, eNsu);
+            var ret = ACBrMDFe.DistribuicaoDFePorUltNSU(cnpj, eNsu);
             rtbRespostas.AppendText(ret.Resposta);
         }
 
@@ -1577,6 +1582,8 @@ namespace ACBrLib.MDFe.Demo
             }
 
         }
+
+ 
     }
 
 }

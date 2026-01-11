@@ -81,6 +81,7 @@ type
     function GetNome: String;
     function GetDescricao: String;
     function GetVersao: String;
+    function GetInformacaoAdicional: String;
 
   protected
     fpConfig: TLibConfig;
@@ -104,6 +105,7 @@ type
 
     property Nome: String read GetNome;
     property Versao: String read GetVersao;
+    property informacaoAdicional: String read GetInformacaoAdicional;
     property OpenSSLInfo: String read GetOpenSSLInfo;
     property Descricao: String read GetDescricao;
     property TraduzirUltimoRetorno: Boolean read FTraduzirUltimoRetorno write FTraduzirUltimoRetorno;
@@ -142,6 +144,7 @@ type
 {%region Constructor/Destructor}
 function LIB_Inicializar(var libHandle: PLibHandle; pLibClass: TACBrLibClass; const eArqConfig, eChaveCrypt: PAnsiChar): Integer;
 function LIB_Finalizar(libHandle: PLibHandle): Integer;
+function LIB_Finalizar_Liberar(var libHandle : PLibHandle ): Integer;
 function LIB_Inicalizada(const libHandle: PLibHandle): Boolean;
 {%endregion}
 
@@ -184,6 +187,12 @@ function StringEhArquivo(AString: String): Boolean;
 function ConverterStringEntradaParaNativa(AData: AnsiString; CodificacaoEntrada: TACBrLibCodificacao): AnsiString;
 function ConverterStringNativaParaSaida(AData: AnsiString; CodificacaoSaida: TACBrLibCodificacao): AnsiString;
 
+// funções para obter informacoes da lib independente de TACBrLIB
+// as informações retornadas por essas funções são baseadas nas diretivas de compilação!
+function ObterArquiteturaProcessador(): string;
+function ObterConvencaoDeChamada(): string;
+function ObterInformacoesSistemaOperacional(): string;
+function ObterInformacoesDeThreads(): string;
 {%endregion}
 
 {$IFNDEF MT}
@@ -279,6 +288,15 @@ begin
   end;
 
   Result := FVersao;
+end;
+
+function TACBrLib.GetInformacaoAdicional: String;
+begin
+  result:=
+    ObterInformacoesSistemaOperacional()  + '/' +
+    ObterArquiteturaProcessador() +  ' - '+
+    ObterInformacoesDeThreads()  + ' '  +
+    ObterConvencaoDeChamada();
 end;
 
 function TACBrLib.GetNome: String;
@@ -689,7 +707,7 @@ end;
 
 function LIB_Inicializar(var libHandle: PLibHandle; pLibClass: TACBrLibClass; const eArqConfig, eChaveCrypt: PAnsiChar): Integer;
 var
-  ArqConfig, ChaveCrypt: Ansistring;
+  ArqConfig, ChaveCrypt, infoAdicional: Ansistring;
 begin
   try
     ArqConfig := Ansistring(eArqConfig);
@@ -699,8 +717,9 @@ begin
     libHandle^.Lib := Nil;
     libHandle^.Lib := pLibClass.Create(ArqConfig, eChaveCrypt);
     libHandle^.Lib.Inicializar;
-    libHandle^.Lib.GravarLog('LIB_Inicializar( ' + IfThen(libHandle^.Lib.Config.EhMemory, CLibMemory, libHandle^.Lib.Config.NomeArquivo) + ', ' + StringOfChar('*', Length(ChaveCrypt)) + ' )', logSimples);
-    libHandle^.Lib.GravarLog('   ' + libHandle^.Lib.Nome + ' - ' + libHandle^.Lib.Versao, logSimples);
+    libHandle^.Lib.GravarLog('LIB_Inicializar( ' + IfThen(libHandle^.Lib.Config.EhMemory, CLibMemory, libHandle^.Lib.Config.NomeArquivo) + ',  *** ) ', logSimples);
+    libHandle^.Lib.GravarLog('   ' + libHandle^.Lib.Nome + ' - ' + libHandle^.Lib.Versao + ' - ' + libHandle
+    ^.Lib.informacaoAdicional, logSimples);
 
     with libHandle^.Lib.fpLibRetorno do
     begin
@@ -735,6 +754,16 @@ begin
 
     on E: Exception do
       Result := libHandle^.Lib.SetRetorno(ErrLibNaoFinalizada, E.Message);
+  end;
+end;
+
+function LIB_Finalizar_Liberar(var libHandle: PLibHandle): Integer;
+begin
+  result := 0;
+  if Assigned(libHandle) then
+  begin
+    result:= LIB_Finalizar(libHandle);
+    libHandle := nil;
   end;
 end;
 
@@ -1010,6 +1039,70 @@ begin
   else
     Result := ACBrAnsiToUTF8(AData)
 {$EndIf}
+end;
+
+function ObterArquiteturaProcessador(): string;
+begin
+  result:=
+ {$IFDEF CPUX86_64}
+   'x86_64'
+ {$ELSE}
+   {$IFDEF CPU386}
+     'x86'
+   {$ELSE}
+     {$IFDEF CPUARM}
+       'arm'
+     {$ELSE}
+       {$IFDEF CPUAARCH64}
+         'aarch64'
+       {$ELSE}
+         ''
+       {$ENDIF}
+     {$ENDIF}
+   {$ENDIF}
+ {$ENDIF}
+end;
+
+function ObterConvencaoDeChamada(): string;
+begin
+{$IFDEF STDCALL}
+  result:= 'STDCALL';
+  {$ELSE}
+  result:= 'cdecl';
+  {$ENDIF}
+end;
+
+function ObterInformacoesSistemaOperacional(): string;
+begin
+   result:=
+ {$IFDEF MSWINDOWS}
+  'Windows'
+{$ELSE}
+  {$IFDEF LINUX}
+    'Linux'
+  {$ELSE}
+    {$IFDEF ANDROID}
+      'Android'
+    {$ELSE}
+      {$IFDEF MACOS}
+        'Darwin (macOS/iOS)'
+      {$ELSE}
+        'Desconhecido'
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF};
+
+end;
+
+function ObterInformacoesDeThreads(): string;
+begin
+  result:= '';
+  {$IFNDEF MT}
+  result:= 'ST';
+  {$ELSE}
+  result:= 'MT';
+  {$ENDIF}
 end;
 
 finalization

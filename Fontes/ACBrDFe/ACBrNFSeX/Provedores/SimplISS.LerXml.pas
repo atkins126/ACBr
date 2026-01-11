@@ -37,9 +37,12 @@ unit SimplISS.LerXml;
 interface
 
 uses
-  SysUtils, Classes, StrUtils,
-  IniFiles,
-  ACBrNFSeXLerXml_ABRASFv1, ACBrNFSeXLerXml_ABRASFv2, ACBrXmlDocument, ACBrXmlBase;
+  SysUtils, Classes, StrUtils, IniFiles,
+  ACBrXmlBase,
+  ACBrNFSeXLerXml_ABRASFv1,
+  ACBrNFSeXLerXml_ABRASFv2,
+  ACBrXmlDocument,
+  PadraoNacional.LerXml;
 
 type
   { TNFSeR_SimplISS }
@@ -61,9 +64,19 @@ type
 
   end;
 
+  { TNFSeR_SimplISSAPIPropria }
+
+  TNFSeR_SimplISSAPIPropria = class(TNFSeR_PadraoNacional)
+  protected
+
+  public
+
+  end;
+
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrUtil.Base,
   ACBrUtil.Strings;
 
@@ -88,8 +101,8 @@ begin
 
     NFSe.Servico.ItemServico.New;
     NFSe.Servico.ItemServico.Items[I].Descricao := ChangeLineBreak(AINIRec.ReadString(LSecao, 'Descricao', ''), FpAOwner.ConfigGeral.QuebradeLinha);
-    NFSe.Servico.ItemServico.Items[I].Quantidade := AINIRec.ReadFloat(LSecao, 'Quantidade', 0);
-    NFSe.Servico.ItemServico.Items[I].ValorUnitario := AINIRec.ReadFloat(LSecao, 'ValorUnitario', 0);
+    NFSe.Servico.ItemServico.Items[I].Quantidade := StringtoFloatDef(AINIRec.ReadString(LSecao, 'Quantidade', ''), 0);
+    NFSe.Servico.ItemServico.Items[I].ValorUnitario := StringtoFloatDef(AINIRec.ReadString(LSecao, 'ValorUnitario', ''), 0);
 
     Inc(I);
   end;

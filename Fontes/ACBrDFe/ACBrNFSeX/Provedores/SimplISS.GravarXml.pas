@@ -37,12 +37,12 @@ unit SimplISS.GravarXml;
 interface
 
 uses
-  SysUtils, Classes, StrUtils,
-  IniFiles,
+  SysUtils, Classes, StrUtils, IniFiles,
   ACBrXmlBase,
   ACBrXmlDocument,
   ACBrNFSeXGravarXml_ABRASFv1,
-  ACBrNFSeXGravarXml_ABRASFv2;
+  ACBrNFSeXGravarXml_ABRASFv2,
+  PadraoNacional.GravarXml;
 
 type
   { TNFSeW_SimplISS }
@@ -63,9 +63,17 @@ type
     procedure Configuracao; override;
   end;
 
+  { TNFSeW_SimplISSAPIPropria }
+
+  TNFSeW_SimplISSAPIPropria = class(TNFSeW_PadraoNacional)
+  protected
+
+  end;
+
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrNFSeXConversao,
@@ -141,7 +149,7 @@ begin
   if FpAOwner.ConfigGeral.Params.TemParametro('Aliquota4Casas') then
     FormatoAliq := tcDe4;
 
-  NrOcorrOutrasInformacoes := 0;
+  NrOcorrOutrasInformacoes_2 := 0;
 
   NrOcorrValorDeducoes := 1;
   NrOcorrValorPis := 1;

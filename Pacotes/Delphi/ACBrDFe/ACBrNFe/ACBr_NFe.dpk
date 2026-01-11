@@ -94,7 +94,10 @@ contains
   ACBrNFe.Conversao in '..\..\..\..\Fontes\ACBrDFe\ACBrNFe\Base\ACBrNFe.Conversao.pas',
   ACBrNFe.IniReader in '..\..\..\..\Fontes\ACBrDFe\ACBrNFe\Base\ACBrNFe.IniReader.pas',
   ACBrNFe.IniWriter in '..\..\..\..\Fontes\ACBrDFe\ACBrNFe\Base\ACBrNFe.IniWriter.pas',
-
+  ACBrNFe.JSONReader in '..\..\..\..\Fontes\ACBrDFe\ACBrNFe\Base\ACBrNFe.JSONReader.pas',
+  ACBrNFe.JSONWriter in '..\..\..\..\Fontes\ACBrDFe\ACBrNFe\Base\ACBrNFe.JSONWriter.pas',
+  ACBrNFe.ValidarRegrasdeNegocio in '..\..\..\..\Fontes\ACBrDFe\ACBrNFe\Base\ACBrNFe.ValidarRegrasdeNegocio.pas',
+  
   {$IFDEF USE_ACBr_XMLDOCUMENT}
   ACBrNFe.XmlReader in '..\..\..\..\Fontes\ACBrDFe\ACBrNFe\Base\ACBrNFe.XmlReader.pas',
   ACBrNFe.XmlWriter in '..\..\..\..\Fontes\ACBrDFe\ACBrNFe\Base\ACBrNFe.XmlWriter.pas',
@@ -114,6 +117,10 @@ contains
   ACBrNFe.RetInut in '..\..\..\..\Fontes\ACBrDFe\ACBrNFe\Base\Servicos\ACBrNFe.RetInut.pas',
 
   ACBrDFeDANFeReport in '..\..\..\..\Fontes\ACBrDFe\ACBrNFe\DANFE\ACBrDFeDANFeReport.pas',
-  ACBrNFeDANFEClass in '..\..\..\..\Fontes\ACBrDFe\ACBrNFe\DANFE\ACBrNFeDANFEClass.pas';
+  ACBrNFeDANFEClass in '..\..\..\..\Fontes\ACBrDFe\ACBrNFe\DANFE\ACBrNFeDANFEClass.pas',
+  {ACBrDI}
+  ACBrDIDeclaracaoImportacao in '..\..\..\..\Fontes\ACBrDFe\ACBrDI\ACBrDIDeclaracaoImportacao.pas',
+  pcnDI in '..\..\..\..\Fontes\ACBrDFe\ACBrDI\PCNDI\pcnDI.pas',
+  pcnDIR in '..\..\..\..\Fontes\ACBrDFe\ACBrDI\PCNDI\pcnDIR.pas';
 
 end.

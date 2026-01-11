@@ -38,7 +38,11 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrXmlBase, ACBrXmlDocument, ACBrXmlWriter,
+  pcnConversao,
+  ACBrXmlBase,
+  ACBrDFe.Conversao,
+  ACBrXmlDocument,
+  ACBrXmlWriter,
   ACBrBPeClass,
   ACBrBPeConversao;
 
@@ -77,6 +81,7 @@ type
     FtpEmis: TACBrTipoEmissao;
     FIdCSRT: integer;
     FCSRT: string;
+    FpGerarGrupoIBSCBSTot: Boolean;
 
     function Gerar_InfBPe: TACBrXmlNode;
     function Gerar_Ide: TACBrXmlNode;
@@ -139,9 +144,8 @@ type
     function Gerar_IBSCBS_gIBSCBS_gIBSUFMunCBS_gRed(Red: TgRed): TACBrXmlNode;
 
     function Gerar_IBSCBSSel_gIBSCBS_gTribRegular(gTribRegular: TgTribRegular): TACBrXmlNode;
-    function Gerar_IBSCBS_gIBSCBS_gIBSCBSCredPres(gIBSCredPres: TgIBSCBSCredPres;
-      const Grupo: string): TACBrXmlNode;
     function Gerar_gTribCompraGov(gTribCompraGov: TgTribCompraGov): TACBrXmlNode;
+    function Gerar_gEstornoCred(gEstornoCred: TgEstornoCred): TACBrXmlNode;
 
     function Gerar_IBSCBSTot(IBSCBSTot: TIBSCBSTot): TACBrXmlNode;
     function Gerar_IBSCBSTot_gIBS(gIBS: TgIBS): TACBrXmlNode;
@@ -149,6 +153,7 @@ type
     function Gerar_IBSCBSTot_gIBS_gIBSMunTot(gIBSMunTot: TgIBSMunTot): TACBrXmlNode;
 
     function Gerar_IBSCBSTot_gCBS(gCBS: TgCBS): TACBrXmlNode;
+    function Gerar_IBSCBSTot_gEstornoCred(gEstornoCred: TgEstornoCred): TACBrXmlNode;
 
     function GetOpcoes: TBPeXmlWriterOptions;
     procedure SetOpcoes(AValue: TBPeXmlWriterOptions);
@@ -185,7 +190,6 @@ uses
   Math,
   ACBrDFeConsts,
   ACBrBPeConsts,
-  ACBrDFe.Conversao,
   ACBrValidador,
   ACBrDFeUtil,
   ACBrUtil.Base,
@@ -196,7 +200,7 @@ constructor TBPeXmlWriter.Create(AOwner: TBPe);
 begin
   inherited Create;
 
-  TBPeXmlWriterOptions(Opcoes).AjustarTagNro := True;
+  TBPeXmlWriterOptions(Opcoes).AjustarTagNro := False;
   TBPeXmlWriterOptions(Opcoes).GerarTagIPIparaNaoTributado := True;
   TBPeXmlWriterOptions(Opcoes).NormatizarMunicipios := False;
   TBPeXmlWriterOptions(Opcoes).PathArquivoMunicipios := '';
@@ -257,6 +261,7 @@ var
   BPeNode, xmlNode: TACBrXmlNode;
 begin
   Result := False;
+  FpGerarGrupoIBSCBSTot := False;
 
   ListaDeAlertas.Clear;
 
@@ -270,7 +275,7 @@ begin
   BPe.ide.tpEmis := tpEmis;
 }
   FChaveBPe := GerarChaveAcesso(BPe.ide.cUF, BPe.ide.dhEmi, BPe.emit.CNPJ,
-      BPe.ide.serie, BPe.ide.nBP, StrToInt(TipoEmissaoToStr(BPe.ide.tpEmis)),
+      BPe.ide.serie, BPe.ide.nBP, StrToInt(TpEmisBPeToStr(BPe.ide.tpEmis)),
       BPe.ide.cBP, BPe.ide.modelo);
 
   BPe.infBPe.ID := 'BPe' + FChaveBPe;
@@ -279,6 +284,9 @@ begin
 
   FDocument.Clear();
 
+  {
+    o BPe TA vai ser diferenciado pelo Modal que é aereo.
+  }
   if BPe.ide.tpBPe = tbBPeTM then
     BPeNode := FDocument.CreateElement('BPeTM', 'http://www.portalfiscal.inf.br/bpe')
   else
@@ -429,7 +437,7 @@ begin
                     FormatDateTime('YYYY-MM-DD',BPe.Ide.dCompet), DSC_DCOMPET));
 
   Result.AppendChild(AddNode(tcStr, '#14', 'tpEmis', 1, 1, 1,
-                                 TipoEmissaoToStr(BPe.Ide.tpEmis), DSC_TPEMIS));
+                                   TpEmisBPeToStr(BPe.Ide.tpEmis), DSC_TPEMIS));
 
   Result.AppendChild(AddNode(tcStr, '#15', 'verProc', 1, 20, 1,
                                                  BPe.Ide.verProc, DSC_VERPROC));
@@ -1409,8 +1417,7 @@ begin
   // Reforma Tributária
   if BPe.ide.tpBPe = tbBPeTM then
   begin
-    if BPe.total.IBSCBSTot.vBCIBSCBS > 0 then
-      Result.AppendChild(Gerar_IBSCBSTot(BPe.total.IBSCBSTot));
+    Result.AppendChild(Gerar_IBSCBSTot(BPe.total.IBSCBSTot));
 
     Result.AppendChild(AddNode(tcDe2, '#250', 'vTotDFe', 1, 15, 0,
                                                BPe.total.vTotDFe, DSC_VTOTDFE));
@@ -1483,7 +1490,7 @@ begin
 
     if (idCSRT <> 0) and (CSRT <> '') then
     begin
-      Result.AppendChild(AddNode(tcInt, '#315', 'idCSRT', 2, 2, 1,
+      Result.AppendChild(AddNode(tcInt, '#315', 'idCSRT', 3, 3, 1,
                                                            idCSRT, DSC_IDCSRT));
 
       Result.AppendChild(AddNode(tcStr, '#316', 'hashCSRT', 28, 28, 1,
@@ -1543,18 +1550,37 @@ function TBPeXmlWriter.Gerar_IBSCBS(IBSCBS: TIBSCBS): TACBrXmlNode;
 begin
   Result := nil;
 
-  if (IBSCBS.gIBSCBS.vBC > 0) then
+  if (IBSCBS.CST <> cstNenhum) and (IBSCBS.cClassTrib <> '') then
   begin
+    FpGerarGrupoIBSCBSTot := True;
     Result := FDocument.CreateElement('IBSCBS');
 
     Result.AppendChild(AddNode(tcStr, '#1', 'CST', 3, 3, 1,
                                           CSTIBSCBSToStr(IBSCBS.CST), DSC_CST));
 
     Result.AppendChild(AddNode(tcStr, '#2', 'cClassTrib', 6, 6, 1,
-                           cClassTribToStr(IBSCBS.cClassTrib), DSC_CCLASSTRIB));
+                                            IBSCBS.cClassTrib, DSC_CCLASSTRIB));
 
-    if IBSCBS.gIBSCBS.vBC > 0 then
-      Result.AppendChild(Gerar_IBSCBS_gIBSCBS(IBSCBS.gIBSCBS));
+    if IBSCBS.indDoacao = tieSim then
+      Result.AppendChild(AddNode(tcStr, '#3', 'indDoacao', 1, 1, 0,
+                                                           '1', DSC_INDDOACAO));
+
+    case ModeloDF of
+      moBPe:
+        if IBSCBS.CST in [cst000, cst200, cst222] then
+          Result.AppendChild(Gerar_IBSCBS_gIBSCBS(IBSCBS.gIBSCBS));
+
+      moBPeTM:
+        if IBSCBS.CST in [cst000, cst200] then
+          Result.AppendChild(Gerar_IBSCBS_gIBSCBS(IBSCBS.gIBSCBS));
+
+      moBPeTA:
+        if IBSCBS.CST in [cst000, cst200, cst222] then
+          Result.AppendChild(Gerar_IBSCBS_gIBSCBS(IBSCBS.gIBSCBS));
+    end;
+
+    if (IBSCBS.gEstornoCred.vIBSEstCred > 0) or (IBSCBS.gEstornoCred.vCBSEstCred > 0) then
+      Result.AppendChild(Gerar_gEstornoCred(IBSCBS.gEstornoCred));
   end;
 end;
 
@@ -1568,18 +1594,16 @@ begin
 
   Result.AppendChild(Gerar_IBSCBS_gIBSCBS_gIBSUF(gIBSCBS.gIBSUF));
   Result.AppendChild(Gerar_IBSCBS_gIBSCBS_gIBSMun(gIBSCBS.gIBSMun));
+
+  Result.AppendChild(AddNode(tcDe2, '#26a', 'vIBS', 1, 15, 1,
+                                                       gIBSCBS.vIBS, DSC_VIBS));
+
   Result.AppendChild(Gerar_IBSCBS_gIBSCBS_gCBS(gIBSCBS.gCBS));
 
-  if gIBSCBS.gTribRegular.pAliqEfetRegIBSUF > 0 then
+  if gIBSCBS.gTribRegular.CSTReg <> cstNenhum then
     Result.AppendChild(Gerar_IBSCBSSel_gIBSCBS_gTribRegular(gIBSCBS.gTribRegular));
 
-  if gIBSCBS.gIBSCredPres.pCredPres > 0 then
-    Result.AppendChild(Gerar_IBSCBS_gIBSCBS_gIBSCBSCredPres(gIBSCBS.gIBSCredPres, 'gIBSCredPres'));
-
-  if gIBSCBS.gCBSCredPres.pCredPres > 0 then
-    Result.AppendChild(Gerar_IBSCBS_gIBSCBS_gIBSCBSCredPres(gIBSCBS.gCBSCredPres, 'gCBSCredPres'));
-
-  if gIBSCBS.gTribCompraGov.pAliqIBSUF > 0 then
+  if (gIBSCBS.gTribCompraGov.pAliqIBSUF > 0) and (BPe.Ide.gCompraGov.tpEnteGov <> tcgNenhum) then
     Result.AppendChild(Gerar_gTribCompraGov(gIBSCBS.gTribCompraGov));
 end;
 
@@ -1597,7 +1621,8 @@ begin
   if gIBSUF.gDevTrib.vDevTrib > 0 then
     Result.AppendChild(Gerar_IBSCBS_gIBSCBS_gIBSUFMunCBS_gDevTrib(gIBSUF.gDevTrib));
 
-  if gIBSUF.gRed.pRedAliq > 0 then
+  if (gIBSUF.gRed.pRedAliq > 0) or (gIBSUF.gRed.pAliqEfet > 0) or
+     (BPe.Ide.gCompraGov.pRedutor > 0) then
     Result.AppendChild(Gerar_IBSCBS_gIBSCBS_gIBSUFMunCBS_gRed(gIBSUF.gRed));
 
   Result.AppendChild(AddNode(tcDe2, '#23', 'vIBSUF', 1, 15, 1,
@@ -1651,7 +1676,8 @@ begin
   if gIBSMun.gDevTrib.vDevTrib > 0 then
     Result.AppendChild(Gerar_IBSCBS_gIBSCBS_gIBSUFMunCBS_gDevTrib(gIBSMun.gDevTrib));
 
-  if gIBSMun.gRed.pRedAliq > 0 then
+  if (gIBSMun.gRed.pRedAliq > 0) or (gIBSMun.gRed.pAliqEfet > 0) or
+     (BPe.Ide.gCompraGov.pRedutor > 0) then
     Result.AppendChild(Gerar_IBSCBS_gIBSCBS_gIBSUFMunCBS_gRed(gIBSMun.gRed));
 
   Result.AppendChild(AddNode(tcDe2, '#23', 'vIBSMun', 1, 15, 1,
@@ -1684,7 +1710,8 @@ begin
   if gCBS.gDevTrib.vDevTrib > 0 then
     Result.AppendChild(Gerar_IBSCBS_gIBSCBS_gIBSUFMunCBS_gDevTrib(gCBS.gDevTrib));
 
-  if gCBS.gRed.pRedAliq > 0 then
+  if (gCBS.gRed.pRedAliq > 0) or (gCBS.gRed.pAliqEfet > 0) or
+     (BPe.Ide.gCompraGov.pRedutor > 0) then
     Result.AppendChild(Gerar_IBSCBS_gIBSCBS_gIBSUFMunCBS_gRed(gCBS.gRed));
 
   Result.AppendChild(AddNode(tcDe2, '#61', 'vCBS', 1, 15, 1,
@@ -1712,7 +1739,7 @@ begin
                                  CSTIBSCBSToStr(gTribRegular.CSTReg), DSC_CST));
 
   Result.AppendChild(AddNode(tcStr, '#57', 'cClassTribReg', 6, 6, 1,
-                  cClassTribToStr(gTribRegular.cClassTribReg), DSC_CCLASSTRIB));
+                                   gTribRegular.cClassTribReg, DSC_CCLASSTRIB));
 
   Result.AppendChild(AddNode(tcDe4, '#58', 'pAliqEfetRegIBSUF', 1, 7, 1,
                                     gTribRegular.pAliqEfetRegIBSUF, DSC_PALIQ));
@@ -1731,25 +1758,6 @@ begin
 
   Result.AppendChild(AddNode(tcDe2, '#63', 'vTribRegCBS', 1, 15, 1,
                                        gTribRegular.vTribRegCBS, DSC_VTRIBREG));
-end;
-
-function TBPeXmlWriter.Gerar_IBSCBS_gIBSCBS_gIBSCBSCredPres(
-  gIBSCredPres: TgIBSCBSCredPres; const Grupo: string): TACBrXmlNode;
-begin
-  Result := FDocument.CreateElement(Grupo);
-
-  Result.AppendChild(AddNode(tcStr, '#63', 'cCredPres', 2, 2, 1,
-                        cCredPresToStr(gIBSCredPres.cCredPres), DSC_CCREDPRES));
-
-  Result.AppendChild(AddNode(tcDe4, '#64', 'pCredPres', 1, 7, 1,
-                                        gIBSCredPres.pCredPres, DSC_PCREDPRES));
-
-  if gIBSCredPres.vCredPres > 0 then
-    Result.AppendChild(AddNode(tcDe2, '#65', 'vCredPres', 1, 15, 1,
-                                         gIBSCredPres.vCredPres, DSC_VCREDPRES))
-  else
-    Result.AppendChild(AddNode(tcDe2, '#66', 'vCredPresCondSus', 1, 15, 1,
-                          gIBSCredPres.vCredPresCondSus, DSC_VCREDPRESCONDSUS));
 end;
 
 function TBPeXmlWriter.Gerar_gTribCompraGov(
@@ -1776,15 +1784,35 @@ begin
                                         gTribCompraGov.vTribCBS, DSC_VTRIBCBS));
 end;
 
+function TBPeXmlWriter.Gerar_gEstornoCred(
+  gEstornoCred: TgEstornoCred): TACBrXmlNode;
+begin
+  Result := FDocument.CreateElement('gEstornoCred');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'vIBSEstCred', 1, 7, 1,
+                                    gEstornoCred.vIBSEstCred, DSC_VIBSESTCRED));
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'vCBSEstCred', 1, 15, 1,
+                                    gEstornoCred.vCBSEstCred, DSC_VCBSESTCRED));
+end;
+
 function TBPeXmlWriter.Gerar_IBSCBSTot(IBSCBSTot: TIBSCBSTot): TACBrXmlNode;
 begin
-  Result := FDocument.CreateElement('IBSCBSTot');
+  Result := nil;
 
-  Result.AppendChild(AddNode(tcDe2, '#1', 'vBCIBSCBS', 1, 15, 1,
+  if FpGerarGrupoIBSCBSTot then
+  begin
+    Result := FDocument.CreateElement('IBSCBSTot');
+
+    Result.AppendChild(AddNode(tcDe2, '#1', 'vBCIBSCBS', 1, 15, 1,
                                              IBSCBSTot.vBCIBSCBS, DSC_VBCCIBS));
 
-  Result.AppendChild(Gerar_IBSCBSTot_gIBS(IBSCBSTot.gIBS));
-  Result.AppendChild(Gerar_IBSCBSTot_gCBS(IBSCBSTot.gCBS));
+    Result.AppendChild(Gerar_IBSCBSTot_gIBS(IBSCBSTot.gIBS));
+    Result.AppendChild(Gerar_IBSCBSTot_gCBS(IBSCBSTot.gCBS));
+
+    if (IBSCBSTot.gEstornoCred.vIBSEstCred > 0) or (IBSCBSTot.gEstornoCred.vCBSEstCred > 0) then
+      Result.AppendChild(Gerar_IBSCBSTot_gEstornoCred(IBSCBSTot.gEstornoCred));
+  end;
 end;
 
 function TBPeXmlWriter.Gerar_IBSCBSTot_gIBS(gIBS: TgIBS): TACBrXmlNode;
@@ -1796,12 +1824,6 @@ begin
 
   Result.AppendChild(AddNode(tcDe2, '#15', 'vIBS', 1, 15, 1,
                                                     gIBS.vIBS, DSC_VIBSTOT));
-
-  Result.AppendChild(AddNode(tcDe2, '#13', 'vCredPres', 1, 15, 1,
-                                                gIBS.vCredPres, DSC_VCREDPRES));
-
-  Result.AppendChild(AddNode(tcDe2, '#14', 'vCredPresCondSus', 1, 15, 1,
-                                  gIBS.vCredPresCondSus, DSC_VCREDPRESCONDSUS));
 end;
 
 function TBPeXmlWriter.Gerar_IBSCBSTot_gIBS_gIBSUFTot(
@@ -1846,12 +1868,18 @@ begin
 
   Result.AppendChild(AddNode(tcDe2, '#21', 'vCBS', 1, 15, 1,
                                                           gCBS.vCBS, DSC_VCBS));
+end;
 
-  Result.AppendChild(AddNode(tcDe2, '#19', 'vCredPres', 1, 15, 1,
-                                                gCBS.vCredPres, DSC_VCREDPRES));
+function TBPeXmlWriter.Gerar_IBSCBSTot_gEstornoCred(
+  gEstornoCred: TgEstornoCred): TACBrXmlNode;
+begin
+  Result := FDocument.CreateElement('gEstornoCred');
 
-  Result.AppendChild(AddNode(tcDe2, '#20', 'vCredPresCondSus', 1, 15, 1,
-                                  gCBS.vCredPresCondSus, DSC_VCREDPRESCONDSUS));
+  Result.AppendChild(AddNode(tcDe2, '#1', 'vIBSEstCred', 1, 7, 1,
+                                    gEstornoCred.vIBSEstCred, DSC_VIBSESTCRED));
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'vCBSEstCred', 1, 15, 1,
+                                    gEstornoCred.vCBSEstCred, DSC_VCBSESTCRED));
 end;
 
 end.

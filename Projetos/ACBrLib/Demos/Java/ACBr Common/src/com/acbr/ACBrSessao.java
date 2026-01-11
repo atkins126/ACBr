@@ -34,6 +34,8 @@ public enum  ACBrSessao {
     DACTe,
     MDFe,
     DAMDFe,
+    NFCom,
+    DANFCom,
     CEP,
     BoletoConfig,
     BoletoCedenteConfig,
@@ -67,6 +69,8 @@ public enum  ACBrSessao {
     Matera,
     Cielo,
     MercadoPago,
+    C6Bank,
+    AppLess,
     AbecsPinpad,
     AbecsPinpad_Device;
 }

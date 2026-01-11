@@ -50,7 +50,8 @@ uses
   ACBrBase,
   ACBrJSON,
   ACBrUtil.Base,
-  ACBrPIXBase;
+  ACBrPIXBase,
+  ACBrPIXSchemasPix;
 
 type  
 
@@ -299,8 +300,9 @@ type
   private
     famount: Double;
     fchannel: String;
-    fcustumerCPF: String;
-    fcustumerSocialName: String;
+    fcustomerCNPJ: String;
+    fcustomerCPF: String;
+    fcustomerSocialName: String;
     fexpiration: Integer;
     fexternalId: String;
     finstallments: Integer;
@@ -318,8 +320,9 @@ type
 
     property amount: Double read famount write famount;
     property externalId: String read fexternalId write fexternalId;
-    property custumerSocialName: String read fcustumerSocialName write fcustumerSocialName;
-    property customerCPF: String read fcustumerCPF write fcustumerCPF;
+    property customerSocialName: String read fcustomerSocialName write fcustomerSocialName;
+    property customerCPF: String read fcustomerCPF write fcustomerCPF;
+    property customerCNPJ: String read fcustomerCNPJ write fcustomerCNPJ;
     property typeOrder: String read ftypeOrder write ftypeOrder;
     property channel: String read Fchannel write fchannel;
     property installments: Integer read finstallments write finstallments;
@@ -341,8 +344,9 @@ type
   public
     property amount;
     property externalId;
-    property custumerSocialName;
+    property customerSocialName;
     property customerCPF;
+    property customerCNPJ;
   end;
 
   { TACBrAppLessCalendario }
@@ -389,9 +393,11 @@ type
     fvalor: TACBrAppLessValor;
     fstatus: TAppLessTransactionStatus;
     furlPix: String;
+    fpix: TACBrPIXArray;
     fpixCopiaECola: String;
     fpixCopiaEColaFormatted: String;
     function GetCalendario: TACBrAppLessCalendario;
+    function Getpix: TACBrPIXArray;
     function GetValor: TACBrAppLessValor;
   protected
     procedure AssignSchema(aSource: TACBrPIXSchema); override;
@@ -403,6 +409,7 @@ type
     function IsEmpty: Boolean; override;
     procedure Assign(Source: TACBrAppLessCobResponse);
 
+    property pix: TACBrPIXArray read Getpix;
     property status: TAppLessTransactionStatus read fstatus write fstatus;
     property urlPix: String read furlPix write furlPix;
     property pixCopiaECola: String read fpixCopiaECola write fpixCopiaECola;
@@ -1374,8 +1381,9 @@ begin
   aJson
     .AddPair('amount', famount)
     .AddPair('channel', fchannel, False)
-    .AddPair('custumerCPF', fcustumerCPF, False)
-    .AddPair('custumerSocialName', fcustumerSocialName, False)
+    .AddPair('customerCPF', fcustomerCPF, False)
+    .AddPair('customerCNPJ', fcustomerCNPJ, False)
+    .AddPair('customerSocialName', fcustomerSocialName, False)
     .AddPair('expiration', fexpiration, False)
     .AddPair('externalId', fexternalId)
     .AddPair('installments', finstallments, False)
@@ -1398,8 +1406,9 @@ begin
   aJson
     .Value('amount', famount)
     .Value('channel', fchannel)
-    .Value('custumerCPF', fcustumerCPF)
-    .Value('custumerSocialName', fcustumerSocialName)
+    .Value('customerCPF', fcustomerCPF)
+    .Value('customerCNPJ', fcustomerCNPJ)
+    .Value('customerSocialName', fcustomerSocialName)
     .Value('expiration', fexpiration)
     .Value('externalId', fexternalId)
     .Value('installments', finstallments)
@@ -1423,8 +1432,9 @@ procedure TACBrAppLessOrderClass.Clear;
 begin
   famount := 0;
   fchannel := EmptyStr;
-  fcustumerCPF := EmptyStr;
-  fcustumerSocialName := EmptyStr;
+  fcustomerCPF := EmptyStr;
+  fcustomerCNPJ := EmptyStr;
+  fcustomerSocialName := EmptyStr;
   fexpiration := 0;
   fexternalId := EmptyStr;
   finstallments := 0;
@@ -1443,8 +1453,9 @@ begin
   Result :=
     EstaZerado(famount) and
     EstaVazio(fchannel) and
-    EstaVazio(fcustumerCPF) and
-    EstaVazio(fcustumerSocialName) and
+    EstaVazio(fcustomerCPF) and
+    EstaVazio(fcustomerCNPJ) and
+    EstaVazio(fcustomerSocialName) and
     EstaZerado(fexpiration) and
     EstaVazio(fexternalId) and
     EstaZerado(finstallments) and
@@ -1463,8 +1474,9 @@ begin
 
   famount := Source.amount;
   fchannel := Source.channel;
-  fcustumerCPF := Source.customerCPF;
-  fcustumerSocialName := Source.custumerSocialName;
+  fcustomerCPF := Source.customerCPF;
+  fcustomerCNPJ := Source.customerCNPJ;
+  fcustomerSocialName := Source.customerSocialName;
   fexpiration := Source.expiration;
   fexternalId := Source.externalId;
   finstallments := Source.installments;
@@ -1581,6 +1593,13 @@ begin
   Result := fcalendario;
 end;
 
+function TACBrAppLessCobResponse.Getpix: TACBrPIXArray;
+begin
+  if not Assigned(fpix) then
+    fpix := TACBrPIXArray.Create('pix');
+  Result := fpix;
+end;
+
 function TACBrAppLessCobResponse.GetValor: TACBrAppLessValor;
 begin
   if not Assigned(fvalor) then
@@ -1610,6 +1629,9 @@ begin
 
   if Assigned(fvalor) then
     fvalor.WriteToJson(aJson);
+
+  if Assigned(fpix) then
+    fpix.WriteToJSon(aJson);
 end;
 
 procedure TACBrAppLessCobResponse.DoReadFromJson(aJson: TACBrJSONObject);
@@ -1630,6 +1652,7 @@ begin
     fstatus := StringToAppLessTransactionStatus(s);
   calendario.ReadFromJson(aJson);
   valor.ReadFromJson(aJson);
+  pix.ReadFromJSon(aJson);
 end;
 
 destructor TACBrAppLessCobResponse.Destroy;
@@ -1638,6 +1661,8 @@ begin
     fcalendario.Free;
   if Assigned(fvalor) then
     fvalor.Free;
+  if Assigned(fpix) then
+    fpix.Free;
   inherited Destroy;
 end;
 
@@ -1652,6 +1677,8 @@ begin
     fcalendario.Clear;
   if Assigned(fvalor) then
     fvalor.Clear;
+  if Assigned(fpix) then
+    fpix.Clear;
 end;
 
 function TACBrAppLessCobResponse.IsEmpty: Boolean;
@@ -1662,7 +1689,8 @@ begin
     EstaVazio(fpixCopiaECola) and
     EstaVazio(fpixCopiaEColaFormatted) and
     ((not Assigned(fcalendario)) or fcalendario.IsEmpty) and
-    ((not Assigned(fvalor)) or fvalor.IsEmpty);
+    ((not Assigned(fvalor)) or fvalor.IsEmpty) and
+    ((not Assigned(fpix)) or fpix.IsEmpty);
 end;
 
 procedure TACBrAppLessCobResponse.Assign(Source: TACBrAppLessCobResponse);
@@ -1675,6 +1703,7 @@ begin
   fpixCopiaEColaFormatted := Source.pixCopiaEColaFormatted;
   calendario.Assign(Source.calendario);
   valor.Assign(Source.valor);
+  pix.Assign(Source.pix);
 end;
 
 { TACBrAppLessTransactionPix }

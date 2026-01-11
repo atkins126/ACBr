@@ -42,6 +42,31 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+03/12/2025
+-- ACBrPagForConversao.pas --
+[+] Adicionado codigo do banco Money Plus
+  Por: Roberto Krug / Rev. Alexandre de Paula
+  
+29/10/2025
+-- ACBrPagForConversao.pas --
+[+] ACBR-5763 e 8311: Adicionado Celcoin e Money Plus
+  Por: Roberto Krug / Rev. Alexandre de Paula
+
+31/07/2025
+-- ACBrPagForClass/CNAB240.LerTxtRetorno/PagFor.Bradesco.LerTxtRetorno --
+[*] TK-7439: Alterações visando a leitura correta do Segmento Z.
+  Por: Italo Giurizzato Junior
+
+24/07/2025
+-- ACBrPagForConversao.pas --
+[+] TK-7401: Adicionado STARK BANK S.A.
+  Por: Roberto Krug
+
+11/07/2025
+-- ACBrPagForConversao.pas --
+[+] Adicionado BANCO QI SCD S.A
+  Por: Alexandre de Paula
+
 28/05/2025
 -- PagFor.Sicoob.GravarTxtRemessa --
 [*] TK-7126: Incluído o enumerado flLiquidacaoTitulosProprioBanco no case da

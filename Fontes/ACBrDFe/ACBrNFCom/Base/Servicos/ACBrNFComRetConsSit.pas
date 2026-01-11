@@ -43,7 +43,10 @@ uses
   {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
    System.Contnrs,
   {$IFEND}
-  ACBrBase, ACBrXmlBase,
+  ACBrBase,
+  ACBrXmlBase,
+  ACBrDFe.Conversao,
+  pcnConversao,
   ACBrDFeComum.Proc,
   ACBrNFComRetEnvEvento;
 
@@ -186,7 +189,7 @@ begin
       if ANode <> nil then
       begin
         versao := ObterConteudoTag(ANode.Attributes.Items['versao']);
-        tpAmb := StrToTipoAmbiente(ok, ObterConteudoTag(ANode.Childrens.FindAnyNs('tpAmb'), tcStr));
+        tpAmb := StrToTipoAmbiente(ObterConteudoTag(ANode.Childrens.FindAnyNs('tpAmb'), tcStr));
         verAplic := ObterConteudoTag(ANode.Childrens.FindAnyNs('verAplic'), tcStr);
         cStat := ObterConteudoTag(ANode.Childrens.FindAnyNs('cStat'), tcInt);
         xMotivo := ObterConteudoTag(ANode.Childrens.FindAnyNs('xMotivo'), tcStr);
@@ -214,7 +217,7 @@ begin
                 if ANodeAux <> nil then
                 begin
                   protNFCom.Id := ObterConteudoTag(ANodeAux.Attributes.Items['Id']);
-                  protNFCom.tpAmb := StrToTipoAmbiente(ok, ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('tpAmb'), tcStr));
+                  protNFCom.tpAmb := StrToTipoAmbiente(ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('tpAmb'), tcStr));
                   protNFCom.verAplic := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('verAplic'), tcStr);
                   protNFCom.chDFe := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('chNFCom'), tcStr);
                   protNFCom.dhRecbto := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('dhRecbto'), tcDatHor);
@@ -251,6 +254,7 @@ begin
 
               procEventoNFCom.New;
               procEventoNFCom.Items[i].RetEventoNFCom.XmlRetorno := AnodeAux.OuterXml;
+              procEventoNFCom.Items[i].RetEventoNFCom.XML := AnodeAux.OuterXml;
               procEventoNFCom.Items[i].RetEventoNFCom.LerXml;
             end;
           end;

@@ -39,6 +39,70 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+21/11/2025
+-- ACBrDFe.Conversao --
+[+] ACBR-5451 - Inclusão do evento Atualização da Data de Previsão de Entrega para Reforma Tributária
+  Por: everson.turossi
+
+12/11/2025
+-- ACBrDFe.Conversao --
+[+] #ACBR-8338: Incluído o tipo TIndAceitacao e as funções de conversão.
+   Por: SG Sistemas
+
+31/10/2025
+-- ACBrDFe.Conversao --
+[*] Correção no Array de Strings do TCSTIcms e a criação de um novo Array Strings para
+    o mesmo tipo, pois a string de saída é diferente da string de entrada.
+   Por: Italo Giurizzato Junior/Elton Barbosa
+
+17/10/2025
+-- ACBrDFe.Conversao/ACBrDFeConsts/ACBrXmlBase/ACBrXmlReader--
+[*] Migração dos tipos e funções de conversão para a unit ACBrDFe.Conversao
+   Por: Italo Giurizzato Junior
+
+02/10/2025
+-- ACBrDFe.Conversao --
+[*] Atualização dos CST do IBSCBS.
+   Por: Italo Giurizzato Junior
+
+11/09/2025
+-- ACBrXmlWriter --
+[*] Trocado a função OnlyNumber por OnlyAlphaNum ao gerar a tag CNPJ para contemplar
+    os novos CNPJ alfanumericos.
+   Por: Adonis/Italo Giurizzato Junior
+
+19/08/2025
+-- ACBrDFe.Conversao --
+[*] O campo cClassTrib deixa de ser enumerado e passa a ser string.
+   Por: Italo Giurizzato Junior
+
+15/08/2025
+-- ACBrXmlDocument --
+[*] TK-7506: Alterado a string de busca de "CDATA" para "<![CDATA[" na procedure SetContent,
+    para evitar realizar alterações quando encontrar nomes de empresa do tipo "TECDATA".
+   Por: leomcl
+
+04/08/2025
+-- ACBrDFe, ACBrDFeWebService --
+[+] Inclusão do evento OnTransmitted em TACBrDFe.
+
+-- ACBrDFeDANFeReport --
+[+] Inclusão do método 'ImprimirCupomVerde' responsável pela impressão Reduzida do Cupom Verde.
+
+-- ACBrNFeDANFeESCPOS --
+[+] Implementação do novo método 'ImprimirCupomVerde'.
+    por: Elias César
+
+31/07/2025
+-- ACBrXmlBase --
+[*] Acrescentado a troca de </br> por ; (ponto e virgula) na função RemoverCaracteresDesnecessarios.
+   Por: Sergio Fuchs
+
+18/07/2025
+-- ACBrDFe.Conversao --
+[*] TK-7355: Correção do cClassTrib estava ct410099 sendo que o correto é ct410999.
+   Por: Daniel Pohren
+
 20/06/2025
 -- ACBrDFe.Conversao --
 [*] TK-7238: Incluído os enumerados: tcgNenhum ao tipo TtpEnteGov e 

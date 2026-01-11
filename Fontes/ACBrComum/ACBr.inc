@@ -59,6 +59,8 @@
 // Descomente a linha abaixo, se você não deseja adicionar a Dependência da INDY nos seus Projetos
 {.$DEFINE DFE_SEM_INDY}
 // Descomente a linha abaixo, se você deseja que sejam utilizadas as classes baseadas na ACBrXMLDocument
+// Utilização do ACBrXMLDocument obrigatória para as tags da Reforma Tributária nos documentos fiscais
+// se estiver comentado, não será gerado nos XML.
 {$DEFINE USE_ACBr_XMLDOCUMENT}
 
 // Descomente essa linha, para usar a carga de DLL tardia, nas Units do OpenSSL  (Apenas Delphi)
@@ -75,7 +77,7 @@
 {.$DEFINE USE_ZLibExGZ}
 
 // Para Remover Warnings de CAST causados por WideString/String/AnsiString, descomente a linha abaixo. (Apenas Delphi)
-{.$DEFINE REMOVE_CAST_WARN}
+{$DEFINE REMOVE_CAST_WARN}
 
 // Para usar CLX no Windows / Delphi descomente essa linha
 //------------------------------------------------------------------------------

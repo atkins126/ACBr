@@ -17,7 +17,10 @@ uses
   ACBrTEFDDirecao, ACBrTEFDDialScopeGetcard, ACBrTEFDElgin, 
   ACBrTEFAPIStoneAutoTEF, ACBrTEFAPIAditum, ACBrTEFDestaxaComum, 
   ACBrTEFAPIDestaxa, ACBrTEFScopeAPI, ACBrTEFAPIScope, ACBrTEFAPITPag, 
-  ACBrTEFTPagAPI, ACBrTEFAPIPayKit, ACBrTEFPayKitAPI, LazarusPackageIntf;
+  ACBrTEFTPagAPI, ACBrTEFAPIPayKit, ACBrTEFPayKitAPI, ACBrTEFAPIDirectPin, 
+  ACBrTEFDirectPinAPI, ACBrTEFSmartTEFAPI, ACBrTEFSmartTEFInterface, 
+  ACBrTEFSmartTEFSchemas, ACBrTEFTXTComum, ACBrTEFTXTGerenciadorPadrao, 
+  ACBrTEFAPITXT, LazarusPackageIntf;
 
 implementation
 

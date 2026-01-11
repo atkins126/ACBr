@@ -110,19 +110,28 @@
     <RunParams>
       <FormatVersion Value="2"/>
     </RunParams>
-    <RequiredPackages Count="4">
+    <RequiredPackages Count="7">
       <Item1>
-        <PackageName Value="ACBrDiversos"/>
+        <PackageName Value="DateTimeCtrlsDsgn"/>
       </Item1>
       <Item2>
-        <PackageName Value="ACBrSerial"/>
+        <PackageName Value="DateTimeCtrls"/>
       </Item2>
       <Item3>
-        <PackageName Value="ACBr_TEFD"/>
+        <PackageName Value="ACBr_NFe"/>
       </Item3>
       <Item4>
-        <PackageName Value="LCL"/>
+        <PackageName Value="ACBrDiversos"/>
       </Item4>
+      <Item5>
+        <PackageName Value="ACBrSerial"/>
+      </Item5>
+      <Item6>
+        <PackageName Value="ACBr_TEFD"/>
+      </Item6>
+      <Item7>
+        <PackageName Value="LCL"/>
+      </Item7>
     </RequiredPackages>
     <Units Count="8">
       <Unit0>
@@ -203,8 +212,10 @@
     </CodeGeneration>
     <Linking>
       <Debugging>
+        <DebugInfoType Value="dsDwarf3"/>
         <UseHeaptrc Value="True"/>
         <TrashVariables Value="True"/>
+        <UseExternalDbgSyms Value="True"/>
       </Debugging>
       <Options>
         <Win32>
@@ -216,38 +227,4 @@
       <CustomOptions Value="-dDEBUG"/>
     </Other>
   </CompilerOptions>
-  <Debugging>
-    <Exceptions Count="10">
-      <Item1>
-        <Name Value="EAbort"/>
-      </Item1>
-      <Item2>
-        <Name Value="ECodetoolError"/>
-      </Item2>
-      <Item3>
-        <Name Value="Exception"/>
-      </Item3>
-      <Item4>
-        <Name Value="EConvertError"/>
-      </Item4>
-      <Item5>
-        <Name Value="EACBrTEFPayGoWeb"/>
-      </Item5>
-      <Item6>
-        <Name Value="EACBrTEFDGPNaoResponde"/>
-      </Item6>
-      <Item7>
-        <Name Value="EPosPrinterException"/>
-      </Item7>
-      <Item8>
-        <Name Value="EACBrTEFDErro"/>
-      </Item8>
-      <Item9>
-        <Name Value="ESynaSerError"/>
-      </Item9>
-      <Item10>
-        <Name Value="EACBrTEFAPIErro"/>
-      </Item10>
-    </Exceptions>
-  </Debugging>
 </CONFIG>

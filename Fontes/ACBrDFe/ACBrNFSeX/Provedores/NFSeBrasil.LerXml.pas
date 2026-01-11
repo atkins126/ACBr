@@ -38,6 +38,7 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
+  ACBrXmlBase,
   ACBrNFSeXLerXml_ABRASFv1,
   ACBrXmlDocument;
 
@@ -54,7 +55,7 @@ type
 
     procedure LerInfNfse(const ANode: TACBrXmlNode); override;
     procedure LerIdentificacaoRps(const ANode: TACBrXmlNode);
-    procedure LerServico(const ANode: TACBrXmlNode);
+    procedure LerServico(const ANode: TACBrXmlNode); override;
     procedure LerValores(const ANode: TACBrXmlNode);
 
   public
@@ -70,7 +71,8 @@ uses
   ACBrUtil.Strings,
   ACBrUtil.XMLHTML,
   ACBrConsts,
-  ACBrXMLBase, ACBrNFSeXConversao;
+  ACBrDFe.Conversao,
+  ACBrNFSeXConversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:

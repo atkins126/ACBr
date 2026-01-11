@@ -127,10 +127,10 @@ namespace ACBrLib.MDFe
         public delegate int MDFE_ConsultaMDFeNaoEnc(string nCNPJ, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int MDFE_DistribuicaoDFePorUltNSU(int acUFAutor, string eCnpjcpf, string eultNsu, StringBuilder buffer, ref int bufferSize);
+        public delegate int MDFE_DistribuicaoDFePorUltNSU( string eCnpjcpf, string eultNsu, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int MDFE_DistribuicaoDFePorNSU(int acUFAutor, string eCnpjcpf, string eNsu, StringBuilder buffer, ref int bufferSize);
+        public delegate int MDFE_DistribuicaoDFePorNSU(string eCnpjcpf, string eNsu, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int MDFE_DistribuicaoDFePorChave(int acUFAutor, string eCnpjcpf, string echCTe, StringBuilder buffer, ref int bufferSize);

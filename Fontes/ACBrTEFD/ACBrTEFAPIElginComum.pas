@@ -270,7 +270,7 @@ var
   var
     s: string;
   begin
-    s := JsonKey(Key);
+    s := Trim(JsonKey(Key));
     Result := ACBrUtil.DateTime.StringToDateTime(s, 'dd/mm/yyyy hh:mm:ss');
   end;
 
@@ -363,6 +363,11 @@ begin
   begin
     {transações}
     lStr := JsonKey('tef.resultadoTransacao');
+    if (lStr = '') then
+    begin
+      {administrativo}
+      lStr := JsonKey('tef.retorno');
+    end;
   end;
 
   sucessoInt := StrToIntDef(lStr, 9);
@@ -382,9 +387,10 @@ begin
   ConteudoToComprovantes;
 
   lStr := JsonKey('tef.tipoCartao');
-  case AnsiIndexStr(lStr, ['Debito', 'Credito']) of
+  case AnsiIndexStr(lStr, ['Debito', 'Credito', 'Voucher']) of
     0: AACBrTEFResp.Debito := True;
     1: AACBrTEFResp.Credito := True;
+    2: AACBrTEFResp.Voucher := True;
   end;
 
   AACBrTEFResp.DataHoraTransacaoHost := JsonKeyDateTime('tef.dataHoraTransacao');
@@ -397,6 +403,9 @@ begin
   begin
     DonoCartao := '';
     Bandeira := JsonKey('tef.nomeBandeira');
+    CNPJCredenciadora := JsonKey('tef.cnpjCredenciadora');
+    UltimosQuatroDigitos := Copy(JsonKey('tef.panMascarado'), Length(JsonKey('tef.panMascarado')) - 3, 4);
+    Autorizacao := JsonKey('tef.codigoAutorizacao');
   end;
 
   AACBrTEFResp.PAN := JsonKey('tef.panMascarado');
@@ -793,16 +802,8 @@ begin
 end;
 
 class function TACBrTEFElginUtils.FloatToJsonString(AValor: double): string;
-var
-  iPos: integer;
-  sValor: string;
 begin
-  sValor := CurrToStrF(AVAlor, ffCurrency, 2);
-  iPos := pos(sValor, ',');
-  if iPos > 0 then
-    sValor := PadRight(sValor, (length(sValor) - iPos), '0');
-
-  Result := sValor;
+  Result := StringReplace(FormatFloat('0.00', AValor), ',', '.', [rfReplaceAll]);
 end;
 
 class function TACBrTEFElginUtils.FormataComprovante(const Comprovante: string

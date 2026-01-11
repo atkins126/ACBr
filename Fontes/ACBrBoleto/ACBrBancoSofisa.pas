@@ -52,6 +52,8 @@ type
   public
     constructor Create(AOwner: TACBrBanco);
     function CalcularDigitoVerificador(const ACBrTitulo: TACBrTitulo): String; override;
+    function DefineNossoNumeroRetorno(const Retorno: String): String; override;
+    function DefinePosicaoNossoNumeroRetorno: Integer; override;
     function MontarCodigoBarras(const ACBrTitulo: TACBrTitulo): String; override;
     function MontarCampoNossoNumero(const ACBrTitulo: TACBrTitulo): String; override;
     function MontarCampoCodigoCedente(const ACBrTitulo: TACBrTitulo): String; override;
@@ -75,6 +77,10 @@ uses
   {$ifdef COMPILER6_UP} DateUtils {$else} ACBrD5 {$endif},
   StrUtils, ACBrBoletoConversao, ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime;
 
+const
+  cTamanhoMaximoNossoNumSemDV = 10;
+  cTamanhoMaximoNossoNumComDV = 11;
+
 { TACBrBancoSofisa }
 
 constructor TACBrBancoSofisa.Create(AOwner: TACBrBanco);
@@ -83,7 +89,7 @@ begin
   fpDigito := 9;
   fpNome := 'Banco Sofisa';
   fpNumero := 637;
-  fpTamanhoMaximoNossoNum := 10;
+  fpTamanhoMaximoNossoNum := cTamanhoMaximoNossoNumSemDV;
   fpTamanhoCarteira := 3;
   fpTamanhoConta := 10;
 end;
@@ -173,6 +179,21 @@ begin
   Result := ACBrTitulo.ACBrBoleto.Cedente.Agencia +
             ACBrTitulo.ACBrBoleto.Cedente.AgenciaDigito + '/' +
             ACBrTitulo.ACBrBoleto.Cedente.CodigoCedente;
+end;
+
+function TACBrBancoSofisa.DefinePosicaoNossoNumeroRetorno: Integer;
+begin
+  Result := 63;
+end;
+
+function TACBrBancoSofisa.DefineNossoNumeroRetorno(const Retorno: String): String;
+begin
+  if ACBrBanco.ACBrBoleto.LerNossoNumeroCompleto then
+    ACBrBanco.TamanhoMaximoNossoNum := cTamanhoMaximoNossoNumComDV
+  else
+    ACBrBanco.TamanhoMaximoNossoNum := cTamanhoMaximoNossoNumSemDV;
+
+  Result := Copy(Retorno, DefinePosicaoNossoNumeroRetorno, ACBrBanco.TamanhoMaximoNossoNum);
 end;
 
 procedure TACBrBancoSofisa.GerarRegistroTransacao400(ACBrTitulo: TACBrTitulo; aRemessa: TStringList);
@@ -331,16 +352,19 @@ begin
       '2'                                                      +  // 001 a 001 Identificação do Registro
       '0';                                                        // 002 a 002 Zero
 
-    for I := 0 to ACBrTitulo.Mensagem.Count - 1 do
+    I := 0;
+    while (I < ACBrTitulo.Mensagem.Count) do
     begin
-      if i = 5  then
+      if I = 5  then
         Break;
 
       wLinha := wLinha +
         PadRight(ACBrTitulo.Mensagem[I],69);                      // 003 a 071 Mensagem Livre 69 posições
+
+      inc(I);
     end;                                                          // 072 a 140 Mensagem Livre 69 posições
                                                                   // 141 a 209 Mensagem Livre 69 posições
-    mensagemBranco := (5 - i) * 69;                               // 210 a 278 Mensagem Livre 69 posições
+    mensagemBranco := (5 - I) * 69;                              // 210 a 278 Mensagem Livre 69 posições
     wLinha := wLinha + Space(mensagemBranco);                     // 279 a 347 Mensagem Livre 69 posições
 
     wLinha := wLinha + Space(47);                                 // 348 a 394 Brancos
@@ -465,7 +489,7 @@ begin
     Titulo := Boleto.CriarTituloNaLista;
 
     Titulo.SeuNumero := Trim(Copy(Linha, 38, 25));
-    Titulo.NossoNumero := Copy(Linha, 63, 10);
+    Titulo.NossoNumero := DefineNossoNumeroRetorno(Linha);
     Titulo.NossoNumeroCorrespondente := Copy(Linha, 95, 13);
     Titulo.Carteira := Copy(Linha, 108, 1);
 
@@ -575,7 +599,7 @@ begin
   else
   begin
     case CodOcorrencia of
-      02: Result := toRetornoEntradaConfirmadaNaCip;              // Entrada Confirmada
+      01, 02: Result := toRetornoEntradaConfirmadaNaCip;              // Entrada Confirmada
       03: Result := toRetornoRemessaRejeitada;                    // Entrada Rejeitada
       // 05:                                                         Campo Livre Alterado
       06: Result :=  toRetornoLiquidado;                          // Liquidação Normal

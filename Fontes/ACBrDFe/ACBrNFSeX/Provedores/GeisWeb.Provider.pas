@@ -105,6 +105,7 @@ type
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.XMLHTML,
@@ -132,7 +133,8 @@ begin
 
   ConfigAssinar.Rps := True;
 
-  SetXmlNameSpace('http://www.gerenciadecidades.com.br/xsd/envio_lote_rps.xsd');
+//  SetXmlNameSpace('http://www.gerenciadecidades.com.br/xsd/envio_lote_rps.xsd');
+  SetXmlNameSpace('http://www.cidadedofuturo.com.br/xsd/envio_lote_rps.xsd');
 
   with ConfigMsgDados do
   begin
@@ -244,7 +246,7 @@ end;
 function TACBrNFSeProviderGeisWeb.PrepararRpsParaLote(
   const aXml: string): string;
 begin
-  Result := '<Rps xmlns="http://www.gerenciadecidades.com.br/xsd/envio_lote_rps.xsd">' +
+  Result := '<Rps xmlns="http://www.cidadedofuturo.com.br/xsd/envio_lote_rps.xsd">' +
             SeparaDados(aXml, 'Rps') + '</Rps>';
 end;
 
@@ -823,7 +825,7 @@ begin
   else
     ambiente := 'homologacao/modelo';
 
-  Result := 'xmlns:geis="urn:https://www.gerenciadecidades.com.br/' + ambiente +
+  Result := 'xmlns:geis="urn:https://www.cidadedofuturo.com.br/' + ambiente +
             '/webservice/GeisWebServiceImpl.php"';
 end;
 
@@ -836,7 +838,7 @@ begin
   else
     ambiente := 'homologacao/modelo';
 
-  Result := 'urn:https://www.gerenciadecidades.com.br/' + ambiente +
+  Result := 'urn:https://www.cidadedofuturo.com.br/' + ambiente +
             '/webservice/GeisWebServiceImpl.php#';
 end;
 

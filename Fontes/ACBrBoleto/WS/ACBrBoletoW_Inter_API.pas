@@ -203,9 +203,8 @@ begin
       end;
     tpAltera:
       begin
-        raise EACBrBoletoWSException.Create
-          (ClassName + Format(S_OPERACAO_NAO_IMPLEMENTADO,
-          [TipoOperacaoToStr(Boleto.Configuracoes.WebService.Operacao)]));
+        FMetodoHTTP := htPATCH; // Define Método PATCH ALTERACAO
+        RequisicaoAltera;
       end;
     tpBaixa:
       begin
@@ -244,8 +243,6 @@ end;
 
 procedure TBoletoW_Inter_API.RequisicaoBaixa;
 var
-  Stream: TMemoryStream;
-  Str: String;
   LJson: TACBrJSONObject;
 begin
   FPContentType := 'x-www-form-urlencoded';
@@ -331,7 +328,7 @@ begin
           end;
         isbCancelado:
           begin
-            LConsulta.Add('filtrarDataPor='+LFiltroDataPagamento );
+            LConsulta.Add('filtrarDataPor='+LFiltroDataEmissao );
             LConsulta.Add('situacao='+LSituacaoCancelados);
             LConsulta.Add('dataInicial=' +DateTimeToDateInter(Boleto.Configuracoes.WebService.Filtro.dataMovimento.DataInicio));
             LConsulta.Add('dataFinal=' +DateTimeToDateInter(Boleto.Configuracoes.WebService.Filtro.dataMovimento.DataFinal));
@@ -437,8 +434,35 @@ begin
 end;
 
 procedure TBoletoW_Inter_API.RequisicaoAltera;
+ var LJson: TACBrJSONObject;
 begin
-  // Sem Payload
+  FPContentType := 'application/json';
+  LJson := TACBrJSONObject.Create;
+
+  if Assigned(ATitulo) then begin
+
+    try
+      case ATitulo.OcorrenciaOriginal.Tipo of
+        toRemessaAlteracaoValorNominal :
+          begin
+            if (Boleto.Cedente.CedenteWS.IndicadorPix) and
+              (ATitulo.ValorDocumento > 0)  then begin
+                LJson.AddPair('valorNominal',StringReplace(FormatFloat(FloatToStr(ATitulo.ValorDocumento),0),',','.',[]));
+            end;
+          end;
+        toRemessaAlterarVencimento :
+          begin
+            if (Boleto.Cedente.CedenteWS.IndicadorPix) and
+              (ATitulo.Vencimento > 0)  then begin
+                LJson.AddPair('dataVencimento', DateTimeToDateInter(ATitulo.Vencimento));
+            end;
+          end;
+      end;
+      FPDadosMsg := LJson.ToJSON;
+    finally
+      LJson.Free;
+    end;
+  end;
 end;
 
 procedure TBoletoW_Inter_API.GeraDadosInstrucao(AJson: TACBrJSONObject);
@@ -655,7 +679,7 @@ end;
 
 procedure TBoletoW_Inter_API.GerarDesconto(AJson: TACBrJSONObject);
 var
-  LJsonDesconto, LJsonDesconto2, LJsonDesconto3: TACBrJSONObject;
+  LJsonDesconto: TACBrJSONObject;
 begin
   if Assigned(ATitulo) and Assigned(AJson) then
   begin
@@ -789,8 +813,8 @@ begin
   *)
   if (Boleto.Cedente.CedenteWS.IndicadorPix) and (Boleto.Configuracoes.WebService.Operacao = tpInclui) then
   begin
+    LJsonObject := TACBrJSONObject.Parse( FRetornoWS );
     try
-      LJsonObject := TACBrJSONObject.Parse( FRetornoWS );
       if NaoEstaVazio(LJsonObject.AsString['codigoSolicitacao']) then
       begin
         ATitulo.NossoNumeroCorrespondente := LJsonObject.AsString['codigoSolicitacao'];

@@ -310,10 +310,6 @@ begin
     rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.InformacoesComplementares,
                                        FQuebradeLinha, #13#10, [rfReplaceAll]));
 
-  if fpNFSe.Servico.infoCompl.xInfComp <> '' then
-    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.Servico.infoCompl.xInfComp,
-                                       FQuebradeLinha, #13#10, [rfReplaceAll]));
-
   if fpNFSe.Link <> '' then
   begin
     rlmDadosAdicionais.Width := 643;
@@ -457,37 +453,53 @@ procedure TfrlXDANFSeRLRetrato.rbCodServicoBeforePrint(Sender: TObject;
 var
   i: Integer;
   xItemLista: string;
+  LServicoPossuiItemLista: Boolean;
 begin
   inherited;
 
-  With fpNFSe do
+  with fpNFSe do
   begin
     rlmCodServico.Lines.Clear;
     xItemLista := '';
+    LServicoPossuiItemLista := False;
 
     if Servico.ItemServico.Count > 0 then
     begin
-      rlmCodServico.Lines.Append(ACBrStr('Código Serviço:'));
-
-      for i := 0 to Servico.ItemServico.Count -1 do
+      for i := 0 to Servico.ItemServico.Count - 1 do
       begin
-        if Pos(Servico.ItemServico.Items[i].ItemListaServico, xItemLista) = 0 then
+        if (Trim(Servico.ItemServico.Items[i].ItemListaServico) <> '') or
+           (Trim(Servico.ItemServico.Items[i].xItemListaServico) <> '') then
         begin
-          rlmCodServico.Lines.Append('   ' + Servico.ItemServico.Items[i].ItemListaServico +
-            ' - ' + ACBrStr(Servico.ItemServico.Items[i].xItemListaServico));
+          LServicoPossuiItemLista := True;
+          Break;
+        end;
+      end;
 
-          xItemLista := xItemLista + Servico.ItemServico.Items[i].ItemListaServico + '/';
+      if LServicoPossuiItemLista then
+      begin
+        rlmCodServico.Lines.Append(ACBrStr('Código Serviço:'));
+        for i := 0 to Servico.ItemServico.Count - 1 do
+        begin
+          if (Trim(Servico.ItemServico.Items[i].ItemListaServico) <> '') and
+             (Pos(Servico.ItemServico.Items[i].ItemListaServico, xItemLista) = 0) then
+          begin
+            rlmCodServico.Lines.Append('   ' + Servico.ItemServico.Items[i].ItemListaServico +
+              ' - ' + ACBrStr(Servico.ItemServico.Items[i].xItemListaServico));
+            xItemLista := xItemLista + Servico.ItemServico.Items[i].ItemListaServico + '/';
+          end;
         end;
       end;
     end;
 
-    if (Servico.xItemListaServico <> '') and (Servico.ItemServico.Count = 0) then
+    if (not LServicoPossuiItemLista) and (Servico.xItemListaServico <> '') then
     begin
       rlmCodServico.Lines.Append(ACBrStr('Código Serviço:'));
-
       rlmCodServico.Lines.Append('   ' + Servico.ItemListaServico + ' - ' +
-      ACBrStr(Servico.xItemListaServico));
+        Servico.xItemListaServico);
     end;
+
+    if Servico.CodigoNBS <> '' then
+      rlmCodServico.Lines.Append('Código NBS: ' + Servico.CodigoNBS);
 
     if fpDANFSe.Atividade <> '' then
       rlmCodServico.Lines.Append('Atividade: ' + fpDANFSe.Atividade);
@@ -512,6 +524,7 @@ begin
   With fpNFSe do
   begin
     rllRegimeEspecial.Caption := ACBrStr(FProvider.RegimeEspecialTributacaoDescricao(RegimeEspecialTributacao));
+    RLLabel54.Visible := rllRegimeEspecial.Caption  <> '';
     rllNatOperacao.Lines.Text := ACBrStr(FProvider.NaturezaOperacaoDescricao(NaturezaOperacao));
     MostrarNaturezaOperacao := rllNatOperacao.Caption <> '';
     RLLabel137.Visible := MostrarNaturezaOperacao;

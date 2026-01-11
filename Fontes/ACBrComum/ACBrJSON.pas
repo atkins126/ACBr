@@ -142,7 +142,6 @@ type
     constructor Create; overload;
     constructor Create(AJSONObject: TJsonObject); overload;
     destructor Destroy; override;
-
   end;
 
   { TACBrJSONArray }
@@ -156,11 +155,13 @@ type
     class function CreateJsonArray(const AJsonString: string): TJsonArray;
     function GetItems(const AIndex: Integer): string;
     function GetItemAsJSONObject(const AIndex: Integer): TACBrJSONObject;
+    function GetItemAsJSONArray(const AIndex: Integer): TACBrJSONArray;
 
   public
     property OwnerJSON: Boolean read FOwnerJSON write FOwnerJSON;
     property Items[const AIndex: Integer]: string read GetItems;
     property ItemAsJSONObject[const AIndex: Integer]: TACBrJSONObject read GetItemAsJSONObject;
+    property ItemAsJSONArray[const AIndex: Integer]: TACBrJSONArray read GetItemAsJSONArray;
 
     function AddElement(const AValue: string): TACBrJSONArray; overload;
     function AddElement(const AValue: Integer): TACBrJSONArray; overload;
@@ -616,18 +617,53 @@ begin
 end;
 
 class function TACBrJSONObject.CreateJsonObject(const AJsonString: string): TJsonObject;
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+  var
+    lTemp: TJSONBaseObject;
+  {$Else}{$IfDef FPC}
+  var
+    lTemp: TJSONData;
+  {$EndIf}{$EndIf}
 begin
   Result := nil;
   try
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     JsonSerializationConfig.NullConvertsToValueTypes := True;
     if NaoEstaVazio(AJsonString) then
-      Result := TJsonObject.Parse(AJsonString) as TJsonObject
+    begin
+      lTemp := TJsonObject.Parse(AJsonString);
+      if Assigned(lTemp) then
+      begin
+        try
+          Result := lTemp as TJSONObject;
+        except
+          on E:EInvalidCast do
+          begin
+            lTemp.Free;
+            raise;
+          end;
+        end;
+      end;
+    end
     else
       Result := TJsonObject.Create;
   {$Else}{$IfDef FPC}
-    Result := GetJSON(AJsonString) as TJSONObject;
-    if (not Assigned(Result)) then
+    if NaoEstaVazio(AJsonString) then
+    begin
+      lTemp := GetJSON(AJsonString);
+      if Assigned(lTemp) then
+      begin
+        try
+          Result := lTemp as TJSONObject;
+        except
+          on E:EInvalidCast do
+          begin
+            lTemp.Free;
+            raise;
+          end;
+        end;
+      end;
+    end else
       Result := TJSONObject.Create;
   {$Else}
     Result := TJsonObject.Create;
@@ -909,13 +945,45 @@ begin
   end;
 end;
 
-function TACBrJSONArray.GetItems(const AIndex: Integer): string;
+function TACBrJSONArray.GetItemAsJSONArray(const AIndex: Integer): TACBrJSONArray;
+var
+  {$IfNDef USE_JSONDATAOBJECTS_UNIT}{$IfNDef FPC}
+  LJSONStr: string;
+  {$EndIf}{$EndIf}
+  LJSON: TJSONArray;
 begin
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
-  Result := FJSON.Items[AIndex].Value;
-  {$Else}
-  Result := FJSON.Items[AIndex].AsString;
-  {$EndIf}
+  LJSON := FJSON.Items[AIndex].ArrayValue.Clone;
+  {$Else}{$IfDef FPC}
+  LJSON := GetJSON(FJSON.Items[AIndex].AsJSON) as TJSONArray;
+  {$ELSE}
+  LJSONStr := TJsonArray(FJSON.Items[AIndex]).Stringify;
+  LJSON := TJsonArray.Create;
+  LJSON.Parse(LJSONStr);
+  {$ENDIF}{$EndIf}
+  try
+    Result := TACBrJSONArray.Create(LJSON);
+    Result.OwnerJSON := True;
+    FContexts.Add(Result);
+  except
+    LJSON.Free;
+    raise;
+  end;
+end;
+
+function TACBrJSONArray.GetItems(const AIndex: Integer): string;
+begin
+  if Assigned(FJSON.Items[AIndex]) and
+     (not FJSON.Items[AIndex].IsNull) then
+  begin
+    {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    Result := FJSON.Items[AIndex].Value;
+    {$Else}
+    Result := FJSON.Items[AIndex].AsString;
+    {$EndIf}
+  end
+  else
+    Result := '';
 end;
 
 class function TACBrJSONArray.Parse(const AJSONString: string): TACBrJSONArray;

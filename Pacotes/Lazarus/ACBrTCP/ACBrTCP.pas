@@ -15,7 +15,9 @@ uses
   ACBrWinINetReqResp, ACBrFeriado, ACBrFeriadoWSCalendario, 
   ACBrFeriadoWSClass, ACBrFeriadoWSJSON, ACBrConsultaCNPJ.WS, 
   ACBrConsultaCNPJ.WS.BrasilAPI, ACBrConsultaCNPJ.WS.ReceitaWS, 
-  ACBrConsultaCNPJ.WS.CNPJWS, ACBr.Auth.JWT, ACBrCupomVerde, LazarusPackageIntf;
+  ACBrConsultaCNPJ.WS.CNPJWS, ACBrConsultaCNPJ.WS.MinhaReceita, ACBr.Auth.JWT, 
+  ACBrCupomVerde, ACBrIMendes, ACBrCalculadoraConsumo, 
+  ACBrCalculadoraConsumo.Schemas, LazarusPackageIntf;
 
 implementation
 

@@ -50,7 +50,9 @@ uses
   ACBrDFe.Conversao,
   pcnConversao,
   pcnConversaoNFe,
-  pcnSignature, pcnProcNFe, pcnGerador,
+  pcnSignature,
+//  ACBrDFeComum.SignatureClass,
+  pcnProcNFe,
   ACBrBase;
 
 type
@@ -231,6 +233,7 @@ type
     FtpNFCredito: TtpNFCredito;
     FgCompraGov: TgCompraGov;
     FgPagAntecipado: TgPagAntecipadoCollection;
+    FdPrevEntrega: TDateTime;
 
     procedure SetNFref(Value: TNFrefCollection);
     procedure SetgPagAntecipado(const Value: TgPagAntecipadoCollection);
@@ -267,6 +270,7 @@ type
     property dhCont: TDateTime read FdhCont write FdhCont;
     property xJust: string read FxJust write FxJust;
     // Reforma Tributária
+    property dPrevEntrega: TDateTime read FdPrevEntrega write FdPrevEntrega;
     property cMunFGIBS: Integer read FcMunFGIBS write FcMunFGIBS;
     property tpNFDebito: TtpNFDebito read FtpNFDebito write FtpNFDebito;
     property tpNFCredito: TtpNFCredito read FtpNFCredito write FtpNFCredito;
@@ -999,6 +1003,7 @@ type
     FcBarraTrib: string;
     FCredPresumido: TCredPresumidoCollection;
     FindBemMovelUsado: TIndicadorEx;
+    FtpCredPresIBSZFM: TtpCredPresIBSZFM;
 
     procedure SetDI(Value: TDICollection);
     procedure SetRastro(Value: TRastroCollection);
@@ -1055,6 +1060,7 @@ type
     property cBenef: string read FcBenef write FcBenef;
     property CredPresumido: TCredPresumidoCollection read FCredPresumido write SetCredPresumido;
     property indBemMovelUsado: TIndicadorEx read FindBemMovelUsado write FindBemMovelUsado default tieNenhum;
+    property tpCredPresIBSZFM: TtpCredPresIBSZFM read FtpCredPresIBSZFM write FtpCredPresIBSZFM;
   end;
 
   { TICMS }
@@ -1399,8 +1405,10 @@ type
 
   TgIS = class(TObject)
   private
-    FCSTIS: TCSTIS;
-    FcClassTribIS: TcClassTribIS;
+    //Usar string até a publicação de uma tabela de CSTs oficial para o IS
+    //FCSTIS: TCSTIS;
+    FCSTIS: string;
+    FcClassTribIS: string;
     FvBCIS: Double;
     FpIS: Double;
     FpISEspec: Double;
@@ -1409,9 +1417,10 @@ type
     FvIS: Double;
   public
     procedure Assign(Source: TgIS);
-
-    property CSTIS: TCSTIS read FCSTIS write FCSTIS;
-    property cClassTribIS: TcClassTribIS read FcClassTribIS write FcClassTribIS;
+    //Usar string até a publicação de uma tabela de CSTs oficial para o IS
+    //property CSTIS: TCSTIS read FCSTIS write FCSTIS;
+    property CSTIS: string read FCSTIS write FCSTIS;
+    property cClassTribIS: string read FcClassTribIS write FcClassTribIS;
     property vBCIS: Double read FvBCIS write FvBCIS;
     property pIS: Double read FpIS write FpIS;
     property pISEspec: Double read FpISEspec write FpISEspec;
@@ -1427,6 +1436,7 @@ type
     FpDif: Double;
     FvDif: Double;
   public
+    procedure Assign(Source: TgDif);
     property pDif: Double read FpDif write FpDif;
     property vDif: Double read FvDif write FvDif;
   end;
@@ -1437,6 +1447,7 @@ type
   private
     FvDevTrib: Double;
   public
+    procedure Assign(Source: TgDevTrib);
     property vDevTrib: Double read FvDevTrib write FvDevTrib;
   end;
 
@@ -1447,6 +1458,7 @@ type
     FpRedAliq: Double;
     FpAliqEfet: Double;
   public
+    procedure Assign(Source: TgRed);
     property pRedAliq: Double read FpRedAliq write FpRedAliq;
     property pAliqEfet: Double read FpAliqEfet write FpAliqEfet;
   end;
@@ -1495,21 +1507,6 @@ type
     property vIBSMun: Double read FvIBSMun write FvIBSMun;
   end;
 
-  { TgIBSCBSCredPres }
-
-  TgIBSCBSCredPres = class(TObject)
-  private
-    FcCredPres: TcCredPres;
-    FpCredPres: Double;
-    FvCredPres: Double;
-    FvCredPresCondSus: Double;
-  public
-    property cCredPres: TcCredPres read FcCredPres write FcCredPres;
-    property pCredPres: Double read FpCredPres write FpCredPres;
-    property vCredPres: Double read FvCredPres write FvCredPres;
-    property vCredPresCondSus: Double read FvCredPresCondSus write FvCredPresCondSus;
-  end;
-
   { TgCBS }
 
   TgCBS = class(TObject)
@@ -1537,7 +1534,7 @@ type
   TgTribRegular = class(TObject)
   private
     FCSTReg: TCSTIBSCBS;
-    FcClassTribReg: TcClassTrib;
+    FcClassTribReg: string;
     FpAliqEfetRegIBSUF: Double;
     FvTribRegIBSUF: Double;
     FpAliqEfetRegIBSMun: Double;
@@ -1545,8 +1542,10 @@ type
     FpAliqEfetRegCBS: Double;
     FvTribRegCBS: Double;
   public
+    procedure Assign(Source: TgTribRegular);
+
     property CSTReg: TCSTIBSCBS read FCSTReg write FCSTReg;
-    property cClassTribReg: TcClassTrib read FcClassTribReg write FcClassTribReg;
+    property cClassTribReg: string read FcClassTribReg write FcClassTribReg;
     property pAliqEfetRegIBSUF: Double read FpAliqEfetRegIBSUF write FpAliqEfetRegIBSUF;
     property vTribRegIBSUF: Double read FvTribRegIBSUF write FvTribRegIBSUF;
     property pAliqEfetRegIBSMun: Double read FpAliqEfetRegIBSMun write FpAliqEfetRegIBSMun;
@@ -1566,6 +1565,8 @@ type
     FpAliqCBS: Double;
     FvTribCBS: Double;
   public
+    procedure Assign(Source: TgTribCompraGov);
+
     property pAliqIBSUF: Double read FpAliqIBSUF write FpAliqIBSUF;
     property vTribIBSUF: Double read FvTribIBSUF write FvTribIBSUF;
     property pAliqIBSMun: Double read FpAliqIBSMun write FpAliqIBSMun;
@@ -1579,13 +1580,11 @@ type
   TgIBSCBS = class(TObject)
   private
     FvBC: Double;
+    FvIBS: Double;
     FgIBSUF: TgIBSUF;
     FgIBSMun: TgIBSMun;
     FgCBS: TgCBS;
     FgTribRegular: TgTribRegular;
-
-    FgIBSCredPres: TgIBSCBSCredPres;
-    FgCBSCredPres: TgIBSCBSCredPres;
     FgTribCompraGov: TgTribCompraGov;
   public
     constructor Create;
@@ -1594,70 +1593,109 @@ type
     procedure Assign(Source: TgIBSCBS);
 
     property vBC: Double read FvBC write FvBC;
+    property vIBS: Double read FvIBS write FvIBS;
     property gIBSUF: TgIBSUF read FgIBSUF write FgIBSUF;
     property gIBSMun: TgIBSMun read FgIBSMun write FgIBSMun;
     property gCBS: TgCBS read FgCBS write FgCBS;
     property gTribRegular: TgTribRegular read FgTribRegular write FgTribRegular;
-
-    property gIBSCredPres: TgIBSCBSCredPres read FgIBSCredPres write FgIBSCredPres;
-    property gCBSCredPres: TgIBSCBSCredPres read FgCBSCredPres write FgCBSCredPres;
     property gTribCompraGov: TgTribCompraGov read FgTribCompraGov write FgTribCompraGov;
   end;
 
-  { TgIBSCBSMono }
+  { TgMonoPadrao }
 
-  TgIBSCBSMono = class(TObject)
+  TgMonoPadrao = class(TObject)
   private
     FqBCMono: Double;
     FadRemIBS: Double;
     FadRemCBS: Double;
     FvIBSMono: Double;
     FvCBSMono: Double;
-
-    FqBCMonoReten: Double;
-    FadRemIBSReten: Double;
-    FvIBSMonoReten: Double;
-    FadRemCBSReten: Double;
-    FvCBSMonoReten: Double;
-
-    FqBCMonoRet: Double;
-    FadRemIBSRet: Double;
-    FvIBSMonoRet: Double;
-    FadRemCBSRet: Double;
-    FvCBSMonoRet: Double;
-
-    FpDifIBS: Double;
-    FvIBSMonoDif: Double;
-    FpDifCBS: Double;
-    FvCBSMonoDif: Double;
-
-    FvTotIBSMonoItem: Double;
-    FvTotCBSMonoItem: Double;
   public
-    procedure Assign(Source: TgIBSCBSMono);
+    procedure Assign(Source: TgMonoPadrao);
 
     property qBCMono: Double read FqBCMono write FqBCMono;
     property adRemIBS: Double read FadRemIBS write FadRemIBS;
     property adRemCBS: Double read FadRemCBS write FadRemCBS;
     property vIBSMono: Double read FvIBSMono write FvIBSMono;
     property vCBSMono: Double read FvCBSMono write FvCBSMono;
+  end;
+
+  { TgMonoReten }
+
+  TgMonoReten = class(TObject)
+  private
+    FqBCMonoReten: Double;
+    FadRemIBSReten: Double;
+    FvIBSMonoReten: Double;
+    FadRemCBSReten: Double;
+    FvCBSMonoReten: Double;
+  public
+    procedure Assign(Source: TgMonoReten);
 
     property qBCMonoReten: Double read FqBCMonoReten write FqBCMonoReten;
     property adRemIBSReten: Double read FadRemIBSReten write FadRemIBSReten;
     property vIBSMonoReten: Double read FvIBSMonoReten write FvIBSMonoReten;
     property adRemCBSReten: Double read FadRemCBSReten write FadRemCBSReten;
     property vCBSMonoReten: Double read FvCBSMonoReten write FvCBSMonoReten;
+  end;
+
+  { TgMonoRet }
+
+  TgMonoRet = class(TObject)
+  private
+    FqBCMonoRet: Double;
+    FadRemIBSRet: Double;
+    FvIBSMonoRet: Double;
+    FadRemCBSRet: Double;
+    FvCBSMonoRet: Double;
+  public
+    procedure Assign(Source: TgMonoRet);
 
     property qBCMonoRet: Double read FqBCMonoRet write FqBCMonoRet;
     property adRemIBSRet: Double read FadRemIBSRet write FadRemIBSRet;
     property vIBSMonoRet: Double read FvIBSMonoRet write FvIBSMonoRet;
     property adRemCBSRet: Double read FadRemCBSRet write FadRemCBSRet;
     property vCBSMonoRet: Double read FvCBSMonoRet write FvCBSMonoRet;
+  end;
+
+  { TgMonoDif }
+
+  TgMonoDif = class(TObject)
+  private
+    FpDifIBS: Double;
+    FvIBSMonoDif: Double;
+    FpDifCBS: Double;
+    FvCBSMonoDif: Double;
+  public
+    procedure Assign(Source: TgMonoDif);
 
     property pDifIBS: Double read FpDifIBS write FpDifIBS;
     property vIBSMonoDif: Double read FvIBSMonoDif write FvIBSMonoDif;
     property pDifCBS: Double read FpDifCBS write FpDifCBS;
     property vCBSMonoDif: Double read FvCBSMonoDif write FvCBSMonoDif;
+  end;
+
+  { TgIBSCBSMono }
+
+  TgIBSCBSMono = class(TObject)
+  private
+    FgMonoPadrao: TgMonoPadrao;
+    FgMonoReten: TgMonoReten;
+    FgMonoRet: TgMonoRet;
+    FgMonoDif: TgMonoDif;
+
+    FvTotIBSMonoItem: Double;
+    FvTotCBSMonoItem: Double;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure Assign(Source: TgIBSCBSMono);
+
+    property gMonoPadrao: TgMonoPadrao read FgMonoPadrao write FgMonoPadrao;
+    property gMonoReten: TgMonoReten read FgMonoReten write FgMonoReten;
+    property gMonoRet: TgMonoRet read FgMonoRet write FgMonoRet;
+    property gMonoDif: TgMonoDif read FgMonoDif write FgMonoDif;
 
     property vTotIBSMonoItem: Double read FvTotIBSMonoItem write FvTotIBSMonoItem;
     property vTotCBSMonoItem: Double read FvTotCBSMonoItem write FvTotCBSMonoItem;
@@ -1676,15 +1714,80 @@ type
     property vCBS: Double read FvCBS write FvCBS;
   end;
 
+  { TgAjusteCompet }
+
+  TgAjusteCompet = class(TObject)
+  private
+    FcompetApur: TDateTime;
+    FvCBS: Double;
+    FvIBS: Double;
+  public
+    procedure Assign(Source: TgAjusteCompet);
+
+    property competApur: TDateTime read FcompetApur write FcompetApur;
+    property vIBS: Double read FvIBS write FvIBS;
+    property vCBS: Double read FvCBS write FvCBS;
+  end;
+
+  { TgEstornoCred }
+
+  TgEstornoCred = class(TObject)
+  private
+    FvIBSEstCred: Double;
+    FvCBSEstCred: Double;
+  public
+    procedure Assign(Source: TgEstornoCred);
+
+    property vIBSEstCred: Double read FvIBSEstCred write FvIBSEstCred;
+    property vCBSEstCred: Double read FvCBSEstCred write FvCBSEstCred;
+  end;
+
+  { TgIBSCBSCredPres }
+
+  TgIBSCBSCredPres = class(TObject)
+  private
+    FpCredPres: Double;
+    FvCredPres: Double;
+    FvCredPresCondSus: Double;
+  public
+    procedure Assign(Source: TgIBSCBSCredPres);
+
+    property pCredPres: Double read FpCredPres write FpCredPres;
+    property vCredPres: Double read FvCredPres write FvCredPres;
+    property vCredPresCondSus: Double read FvCredPresCondSus write FvCredPresCondSus;
+  end;
+
+  { TgCredPresOper }
+
+  TgCredPresOper = class(TObject)
+  private
+    FvBCCredPres: Double;
+    FcCredPres: TcCredPres;
+    FgIBSCredPres: TgIBSCBSCredPres;
+    FgCBSCredPres: TgIBSCBSCredPres;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure Assign(Source: TgCredPresOper);
+
+    property vBCCredPres: Double read FvBCCredPres write FvBCCredPres;
+    property cCredPres: TcCredPres read FcCredPres write FcCredPres;
+    property gIBSCredPres: TgIBSCBSCredPres read FgIBSCredPres write FgIBSCredPres;
+    property gCBSCredPres: TgIBSCBSCredPres read FgCBSCredPres write FgCBSCredPres;
+  end;
+
   { TCredPresIBSZFM }
 
   TCredPresIBSZFM = class(TObject)
   private
+    FcompetApur: TDateTime;
     FtpCredPresIBSZFM: TTpCredPresIBSZFM;
     FvCredPresIBSZFM: Double;
   public
     procedure Assign(Source: TCredPresIBSZFM);
 
+    property competApur: TDateTime read FcompetApur write FcompetApur;
     property tpCredPresIBSZFM: TTpCredPresIBSZFM read FtpCredPresIBSZFM write FtpCredPresIBSZFM;
     property vCredPresIBSZFM: Double read FvCredPresIBSZFM write FvCredPresIBSZFM;
   end;
@@ -1694,22 +1797,32 @@ type
   TIBSCBS = class(TObject)
   private
     FCST: TCSTIBSCBS;
-    FcClassTrib: TcClassTrib;
+    FcClassTrib: string;
+    FindDoacao: TIndicadorEx;
 
     FgIBSCBS: TgIBSCBS;
     FgIBSCBSMono: TgIBSCBSMono;
     FgTransfCred: TgTransfCred;
+    FgAjusteCompet: TgAjusteCompet;
+    FgEstornoCred: TgEstornoCred;
+    FgCredPresOper: TgCredPresOper;
     FgCredPresIBSZFM: TCredPresIBSZFM;
   public
     constructor Create;
     destructor Destroy; override;
 
+    procedure Assign(Source: TIBSCBS);
+
     property CST: TCSTIBSCBS read FCST write FCST;
-    property cClassTrib: TcClassTrib read FcClassTrib write FcClassTrib;
+    property cClassTrib: string read FcClassTrib write FcClassTrib;
+    property indDoacao: TIndicadorEx read FindDoacao write FindDoacao;
 
     property gIBSCBS: TgIBSCBS read FgIBSCBS write FgIBSCBS;
     property gIBSCBSMono: TgIBSCBSMono read FgIBSCBSMono write FgIBSCBSMono;
     property gTransfCred: TgTransfCred read FgTransfCred write FgTransfCred;
+    property gAjusteCompet: TgAjusteCompet read FgAjusteCompet write FgAjusteCompet;
+    property gEstornoCred: TgEstornoCred read FgEstornoCred write FgEstornoCred;
+    property gCredPresOper: TgCredPresOper read FgCredPresOper write FgCredPresOper;
     property gCredPresIBSZFM: TCredPresIBSZFM read FgCredPresIBSZFM write FgCredPresIBSZFM;
   end;
 
@@ -1770,6 +1883,7 @@ type
     FchaveAcesso: string;
     FnItem: Integer;
   public
+    procedure Assign(Source: TDFeReferenciado);
     property chaveAcesso: string read FchaveAcesso write FchaveAcesso;
     property nItem: Integer read FnItem write FnItem;
   end;
@@ -1978,6 +2092,7 @@ type
     FvDevTrib: Double;
     FvIBSUF: Double;
   public
+    procedure Assign(Source: TgIBSUFTot);
     property vDif: Double read FvDif write FvDif;
     property vDevTrib: Double read FvDevTrib write FvDevTrib;
     property vIBSUF: Double read FvIBSUF write FvIBSUF;
@@ -1991,6 +2106,7 @@ type
     FvDevTrib: Double;
     FvIBSMun: Double;
   public
+    procedure Assign(Source: TgIBSMunTot);
     property vDif: Double read FvDif write FvDif;
     property vDevTrib: Double read FvDevTrib write FvDevTrib;
     property vIBSMun: Double read FvIBSMun write FvIBSMun;
@@ -2028,6 +2144,7 @@ type
     FvCredPres: Double;
     FvCredPresCondSus: Double;
   public
+    procedure Assign(Source: TgCBSTot);
     property vDif: Double read FvDif write FvDif;
     property vDevTrib: Double read FvDevTrib write FvDevTrib;
     property vCBS: Double read FvCBS write FvCBS;
@@ -2046,6 +2163,7 @@ type
     FvIBSMonoRet: Double;
     FvCBSMonoRet: Double;
   public
+    procedure Assign(Source: TgMono);
     property vIBSMono: Double read FvIBSMono write FvIBSMono;
     property vCBSMono: Double read FvCBSMono write FvCBSMono;
     property vIBSMonoReten: Double read FvIBSMonoReten write FvIBSMonoReten;
@@ -2063,6 +2181,7 @@ type
     FgIBS: TgIBSTot;
     FgCBS: TgCBSTot;
     FgMono: TgMono;
+    FgEstornoCred: TgEstornoCred;
   public
     constructor Create;
     destructor Destroy; override;
@@ -2074,6 +2193,7 @@ type
     property gIBS: TgIBSTot read FgIBS write FgIBS;
     property gCBS: TgCBSTot read FgCBS write FgCBS;
     property gMono: TgMono read FgMono write FgMono;
+    property gEstornoCred: TgEstornoCred read FgEstornoCred write FgEstornoCred;
   end;
 
   { TTotal }
@@ -2706,6 +2826,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+    procedure Assign(Source: TguiaTransito);
     property UFGuia: string read FUFGuia write FUFGuia;
     property tpGuia: TtpGuia read FtpGuia write FtpGuia;
     property serieGuia: string read FserieGuia write FserieGuia;
@@ -2723,6 +2844,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+    procedure Assign(Source: Tagropecuario);
 
     property defensivo: TdefensivoCollection read Fdefensivo write Setdefensivo;
     property guiaTransito: TguiaTransito read FguiaTransito write FguiaTransito;
@@ -2826,6 +2948,7 @@ begin
   signature.Assign(Source.signature);
   procNFe.Assign(Source.procNFe);
   infRespTec.Assign(Source.infRespTec);
+  agropecuario.Assign(Source.agropecuario);
 end;
 
 constructor TNFe.Create;
@@ -2951,7 +3074,7 @@ begin
   vIPIDevol := Source.vIPIDevol;
   infAdProd := Source.infAdProd;
   vItem := Source.vItem;
-  DFeReferenciado := Source.DFeReferenciado;
+  DFeReferenciado.Assign(Source.DFeReferenciado);
 
   obsCont.Assign(Source.obsCont);
   obsFisco.Assign(Source.obsFisco);
@@ -3009,8 +3132,11 @@ begin
   verProc  := Source.verProc;
   dhCont   := Source.dhCont;
   xJust    := Source.xJust;
+  cMunFGIBS := Source.cMunFGIBS;
   tpNFDebito := Source.tpNFDebito;
   tpNFCredito := Source.tpNFCredito;
+  gCompraGov.Assign(Source.gCompraGov);
+  gPagAntecipado.Assign(Source.gPagAntecipado);
 end;
 
 constructor TIde.Create;
@@ -3484,8 +3610,8 @@ begin
   COFINSST.Assign(Source.COFINSST);
   ISSQN.Assign(Source.ISSQN);
   ICMSUFDest.Assign(Source.ICMSUFDest);
-  ISel := Source.ISel;
-  IBSCBS := Source.IBSCBS;
+  ISel.Assign(Source.ISel);
+  IBSCBS.Assign(Source.IBSCBS);
 end;
 
 constructor TImposto.Create();
@@ -4905,6 +5031,14 @@ end;
 
 { TguiaTransito }
 
+procedure TguiaTransito.Assign(Source: TguiaTransito);
+begin
+  FUFGuia := Source.UFGuia;
+  FtpGuia := Source.tpGuia;
+  FserieGuia := Source.serieGuia;
+  FnGuia := Source.nGuia;
+end;
+
 constructor TguiaTransito.Create;
 begin
   inherited Create;
@@ -4917,6 +5051,12 @@ begin
 end;
 
 { Tagropecuario }
+
+procedure Tagropecuario.Assign(Source: Tagropecuario);
+begin
+  Fdefensivo.Assign(Source.defensivo);
+  FguiaTransito.Assign(Source.guiaTransito);
+end;
 
 constructor Tagropecuario.Create;
 begin
@@ -4981,6 +5121,19 @@ end;
 
 { TIBSCBS }
 
+procedure TIBSCBS.Assign(Source: TIBSCBS);
+begin
+  CST := Source.CST;
+  cClassTrib := Source.cClassTrib;
+  gIBSCBS.Assign(Source.gIBSCBS);
+  gIBSCBSMono.Assign(Source.gIBSCBSMono);
+  gTransfCred.Assign(Source.gTransfCred);
+  gAjusteCompet.Assign(Source.gAjusteCompet);
+  gEstornoCred.Assign(Source.gEstornoCred);
+  gCredPresOper.Assign(Source.gCredPresOper);
+  gCredPresIBSZFM.Assign(Source.gCredPresIBSZFM);
+end;
+
 constructor TIBSCBS.Create;
 begin
   inherited Create;
@@ -4988,6 +5141,9 @@ begin
   FgIBSCBS := TgIBSCBS.Create;
   FgIBSCBSMono := TgIBSCBSMono.Create;
   FgTransfCred := TgTransfCred.Create;
+  FgAjusteCompet := TgAjusteCompet.Create;
+  FgEstornoCred := TgEstornoCred.Create;
+  FgCredPresOper := TgCredPresOper.Create;
   FgCredPresIBSZFM := TCredPresIBSZFM.Create;
 end;
 
@@ -4996,6 +5152,9 @@ begin
   FgIBSCBS.Free;
   FgIBSCBSMono.Free;
   FgTransfCred.Free;
+  FgAjusteCompet.Free;
+  FgEstornoCred.Free;
+  FgCredPresOper.Free;
   FgCredPresIBSZFM.Free;
 
   inherited;
@@ -5020,13 +5179,12 @@ end;
 procedure TgIBSCBS.Assign(Source: TgIBSCBS);
 begin
   vBC := Source.vBC;
-  gIBSUF := Source.gIBSUF;
-  gIBSMun := Source.gIBSMun;
-  gCBS := Source.gCBS;
-  gTribRegular := Source.gTribRegular;
-  gIBSCredPres := Source.gIBSCredPres;
-  gCBSCredPres := Source.gCBSCredPres;
-  gTribCompraGov := Source.gTribCompraGov;
+  vIBS := Source.vIBS;
+  gIBSUF.Assign(Source.gIBSUF);
+  gIBSMun.Assign(Source.gIBSMun);
+  gCBS.Assign(Source.gCBS);
+  gTribRegular.Assign(Source.gTribRegular);
+  gTribCompraGov.Assign(Source.gTribCompraGov);
 end;
 
 constructor TgIBSCBS.Create;
@@ -5037,8 +5195,6 @@ begin
   FgIBSMun := TgIBSMun.Create;
   FgCBS := TgCBS.Create;
   FgTribRegular := TgTribRegular.Create;
-  FgIBSCredPres := TgIBSCBSCredPres.Create;
-  FgCBSCredPres := TgIBSCBSCredPres.Create;
   FgTribCompraGov := TgTribCompraGov.Create;
 end;
 
@@ -5048,8 +5204,6 @@ begin
   FgIBSMun.Free;
   FgCBS.Free;
   FgTribRegular.Free;
-  FgIBSCredPres.Free;
-  FgCBSCredPres.Free;
   FgTribCompraGov.Free;
 
   inherited;
@@ -5060,9 +5214,9 @@ end;
 procedure TgIBSUF.Assign(Source: TgIBSUF);
 begin
   pIBSUF := Source.pIBSUF;
-  gDif := Source.gDif;
-  gDevTrib := Source.gDevTrib;
-  gRed := Source.gRed;
+  gDif.Assign(Source.gDif);
+  gDevTrib.Assign(Source.gDevTrib);
+  gRed.Assign(Source.gRed);
   vIBSUF := Source.vIBSUF;
 end;
 
@@ -5089,9 +5243,9 @@ end;
 procedure TgIBSMun.Assign(Source: TgIBSMun);
 begin
   pIBSMun := Source.pIBSMun;
-  gDif := Source.gDif;
-  gDevTrib := Source.gDevTrib;
-  gRed := Source.gRed;
+  gDif.Assign(Source.gDif);
+  gDevTrib.Assign(Source.gDevTrib);
+  gRed.Assign(Source.gRed);
   vIBSMun := Source.vIBSMun;
 end;
 
@@ -5118,9 +5272,9 @@ end;
 procedure TgCBS.Assign(Source: TgCBS);
 begin
   pCBS := Source.pCBS;
-  gDif := Source.gDif;
-  gDevTrib := Source.gDevTrib;
-  gRed := Source.gRed;
+  gDif.Assign(Source.gDif);
+  gDevTrib.Assign(Source.gDevTrib);
+  gRed.Assign(Source.gRed);
   vCBS := Source.vCBS;
 end;
 
@@ -5142,35 +5296,80 @@ begin
   inherited;
 end;
 
-{ TgIBSCBSMono }
+{ TgMonoPadrao }
 
-procedure TgIBSCBSMono.Assign(Source: TgIBSCBSMono);
+procedure TgMonoPadrao.Assign(Source: TgMonoPadrao);
 begin
   qBCMono := Source.qBCMono;
   adRemIBS := Source.adRemIBS;
   adRemCBS := Source.adRemCBS;
   vIBSMono := Source.vIBSMono;
   vCBSMono := Source.vCBSMono;
+end;
 
+{ TgMonoReten }
+
+procedure TgMonoReten.Assign(Source: TgMonoReten);
+begin
   qBCMonoReten := Source.qBCMonoReten;
   adRemIBSReten := Source.adRemIBSReten;
   vIBSMonoReten := Source.vIBSMonoReten;
   adRemCBSReten := Source.adRemCBSReten;
   vCBSMonoReten := Source.vCBSMonoReten;
+end;
 
+{ TgMonoRet }
+
+procedure TgMonoRet.Assign(Source: TgMonoRet);
+begin
   qBCMonoRet := Source.qBCMonoRet;
   adRemIBSRet := Source.adRemIBSRet;
   vIBSMonoRet := Source.vIBSMonoRet;
   adRemCBSRet := Source.adRemCBSRet;
   vCBSMonoRet := Source.vCBSMonoRet;
+end;
 
+{ TgMonoDif }
+
+procedure TgMonoDif.Assign(Source: TgMonoDif);
+begin
   pDifIBS := Source.pDifIBS;
   vIBSMonoDif := Source.vIBSMonoDif;
   pDifCBS := Source.pDifCBS;
   vCBSMonoDif := Source.vCBSMonoDif;
+end;
+
+{ TgIBSCBSMono }
+
+procedure TgIBSCBSMono.Assign(Source: TgIBSCBSMono);
+begin
+  gMonoPadrao.Assign(Source.gMonoPadrao);
+  gMonoReten.Assign(Source.gMonoReten);
+  gMonoRet.Assign(Source.gMonoRet);
+  gMonoDif.Assign(Source.gMonoDif);
 
   vTotIBSMonoItem := Source.vTotIBSMonoItem;
   vTotCBSMonoItem := Source.vTotCBSMonoItem;
+end;
+
+constructor TgIBSCBSMono.Create;
+begin
+  inherited Create;
+
+  FgMonoPadrao := TgMonoPadrao.Create;
+  FgMonoReten := TgMonoReten.Create;
+  FgMonoRet := TgMonoRet.Create;
+  FgMonoDif := TgMonoDif.Create;
+end;
+
+destructor TgIBSCBSMono.Destroy;
+begin
+  FgMonoPadrao.Free;
+  FgMonoReten.Free;
+  FgMonoRet.Free;
+  FgMonoDif.Free;
+
+  inherited;
 end;
 
 { TIBSCBSTot }
@@ -5178,9 +5377,10 @@ end;
 procedure TIBSCBSTot.Assign(Source: TIBSCBSTot);
 begin
   vBCIBSCBS := Source.vBCIBSCBS;
-  gIBS := Source.gIBS;
-  gCBS := Source.gCBS;
-  gMono := Source.gMono;
+  gIBS.Assign(Source.gIBS);
+  gCBS.Assign(Source.gCBS);
+  gMono.Assign(Source.gMono);
+  gEstornoCred.Assign(Source.gEstornoCred);
 end;
 
 constructor TIBSCBSTot.Create;
@@ -5190,6 +5390,7 @@ begin
   FgIBS := TgIBSTot.Create;
   FgCBS := TgCBSTot.Create;
   FgMono := TgMono.Create;
+  FgEstornoCred := TgEstornoCred.Create;
 end;
 
 destructor TIBSCBSTot.Destroy;
@@ -5197,6 +5398,7 @@ begin
   FgIBS.Free;
   FgCBS.Free;
   FgMono.Free;
+  FgEstornoCred.Free;
 
   inherited;
 end;
@@ -5205,8 +5407,8 @@ end;
 
 procedure TgIBSTot.Assign(Source: TgIBSTot);
 begin
-  gIBSUFTot := Source.gIBSUFTot;
-  gIBSMunTot := Source.gIBSMunTot;
+  gIBSUFTot.Assign(Source.gIBSUFTot);
+  gIBSMunTot.Assign(Source.gIBSMunTot);
   vIBS := Source.vIBS;
   vCredPres := Source.vCredPres;
   vCredPresCondSus := Source.vCredPresCondSus;
@@ -5243,14 +5445,6 @@ begin
   vCBS := Source.vCBS;
 end;
 
-{ TCredPresIBSZFM }
-
-procedure TCredPresIBSZFM.Assign(Source: TCredPresIBSZFM);
-begin
-  tpCredPresIBSZFM := Source.tpCredPresIBSZFM;
-  vCredPresIBSZFM := Source.vCredPresIBSZFM;
-end;
-
 { TgPagAntecipadoCollectionItem }
 
 procedure TgPagAntecipadoCollectionItem.Assign(
@@ -5282,6 +5476,165 @@ procedure TgPagAntecipadoCollection.SetItem(Index: Integer;
   Value: TgPagAntecipadoCollectionItem);
 begin
   inherited Items[Index] := Value;
+end;
+
+{ TgDif }
+
+procedure TgDif.Assign(Source: TgDif);
+begin
+  FpDif := Source.pDif;
+  FvDif := Source.vDif;
+end;
+
+{ TgDevTrib }
+
+procedure TgDevTrib.Assign(Source: TgDevTrib);
+begin
+  FvDevTrib := Source.vDevTrib; 
+end;
+
+{ TgRed }
+
+procedure TgRed.Assign(Source: TgRed);
+begin
+  FpRedAliq := Source.pRedAliq;
+  FpAliqEfet := Source.pAliqEfet;
+end;
+
+{ TgTribRegular }
+
+procedure TgTribRegular.Assign(Source: TgTribRegular);
+begin
+  CSTReg := Source.CSTReg;
+  cClassTribReg := Source.cClassTribReg;
+  pAliqEfetRegIBSUF := Source.pAliqEfetRegIBSUF;
+  vTribRegIBSUF := Source.vTribRegIBSUF;
+  pAliqEfetRegIBSMun := Source.pAliqEfetRegIBSMun;
+  vTribRegIBSMun := Source.vTribRegIBSMun;
+  pAliqEfetRegCBS := Source.pAliqEfetRegCBS;
+  vTribRegCBS := Source.vTribRegCBS;
+end;
+
+{ TgTribCompraGov }
+
+procedure TgTribCompraGov.Assign(Source: TgTribCompraGov);
+begin
+  pAliqIBSUF := Source.pAliqIBSUF;
+  vTribIBSUF := Source.vTribIBSUF;
+  pAliqIBSMun := Source.pAliqIBSMun;
+  vTribIBSMun := Source.vTribIBSMun;
+  pAliqCBS := Source.pAliqCBS;
+  vTribCBS := Source.vTribCBS;
+end;
+
+{ TDFeReferenciado }
+
+procedure TDFeReferenciado.Assign(Source: TDFeReferenciado);
+begin
+  FchaveAcesso := Source.chaveAcesso;
+  FnItem := Source.nItem;
+end;
+
+{ TgIBSUFTot }
+
+procedure TgIBSUFTot.Assign(Source: TgIBSUFTot);
+begin
+  FvDif := Source.vDif;
+  FvDevTrib := Source.vDevTrib;
+  FvIBSUF := Source.vIBSUF;
+end;
+
+{ TgIBSMunTot }
+
+procedure TgIBSMunTot.Assign(Source: TgIBSMunTot);
+begin
+  FvDif := Source.vDif;
+  FvDevTrib := Source.vDevTrib;
+  FvIBSMun := Source.vIBSMun;
+end;
+
+{ TgCBSTot }
+
+procedure TgCBSTot.Assign(Source: TgCBSTot);
+begin
+  FvDif := Source.vDif;
+  FvDevTrib := Source.vDevTrib;
+  FvCBS := Source.vCBS;
+  FvCredPres := Source.vCredPres;
+  FvCredPresCondSus := Source.vCredPresCondSus;
+end;
+
+{ TgMono }
+
+procedure TgMono.Assign(Source: TgMono);
+begin
+  FvIBSMono := Source.vIBSMono;
+  FvCBSMono := Source.vCBSMono;
+  FvIBSMonoReten := Source.vIBSMonoReten;
+  FvCBSMonoReten := Source.vCBSMonoReten;
+  FvIBSMonoRet := Source.vIBSMonoRet;
+  FvCBSMonoRet := Source.vCBSMonoRet;
+end;
+
+{ TgAjusteCompet }
+
+procedure TgAjusteCompet.Assign(Source: TgAjusteCompet);
+begin
+  FcompetApur := Source.competApur;
+  FvCBS := Source.vCBS;
+  FvIBS := Source.vIBS;
+end;
+
+{ TgEstornoCred }
+
+procedure TgEstornoCred.Assign(Source: TgEstornoCred);
+begin
+  FvIBSEstCred := Source.vIBSEstCred;
+  FvCBSEstCred := Source.vCBSEstCred;
+end;
+
+{ TgCredPresOper }
+
+procedure TgCredPresOper.Assign(Source: TgCredPresOper);
+begin
+  FvBCCredPres := Source.vBCCredPres;
+  FcCredPres := Source.cCredPres;
+  gIBSCredPres.Assign(Source.gIBSCredPres);
+  gCBSCredPres.Assign(Source.gCBSCredPres);
+end;
+
+constructor TgCredPresOper.Create;
+begin
+  inherited Create;
+
+  FgIBSCredPres := TgIBSCBSCredPres.Create;
+  FgCBSCredPres := TgIBSCBSCredPres.Create;
+end;
+
+destructor TgCredPresOper.Destroy;
+begin
+  FgIBSCredPres.Free;
+  FgCBSCredPres.Free;
+
+  inherited;
+end;
+
+{ TgIBSCBSCredPres }
+
+procedure TgIBSCBSCredPres.Assign(Source: TgIBSCBSCredPres);
+begin
+  FpCredPres := Source.pCredPres;
+  FvCredPres := Source.vCredPres;
+  FvCredPresCondSus := Source.vCredPresCondSus;
+end;
+
+{ TCredPresIBSZFM }
+
+procedure TCredPresIBSZFM.Assign(Source: TCredPresIBSZFM);
+begin
+  FcompetApur := Source.competApur;
+  FtpCredPresIBSZFM := Source.tpCredPresIBSZFM;
+  FvCredPresIBSZFM := Source.vCredPresIBSZFM;
 end;
 
 end.

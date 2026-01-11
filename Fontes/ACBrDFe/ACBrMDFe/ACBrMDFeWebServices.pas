@@ -38,6 +38,8 @@ interface
 
 uses
   Classes, SysUtils, synacode,
+  ACBrXmlBase,
+  ACBrDFe.Conversao,
   ACBrDFe, ACBrDFeWebService,
   ACBrMDFe.Classes,
   pcnConversao, pmdfeConversaoMDFe,
@@ -49,9 +51,8 @@ uses
   ACBrMDFe.RetConsNaoEnc,
   ACBrDFeComum.Proc,
   ACBrDFeComum.RetEnvio,
-  pcnDistDFeInt,
-  pcnRetDistDFeInt,
-  ACBrXmlBase,
+  ACBrDFeComum.DistDFeInt,
+  ACBrDFeComum.RetDistDFeInt,
   ACBrMDFeManifestos, ACBrMDFeConfiguracoes;
 
 type
@@ -406,6 +407,7 @@ type
 
   TDistribuicaoDFe = class(TMDFeWebService)
   private
+    FOwner: TACBrDFe;
     FCNPJCPF: String;
     FultNSU: String;
     FNSU: String;
@@ -1703,7 +1705,7 @@ begin
   while Retorno <> '' do
   begin
     Inicio := Pos('<procEventoMDFe', Retorno);
-    Fim    := Pos('</procEventoMDFe>', Retorno) + 15;
+    Fim    := Pos('</procEventoMDFe>', Retorno) + 16;
 
     aEvento := Copy(Retorno, Inicio, Fim - Inicio + 1);
 
@@ -1732,6 +1734,9 @@ begin
 
     if FPConfiguracoesMDFe.Arquivos.SalvarEvento and (aProcEvento <> '') then
       FPDFeOwner.Gravar( aIDEvento + '-procEventoMDFe.xml', aProcEvento, sPathEvento);
+
+    // Pode haver essa tag depois dos eventos, para evitar criar eventos não mapeados dar break.
+    if (Pos('<procInfraSA', Retorno) = 1) then break;
   end;
 end;
 
@@ -2675,6 +2680,8 @@ end;
 constructor TDistribuicaoDFe.Create(AOwner: TACBrDFe);
 begin
   inherited Create(AOwner);
+
+  FOwner := AOwner;
 end;
 
 destructor TDistribuicaoDFe.Destroy;
@@ -2699,7 +2706,7 @@ begin
   if Assigned(FretDistDFeInt) then
     FretDistDFeInt.Free;
 
-  FretDistDFeInt := TRetDistDFeInt.Create('MDFe');
+  FretDistDFeInt := TRetDistDFeInt.Create(FOwner, 'MDFe');
 
   if Assigned(FlistaArqs) then
     FlistaArqs.Free;
@@ -2726,11 +2733,11 @@ begin
     DistDFeInt.NSU := FNSU;
     DistDFeInt.Chave := trim(FchMDFe);
 
-    AjustarOpcoes( DistDFeInt.Gerador.Opcoes );
-    DistDFeInt.GerarXML;
+//    AjustarOpcoes( DistDFeInt.Gerador.Opcoes );
+//    DistDFeInt.GerarXML;
 
-    FPDadosMsg := DistDFeInt.Gerador.ArquivoFormatoXML;
-//    FPDadosMsg := DistDFeInt.GerarXML;
+//    FPDadosMsg := DistDFeInt.Gerador.ArquivoFormatoXML;
+    FPDadosMsg := DistDFeInt.GerarXML;
   finally
     DistDFeInt.Free;
   end;
@@ -2745,10 +2752,9 @@ begin
 
   // Processando em UTF8, para poder gravar arquivo corretamente //
   //A função UTF8ToNativeString deve ser removida quando for refatorado para usar ACBrXMLDocument
-  FretDistDFeInt.Leitor.Arquivo := UTF8ToNativeString(ParseText(FPRetWS));
+//  FretDistDFeInt.Leitor.Arquivo := UTF8ToNativeString(ParseText(FPRetWS));
+  FretDistDFeInt.XmlRetorno := FPRetWS;
   FretDistDFeInt.LerXml;
-//  FretDistDFeInt.XmlRetorno := ParseText(FPRetWS);
-//  FretDistDFeInt.LerXml;
 
   for I := 0 to FretDistDFeInt.docZip.Count - 1 do
   begin

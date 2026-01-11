@@ -82,12 +82,13 @@ type
                                   vlVersao115,  // Código 016 - Versão 115 Ato COTEPE 01/01/2022
                                   vlVersao116,  // Código 017 - Versão 116 Ato COTEPE 01/01/2023
                                   vlVersao117,  // Código 018 - Versão 117 Ato COTEPE 01/01/2024
-                                  vlVersao118   // Código 019 - Versão 118 Ato COTEPE 01/01/2025
+                                  vlVersao118,  // Código 019 - Versão 118 Ato COTEPE 01/01/2025
+                                  vlVersao119   // Código 020 - Versão 119 Ato COTEPE 01/01/2026
                                  );
   const
   TACBrVersaoLeiauteSPEDFiscalArrayofstrings: array[TACBrVersaoLeiauteSPEDFiscal] of string =
     ('001', '002', '003', '004', '005', '006', '007', '008', '009', '010', '011', '012', '013', '014',
-     '015', '016', '017', '018', '019');
+     '015', '016', '017', '018', '019', '020');
 
 type
   TACBrVersaoLeiaute = TACBrVersaoLeiauteSPEDFiscal {$IfDef DELPHI2009_UP} deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Esse tipo é obsoleto: Use o tipo TACBrVersaoLeiauteSPEDFiscal'{$EndIf}{$EndIf};
@@ -190,7 +191,8 @@ type
                          );
   /// Documento de importação
   TACBrDoctoImporta = (diImportacao,           // 0 – Declaração de Importação
-                       diSimplificadaImport    // 1 – Declaração Simplificada de Importação
+                       diSimplificadaImport,   // 1 – Declaração Simplificada de Importação
+                       diUnicaImport           // 2 – Declaração Única de Importação (DUIMP)
                        );
   /// Indicador do tipo de título de crédito
   TACBrTipoTitulo = (tcDuplicata,             // 00- Duplicata
@@ -554,8 +556,15 @@ type
                    sticmsTributacaoMonofasicaPropriaCombustives              , // '002' // Tributação Monofásica Própria do ICMS nas operações com combustíveis
                    sticmsTributacaoMonofasicaPropriacomRetencaoCombustiveis  , // '015' // Tributação Monofásica Própria e com responsabilidade pela retenção do ICMS nas operações com combustíveis
                    sticmsTributacaoMonofasicaRecolhimentoDiferidoCombustiveis, // '053' // Tributação Monofásica com recolhimento diferido do ICMS nas operações com combustíveis
-                   sticmsTributacaoMonofasicaCombustiveisCobradoAnteriormente  // '061' // Tributação Monofásica sobre combustíveis com ICMS cobrado anteriormente
-
+                   sticmsTributacaoMonofasicaCombustiveisCobradoAnteriormente, // '061' // Tributação Monofásica sobre combustíveis com ICMS cobrado anteriormente
+                   sticmsEstrangeiraImpDiretaTributacaoMonofasicaPropriaCombustives               , // '102' // Estrangeira - Tributação Monofásica Própria do ICMS nas operações com combustíveis
+                   sticmsEstrangeiraImpDiretaTributacaoMonofasicaPropriacomRetencaoCombustiveis   , // '115' // Estrangeira - Tributação Monofásica Própria e com responsabilidade pela retenção do ICMS nas operações com combustíveis
+                   sticmsEstrangeiraImpDiretaTributacaoMonofasicaRecolhimentoDiferidoCombustiveis , // '153' // Estrangeira - Tributação Monofásica com recolhimento diferido do ICMS nas operações com combustíveis
+                   sticmsEstrangeiraImpDiretaTributacaoMonofasicaCombustiveisCobradoAnteriormente , // '161' // Estrangeira - Tributação Monofásica sobre combustíveis com ICMS cobrado anteriormente
+                   sticmsEstrangeiraAdqMercIntTributacaoMonofasicaPropriaCombustives              , // '202' // Estrangeira - Adquirida no mercado interno - Tributação Monofásica Própria do ICMS nas operações com combustíveis
+                   sticmsEstrangeiraAdqMercIntTributacaoMonofasicaPropriacomRetencaoCombustiveis  , // '215' // Estrangeira - Adquirida no mercado interno - Tributação Monofásica Própria e com responsabilidade pela retenção do ICMS nas operações com combustíveis
+                   sticmsEstrangeiraAdqMercIntTributacaoMonofasicaRecolhimentoDiferidoCombustiveis, // '253' // Estrangeira - Adquirida no mercado interno - Tributação Monofásica com recolhimento diferido do ICMS nas operações com combustíveis
+                   sticmsEstrangeiraAdqMercIntTributacaoMonofasicaCombustiveisCobradoAnteriormente  // '261' // Estrangeira - Adquirida no mercado interno - Tributação Monofásica sobre combustíveis com ICMS cobrado anteriormente
                 );
   TACBrSituacaoTribICMS = TACBrCstIcms;
 

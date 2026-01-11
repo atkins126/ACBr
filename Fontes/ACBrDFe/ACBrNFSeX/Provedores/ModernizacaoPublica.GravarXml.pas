@@ -38,7 +38,9 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrNFSeXGravarXml_ABRASFv2;
+  ACBrXmlBase,
+  ACBrNFSeXGravarXml_ABRASFv2,
+  PadraoNacional.GravarXml;
 
 type
   { TNFSeW_ModernizacaoPublica202 }
@@ -51,11 +53,18 @@ type
 
   end;
 
+  { TNFSeW_ModernizacaoPublicaAPIPropria }
+
+  TNFSeW_ModernizacaoPublicaAPIPropria = class(TNFSeW_PadraoNacional)
+  protected
+
+  end;
+
 implementation
 
 uses
   ACBrUtil.Strings,
-  ACBrXmlBase;
+  ACBrDFe.Conversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -74,7 +83,6 @@ begin
 
 //  NrOcorrAliquota := 1;
 
-  FormatoAliq := tcInt;
   GerarIDRps := True;
 end;
 

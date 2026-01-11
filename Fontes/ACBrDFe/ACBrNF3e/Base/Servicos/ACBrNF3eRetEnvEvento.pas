@@ -43,9 +43,12 @@ uses
   {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
    System.Contnrs,
   {$IFEND}
-  ACBrBase, ACBrXmlBase,
-//  ACBrDFeComum.SignatureClass,
+  ACBrBase,
+  ACBrXmlBase,
+  ACBrDFe.Conversao,
+  pcnConversao,
   pcnSignature,
+//  ACBrDFeComum.SignatureClass,
   ACBrNF3eEventoClass;
 
 type
@@ -144,7 +147,7 @@ begin
         if ANodeAux <> nil then
         begin
           RetInfEvento.Id := ObterConteudoTag(ANodeAux.Attributes.Items['Id']);
-          RetInfEvento.tpAmb := StrToTipoAmbiente(ok, ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('tpAmb'), tcStr));
+          RetInfEvento.tpAmb := StrToTipoAmbiente(ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('tpAmb'), tcStr));
           RetInfEvento.verAplic := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('verAplic'), tcStr);
           retInfEvento.cOrgao := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('cOrgao'), tcInt);
           retInfEvento.cStat := ObterConteudoTag(ANodeAux.Childrens.FindAnyNs('cStat'), tcInt);
@@ -160,20 +163,6 @@ begin
         SignatureNode := ANode.Childrens.FindAnyNs('Signature');
 
         LerSignature(SignatureNode, signature);
-        {
-        if SignatureNode <> nil then
-        begin
-          ReferenceNode := SignatureNode.Childrens.FindAnyNs('SignedInfo')
-                                        .Childrens.FindAnyNs('Reference');
-          X509DataNode :=  SignatureNode.Childrens.FindAnyNs('KeyInfo')
-                                        .Childrens.FindAnyNs('X509Data');
-
-          signature.URI := ObterConteudoTag(ReferenceNode.Attributes.Items['URI']);
-          signature.DigestValue := ObterConteudoTag(ReferenceNode.Childrens.FindAnyNs('DigestValue'), tcStr);
-          signature.SignatureValue := ObterConteudoTag(SignatureNode.Childrens.FindAnyNs('SignatureValue'), tcStr);
-          signature.X509Certificate := ObterConteudoTag(X509DataNode.Childrens.FindAnyNs('X509Certificate'), tcStr);
-        end;
-        }
       end;
 
       Result := True;

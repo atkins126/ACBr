@@ -49,6 +49,270 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+15/12/2025
+-- ACBrBancoVortx --
+[*] ACBR-8584 - Correções na leitura do retorno https://www.projetoacbr.com.br/forum/topic/87229-acbr-8584-erro-ao-processar-retorno-banco-vortx
+   Por: Desenv. AT Info Sistemas
+-- ACBrBancoSicoob --
+[*] ACBR-8499 - Adicionados códigos de movimento e ocorrência que faltavam https://www.projetoacbr.com.br/forum/topic/87716-acbr-8499-altera%C3%A7%C3%B5es-no-arquivo-do-bancosicoob/
+   Por: Rafael.Smt
+
+03/12/2025
+-- ACBrBancoVortx --
+[*] ACBR-8383 - Correções na leitura do retorno https://www.projetoacbr.com.br/forum/topic/87229-erro-ao-processar-retorno-banco-vortx/
+   Por: Desenv. AT Info Sistemas / Renato Rubinho
+-- ACBrBancoSicoob --
+[*] ACBR-8335 - Adicionados códigos de movimento de remessa que faltavam https://www.projetoacbr.com.br/forum/topic/86969-sicoob-negativa%C3%A7%C3%A3o/
+   Por: Cleomar Pacheco / Renato Rubinho
+
+01/12/2025
+-- ACBrBancoVortx  --
+[*] Corrigido o metodo montarCampoLivreCodigoBarras e Impressao do cedente no boleto
+   ACBR-8479 https://www.projetoacbr.com.br/forum/topic/86975-problema-na-linha-digital-banco-vortx
+   https://www.projetoacbr.com.br/forum/topic/87799-ajustes-no-banco-vortx/
+   Por Daniel de Morais InfoCotidiano
+
+13/11/2025
+-- ACBrBoleto,ACBrBancoBradescoMoneyPlus  --
+[*] Criado metodo para definir posições agencia, agenciadv, conta e contadv nos retornos
+   TK-7463/ACBr-478 https://www.projetoacbr.com.br/forum/topic/84729-extra%C3%A7%C3%A3o-incorreta-de-ag%C3%AAncia-e-conta-no-retorno-cnab-400-do-banco-274-moneyplus-gera-erro-na-valida%C3%A7%C3%A3o/
+   Por Daniel Sonda, Daniel de Morais InfoCotidiano.
+
+11/11/2025
+-- ACBrBoletoRet_Inter_API.pas --
+[*] Ajustado DataBaixa qdo status igual a Recebido, Cancelado, Pago
+   ACBr-8212 https://www.projetoacbr.com.br/forum/profile/121385-jo%C3%A3o-vitor-bogo
+   Por João Vitor Bogo, Daniel Morais
+
+11/11/2025
+-- ACBrBancoCredisan.pas --
+[-] Ajustado ValorMoraMes e PercentualMulta conforme manual.
+   ACBr-8276 https://www.projetoacbr.com.br/forum/topic/86769-ajuste-gera%C3%A7%C3%A3o-arquivo-cnb400-credisan/
+   Por Dayvison Reis_12476, SAC Emilyonline
+
+11/11/2025
+-- ACBrBoleto.pas --
+[-] Adicionado a propriedade boletoVencido (filtro) na leitura do arquivo ini de consulta que não estava implementado.
+   ACBr-8371 https://www.projetoacbr.com.br/forum/topic/87196-erro-na-consulta-movimenta%C3%A7%C3%A3o-sicoob-api
+   Por Daniel de Morais
+
+10/11/2025
+-- ACBrBancoBrasil.pas --
+[*] Quando convenio for maior que 6, colocado a condição se TipoPagamento for igual tpNao_Aceita_Valor_Divergente, gera "N" posição 394
+   ACBr-8358 https://www.projetoacbr.com.br/forum/topic/87136-erro-na-remessa-do-boleto-banco-do-brasil-cnab400/#comment-565536
+   Por Daniel de Morais, Eric Bortoleto 
+
+03/11/2025
+-- ACBrBancoSicoob.pas --
+[*] Removido  a linha Cedente.CodigoCedente:= rConta+rDigitoConta quando lerCedenteRetorno, pois o codigo cedente não é este montado.
+   ACBr-8296 https://www.projetoacbr.com.br/forum/topic/86876-propriedade-tamanhoconta-banco-sicoob/?&_rid=1706#findComment-564244
+   Por EasySoft Sistemas
+
+29/10/2025
+-- ACBrBoletoRet_BancoBrasil_API --
+[-] Correção do nossoNumero API devolvendo dv entre convenio e nossonumero.
+   ACBr-8296 https://discord.com/channels/798697718800318484/800736352420364320/1432315134692294716
+   Por Ederson Selvati
+   
+29/10/2025
+-- ACBrBancoSicoob, ACBrBoletoW_Sicoob_V3.pas --
+[*] Se Informado CodTransmissao (NumeroContrato), vai ser alimentado com ele na LinhaDigitvel e Barras 
+   ACBr-8307 https://www.projetoacbr.com.br/forum/topic/86792-erro-c%C3%B3d-barrasdv-do-nosso-n%C3%BAmero-na-emiss%C3%A3o-via-sicoob-api-v3-para-carteira-9
+   https://svn.code.sf.net/p/acbr/code/tools/Bancos/Recebimento/756-Sicoob/Linha%20digitavel%20Carteira%209.pdf
+   Por Daniel de Morais InfoCotidiano 
+
+24/10/2025
+-- ACBrBancoSofisa --
+[*] Adicionado codigo ocorrencia retorno 01, entrada confirmada cip
+   ACBr-8268 https://www.projetoacbr.com.br/forum/topic/86689-inclu%C3%ADdo-tratamento-para-novo-tipo-de-retorno-sofisa/
+   Por Lucas Pechebelok Hernandes
+
+24/10/2025
+-- ACBrBoletoW_Santander_API--
+[*] Adicionado as especies de documento disponibilidado na API, mantendo compatibilidade com o cnab
+   ACBr-8275 https://www.projetoacbr.com.br/forum/topic/86758-peculiaridade-boleto-santander-pagador-e-cobrador-mesma-ra%C3%ADz-cnpj
+   Por Daniel de Morais InfoCotidiano
+   
+22/10/2025
+-- ACBrBoleto --
+[*] Ajustado verificação do arquivo de retorno no header arquivo posição 143 conforme manual
+   ACBr-8206 https://www.projetoacbr.com.br/forum/topic/86710-banco-amazonia-remessa-de-retorno-n%C3%A3o-%C3%A9-um-arquivo-de-retorno-de-cobran%C3%A7a-com-layout-cnab240-v%C3%A1lido/
+   Por Daniel de Morais InfoCotidiano
+
+20/10/2025
+-- ACBrBoletoRet_Itau_API --
+[*] Ajustado retorno francesinhas array de operacoes de cobranca 
+   ACBr-8206 https://www.projetoacbr.com.br/forum/topic/86306-api-cobran%C3%A7a-ita%C3%BA-movimenta%C3%A7%C3%A3o/?_rid=8941
+   Por Luciano Rodrigues Pereira 
+
+14/10/2025
+-- ACBrBancoCredisan --
+[*] Ajustado decimais morajuros e tamanhoconta para 7.
+   ACBr-8165 https://www.projetoacbr.com.br/forum/topic/86263-banco-credisan-remessa-com-juros-montado-sem-0-a-esquerda/
+   Por Victor H. Gonzales Pandaaaa / Daniel de Morais InfoCotidiano
+
+10/10/2025
+-- ACBrBoletoRet_BancoBrasil_API --
+[*] Preenchida url do boleto nas propriedades de retorno do envio da cobrança do BB via API
+   Por Renato Rubinho
+
+09/10/2025
+-- ACBrBancoItau --
+[*] Implementado o metodo LerNossoNumeroCompleto no Itau CNAB400
+    ACBr-8155 - https://www.projetoacbr.com.br/forum/topic/86236-trazer-o-nosso-numero-completo-no-retorno-itau/#comment-560567
+	Por: Daniel de Morais InfoCotidano
+
+
+08/10/2025
+-- ACBrBancoSicoob --
+[-] Quando carteira 9, CNAB 240 segmento P posicao 58, informar "1!
+    ACBr-8174 - https://www.projetoacbr.com.br/forum/topic/85963-sicoob-cnab-240-como-configurar-carteira-e-id-neg%C3%B3cio-na-homologa%C3%A7%C3%A3o/
+	Por: Daniel de Morais InfoCotidano
+	
+07/10/2025
+-- ACBrBoletoW_Banrisul --
+[-] Correção do codigo de protesto. (DiasDeProtesto enviado apenas qdo codigo = 1)
+    ACBr-8164 - https://www.projetoacbr.com.br/forum/topic/86259-boleto-banrisul-api-instru%C3%A7%C3%A3o-de-protesto-com-problema/
+	Por: MGWare Dev / Validado: Daniel de Morais InfoCotidano
+
+03/10/2025
+-- ACBrBoletoW_Bradesco --
+[-] correção dias protesto
+	Por: Daniel de Morais
+
+30/09/2025
+-- ACBrBoletoW_Bradesco --
+[+] ACBr-8117 - Juros e Multa quando hibrido / juros ou multa convencional. ambos do portal.
+	Por: Daniel de Morais
+
+29/09/2025
+--ACBrBoletoWS.Rest.pas, ACBrBoletoWS.pas--
+[-] Correção na classe base dos novos metodos de controle da oauth
+	ACBr-8121 - https://www.projetoacbr.com.br/forum/topic/85885-autentica%C3%A7%C3%A3o-api-boleto-banco-inter-parou-de-funcionar-ao-atualizar-acbrlibboleto/
+	Por: Victor H. Gonzales Pandaaa	
+
+26/09/2025
+--ACBrBoleto--
+[*] Ajustes na leitura do cedente.ini ler UseCertificateHttp
+	ACBr-8077 - https://www.projetoacbr.com.br/forum/topic/85885-autentica%C3%A7%C3%A3o-api-boleto-banco-inter-parou-de-funcionar-ao-atualizar-acbrlibboleto/
+	Por: Daniel de Morais InfoCotidiano
+
+24/09/2025
+--ACBrBoletoW_Santander_API, ACBrBoletoRet_Santander_API--
+[*] Ajustes do retorno quando consulta Detalhe sem IndicadorPix.
+	Ajuste no envio consulta detalhe sandbox. que difere de producao.
+	Por: Daniel de Morais InfoCotidiano, Victor H. Gonzales Pandaaa
+	
+22/09/2025
+--ACBrBoleto--
+[*] Ajustes dos nomes dos metodos
+	Por: Victor H. Gonzales Pandaaa
+
+18/09/2025
+-- ACBrBoleto -- 
+[+] Inclusão do evento OnQuantoAlterarBanco.
+    por: Elias Cesar
+
+15/09/2025
+-- ACBrBancoBradesco  --
+[*] ACBr-583 Ajustado para ler retorno 66 LIquidado Qrcode
+	https://www.projetoacbr.com.br/forum/topic/83779-modifica%C3%A7%C3%B5es-na-an%C3%A1lise-do-cnab400-de-retorno-do-bradesco/
+    Por:  Eduardo Rodrigues de Faria
+
+11/09/2025
+-- ACBrBoletoW_Itau_API --
+[*] ACBr-8040 Ajustado TpAltera tipo de ocorrencia add toRemessaAlterarValorTitulo
+	https://discord.com/channels/798697718800318484/809129039159230514/1415702079783178420
+    Por:  Daniel de Morais InfoCotidano
+
+11/09/2025
+-- ACBrBancoCredisan.pas --
+[*] ACBr-8039 Ajustado validação CodigoMoraJuros e CodigoMulta para aceitar isento
+	https://www.projetoacbr.com.br/forum/topic/85597-banco-credisan-remessa-sem-codigo-de-multa
+    Por:  Daniel de Morais InfoCotidano
+
+10/09/2025
+-- ACBrBoletoRet_Itau_API.pas --
+[*] adicionado novo status de retorno "LC Liquidado em Cartorio"
+	https://www.projetoacbr.com.br/forum/topic/84674-tratar-novo-codigo_status-no-retorno-da-api-itau/
+    Por:  Desenv. AT Info Sistemas
+
+03/09/2025
+-- ACBrBoletoRet_Sicoob_V3 --
+[-] adicionado ansiuppercase status C_PAGO na verificação do status
+	https://discord.com/channels/798697718800318484/809129039159230514/1412840499806470215
+    Por: Eduardo Casotti
+
+27/08/2025
+-- ACBrBancoSofisa, ACBrBancoSofisaItau, ACBrBancoSofisaSantander --
+[*] #ACBR-7944 - Corrigida geração do segmento de mensagem no CNAB400 Sofisa quando houverem menos de 5 mensagens. - https://www.projetoacbr.com.br/forum/topic/85084-contribuicao-sofisa-tamanho-de-registro-de-mensagens/
+    Por: Marcos Lenharo
+
+22/08/2025
+-- ACBrBancoSofisa --
+[+] #ACBR-7943 - Implementada leitura do NossoNumero opcional Com o Sem DV do arquivo de retorno do leiaute próprio Sofisa. - https://www.projetoacbr.com.br/forum/topic/85085-contribuicao-sofisa-lernossonumerocompleto/
+    Por: Marcos Lenharo
+
+13/08/2025
+-- ACBrBoletoRet_Bradesco.pas --
+[+] TK-6705 - Implemetado o tratamento da resposta da consulta detalheBradesco.
+    Por: Daniel de Morais InfoCotidano 
+
+13/08/2025
+-- ACBrBoletoConversao.pas --
+[+] Criado a função ConverterEBCDICToCodigoBarras usado no retorno BradescoAPI.
+    Por: Victor Gonzales Pandaaa 
+
+12/08/2025
+-- ACBrBoletoW_Bradesco --
+[+] Ajustes de rotas, add cedente pessoa física e nossonumero.
+	TK-6963 - Adequação dos endpoints para a consultaDetalhe.
+    Por: Victor Gonzales Pandaaa / Daniel de Morais InfoCotidiano
+
+30/07/2025
+-- ACBrBoletoW_Cora.pas --
+[+] #TK-7437 adicionado tpBaixa Método POST para Baixa
+	https://www.projetoacbr.com.br/forum/topic/84597-cancelamento-boleto-api-banco-cora/
+    Por: Daniel de Morais InfoCotidiano
+
+28/07/2025
+-- ACBrBoletoW_Cresol.pas,ACBrBoletoRet_Cresol.pas --
+[+] #TK-7419 Ajustado tpConsultaDetalhada para executar somente qdo for enviado id boleto. ajustado o retorno para devolver id boleto no nossoNumeroCorrespondente
+	https://www.projetoacbr.com.br/forum/topic/84530-acbrlib-boletoapi-retornos-banco-cresol/
+    Por: Daniel de Morais InfoCotidiano
+
+-- ACBrBancoVortx.pas --
+[*] #TK-7409 Geração da remessa utilizando Agência com DV e correção do cálculo do DV - https://www.projetoacbr.com.br/forum/topic/84480-atualiza%C3%A7%C3%A3o-da-unit-de-boletos-referente-ao-banco-vortx/
+    Por: roberto.fermino
+
+25/07/2025
+-- ACBrBoletoW_Itau_API.pas --
+[+] #TK-7382 Adicionado metodo para alteração do valor nominal.
+    https://www.projetoacbr.com.br/forum/topic/84407-acbrboletow_itau_api-adicionada-a-altera%C3%A7%C3%A3o-do-valor-do-boleto-valor_nominal
+    Por: Fabricio Furtado / Daniel de Morais InfoCotidiano
+
+25/07/2025
+-- ACBrBoletoRet_Santander_API.pas --
+[*] #TK-7416 Ajustes retorno da consultadetalhe para tratar boleto hibrido estava vindo como "baixado" e nao como "Liquidado"
+    https://www.projetoacbr.com.br/forum/topic/84507-recebimento-boleto-santander-via-pix/
+    Por: Magistech / Daniel de Morais InfoCotidiano
+
+25/07/2025
+-- ACBrBancoSantander.pas --
+[*] #TK-7378 Ajustes no banco CNAB400 retorno para gerar o QrCODE/EMV
+    https://www.projetoacbr.com.br/forum/topic/84366-retorno-santander-pix/
+    Por: Daniel de Morais InfoCotidiano
+
+16/07/2025
+-- ACBrBancoSofisaSantander --
+[*] #TK-7255 Ajustes no banco cobBancoSofisaSantander para NumeroDocumento Somente Letras e Números, NomeSacado com 30 bytes e 10 espaços na sequência
+    Por: Daniel de Morais InfoCotidiano
+
+14/07/2025
+-- ACBrBancoBanrisul --
+[+] #TK-6823 Implementada emissão de boleto Híbrido do banco 041-Banrisul CNAB240
+    Por: Mateus Brunelli
+
 04/07/2025
 -- ACBrBancoVortx, ACBrBoleto, ACBr_Boleto, ACBr_Boleto.dpk, ACBr_Boleto.lpk --
 [+] #TK-5773 Implementado banco Vortx

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="12"/>
@@ -13,17 +13,15 @@
       <SessionStorage Value="InProjectDir"/>
       <Title Value="ACBrLibNFe"/>
       <ResourceType Value="res"/>
-      <XPManifest>
-        <DpiAware Value="True/PM"/>
-      </XPManifest>
+      <UseXPManifest Value="True"/>
     </General>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
-      <AutoIncrementBuild Value="True"/>
+      <AutoIncrementBuild Value="False"/>
       <MajorVersionNr Value="1"/>
-      <MinorVersionNr Value="4"/>
-      <RevisionNr Value="7"/>
-      <BuildNr Value="345"/>
+      <MinorVersionNr Value="5"/>
+      <RevisionNr Value="1"/>
+      <BuildNr Value="428"/>
       <Language Value="0416"/>
       <StringTable CompanyName="Projeto ACBr" FileDescription="ACBrNFe - BIblioteca para emissão e impressão de nota fiscal eletrônica" InternalName="ACBrLibNFE" LegalCopyright="Projeto ACBr" LegalTrademarks="Projeto ACBr" ProductName="ACBrNFe " ProductVersion="0.4.6.0"/>
     </VersionInfo>

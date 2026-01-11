@@ -440,26 +440,26 @@ namespace ACBrLib.MDFe
             return NaoEncerradosResposta.LerResposta(ProcessResult(buffer, bufferLen));
         }
 
-        public DistribuicaoDFeResposta<TipoEventoMDFe> DistribuicaoDFePorUltNSU(int acUFAutor, string eCnpjcpf, string eultNsu)
+        public DistribuicaoDFeResposta<TipoEventoMDFe> DistribuicaoDFePorUltNSU(string eCnpjcpf, string eultNsu)
         {
             var bufferLen = BUFFER_LEN;
             var buffer = new StringBuilder(bufferLen);
 
             var method = GetMethod<MDFE_DistribuicaoDFePorUltNSU>();
-            var ret = ExecuteMethod(() => method(libHandle, acUFAutor, ToUTF8(eCnpjcpf), ToUTF8(eultNsu), buffer, ref bufferLen));
+            var ret = ExecuteMethod(() => method(libHandle, ToUTF8(eCnpjcpf), ToUTF8(eultNsu), buffer, ref bufferLen));
 
             CheckResult(ret);
 
             return DistribuicaoDFeResposta<TipoEventoMDFe>.LerResposta(ProcessResult(buffer, bufferLen));
         }
 
-        public DistribuicaoDFeResposta<TipoEventoMDFe>DistribuicaoDFePorNSU(int acUFAutor, string eCnpjcpf, string eNsu)
+        public DistribuicaoDFeResposta<TipoEventoMDFe>DistribuicaoDFePorNSU(string eCnpjcpf, string eNsu)
         {
             var bufferLen = BUFFER_LEN;
             var buffer = new StringBuilder(bufferLen);
 
             var method = GetMethod<MDFE_DistribuicaoDFePorNSU>();
-            var ret = ExecuteMethod(() => method(libHandle, acUFAutor, ToUTF8(eCnpjcpf), ToUTF8(eNsu), buffer, ref bufferLen));
+            var ret = ExecuteMethod(() => method(libHandle,ToUTF8(eCnpjcpf), ToUTF8(eNsu), buffer, ref bufferLen));
 
             CheckResult(ret);
 

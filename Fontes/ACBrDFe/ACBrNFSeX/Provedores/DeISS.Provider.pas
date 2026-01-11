@@ -79,6 +79,7 @@ type
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrUtil.XMLHTML,
   ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, DeISS.GravarXml, DeISS.LerXml;
@@ -88,6 +89,8 @@ uses
 procedure TACBrNFSeProviderDeISS203.Configuracao;
 begin
   inherited Configuracao;
+
+  ConfigGeral.ConsultaPorFaixaPreencherNumNfseFinal := True;
 
   with ConfigAssinar do
   begin

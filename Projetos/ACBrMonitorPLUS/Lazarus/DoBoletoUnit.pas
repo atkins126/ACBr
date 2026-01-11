@@ -46,9 +46,14 @@ type
 
 { TACBrObjetoBoleto}
 TACBrObjetoBoleto = class(TACBrObjetoDFe)
+  procedure DoAntesAutenticar(var AToken: String; var AValidadeToken: TDateTime);
+  procedure DoDepoisAutenticar(const AToken: String; const AValidadeToken: TDateTime);
+  procedure DoPrecisaAutenticar(var AToken: String; var AValidadeToken: TDateTime);
 private
   fACBrBoleto: TACBrBoleto;
   fBoletoPersonalizandoArquivo : Boolean;
+  FToken  : String;
+  FExpire : TDateTime;
 public
   constructor Create(AConfig: TMonitorConfig; ACBrBoleto: TACBrBoleto); reintroduce;
   procedure Executar(ACmd: TACBrCmd); override;
@@ -61,7 +66,8 @@ public
   function ListaOcorrenciasEX(): String;
 
   property ACBrBoleto: TACBrBoleto read fACBrBoleto;
-
+  property Token : string read FToken write FToken;
+  property Expire : TDateTime read FExpire write FExpire;
 end;
 
 { TMetodoConfigurarDados }
@@ -282,6 +288,18 @@ public
   procedure Executar; override;
 end;
 
+{ TMetodoInformarToken}
+TMetodoInformarToken = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
+{ TMetodoGerarToken}
+TMetodoGerarToken = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
 
 implementation
 
@@ -290,12 +308,32 @@ uses DoACBrUnit, DoEmailUnit, ACBrBoletoRelatorioRetorno, ACBrLibComum, ACBrLibC
 
 { TACBrObjetoBoleto }
 
+procedure TACBrObjetoBoleto.DoAntesAutenticar(var AToken: String; var AValidadeToken: TDateTime);
+begin
+  AToken         := FToken;
+  AValidadeToken := FExpire;
+end;
+
+procedure TACBrObjetoBoleto.DoDepoisAutenticar(const AToken: String; const AValidadeToken: TDateTime);
+begin
+  FToken  := AToken;
+  FExpire := AValidadeToken;
+end;
+
+procedure TACBrObjetoBoleto.DoPrecisaAutenticar(var AToken: String; var AValidadeToken: TDateTime);
+begin
+  FACBrBoleto.GerarTokenAutenticacao(FToken, FExpire);
+end;
+
 constructor TACBrObjetoBoleto.Create(AConfig: TMonitorConfig;
   ACBrBoleto: TACBrBoleto);
 begin
   inherited Create(AConfig);
 
   fACBrBoleto:= ACBrBoleto;
+  fACBrBoleto.OnAntesAutenticar   := DoAntesAutenticar;
+  //fACBrBoleto.OnPrecisaAutenticar := DoPrecisaAutenticar;
+  fACBrBoleto.OnDepoisAutenticar  := DoDepoisAutenticar;
 
   ListaDeMetodos.Add(CMetodoConfigurarDados);
   ListaDeMetodos.Add(CMetodoLimparLista);
@@ -328,6 +366,8 @@ begin
   ListaDeMetodos.Add(CMetodoGerarPDFBoletoComSenha);
   ListaDeMetodos.Add(CMetodoSetMotorBoletoRelatorio);
   ListaDeMetodos.Add(CMetodoSetMargem);
+  ListaDeMetodos.Add(CMetodoInformarToken);
+  ListaDeMetodos.Add(CMetodoGerarToken);
   fBoletoPersonalizandoArquivo := True;
 end;
 
@@ -375,6 +415,8 @@ begin
     28 : AMetodoClass := TMetodoGerarPDFBoletoComSenha;
     29 : AMetodoClass := TMetodoSetMotorBoletoRelatorio;
     30 : AMetodoClass := TMetodoSetMargem;
+    31 : AMetodoClass := TMetodoInformarToken;
+    32 : AMetodoClass := TMetodoGerarToken;
     else
       begin
         AACBrUnit := TACBrObjetoACBr.Create(Nil); //Instancia DoACBrUnit para validar métodos padrão para todos os objetos
@@ -676,6 +718,55 @@ begin
   end;
 
 end;
+
+
+{ TMetodoGerarInformarToken}
+
+{ Params: 0 - Token = Token
+          1 - Expire = TDateTime //obrigatório data com a hora min e seg
+}
+procedure TMetodoInformarToken.Executar;
+var ACBrBoletoObj : TACBrObjetoBoleto;
+begin
+
+  ACBrBoletoObj := TACBrObjetoBoleto(fpObjetoDono);
+  ACBrBoletoObj.Token  := fpCmd.Params(0);
+  ACBrBoletoObj.Expire := StrToDateTimeDef(fpCmd.Params(1),0);
+
+  fpCmd.Resposta := sLineBreak + 'OK';
+
+
+end;
+
+{ TMetodoGerarToken }
+
+procedure TMetodoGerarToken.Executar;
+var ACBrBoletoObj : TACBrObjetoBoleto;
+  LData : TDateTime;
+  LToken: String;
+  LTokenResp: TRetornoGerarToken;
+begin
+  ACBrBoletoObj := TACBrObjetoBoleto(fpObjetoDono);
+  LData  := ACBrBoletoObj.Expire;
+  LToken := ACBrBoletoObj.Token;
+
+  ACBrBoletoObj.ACBrBoleto.GerarTokenAutenticacao(LToken, LData);
+
+  LTokenResp := TRetornoGerarToken.Create(CSessaoRetorno,
+                                          ACBrBoletoObj.TpResp,
+                                          codUTF8);
+  try
+    try
+      LTokenResp.Processar(LToken, LData);
+      fpCmd.Resposta := sLineBreak + LTokenResp.Gerar;
+    except on E : Exception do
+      raise Exception.Create(E.Message);
+    end;
+  finally
+    LTokenResp.Free;
+  end;
+end;
+
 
 
 { TMetodoGerarHTML }

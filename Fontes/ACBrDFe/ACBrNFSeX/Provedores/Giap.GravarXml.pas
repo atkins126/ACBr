@@ -83,6 +83,7 @@ type
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrNFSeXConversao,
   ACBrNFSeXConsts,
   ACBrNFSeX,
@@ -151,6 +152,9 @@ begin
 
   Result.AppendChild(AddNode(tcInt, '#1', 'numeroRps', 1, 11, 1,
                                              NFSe.IdentificacaoRps.Numero, ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'loteRps', 1, 11, 0,
+                                                          NFSe.NumeroLote, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'numeroNota', 1, 11, 0,
                                                               NFSe.Numero, ''));
@@ -268,7 +272,7 @@ begin
 
   Result.AppendChild(AddNode(tcStr, '#1', 'obs', 1, 4000, 1,
     StringReplace(NFSe.OutrasInformacoes, Opcoes.QuebraLinha,
-                      FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), ''));
+               FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), '', False));
 
   Result.AppendChild(AddNode(tcDe2, '#1', 'pisPasep', 1, 15, 1,
                                             NFSe.Servico.Valores.ValorPis, ''));
@@ -289,7 +293,7 @@ begin
 
   Result.AppendChild(AddNode(tcStr, '#1', 'descricao', 1, 4000, 1,
     StringReplace(NFSe.Servico.Discriminacao, Opcoes.QuebraLinha,
-                     FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll] ), ''));
+              FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll] ), '', False));
 
   Result.AppendChild(AddNode(tcDe2, '#1', 'valor', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorServicos, ''));

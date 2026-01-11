@@ -12,8 +12,15 @@ namespace ACBrLib.NFe
         {
             gIBSCBS = new gIBSCBS();
             gIBSCBSMono = new gIBSCBSMono();
+            gMonoPadrao = new gMonoPadrao();
+            gMonoReten = new gMonoReten();
+            gMonoRet = new gMonoRet();
+            gMonoDif = new gMonoDif();
             gTransfCred = new gTransfCred();
             gCredPresIBSZFM = new gCredPresIBSZFM();
+            gCredPresOper = new gCredPresOper();
+            gAjusteCompet = new gAjusteCompet();
+            gEstornoCred = new gEstornoCred();
 
         }
         #endregion Constructors
@@ -27,7 +34,7 @@ namespace ACBrLib.NFe
         /// <summary>
         /// Código de Classificação Tributária do IBS e CBS
         /// </summary>
-        public cClassTribIBSCBS cClassTrib { get; set; }  
+        public string cClassTrib { get; set; }  
         
         /// <summary>
         /// Grupo de Informações do IBS e da CBS
@@ -36,9 +43,25 @@ namespace ACBrLib.NFe
 
         public gIBSCBSMono gIBSCBSMono { get; }
 
+        public gMonoPadrao gMonoPadrao { get; }
+
+        public gMonoReten gMonoReten { get; }
+
+        public gMonoRet gMonoRet { get; }
+
+        public gMonoDif gMonoDif { get; }
+
         public gTransfCred gTransfCred { get; }      
         
         public gCredPresIBSZFM gCredPresIBSZFM { get; }
+
+        public gCredPresOper gCredPresOper { get; }
+
+        public gAjusteCompet gAjusteCompet { get; }
+
+        public gEstornoCred gEstornoCred { get; }
+
+        public IndDoacao indDoacao { get; set; }
 
         #endregion Properties
     }

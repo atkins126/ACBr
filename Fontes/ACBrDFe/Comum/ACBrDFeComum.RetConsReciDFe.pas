@@ -44,6 +44,7 @@ uses
    System.Contnrs,
   {$IfEnd}
   ACBrBase,
+  ACBrDFe.Conversao,
   ACBrXmlBase,
   ACBrXmlDocument;
 
@@ -176,6 +177,8 @@ begin
 
   try
     try
+      Result := True;
+
       if XmlRetorno = '' then Exit;
 
       Document.LoadFromXml(XmlRetorno);
@@ -185,7 +188,7 @@ begin
       if ANode <> nil then
       begin
         versao := ObterConteudoTag(ANode.Attributes.Items['versao']);
-        tpAmb := StrToTipoAmbiente(ok, ObterConteudoTag(Anode.Childrens.FindAnyNs('tpAmb'), tcStr));
+        tpAmb := StrToTipoAmbiente(ObterConteudoTag(Anode.Childrens.FindAnyNs('tpAmb'), tcStr));
         verAplic := ObterConteudoTag(ANode.Childrens.FindAnyNs('verAplic'), tcStr);
         nRec := ObterConteudoTag(ANode.Childrens.FindAnyNs('nRec'), tcStr);
         cStat := ObterConteudoTag(ANode.Childrens.FindAnyNs('cStat'), tcInt);
@@ -196,8 +199,6 @@ begin
 
         Ler_ProtDFe(ANode);
       end;
-
-      Result := True;
     except
       Result := False;
     end;
@@ -231,7 +232,7 @@ begin
       if AuxNode <> nil then
       begin
         Id := ObterConteudoTag(AuxNode.Attributes.Items['Id']);
-        tpAmb := StrToTipoAmbiente(ok, ObterConteudoTag(AuxNode.Childrens.FindAnyNs('tpAmb'), tcStr));
+        tpAmb := StrToTipoAmbiente(ObterConteudoTag(AuxNode.Childrens.FindAnyNs('tpAmb'), tcStr));
         verAplic := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('verAplic'), tcStr);
         chDFe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('ch' + FtagGrupoMsg), tcStr);
         dhRecbto := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dhRecbto'), tcDatHor);

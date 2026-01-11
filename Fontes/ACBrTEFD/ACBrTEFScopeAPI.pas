@@ -1410,6 +1410,7 @@ type
     fPinPadSeguro: Boolean;
     fPortaPinPad: String;
     fPortaTCP: String;
+    fUsarScopeClientConnector: Boolean;
     fSessaoAberta: Boolean;
     fVersaoAutomacao: String;
     fInformacoesPinPad: String;
@@ -1425,6 +1426,8 @@ type
     xScopeAbreSessaoTEF: function(): LongInt; {$IfDef MSWINDOWS}stdcall{$Else}cdecl{$EndIf};
     xScopeSetAplColeta: function(): LongInt; {$IfDef MSWINDOWS}stdcall{$Else}cdecl{$EndIf};
     xScopeStatus: function(): LongInt; {$IfDef MSWINDOWS}stdcall{$Else}cdecl{$EndIf};
+    xScopeStartLog: function(): LongInt; {$IfDef MSWINDOWS}stdcall{$Else}cdecl{$EndIf};
+    xScopeStopLog: function(): LongInt; {$IfDef MSWINDOWS}stdcall{$Else}cdecl{$EndIf};
     xScopeGetParam: function (_TipoParam: LongInt; _lpParam: PParam_Coleta): LongInt;
       {$IfDef MSWINDOWS}stdcall{$Else}cdecl{$EndIf};
     xScopeGetParamExt: function (_TipoParam: LongInt; _lpParam: PParam_Coleta_Ext): LongInt;
@@ -1558,6 +1561,9 @@ type
     procedure TratarErroScope(AErrorCode: LongInt);
     procedure TratarErroPinPadScope(AErrorCode: LongInt);
 
+    procedure IniciarCapturaLogs;
+    procedure FinalizarCapturaLogs;
+
     procedure AbrirComunicacaoScope(VerificaSessaoAberta: Boolean = True);
     procedure FecharComunicacaoScope;
 
@@ -1642,6 +1648,8 @@ type
     property PermitirSaque: Boolean read fPermitirSaque write fPermitirSaque default True;
     property ConfirmarTransacoesPendentes: Boolean read fConfirmarTransacoesPendentes
       write fConfirmarTransacoesPendentes default True;
+    property UsarScopeClientConnector: Boolean read fUsarScopeClientConnector
+      write fUsarScopeClientConnector default False;
 
     property Carregada: Boolean read fCarregada;
     property Inicializada: Boolean read fInicializada write SetInicializada;
@@ -1730,6 +1738,7 @@ begin
   fPermitirCancelarOperacaoPinPad := True;
   fPermitirSaque := True;
   fConfirmarTransacoesPendentes := True;
+  fUsarScopeClientConnector := False;
   fIntervaloColeta := CINTERVALO_COLETA;
   fOnGravarLog := Nil;
   fOnExibeMensagem := Nil;
@@ -1778,6 +1787,7 @@ begin
   LoadLibFunctions;
 
   try
+    IniciarCapturaLogs;
     AbrirPinPad;   // Chama AbrirComunicacaoScope
   except
     FecharComunicacaoScope;
@@ -1796,6 +1806,7 @@ begin
   FecharSessaoTEF;
   FecharComunicacaoScope;
   FecharPinPad;
+  FinalizarCapturaLogs;
 
   UnLoadLibFunctions;
   fInicializada := False;
@@ -2070,6 +2081,8 @@ begin
   ScopeFunctionDetect(sLibName, 'ScopeAbreSessaoTEF', @xScopeAbreSessaoTEF);
   ScopeFunctionDetect(sLibName, 'ScopeSetAplColeta', @xScopeSetAplColeta);
   ScopeFunctionDetect(sLibName, 'ScopeStatus', @xScopeStatus);
+  ScopeFunctionDetect(sLibName, 'ScopeStartLog', @xScopeStartLog);
+  ScopeFunctionDetect(sLibName, 'ScopeStopLog', @xScopeStopLog);
   ScopeFunctionDetect(sLibName, 'ScopeGetParam', @xScopeGetParam);
   ScopeFunctionDetect(sLibName, 'ScopeGetParamExt', @xScopeGetParamExt, False);
   ScopeFunctionDetect(sLibName, 'ScopeResumeParam', @xScopeResumeParam);
@@ -2236,6 +2249,9 @@ var
 
   procedure AjusarSessaoLogAPI(const ASessao: String);
   begin
+    if not fGravarLogScope then
+      Exit;
+      
     AjustarParamSeNaoExistir(ASessao, 'TraceLevel', '8');
     AjustarParamSeNaoExistir(ASessao, 'LogFiles', '4');
     AjustarParamSeNaoExistir(ASessao, 'LogSize', '3072000');
@@ -2288,10 +2304,10 @@ begin
 
         AjustarParamSeNaoExistir(SecName, 'VersaoAutomacao', sName);
         AjustarParamSeNaoExistir(SecName, 'CupomReduzido', IfThen(fCupomReduzido, 's', 'n'));
-        AjustarParamSeNaoExistir(SecName, 'WKPAN', IfThen(fPinPadSeguro, 's', 'n'));
+        //AjustarParamSeNaoExistir(SecName, 'WKPAN', IfThen(fPinPadSeguro, 's', 'n'));
 
         // Configuração para PIX, sempre será em LocalHost
-        if (fEnderecoIP = '127.0.0.1') or (LowerCase(fEnderecoIP) = 'localhost') then
+        if fUsarScopeClientConnector then
         begin
           AjustarParamSeNaoExistir(SecName, 'ThinClient', 's');
           AjustarParamSeNaoExistir(SecName, 'CRTYPE', '1');
@@ -2345,15 +2361,15 @@ begin
 
     SecName := 'SCOPEAPI';
     ini.WriteString(SecName, 'ArqControlPath', fDiretorioTrabalho + 'control');
-    ini.WriteString(SecName, 'ArqTracePath', fDiretorioTrabalho + 'logs');
-    AjustarParamSeNaoExistir(SecName, 'TraceApi', IfThen(fGravarLogScope, 's', 'n'));
-    AjustarParamSeNaoExistir(SecName, 'TraceSrl', IfThen(fGravarLogScope, 's', 'n'));
-    AjustarParamSeNaoExistir(SecName, 'TracePin', IfThen(fGravarLogScope, 's', 'n'));
-    AjustarParamSeNaoExistir(SecName, 'RedecardBit47Tag6', '1');
+    //ini.WriteString(SecName, 'ArqTracePath', fDiretorioTrabalho + 'logs');
+    //AjustarParamSeNaoExistir(SecName, 'TraceApi', IfThen(fGravarLogScope, 's', 'n'));
+    //AjustarParamSeNaoExistir(SecName, 'TraceSrl', IfThen(fGravarLogScope, 's', 'n'));
+    //AjustarParamSeNaoExistir(SecName, 'TracePin', IfThen(fGravarLogScope, 's', 'n'));
+    //AjustarParamSeNaoExistir(SecName, 'RedecardBit47Tag6', '1');
 
-    //AjusarSessaoLogAPI('SCOPELOGAPI');
-    //AjusarSessaoLogAPI('SCOPELOGPRF');
-    //AjusarSessaoLogAPI('SCOPELOGSRL');
+    AjusarSessaoLogAPI('SCOPELOGAPI');
+    AjusarSessaoLogAPI('SCOPELOGPRF');
+    AjusarSessaoLogAPI('SCOPELOGSRL');
 
     ini.UpdateFile;
   finally
@@ -2814,6 +2830,30 @@ begin
     DoException(MsgErro);
 end;
 
+procedure TACBrTEFScopeAPI.IniciarCapturaLogs;
+var
+  ret:LongInt;
+begin
+  if not fGravarLogScope then
+    Exit;
+
+  GravarLog('ScopeStartLog()');
+  ret := xScopeStartLog();
+  GravarLog('  ret: '+IntToStr(ret));
+end;
+
+procedure TACBrTEFScopeAPI.FinalizarCapturaLogs;
+var
+  ret:LongInt;
+begin
+  if not fGravarLogScope then
+    Exit;
+
+  GravarLog('ScopeStopLog()');
+  ret := xScopeStopLog();
+  GravarLog('  ret: '+IntToStr(ret));
+end;
+
 procedure TACBrTEFScopeAPI.AbrirComunicacaoScope(VerificaSessaoAberta: Boolean);
 var
   ret: LongInt;
@@ -3135,7 +3175,8 @@ begin
 
       // Verifica se o operador cancelou a operacao via teclado //
       if (iStatus = TC_COLETA_CARTAO_EM_ANDAMENTO) or   // Efetuando Leitura do Cartão. //
-         (iStatus = TC_COLETA_EM_ANDAMENTO) then        // Outra operação no PinPad //
+         (iStatus = TC_COLETA_EM_ANDAMENTO) or          // Outra operação no PinPad //
+         (iStatus = TC_INFO_RET_FLUXO) then
       begin
         // Chama evento, permitindo ao usuário cancelar
         Cancelar := False;
@@ -3181,9 +3222,16 @@ begin
           TC_INFO_RET_FLUXO:            // apenas mostra informacao e deve retornar ao scope //
             Acao := ACAO_PROXIMO_ESTADO;
 
-          TC_DECIDE_AVISTA, TC_COLETA_CANCELA_TRANSACAO, TC_DECIDE_ULTIMO, TC_DECISAO_CONT:
+          TC_DECIDE_AVISTA, TC_COLETA_CANCELA_TRANSACAO, TC_DECISAO_CONT:
             begin
               PerguntarSimNao(rColetaEx, Resposta, Acao);
+            end;
+
+          TC_DECIDE_ULTIMO:
+            begin
+              PerguntarSimNao(rColetaEx, Resposta, Acao);
+              if (Acao = ACAO_PROXIMO_ESTADO) and (Resposta = '0') then
+              Acao := ACAO_CANCELAR;
             end;
 
           TC_CARTAO_DIGITADO:

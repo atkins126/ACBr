@@ -224,7 +224,13 @@ begin
           end;
         end;
 
-      proABase: Result := TACBrNFSeProviderABase201.Create(ACBrNFSe);
+      proABase:
+        begin
+          if APIPropria then
+            Result := TACBrNFSeProviderABaseAPIPropria.Create(ACBrNFSe)
+          else
+            Result := TACBrNFSeProviderABase201.Create(ACBrNFSe);
+        end;
 
       proActcon:
         begin
@@ -251,21 +257,40 @@ begin
 
       proBetha:
         begin
-          case Versao of
-            ve100: Result := TACBrNFSeProviderBetha.Create(ACBrNFSe);
-            ve202: Result := TACBrNFSeProviderBetha202.Create(ACBrNFSe);
+          if APIPropria then
+            Result := TACBrNFSeProviderBethaAPIPropria.Create(ACBrNFSe)
           else
-            Result := nil;
+          begin
+            case Versao of
+              ve100: Result := TACBrNFSeProviderBetha.Create(ACBrNFSe);
+              ve202: Result := TACBrNFSeProviderBetha202.Create(ACBrNFSe);
+            else
+              Result := nil;
+            end;
           end;
         end;
 
       proBHISS:     Result := TACBrNFSeProviderBHISS.Create(ACBrNFSe);
       proCenti:     Result := TACBrNFSeProviderCenti202.Create(ACBrNFSe);
       proCIGA:      Result := TACBrNFSeProviderCIGA.Create(ACBrNFSe);
-      proCitta:     Result := TACBrNFSeProviderCitta203.Create(ACBrNFSe);
+
+      proCitta:
+        begin
+          if APIPropria then
+            Result := TACBrNFSeProviderCittaAPIPropria.Create(ACBrNFSe)
+          else
+            Result := TACBrNFSeProviderCitta203.Create(ACBrNFSe);
+        end;
+
       proConam:     Result := TACBrNFSeProviderConam.Create(ACBrNFSe);
       proContass:   Result := TACBrNFSeProviderContass.Create(ACBrNFSe);
-      proCoplan:    Result := TACBrNFSeProviderCoplan201.Create(ACBrNFSe);
+      proCoplan:
+        begin
+          if APIPropria then
+            Result := TACBrNFSeProviderCoplanAPIPropria.Create(ACBrNFSe)
+          else
+            Result := TACBrNFSeProviderCoplan201.Create(ACBrNFSe);
+        end;
       proCTA:       Result := TACBrNFSeProviderCTA200.Create(ACBrNFSe);
 
       proCTAConsult:
@@ -288,7 +313,13 @@ begin
       proDesenvolve:
         Result := TACBrNFSeProviderDesenvolve203.Create(ACBrNFSe);
 
-      proDigifred: Result := TACBrNFSeProviderDigifred200.Create(ACBrNFSe);
+      proDigifred:
+        begin
+          if APIPropria then
+            Result := TACBrNFSeProviderDigifredAPIPropria.Create(ACBrNFSe)
+          else
+            Result := TACBrNFSeProviderDigifred200.Create(ACBrNFSe);
+        end;
 
       proDSF:
         begin
@@ -308,13 +339,18 @@ begin
 
       proEL:
         begin
-          case Versao of
-            // Layout Próprio
-            ve100: Result := TACBrNFSeProviderEL.Create(ACBrNFSe);
-            // Layout ABRASF
-            ve204: Result := TACBrNFSeProviderEL204.Create(ACBrNFSe);
+          if APIPropria then
+            Result := TACBrNFSeProviderELAPIPropria.Create(ACBrNFSe)
           else
-            Result := nil;
+          begin
+            case Versao of
+              // Layout Próprio
+              ve100: Result := TACBrNFSeProviderEL.Create(ACBrNFSe);
+              // Layout ABRASF
+              ve204: Result := TACBrNFSeProviderEL204.Create(ACBrNFSe);
+            else
+              Result := nil;
+            end;
           end;
         end;
 
@@ -389,15 +425,20 @@ begin
 
       proInfisc:
         begin
-          case Versao of
-            // Layout Próprio
-            ve100: Result := TACBrNFSeProviderInfisc.Create(ACBrNFSe);
-            ve101: Result := TACBrNFSeProviderInfisc101.Create(ACBrNFSe);
-            // Layout ABRASF
-            ve201: Result := TACBrNFSeProviderInfisc201.Create(ACBrNFSe);
-            ve203: Result := TACBrNFSeProviderInfisc203.Create(ACBrNFSe);
+          if APIPropria then
+            Result := TACBrNFSeProviderInfiscAPIPropria.Create(ACBrNFSe)
           else
-            Result := nil;
+          begin
+            case Versao of
+              // Layout Próprio
+              ve100: Result := TACBrNFSeProviderInfisc.Create(ACBrNFSe);
+              ve101: Result := TACBrNFSeProviderInfisc101.Create(ACBrNFSe);
+              // Layout ABRASF
+              ve201: Result := TACBrNFSeProviderInfisc201.Create(ACBrNFSe);
+              ve203: Result := TACBrNFSeProviderInfisc203.Create(ACBrNFSe);
+            else
+              Result := nil;
+            end;
           end;
         end;
 
@@ -462,11 +503,16 @@ begin
 
       proISSNet:
         begin
-          case Versao of
-            ve100: Result := TACBrNFSeProviderISSNet.Create(ACBrNFSe);
-            ve204: Result := TACBrNFSeProviderISSNet204.Create(ACBrNFSe);
+          if APIPropria then
+            Result := TACBrNFSeProviderISSNetAPIPropria.Create(ACBrNFSe)
           else
-            Result := nil;
+          begin
+            case Versao of
+              ve100: Result := TACBrNFSeProviderISSNet.Create(ACBrNFSe);
+              ve204: Result := TACBrNFSeProviderISSNet204.Create(ACBrNFSe);
+            else
+              Result := nil;
+            end;
           end;
         end;
 
@@ -491,7 +537,12 @@ begin
       proMitra: Result := TACBrNFSeProviderMitra200.Create(ACBrNFSe);
 
       proModernizacaoPublica:
-        Result := TACBrNFSeProviderModernizacaoPublica202.Create(ACBrNFSe);
+        begin
+          if APIPropria then
+            Result := TACBrNFSeProviderModernizacaoPublicaAPIPropria.Create(ACBrNFSe)
+          else
+            Result := TACBrNFSeProviderModernizacaoPublica202.Create(ACBrNFSe);
+        end;
 
       proNEAInformatica:
         Result := TACBrNFSeProviderNEAInformatica200.Create(ACBrNFSe);
@@ -512,12 +563,17 @@ begin
 
       proPronim:
         begin
-          case Versao of
-            ve100: Result := TACBrNFSeProviderPronim.Create(ACBrNFSe);
-            ve202: Result := TACBrNFSeProviderPronim202.Create(ACBrNFSe);
-            ve203: Result := TACBrNFSeProviderPronim203.Create(ACBrNFSe);
+          if APIPropria then
+            Result := TACBrNFSeProviderPronimAPIPropria.Create(ACBrNFSe)
           else
-            Result := nil;
+          begin
+            case Versao of
+              ve100: Result := TACBrNFSeProviderPronim.Create(ACBrNFSe);
+              ve202: Result := TACBrNFSeProviderPronim202.Create(ACBrNFSe);
+              ve203: Result := TACBrNFSeProviderPronim203.Create(ACBrNFSe);
+            else
+              Result := nil;
+            end;
           end;
         end;
 
@@ -526,11 +582,16 @@ begin
 
       proRLZ:
         begin
-          case Versao of
-            ve100: Result := TACBrNFSeProviderRLZ.Create(ACBrNFSe);
-            ve203: Result := TACBrNFSeProviderRLZ203.Create(ACBrNFSe);
+          if APIPropria then
+            Result := TACBrNFSeProviderRLZAPIPropria.Create(ACBrNFSe)
           else
-            Result := nil;
+          begin
+            case Versao of
+              ve100: Result := TACBrNFSeProviderRLZ.Create(ACBrNFSe);
+              ve203: Result := TACBrNFSeProviderRLZ203.Create(ACBrNFSe);
+            else
+              Result := nil;
+            end;
           end;
         end;
 
@@ -585,11 +646,16 @@ begin
 
       proSilTecnologia:
         begin
-          case Versao of
-            ve100: Result := TACBrNFSeProviderSilTecnologia.Create(ACBrNFSe);
-            ve203: Result := TACBrNFSeProviderSilTecnologia203.Create(ACBrNFSe);
+          if APIPropria then
+            Result := TACBrNFSeProviderSilTecnologiaAPIPropria.Create(ACBrNFSe)
           else
-            Result := nil;
+          begin
+            case Versao of
+              ve100: Result := TACBrNFSeProviderSilTecnologia.Create(ACBrNFSe);
+              ve203: Result := TACBrNFSeProviderSilTecnologia203.Create(ACBrNFSe);
+            else
+              Result := nil;
+            end;
           end;
         end;
 
@@ -597,11 +663,16 @@ begin
 
       proSimplISS:
         begin
-          case Versao of
-            ve100: Result := TACBrNFSeProviderSimplISS.Create(ACBrNFSe);
-            ve203: Result := TACBrNFSeProviderSimplISS203.Create(ACBrNFSe);
+          if APIPropria then
+            Result := TACBrNFSeProviderSimplISSAPIPropria.Create(ACBrNFSe)
           else
-            Result := nil;
+          begin
+            case Versao of
+              ve100: Result := TACBrNFSeProviderSimplISS.Create(ACBrNFSe);
+              ve203: Result := TACBrNFSeProviderSimplISS203.Create(ACBrNFSe);
+            else
+              Result := nil;
+            end;
           end;
         end;
 
@@ -640,6 +711,7 @@ begin
             ve100: Result := TACBrNFSeProviderTinus.Create(ACBrNFSe);
             ve101: Result := TACBrNFSeProviderTinus.Create(ACBrNFSe);
             ve102: Result := TACBrNFSeProviderTinus102.Create(ACBrNFSe);
+            ve203: Result := TACBrNFSeProviderTinus203.Create(ACBrNFSe);
           else
             Result := nil;
           end;
@@ -647,11 +719,16 @@ begin
 
       proTiplan:
         begin
-          case Versao of
-            ve100: Result := TACBrNFSeProviderTiplan.Create(ACBrNFSe);
-            ve203: Result := TACBrNFSeProviderTiplan203.Create(ACBrNFSe);
+          if APIPropria then
+            Result := TACBrNFSeProviderTiplanAPIPropria.Create(ACBrNFSe)
           else
-            Result := nil;
+          begin
+            case Versao of
+              ve100: Result := TACBrNFSeProviderTiplan.Create(ACBrNFSe);
+              ve203: Result := TACBrNFSeProviderTiplan203.Create(ACBrNFSe);
+            else
+              Result := nil;
+            end;
           end;
         end;
 
@@ -663,6 +740,7 @@ begin
             ve200: Result := TACBrNFSeProviderVersaTecnologia200.Create(ACBrNFSe);
             ve201: Result := TACBrNFSeProviderVersaTecnologia201.Create(ACBrNFSe);
             ve202: Result := TACBrNFSeProviderVersaTecnologia202.Create(ACBrNFSe);
+            ve204: Result := TACBrNFSeProviderVersaTecnologia204.Create(ACBrNFSe);
           else
             Result := nil;
           end;

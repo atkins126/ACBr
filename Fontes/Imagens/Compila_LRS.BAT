@@ -43,7 +43,7 @@ echo "****************************************"
 echo.
 
 :TEFD
-%1\tools\lazres.exe ACBrTEFD.lrs TACBrTEFD.png TACBrPicPay.png TACBrPOS.png TACBrTEFAPI.png
+%1\tools\lazres.exe ACBrTEFD.lrs TACBrTEFD.png TACBrPicPay.png TACBrPOS.png TACBrTEFAPI.png TACBrSmartTEF.png
 move ACBrTEFD.lrs ..\ACBrTEFD
 echo.
 echo "****************************************"
@@ -70,7 +70,7 @@ echo "***********************************************"
 echo.
 
 :TCP
-%1\tools\lazres.exe ACBrTCP.lrs TACBrTCPServer.png TACBrCEP.png TACBrIBGE.png TACBrNFPws.png TACBrCNIEE.png TACBrSuframa.png TACBrDownload.png TACBrIBPTax.png TACBrConsultaCNPJ.png TACBrMail.png TACBrConsultaCPF.png TACBrSpedTabelas.png TACBrSedex.png TACBrNCMs.png TACBrCupomVerde.png
+%1\tools\lazres.exe ACBrTCP.lrs TACBrTCPServer.png TACBrCEP.png TACBrIBGE.png TACBrNFPws.png TACBrCNIEE.png TACBrSuframa.png TACBrDownload.png TACBrIBPTax.png TACBrConsultaCNPJ.png TACBrMail.png TACBrConsultaCPF.png TACBrSpedTabelas.png TACBrSedex.png TACBrNCMs.png TACBrCupomVerde.png TACBrIMendes.png TACBrCalculadoraConsumo.png
 move ACBrTCP.lrs ..\ACBrTCP
 echo.
 echo "****************************************"

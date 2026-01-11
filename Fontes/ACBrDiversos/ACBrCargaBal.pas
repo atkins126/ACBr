@@ -134,6 +134,7 @@ type
     FGordurasTotaisEstendido429: Double;
     FAcucaresAdicionadosEstendido429: Double;
     FAcucaresTotaisEstendido429: Double;
+    FimprimeCamposEstendido : boolean ;
     procedure SetQtdeAutomaticaPorcao(const Value: Boolean);
     procedure SetQtdePorcEmb(const Value: Integer);
     procedure SetPartIntMedidaCaseira(const Value: Integer);
@@ -206,6 +207,7 @@ type
     property AcucaresTotaisEstendido429:Double read FAcucaresTotaisEstendido429 write SetAcucaresTotaisEstendido429;
     property GordurasTotaisEstendido429:Double read FGordurasTotaisEstendido429 write SetGordurasTotaisEstendido429;
     property ProteinasEstendido429:Double read FProteinasEstendido429 write SetProteinasEstendido429;
+    property ImprimeCamposEstendido:boolean read FImprimeCamposEstendido write FImprimeCamposEstendido;
   end;
 
   TACBrCargaBalInformacaoExtra = class
@@ -342,6 +344,29 @@ type
     property Linha5:String read FLinha5 write SetLinha5;
   end;
 
+  TACBrCargaBalOperador = class
+  private
+    FCodigo: string; //Tamanho 3
+    FNome: string;  //Tamanho 12
+    FTipo: Char;  // '0' ou '1'
+    FBloqueado: Char; // '0' ou '1'
+    FSenha: string; //Tamanho 4
+    FLogoff: Char; // '0' ou '1'
+    FMinutosLogoff: string; //Tamanho 3
+    FNomeCompleto: string; //Tamanho 40
+    FCodigoBarras: string; //Tamanho 40
+  public
+    property Codigo: string read FCodigo write FCodigo;
+    property Nome: string read FNome write FNome;
+    property Tipo: Char read FTipo write FTipo;
+    property Bloqueado: Char read FBloqueado write FBloqueado;
+    property Senha: string read FSenha write FSenha;
+    property Logoff: Char read FLogoff write FLogoff;
+    property MinutosLogoff: string read FMinutosLogoff write FMinutosLogoff;
+    property NomeCompleto: string read FNomeCompleto write FNomeCompleto;
+    property CodigoBarras: string read FCodigoBarras write FCodigoBarras;
+  end;
+
   TACBrCargaBalItem = class
   private
     FValorVenda: Currency;
@@ -426,6 +451,17 @@ type
     property Items[Index: Integer]: TACBrCargaBalItem read GetItem write SetItem; Default;
   end;
 
+  TACBrCargaBalOperadores = class(TObjectList{$IfDef HAS_SYSTEM_GENERICS}<TACBrCargaBalOperador>{$EndIf})
+  private
+    function GetItem(Index: Integer): TACBrCargaBalOperador;
+    procedure SetItem(Index: Integer; const Value: TACBrCargaBalOperador);
+  public
+    constructor Create;
+    destructor Destroy; Override;
+    function New: TACBrCargaBalOperador;
+    property Items[Index: Integer]: TACBrCargaBalOperador read GetItem write SetItem; Default;
+  end;
+
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
   {$ENDIF RTL230_UP}
@@ -434,6 +470,7 @@ type
     FArquivosGerados: TStringList;
     FOnProgresso: TACBrCargaBalProgresso;
     FProdutos: TACBrCargaBalItens;
+    FOperadores: TACBrCargaBalOperadores;
     FModelo: TACBrCargaBalModelo;
     procedure Progresso(const AMensagem: String; const AContAtual, AContTotal: Integer);
 
@@ -453,8 +490,9 @@ type
     function GetNomeArquivoFracionador: String;
     function GetNomeArquivoConservacao: String;
     function GetNomeArquivoTeclado: String;
-    function GetNomeArquivoExtra1:String;
-    function GetNomeArquivoExtra2:String;
+    function GetNomeArquivoExtra1: String;
+    function GetNomeArquivoExtra2: String;
+    function GetNomeArquivoOperador: String;
 
     function GetNomeArquivoRelacaoProdutoNutricional: String;
     function GetNomeArquivoRelacaoProdutoReceita: String;
@@ -470,8 +508,8 @@ type
     function GetTipoValidadeProdutoUranoURF32(Tipo: TACBrCargaBalTipoValidade): string;
 
     procedure PreencherFilizola(stlArquivo, stlSetor, stlNutricional, stlReceita: TStringList);
-    procedure PreencherToledo(stlArquivo, stlNutricional, stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor, stlTeclado, stlExtra1, stlExtra2: TStringList; Versao: Integer);
-    procedure PreencherToledoMGV7(stlArquivo, stlNutricional, stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor, stlTeclado, stlExtra1, stlExtra2: TStringList; Versao: Integer);
+    procedure PreencherToledo(stlArquivo, stlNutricional, stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor, stlTeclado, stlExtra1, stlExtra2, stOperador: TStringList; Versao: Integer);
+    procedure PreencherToledoMGV7(stlArquivo, stlNutricional, stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor, stlTeclado, stlExtra1, stlExtra2, stOperador: TStringList; Versao: Integer);
     procedure PreencherTriunfoRdc429(stlArquivo, stlNutricional, stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor, stlTeclado, stlExtra1, stlExtra2: TStringList; Versao: Integer);
 
     procedure PreencherUrano(Arquivo: TStringList);
@@ -485,6 +523,9 @@ type
     function GetNutriPartDecimalToledo429(Tipo:TACBrCargaBalNutriPartdecimal429):String;
     function GetNutriMedCaseiraToledo(Tipo: TACBrCargaBalNutriMedCaseira): String;
     function GetNutriMedCaseiraToledo429(Tipo: TACBrCargaBalNutriMedCaseira429): String;
+
+    function ExtrairPrimeiraPalavra(const Texto: string): string;
+    function CortarAteUltimoEspaco(const Texto: string; Tamanho: Integer): string;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -495,6 +536,7 @@ type
     property Modelo: TACBrCargaBalModelo read FModelo write FModelo;
     property ModeloStr: String read GetModeloStr;
     property Produtos: TACBrCargaBalItens read FProdutos write FProdutos;
+    property Operadores: TACBrCargaBalOperadores read FOperadores write FOperadores; //Viva Sistemas
     property OnProgresso: TACBrCargaBalProgresso read FOnProgresso write FOnProgresso;
   end;
 
@@ -817,14 +859,47 @@ constructor TACBrCargaBal.Create(AOwner: TComponent);
 begin
   inherited;
   FProdutos := TACBrCargaBalItens.Create;
+  FOperadores := TACBrCargaBalOperadores.Create;
   FArquivosGerados := TStringList.Create ;
 end;
 
 destructor TACBrCargaBal.Destroy;
 begin
   FProdutos.Free;
-  FArquivosGerados.Free ;
+  FOperadores.Free;
+  FArquivosGerados.Free;
   inherited;
+end;
+
+function TACBrCargaBal.CortarAteUltimoEspaco(const Texto: string; Tamanho: Integer): string;
+var
+  S: string;
+  P: Integer;
+begin
+  if Length(Texto) <= Tamanho then
+  begin
+    Result := Texto;
+    Exit;
+  end;
+
+  S := Copy(Texto, 1, Tamanho);
+  P := LastDelimiter(' ', S);
+
+  if P > 0 then
+    Result := Copy(S, 1, P - 1)
+  else
+    Result := S;
+end;
+
+function TACBrCargaBal.ExtrairPrimeiraPalavra(const Texto: string): string;
+var
+  P: Integer;
+begin
+  P := Pos(' ', Texto);
+  if P > 0 then
+    Result := Copy(Texto, 1, P - 1)
+  else
+    Result := Texto;
 end;
 
 function TACBrCargaBal.RFill(const Str: string; Tamanho: Integer = 0; Caracter: Char = ' '): string;
@@ -866,7 +941,11 @@ function TACBrCargaBal.GetNomeArquivoTaras: String;
 begin
   case FModelo of
     modToledo,
-    modToledoMGV5, modToledoMGV6, modToledoMGV7, modTriunfoRdc429 : Result := 'TARA.TXT';
+    modToledoMGV5,
+    modToledoMGV5Ver1,
+    modToledoMGV6,
+    modToledoMGV7,
+    modTriunfoRdc429 : Result := 'TARA.TXT';
   end;
 end;
 
@@ -878,6 +957,7 @@ begin
     modUrano      : Result := 'PRODUTOS.TXT';
     modUranoS     : Result := 'PRODUTOS.TXT';
     modToledoMGV5,
+    modToledoMGV5Ver1,
     modToledoMGV6,
     modToledoMGV7,
     modTriunfoRdc429 : Result := 'ITENSMGV.TXT';
@@ -1046,6 +1126,7 @@ begin
   case FModelo of
     modFilizola : Result := 'SETORTXT.TXT';
     modToledoMGV5,
+    modToledoMGV5Ver1,
     modToledoMGV6,
     modToledoMGV7,
     modTriunfoRdc429 : Result := 'DEPTO.TXT';
@@ -1058,6 +1139,7 @@ begin
   case FModelo of
     modFilizola : Result := 'REC_ASS.TXT';
     modToledoMGV5,
+    modToledoMGV5Ver1,
     modToledoMGV6,
     modToledoMGV7,
     modTriunfoRdc429: Result := 'TXINFO.TXT';
@@ -1069,6 +1151,7 @@ function TACBrCargaBal.GetNomeArquivoFornecedor: String;
 begin
   case FModelo of
     modToledoMGV5,
+    modToledoMGV5Ver1,
     modToledoMGV6,
     modToledoMGV7,
     modTriunfoRdc429 : Result := 'TXFORN.TXT';
@@ -1079,6 +1162,7 @@ function TACBrCargaBal.GetNomeArquivoFracionador: String;
 begin
   case FModelo of
     modToledoMGV5,
+    modToledoMGV5Ver1,
     modToledoMGV6,
     modToledoMGV7,
     modTriunfoRdc429 : Result := 'FRACIONA.TXT';
@@ -1089,6 +1173,7 @@ function TACBrCargaBal.GetNomeArquivoConservacao: String;
 begin
   case FModelo of
     modToledoMGV5,
+    modToledoMGV5Ver1,
     modToledoMGV6,
     modToledoMGV7,
     modTriunfoRdc429 : Result := 'CONSERVA.TXT';
@@ -1099,6 +1184,7 @@ function TACBrCargaBal.GetNomeArquivoExtra1: String;
 begin
   case FModelo of
     modToledoMGV5,
+    modToledoMGV5Ver1,
     modToledoMGV6,
     modToledoMGV7,
     modTriunfoRdc429: Result := 'CAMPEXT1.TXT';
@@ -1109,6 +1195,7 @@ function TACBrCargaBal.GetNomeArquivoExtra2: String;
 begin
   case FModelo of
     modToledoMGV5,
+    modToledoMGV5Ver1,
     modToledoMGV6,
     modToledoMGV7: Result := 'CAMPEXT2.TXT';
   end;
@@ -1118,6 +1205,7 @@ function TACBrCargaBal.GetNomeArquivoTeclado: String;
 begin
   case FModelo of
     modToledoMGV5,
+    modToledoMGV5Ver1,
     modToledoMGV6,
     modToledoMGV7,
     modTriunfoRdc429: Result := 'TXTECLAS.TXT';
@@ -1138,6 +1226,14 @@ begin
   end;
 end;
 
+function TACBrCargaBal.GetNomeArquivoOperador: String;
+begin
+  case FModelo of
+    modToledoMGV6,
+    modToledoMGV7 : Result := 'Opecad.txt';
+  end;
+end;
+
 function TACBrCargaBal.CalcularSoma(const xStr: string): Integer;
 var
   I, Vl: Integer;
@@ -1145,7 +1241,7 @@ begin
   result:=0;
   Vl:=0;
   if Length(xStr)<1 then
-    exit;
+    Exit;
   for I:=1 to Length(xStr) do
   begin
     Vl:=Vl+Ord(xStr[I]);
@@ -1311,10 +1407,10 @@ begin
   end;
 end;
 
-procedure TACBrCargaBal.PreencherToledo(stlArquivo, stlNutricional, stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor, stlTeclado, stlExtra1, stlExtra2: TStringList; Versao: Integer);
+procedure TACBrCargaBal.PreencherToledo(stlArquivo, stlNutricional, stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor, stlTeclado, stlExtra1, stlExtra2, stOperador: TStringList; Versao: Integer);
 var
   i, Total : Integer;
-  ANutri, AReceita, ATara, AFornecedor, AFracionador, AConservacao, ASetor, AExtra1, AExtra2: string;
+  ANutri, AReceita, ATara, AFornecedor, AFracionador, AConservacao, ASetor, AExtra1, AExtra2, AOperador: string;
   LTXTeclas:TStringList;
 begin
   Total := Produtos.Count;
@@ -1743,11 +1839,31 @@ begin
   finally
     LTXTeclas.Free;
   end;
+
+  if Versao = 3 then
+  begin
+    Total := Operadores.Count;
+
+    for i := 0 to Total-1 do
+    begin
+      AOperador := LFill(Operadores[i].Codigo, 3, '0') +
+                   RFill(ExtrairPrimeiraPalavra(Operadores[i].Nome), 12, ' ') +
+                   Operadores[i].Tipo +
+                   Operadores[i].Bloqueado +
+                   LFill(Operadores[i].Senha, 4, '0') +
+                   Operadores[i].Logoff +
+                   LFill(Operadores[i].MinutosLogoff, 3, '0') +
+                   RFill(CortarAteUltimoEspaco(Operadores[i].NomeCompleto, 40), 40, ' ');
+
+      stOperador.Add(AOperador);
+      Progresso(Format('Gerando operador %s %s', [Operadores[i].Codigo, Operadores[i].Nome]), i, Total);
+    end;
+  end;
 end;
 
-procedure TACBrCargaBal.PreencherToledoMGV7(stlArquivo, stlNutricional, stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor, stlTeclado, stlExtra1, stlExtra2: TStringList; Versao: Integer);
+procedure TACBrCargaBal.PreencherToledoMGV7(stlArquivo, stlNutricional, stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor, stlTeclado, stlExtra1, stlExtra2, stOperador: TStringList; Versao: Integer);
 var i, Total : Integer;
-    ANutri, AReceita, ATara, AFornecedor, AFracionador, AConservacao, ASetor, AExtra1, AExtra2: string;
+    ANutri, AReceita, ATara, AFornecedor, AFracionador, AConservacao, ASetor, AExtra1, AExtra2, AOperador: string;
     LTXTeclas:TStringList;
 begin
   Total:=Produtos.Count;
@@ -1842,11 +1958,16 @@ begin
                   LFIll(Produtos[i].Nutricional.AltoSodio429,1)+
                   LFIll(Produtos[i].Nutricional.Lactose429,5,1)+
                   LFIll(Produtos[i].Nutricional.Galactose429,5,1)+
-                  LFIll(Produtos[i].Nutricional.ImprimeLactoseGalactose,1)+
-                  LFIll(Produtos[i].Nutricional.AcucaresAdicionadosEstendido429,5)+
-                  LFIll(Produtos[i].Nutricional.AcucaresTotaisEstendido429,5)+
-                  LFIll(Produtos[i].Nutricional.GordurasTotaisEstendido429,5)+
-                  LFIll(Produtos[i].Nutricional.ProteinasEstendido429,5);
+                  LFIll(Produtos[i].Nutricional.ImprimeLactoseGalactose,1);
+
+                  if   Produtos[i].Nutricional.ImprimeCamposEstendido then
+                  begin
+                    ANutri := ANutri +
+                    LFIll(Produtos[i].Nutricional.AcucaresAdicionadosEstendido429,5,1)+
+                    LFIll(Produtos[i].Nutricional.AcucaresTotaisEstendido429,5,1)+
+                    LFIll(Produtos[i].Nutricional.GordurasTotaisEstendido429,5,1)+
+                    LFIll(Produtos[i].Nutricional.ProteinasEstendido429,5,1);
+                  end;
          if (stlNutricional.IndexOf(ANutri) < 0) then
           stlNutricional.Add(ANutri);
         end;
@@ -1922,7 +2043,7 @@ begin
            stlExtra2.Add(AExtra2);
         end;
         if (Produtos[i].Setor.Codigo > 0) then begin
-          ASetor:=LFIll(Produtos[i].Setor.Codigo, 2) + 
+          ASetor:=LFIll(Produtos[i].Setor.Codigo, 2) +
                   RFIll(Produtos[i].Setor.Descricao, 40);
          if (stlSetor.IndexOf(ASetor) < 0) then
           stlSetor.Add(ASetor);
@@ -1934,6 +2055,24 @@ begin
       stlTeclado.Text := LTXTeclas.Text + stlTeclado.Text;
   finally
     LTXTeclas.Free;
+  end;
+
+  Total := Operadores.Count;
+
+  for i := 0 to Total-1 do
+  begin
+    AOperador := LFill(Operadores[i].Codigo, 3, '0') +
+                 RFill(ExtrairPrimeiraPalavra(Operadores[i].Nome), 12, ' ') +
+                 Operadores[i].Tipo +
+                 Operadores[i].Bloqueado +
+                 LFill(Operadores[i].Senha, 4, '0') +
+                 Operadores[i].Logoff +
+                 LFill(Operadores[i].MinutosLogoff, 3, '0') +
+                 RFill(CortarAteUltimoEspaco(Operadores[i].NomeCompleto, 40), 40, ' ') +
+                 RFill(Operadores[i].CodigoBarras, 40, ' ');
+
+    stOperador.Add(AOperador);
+    Progresso(Format('Gerando operador %s %s', [Operadores[i].Codigo, Operadores[i].Nome]), i, Total);
   end;
 end;
 
@@ -2357,7 +2496,7 @@ end;
 procedure TACBrCargaBal.GerarArquivos(const ADiretorio: String);
 var
   Produto, Setor, Receita, Nutricional, Tara, Fornecedor, Fracionador, Conservacao, Extra1, Extra2: TStringList;
-  RelacaoProdutoNutricional, RelacaoProdutoReceita, Teclado: TStringList;
+  RelacaoProdutoNutricional, RelacaoProdutoReceita, Teclado, Operador: TStringList;
   NomeArquivo: TFileName;
   Total: integer;
 begin
@@ -2385,6 +2524,7 @@ begin
   Teclado                   := TStringList.Create;
   Extra1                    := TStringList.Create;
   Extra2                    := TStringList.Create;
+  Operador                  := TStringList.Create;
   try
     Total := Self.Produtos.Count;
     Progresso(ACBrStr('Iniciando a geração dos arquivos'), 0, Total);
@@ -2392,16 +2532,16 @@ begin
     // Varre os registros gerando o arquivo em lista
     case FModelo of
       modFilizola   : PreencherFilizola(Produto, Setor, Nutricional, Receita);
-      modToledo     : PreencherToledo(Produto, Nutricional, Receita, Tara, nil, nil, nil, nil, nil, nil, nil, 0);
+      modToledo     : PreencherToledo(Produto, Nutricional, Receita, Tara, nil, nil, nil, nil, nil, nil, nil, nil, 0);
       modUrano      : PreencherUrano(Produto);
       modUranoS     : PreencherUranoS(Produto);
-      modToledoMGV5 : PreencherToledo(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, Teclado, Extra1, Extra2, 2);
-      modToledoMGV6 : PreencherToledo(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, Teclado, Extra1, Extra2, 3);
-      modToledoMGV7 : PreencherToledoMGV7(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, Teclado, Extra1, Extra2, 4);
+      modToledoMGV5 : PreencherToledo(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, Teclado, Extra1, Extra2, nil, 2);
+      modToledoMGV6 : PreencherToledo(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, Teclado, Extra1, Extra2, Operador, 3);
+      modToledoMGV7 : PreencherToledoMGV7(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, Teclado, Extra1, Extra2, Operador, 4);
       modTriunfoRdc429: PreencherTriunfoRdc429(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, Teclado, Extra1, Extra2, 4);
       modUranoURF32 : PreencherUranoURF32(Produto, Nutricional, Receita, RelacaoProdutoNutricional, RelacaoProdutoReceita);
       modRamuza     : PreencherRamuza(Produto);
-      modToledoMGV5Ver1 : PreencherToledo(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, nil, nil, nil, 1);
+      modToledoMGV5Ver1 : PreencherToledo(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, nil, nil, nil, nil, 1);
     end;
 
     // Monta o nome do arquivo de produtos seguindo o padrao da balanca
@@ -2505,6 +2645,13 @@ begin
       FArquivosGerados.Add(NomeArquivo) ;
     end;
 
+    if Operador.Count > 0 then
+    begin
+      NomeArquivo := IncludeTrailingPathDelimiter(ADiretorio) + GetNomeArquivoOperador;
+      Operador.SaveToFile(NomeArquivo);
+      FArquivosGerados.Add(NomeArquivo) ;
+    end;
+
     Progresso('Terminado', Total, Total);
   finally
     Produto.Free;
@@ -2520,6 +2667,7 @@ begin
     Teclado.Free;
     Extra1.Free;
     Extra2.Free;
+    Operador.Free;
   end;
 end;
 
@@ -2708,6 +2856,34 @@ end;
 procedure TACBrCargaBalExtra2.SetObservacao(const Value: String);
 begin
   FObservacao := Value;
+end;
+
+{ TACBrCargaBalOperadores }
+
+constructor TACBrCargaBalOperadores.Create;
+begin
+  inherited Create(True);
+end;
+
+destructor TACBrCargaBalOperadores.Destroy;
+begin
+  inherited Destroy;
+end;
+
+function TACBrCargaBalOperadores.GetItem(Index: Integer): TACBrCargaBalOperador;
+begin
+  Result := TACBrCargaBalOperador(inherited Items[Index]);
+end;
+
+function TACBrCargaBalOperadores.New: TACBrCargaBalOperador;
+begin
+  Result := TACBrCargaBalOperador.Create;
+  Add(Result);
+end;
+
+procedure TACBrCargaBalOperadores.SetItem(Index: Integer; const Value: TACBrCargaBalOperador);
+begin
+  inherited Items[Index] := Value;
 end;
 
 end.

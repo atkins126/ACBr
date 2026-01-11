@@ -34,7 +34,7 @@
     <Description Value="ACBr - Transferência Eletrônica de Fundos (http://www.projetoacbr.com.br/)"/>
     <License Value="LGPL"/>
     <Version Major="4" Minor="3" Release="9"/>
-    <Files Count="38">
+    <Files Count="46">
       <Item1>
         <Filename Value="..\..\..\Fontes\ACBrTEFD\ACBrTEFDReg.pas"/>
         <HasRegisterProc Value="True"/>
@@ -188,6 +188,38 @@
         <Filename Value="..\..\..\Fontes\ACBrTEFD\ACBrTEFPayKitAPI.pas"/>
         <UnitName Value="ACBrTEFPayKitAPI"/>
       </Item38>
+      <Item39>
+        <Filename Value="..\..\..\Fontes\ACBrTEFD\ACBrTEFAPIDirectPin.pas"/>
+        <UnitName Value="ACBrTEFAPIDirectPin"/>
+      </Item39>
+      <Item40>
+        <Filename Value="..\..\..\Fontes\ACBrTEFD\ACBrTEFDirectPinAPI.pas"/>
+        <UnitName Value="ACBrTEFDirectPinAPI"/>
+      </Item40>
+      <Item41>
+        <Filename Value="..\..\..\Fontes\ACBrTEFD\ACBrTEFSmartTEFAPI.pas"/>
+        <UnitName Value="ACBrTEFSmartTEFAPI"/>
+      </Item41>
+      <Item42>
+        <Filename Value="..\..\..\Fontes\ACBrTEFD\ACBrTEFSmartTEFInterface.pas"/>
+        <UnitName Value="ACBrTEFSmartTEFInterface"/>
+      </Item42>
+      <Item43>
+        <Filename Value="..\..\..\Fontes\ACBrTEFD\ACBrTEFSmartTEFSchemas.pas"/>
+        <UnitName Value="ACBrTEFSmartTEFSchemas"/>
+      </Item43>
+      <Item44>
+        <Filename Value="..\..\..\Fontes\ACBrTEFD\ACBrTEFTXTComum.pas"/>
+        <UnitName Value="ACBrTEFTXTComum"/>
+      </Item44>
+      <Item45>
+        <Filename Value="..\..\..\Fontes\ACBrTEFD\ACBrTEFTXTGerenciadorPadrao.pas"/>
+        <UnitName Value="ACBrTEFTXTGerenciadorPadrao"/>
+      </Item45>
+      <Item46>
+        <Filename Value="..\..\..\Fontes\ACBrTEFD\ACBrTEFAPITXT.pas"/>
+        <UnitName Value="ACBrTEFAPITXT"/>
+      </Item46>
     </Files>
     <CompatibilityMode Value="True"/>
     <RequiredPkgs Count="1">

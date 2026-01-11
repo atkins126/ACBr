@@ -153,6 +153,7 @@ begin
                      ARetornoWS.DadosRet.TituloRet.DataDocumento  := DateCresolToDateTime(LJsonObject.AsString['dtDocumento']);
                      ARetornoWS.DadosRet.TituloRet.ValorDocumento := LJsonObject.AsFloat['valorNominal'];
                      ARetornoWS.DadosRet.TituloRet.ValorDesconto  := LJsonObject.AsFloat['valorDesconto'];
+                     ARetornoWS.DadosRet.TituloRet.NossoNumeroCorrespondente  := ARetornoWS.DadosRet.IDBoleto.IDBoleto;
                   end
                   else
                   if (ATipoOperacao = tpConsultaDetalhe) then
@@ -287,12 +288,11 @@ begin
            200:
              if (ListaRetorno.ListaRejeicao.Count = 0) then
              begin
-               if LJsonObject.IsJSONObject('page') then
-               begin
+               if LJsonObject.ValueExists('last') then
                  ListaRetorno.indicadorContinuidade := LJsonObject.AsBoolean['last'] = false;
-                 if ListaRetorno.indicadorContinuidade then
+               if ListaRetorno.indicadorContinuidade then
+                 if LJsonObject.ValueExists('number') then
                    ListaRetorno.proximoIndice         := LJsonObject.AsInteger['number'] + 1;
-               end;
 
                LJsonArray := LJsonObject.AsJSONArray['content'];
                if LJsonArray.Count = 0 then
@@ -315,6 +315,8 @@ begin
                  ListaRetorno.DadosRet.TituloRet.NossoNumero     := ListaRetorno.DadosRet.IDBoleto.NossoNum;
                  ListaRetorno.DadosRet.TituloRet.Vencimento      := DateCresolToDateTime(LJsonBoletoObject.AsString['dtVencimento']);
                  ListaRetorno.DadosRet.TituloRet.ValorDocumento  := LJsonBoletoObject.AsFloat['valorNominal'];
+                 ListaRetorno.DadosRet.TituloRet.NossoNumeroCorrespondente  := LJsonBoletoObject.AsString['id'];
+
                  if LJsonBoletoObject.AsString['cdTipoMulta'] = 'ISENTO' then//Sem multa.
                     ListaRetorno.DadosRet.TituloRet.PercentualMulta := 0
                  else

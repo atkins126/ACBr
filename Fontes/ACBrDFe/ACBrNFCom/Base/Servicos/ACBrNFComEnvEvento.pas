@@ -43,13 +43,15 @@ uses
   {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
    System.Contnrs,
   {$IFEND}
+  pcnConversao,
+  ACBrXmlBase,
+  ACBrDFe.Conversao,
   ACBrDFeConsts,
   ACBrBase,
-  pcnConversao,
   pcnSignature,
+//  ACBrDFeComum.SignatureClass,
   ACBrNFComEventoClass,
   ACBrNFComConsts,
-  ACBrXmlBase,
   ACBrXmlWriter,
   ACBrXmlDocument;
 
@@ -343,18 +345,18 @@ begin
     begin
       XML := AXML;
 
-      infEvento.ID := RetEventoNFCom.RetInfEvento.id;
-      infEvento.cOrgao := RetEventoNFCom.RetInfEvento.cOrgao;
-      infEvento.tpAmb := RetEventoNFCom.RetInfEvento.tpAmb;
-//      infEvento.CNPJ := RetEventoNFCom.RetInfEvento.CNPJ;
-      infEvento.chNFCom := RetEventoNFCom.RetInfEvento.chNFCom;
-//      infEvento.dhEvento := RetEventoNFCom.RetInfEvento.dhEvento;
-      infEvento.tpEvento := RetEventoNFCom.RetInfEvento.tpEvento;
-      infEvento.nSeqEvento := RetEventoNFCom.RetInfEvento.nSeqEvento;
+      infEvento.ID := RetEventoNFCom.InfEvento.id;
+      infEvento.cOrgao := RetEventoNFCom.InfEvento.cOrgao;
+      infEvento.tpAmb := RetEventoNFCom.InfEvento.tpAmb;
+      infEvento.CNPJ := RetEventoNFCom.InfEvento.CNPJ;
+      infEvento.chNFCom := RetEventoNFCom.InfEvento.chNFCom;
+      infEvento.dhEvento := RetEventoNFCom.InfEvento.dhEvento;
+      infEvento.tpEvento := RetEventoNFCom.InfEvento.tpEvento;
+      infEvento.nSeqEvento := RetEventoNFCom.InfEvento.nSeqEvento;
 
-      infEvento.DetEvento.descEvento := RetEventoNFCom.RetInfEvento.xEvento;
-      infEvento.DetEvento.nProt := RetEventoNFCom.RetInfEvento.nProt;
-//      infEvento.DetEvento.xJust := RetEventoNFCom.RetInfEvento.xJust;
+      infEvento.DetEvento.descEvento := RetEventoNFCom.InfEvento.DetEvento.descEvento;
+      infEvento.DetEvento.nProt := RetEventoNFCom.InfEvento.DetEvento.nProt;
+      infEvento.DetEvento.xJust := RetEventoNFCom.InfEvento.DetEvento.xJust;
 
       signature.URI := RetEventoNFCom.signature.URI;
       signature.DigestValue := RetEventoNFCom.signature.DigestValue;

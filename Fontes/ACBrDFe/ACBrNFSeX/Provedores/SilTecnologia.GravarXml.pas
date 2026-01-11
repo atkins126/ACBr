@@ -40,7 +40,8 @@ uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase,
   ACBrNFSeXGravarXml_ABRASFv1,
-  ACBrNFSeXGravarXml_ABRASFv2;
+  ACBrNFSeXGravarXml_ABRASFv2,
+  PadraoNacional.GravarXml;
 
 type
   { TNFSeW_SilTecnologia }
@@ -58,7 +59,20 @@ type
 
   end;
 
+  { TNFSeW_SilTecnologiaAPIPropria }
+
+  TNFSeW_SilTecnologiaAPIPropria = class(TNFSeW_PadraoNacional)
+  protected
+
+  public
+    function GerarXml: Boolean; override;
+  end;
+
 implementation
+
+uses
+  ACBrXmlDocument,
+  ACBrDFe.Conversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -76,6 +90,31 @@ begin
   NrOcorrInformacoesComplemetares := 0;
   NrOcorrAliquota := 1;
   NrOcorrCodigoPaisServico := -1;
+  NrOcorrDiscriminacao_1 := -1;
+  NrOcorrCodigoMunic_1 := -1;
+
+  NrOcorrDiscriminacao_2 := 1;
+  NrOcorrCodigoMunic_2 := 1;
+end;
+
+{ TNFSeW_SilTecnologiaAPIPropria }
+
+function TNFSeW_SilTecnologiaAPIPropria.GerarXml: Boolean;
+var
+  NFSeNode: TACBrXmlNode;
+begin
+  Configuracao;
+
+  NrOcorrtpAmb := -1;
+
+  ListaDeAlertas.Clear;
+
+  FDocument.Clear();
+
+  NFSeNode := GerarXMLNFSe;
+  FDocument.Root := NFSeNode;
+
+  Result := True;
 end;
 
 end.

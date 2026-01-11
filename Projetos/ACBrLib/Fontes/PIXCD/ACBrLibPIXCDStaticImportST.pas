@@ -100,6 +100,9 @@ const
   function PIXCD_GerarQRCodeEstatico(AValor: Double; const AinfoAdicional: PAnsiChar; const ATxId: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: integer): integer;
    {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrPIXCDLIBName;
 
+  function PIXCD_GerarQRCodeEstaticoComChavePix(const AChavePix: PAnsiChar; AValor: Double; const AinfoAdicional: PAnsiChar; const ATxID: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: integer): integer;
+   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrPIXCDLIBName;
+
  function PIXCD_ConsultarPix (const Ae2eid: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: integer): integer;
    {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrPIXCDLIBName;
 
@@ -112,7 +115,7 @@ const
  function PIXCD_ConsultarDevolucaoPix(const Ae2eid, AidDevolucao: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: integer):integer;
    {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrPIXCDLIBName;
 
- function PIXCD_CriarCobrancaImediata(AChavePIX: AInfCobSolicitada: PAnsiChar; const ATxId: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: integer): integer;
+ function PIXCD_CriarCobrancaImediata(AChavePIX: PAnsiChar; AInfCobSolicitada: PAnsiChar; const ATxId: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: integer): integer;
    {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrPIXCDLIBName;
 
  function PIXCD_ConsultarCobrancaImediata(const ATxId: PAnsiChar; ARevisao: integer; const sResposta: PAnsiChar; var esTamanho: integer): integer;
@@ -124,7 +127,7 @@ const
  function PIXCD_RevisarCobrancaImediata(AInfCobRevisada: PAnsiChar; const ATxId: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: integer): integer;
    {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrPIXCDLIBName;
 
- function PIXCD_CancelarCobrancaImediata(]ATxId: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: integer): integer;
+ function PIXCD_CancelarCobrancaImediata(ATxId: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: integer): integer;
    {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrPIXCDLIBName;
 
  function PIXCD_CriarCobranca(AInfCobVSolicitada: PAnsiChar; ATxId: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: integer): integer;
@@ -141,6 +144,13 @@ const
 
  function PIXCD_CancelarCobranca(ATxId: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: integer): integer;
    {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrPIXCDLIBName;
+
+ // Autenticacao
+ function PIXCD_GerarToken(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};  external CACBrPIXCDLIBName;
+
+ function PIXCD_InformarToken(const aToken: PAnsiChar; const aValidadeToken: TDateTime): Integer;
+   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf};  external CACBrPIXCDLIBName;
 
  //Matera
  function PIXCD_Matera_IncluirConta(aInfIncluirConta: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: integer): integer;

@@ -38,6 +38,7 @@ interface
 
 uses
   SysUtils, Classes,
+  ACBrXmlBase,
   ACBrXmlDocument, ACBrNFSeXClass, ACBrNFSeXConversao,
   ACBrNFSeXGravarXml, ACBrNFSeXLerXml, ACBrNFSeXWebservicesResponse,
   ACBrNFSeXProviderABRASFv1, ACBrNFSeXWebserviceBase;
@@ -93,13 +94,15 @@ implementation
 
 uses
   ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.XMLHTML,
-  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrXmlBase,
+  ACBrDFe.Conversao,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, NFSeBrasil.GravarXml, NFSeBrasil.LerXml,
   ACBrNFSeXConsts;
 
 const
   encodingStyle = ' soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"';
   xsi = 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"';
+  xsd = 'xmlns:xsd="http://www.w3.org/2001/XMLSchema"';
 
 { TACBrNFSeXWebserviceNFSeBrasil }
 
@@ -130,13 +133,13 @@ begin
   AMSGaux := AMSG;
 
   Request := '<urn:tm_lote_rps_service.importarLoteRPS' + encodingStyle +'>';
-  Request := Request + '<xml xsi:type="xsd:string">' + XmlToStr(AMSGaux) + '</xml>';
+  Request := Request + '<xml xsi:type="xsd:string">' + IncluirCDATA(AMSGaux) + '</xml>';
   Request := Request + DadosUsuario;
   Request := Request + '</urn:tm_lote_rps_service.importarLoteRPS>';
 
   Result := Executar('urn:loterpswsdl#tm_lote_rps_service.importarLoteRPS', Request,
                      ['return', 'RespostaLoteRps'],
-                     ['xmlns:urn="urn:loterpswsdl"', xsi]);
+                     ['xmlns:urn="urn:loterpswsdl"', xsi, xsd]);
 end;
 
 function TACBrNFSeXWebserviceNFSeBrasil.ConsultarLote(const ACabecalho, AMSG: String): string;
@@ -153,7 +156,7 @@ begin
   Result := Executar('urn:loterpswsdl#tm_lote_rps_service.consultarLoteRPS', Request,
 //                     ['return', 'ConsultarLoteRpsResposta'],
                      ['return'],
-                     ['xmlns:urn="urn:loterpswsdl"', xsi]);
+                     ['xmlns:urn="urn:loterpswsdl"', xsi, xsd]);
 end;
 
 function TACBrNFSeXWebserviceNFSeBrasil.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
@@ -170,7 +173,7 @@ begin
   Result := Executar('urn:loterpswsdl#tm_lote_rps_service.consultarRPS', Request,
 //                     ['return', 'ConsultarRpsResposta'],
                      ['return'],
-                     ['xmlns:urn="urn:loterpswsdl"', xsi]);
+                     ['xmlns:urn="urn:loterpswsdl"', xsi, xsd]);
 end;
 
 function TACBrNFSeXWebserviceNFSeBrasil.ConsultarNFSe(const ACabecalho, AMSG: String): string;
@@ -186,7 +189,7 @@ begin
 
   Result := Executar('urn:loterpswsdl#tm_lote_rps_service.consultarNFSE', Request,
                      ['return', 'ConsultarNfseResposta'],
-                     ['xmlns:urn="urn:loterpswsdl"', xsi]);
+                     ['xmlns:urn="urn:loterpswsdl"', xsi, xsd]);
 end;
 
 function TACBrNFSeXWebserviceNFSeBrasil.Cancelar(const ACabecalho, AMSG: String): string;
@@ -202,7 +205,7 @@ begin
 
   Result := Executar('urn:loterpswsdl#tm_lote_rps_service.cancelarNFSE', Request,
                      ['return', 'ConsultarNfseResposta'],
-                     ['xmlns:urn="urn:loterpswsdl"', xsi]);
+                     ['xmlns:urn="urn:loterpswsdl"', xsi, xsd]);
 end;
 
 function TACBrNFSeXWebserviceNFSeBrasil.TesteEnvio(const ACabecalho,
@@ -223,7 +226,7 @@ begin
 
   Result := Executar('urn:loterpswsdl#tm_lote_rps_service.testarLoteRPS', Request,
                      ['return', 'RespostaLoteRps'],
-                     ['xmlns:urn="urn:loterpswsdl"', xsi]);
+                     ['xmlns:urn="urn:loterpswsdl"', xsi, xsd]);
 end;
 
 function TACBrNFSeXWebserviceNFSeBrasil.TratarXmlRetornado(
@@ -440,7 +443,7 @@ begin
   else
     NameSpaceLote := '';
 
-  Versao := ' versao="1"';
+  Versao := ' versao="1.00"';
 
   if ConfigGeral.Identificador <> '' then
     IdAttr := ' ' + ConfigGeral.Identificador + '="' + Response.NumeroLote + '"'
@@ -478,7 +481,7 @@ begin
   with Params do
   begin
     if Response.ModoEnvio in [meLoteAssincrono] then
-      Response.ArquivoEnvio := '<' + TagEnvio + NameSpace + '>' +
+      Response.ArquivoEnvio := '<' + TagEnvio {+ NameSpace} + '>' +
                                  '<' + 'LoteRps codMunicipio="' + CodMun + '"' + Versao + NameSpace2 + IdAttr + '>' +
                                    '<' + Prefixo2 + 'NumeroLote>' + Response.NumeroLote + '</' + Prefixo2 + 'NumeroLote>' +
                                    '<' + Prefixo2 + 'Cnpj>' + OnlyNumber(Emitente.CNPJ) + '</' + Prefixo2 + 'Cnpj>' +

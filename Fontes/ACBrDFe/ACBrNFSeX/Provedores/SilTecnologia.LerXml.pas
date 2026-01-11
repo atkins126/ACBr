@@ -37,8 +37,10 @@ unit SilTecnologia.LerXml;
 interface
 
 uses
-  SysUtils, Classes, StrUtils,
-  ACBrNFSeXLerXml_ABRASFv1, ACBrNFSeXLerXml_ABRASFv2;
+  SysUtils, Classes, StrUtils, IniFiles,
+  ACBrNFSeXLerXml_ABRASFv1,
+  ACBrNFSeXLerXml_ABRASFv2,
+  PadraoNacional.LerXml;
 
 type
   { TNFSeR_SilTecnologia }
@@ -59,11 +61,41 @@ type
 
   end;
 
+  { TNFSeR_SilTecnologiaAPIPropria }
+
+  TNFSeR_SilTecnologiaAPIPropria = class(TNFSeR_PadraoNacional)
+  protected
+    //====== Ler o Arquivo INI===========================================
+    procedure LerINIDadosEmitente(AINIRec: TMemIniFile); override;
+  public
+
+  end;
+
 implementation
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
 //     SilTecnologia
 //==============================================================================
+
+{ TNFSeR_SilTecnologiaAPIPropria }
+
+procedure TNFSeR_SilTecnologiaAPIPropria.LerINIDadosEmitente(AINIRec: TMemIniFile);
+begin
+  inherited LerINIDadosEmitente(AINIRec);
+  NFSe.Emitente.IdentificacaoPrestador.CpfCnpj := NFSe.infNFSe.emit.Identificacao.CpfCnpj;
+  NFSe.Emitente.IdentificacaoPrestador.InscricaoMunicipal := NFSe.infNFSe.emit.Identificacao.InscricaoMunicipal;
+  NFSe.Emitente.RazaoSocial := NFSe.infNFSe.emit.RazaoSocial;
+  NFSe.Emitente.NomeFantasia := NFSe.infNFSe.emit.NomeFantasia;
+  NFSe.Emitente.Endereco.Endereco := NFSe.infNFSe.emit.Endereco.Endereco;
+  NFSe.Emitente.Endereco.Numero := NFSe.infNFSe.emit.Endereco.Numero;
+  NFSe.Emitente.Endereco.Complemento := NFSe.infNFSe.emit.Endereco.Complemento;
+  NFSe.Emitente.Endereco.Bairro := NFSe.infNFSe.emit.Endereco.Bairro;
+  NFSe.Emitente.Endereco.CodigoMunicipio := NFSe.infNFSe.emit.Endereco.CodigoMunicipio;
+  NFSe.Emitente.Endereco.UF := NFSe.infNFSe.emit.Endereco.UF;
+  NFSe.Emitente.Endereco.CEP := NFSe.infNFSe.emit.Endereco.CEP;
+  NFSe.Emitente.Contato.Telefone := NFSe.infNFSe.emit.Contato.Telefone;
+  NFSe.Emitente.Contato.Email := NFSe.infNFSe.emit.Contato.Email;
+end;
 
 end.

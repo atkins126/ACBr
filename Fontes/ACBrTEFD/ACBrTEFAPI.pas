@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2025 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo:                                                 }
 {                                                                              }
@@ -66,7 +66,9 @@ type
                       tefScopeAPI,
                       tefDestaxaAPI,
                       tefTPag,
-                      tefEquals);
+                      tefEquals,
+                      tefDirectPin,
+                      tefTXT );
 
   TACBrTEFAPIExibicaoQRCode = ( qrapiNaoSuportado,
                                 qrapiAuto,
@@ -299,7 +301,9 @@ uses
   ACBrTEFAPIScope,
   ACBrTEFAPIDestaxa,
   ACBrTEFAPITPag,
-  ACBrTEFAPIPayKit;
+  ACBrTEFAPIPayKit,
+  ACBrTEFAPIDirectPin,
+  ACBrTEFAPITXT;
 
 { TACBrTEFAPIClass }
 
@@ -506,6 +510,7 @@ begin
   GravarLog('VersaoAPI');
   lVersaoAPI := TEF.VersaoAPI;
   GravarLog(lVersaoAPI);
+  Result := lVersaoAPI;
 end;
 
 procedure TACBrTEFAPI.ObterListaImagensPinPad(ALista: TStrings);
@@ -676,6 +681,8 @@ begin
     tefDestaxaAPI  : fpTEFAPIClass := TACBrTEFAPIClassDestaxa.Create( Self );
     tefTPag        : fpTEFAPIClass := TACBrTEFAPIClassTPag.Create( Self );
     tefEquals      : fpTEFAPIClass := TACBrTEFAPIClassPayKit.Create( Self );
+    tefDirectPin   : fpTEFAPIClass := TACBrTEFAPIDirectPin.Create( Self );
+    tefTXT         : fpTEFAPIClass := TACBrTEFAPIClassTXT.Create( Self );
   else
     fpTEFAPIClass := TACBrTEFAPIClass.Create( Self );
   end;

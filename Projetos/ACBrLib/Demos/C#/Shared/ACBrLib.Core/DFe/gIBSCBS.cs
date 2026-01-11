@@ -16,8 +16,6 @@ namespace ACBrLib.NFe
             gIBSMun = new gIBSMun();
             gCBS = new gCBS();
             gTribRegular = new gTribRegular();
-            gIBSCredPres = new gCredPres();
-            gCBSCredPres = new gCredPres();
             gTribCompraGov = new gTribCompraGov();
         }
 
@@ -28,6 +26,8 @@ namespace ACBrLib.NFe
         /// Base de cálculo do IBS e CBS
         /// </summary>
         public decimal vBC { get; set; }
+
+        public decimal vIBS { get; set; }
 
         /// <summary>
         /// Grupo de informações do IBS para a UF.
@@ -43,12 +43,13 @@ namespace ACBrLib.NFe
 
         public gTribRegular gTribRegular { get; }
 
-        public gCredPres gIBSCredPres { get; }
-
-        public gCredPres gCBSCredPres { get; }
-
         public gTribCompraGov gTribCompraGov { get; }
 
+        public gIBSCBSMono gIBSCBSMono { get; }
+
+        public gMonoPadrao gMonoPadrao { get; }
+
+        public gMonoReten gMonoReten { get; }
 
         #endregion Properties
     }

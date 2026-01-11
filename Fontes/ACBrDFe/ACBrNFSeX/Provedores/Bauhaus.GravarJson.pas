@@ -154,7 +154,8 @@ begin
 
   Result := TACBrJSONObject.Create
               .AddPair('Codigo', StrToIntDef(wCodTribMun, 0))
-              .AddPair('CodigoCnae', NFSe.Servico.CodigoCnae);
+              .AddPair('CodigoCnae', NFSe.Servico.CodigoCnae)
+              .AddPair('CodigoLc116', NFSe.Servico.ItemListaServico);
 end;
 
 function TNFSeW_Bauhaus.GerarPrestador: TACBrJSONObject;
@@ -206,7 +207,7 @@ begin
               .AddPair('Numero', StrToIntDef(NFSe.IdentificacaoRps.Numero, 0))
               .AddPair('Serie', StrToIntDef(NFSe.IdentificacaoRps.Serie, 0))
               .AddPair('Tipo', 1)
-              .AddPairISODate('DataEmissao', NFSe.DataEmissaoRps);
+              .AddPairISODate('DataEmissao', NFSe.DataEmissao);
 end;
 
 function TNFSeW_Bauhaus.GerarServicos: TACBrJSONArray;
@@ -358,7 +359,7 @@ begin
   AINIRec.WriteString(sSecao, 'OutrasInformacoes', StringReplace(NFSe.OutrasInformacoes, sLineBreak, FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]));
   AINIRec.WriteString(sSecao, 'Numero', NFSe.IdentificacaoRps.Numero);
   AINIRec.WriteString(sSecao, 'Serie', NFSe.IdentificacaoRps.Serie);
-  AINIRec.WriteString(sSecao, 'DataEmissaoRps', DateTimeToStr(NFSe.DataEmissaoRps));
+  AINIRec.WriteString(sSecao, 'DataEmissao', DateTimeToStr(NFSe.DataEmissao));
   {
 
    if NFSe.tpXML = txmlNFSe then
@@ -446,9 +447,6 @@ begin
 end;
 
 (*
-procedure TNFSeW_Aspec.GerarINIIdentificacaoNFSe(AINIRec: TMemIniFile);
-end;
-
 procedure TNFSeW_Aspec.GerarINIIdentificacaoPrestador(AINIRec: TMemIniFile);
 var
   sSecao: string;
@@ -456,33 +454,6 @@ begin
   sSecao := 'Prestador';
 
   AINIRec.WriteString(sSecao, 'CNPJ', NFSe.Prestador.IdentificacaoPrestador.CpfCnpj);
-end;
-
-procedure TNFSeW_Aspec.GerarINIDadosTomador(AINIRec: TMemIniFile);
-var
-  sSecao: string;
-begin
-  sSecao := 'Tomador';
-
-  AINIRec.WriteString(sSecao, 'CNPJCPF', NFSe.Tomador.IdentificacaoTomador.CpfCnpj);
-  AINIRec.WriteString(sSecao, 'InscricaoMunicipal', NFSe.Tomador.IdentificacaoTomador.InscricaoMunicipal);
-  AINIRec.WriteString(sSecao, 'InscricaoEstadual', NFSe.Tomador.IdentificacaoTomador.InscricaoEstadual);
-
-  AINIRec.WriteString(sSecao, 'RazaoSocial', NFSe.Tomador.RazaoSocial);
-  AINIRec.WriteString(sSecao, 'NomeFantasia', NFSe.Tomador.NomeFantasia);
-
-  AINIRec.WriteString(sSecao, 'CodigoMunicipio', NFSe.Tomador.Endereco.CodigoMunicipio);
-  AINIRec.WriteString(sSecao, 'Bairro', NFSe.Tomador.Endereco.Bairro);
-  AINIRec.WriteString(sSecao, 'Logradouro', NFSe.Tomador.Endereco.Endereco);
-  AINIRec.WriteString(sSecao, 'Numero', NFSe.Tomador.Endereco.Numero);
-  AINIRec.WriteString(sSecao, 'Complemento', NFSe.Tomador.Endereco.Complemento);
-  AINIRec.WriteInteger(sSecao, 'CodigoPais', NFSe.Tomador.Endereco.CodigoPais);
-
-  AINIRec.WriteString(sSecao, 'Telefone', NFSe.Tomador.Contato.Telefone);
-  AINIRec.WriteString(sSecao, 'Email', NFSe.Tomador.Contato.Email);
-end;
-
-procedure TNFSeW_Aspec.GerarINIDadosValores(AINIRec: TMemIniFile);
 end;
 
 procedure TNFSeW_Aspec.GerarINIDadosPrestador(AINIRec: TMemIniFile);

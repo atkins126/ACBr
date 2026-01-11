@@ -229,9 +229,8 @@ begin
             ARetornoWS.DadosRet.TituloRet.DataCredito           := DateIntertoDateTime( LJsonObject.asString['dataHoraSituacao'] );
 
             LSituacao := AnsiUpperCase(LJsonObject.asString['situacao']);
-
-            if AJSonObjectItem.IsJSONObject('dataHoraSituacao') then
-             ARetornoWS.DadosRet.TituloRet.DataBaixa  := DateIntertoDateTime( AJSonObjectItem.asString['dataHoraSituacao'] );
+            if (LSituacao = C_RECEBIDO) or (LSituacao = C_PAGO) or (LSituacao = C_CANCELADO) then
+              ARetornoWS.DadosRet.TituloRet.DataBaixa           := DateIntertoDateTime( LJsonObject.asString['dataHoraSituacao'] );
 
             {Mora}
             if LJsonObject.IsJSONObject('mora') then
@@ -711,7 +710,7 @@ var
   LMensagemRejeicao: TACBrBoletoRejeicao;
   LJsonArray: TACBrJSONArray;
   I, X: Integer;
-  LSituacao, LSituacaoBoleto : AnsiString;
+  LSituacaoBoleto : AnsiString;
 begin
   LListaRetorno := ACBrBoleto.CriarRetornoWebNaLista;
   LListaRetorno.HTTPResultCode := HTTPResultCode;

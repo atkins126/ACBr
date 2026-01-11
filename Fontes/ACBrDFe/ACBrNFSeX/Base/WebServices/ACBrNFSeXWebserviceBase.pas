@@ -49,11 +49,13 @@ uses
      {$ENDIF}
    {$ENDIF}
   {$ENDIF}
-  ACBrBase, ACBrDFe, ACBrDFeConfiguracoes, ACBrDFeSSL,
+  ACBrBase,
+  ACBrDFe.Conversao,
+  ACBrDFe, ACBrDFeConfiguracoes, ACBrDFeSSL,
   ACBrXmlDocument, ACBrNFSeXConversao;
 
 resourcestring
-  ERR_NAO_IMP = 'Serviço não implementado para este provedor.';
+  ERR_NAO_IMP = 'Serviço %s não implementado para este provedor.';
   ERR_SEM_URL_PRO = 'Não informado a URL de Produção, favor entrar em contato com a Prefeitura ou Provedor.';
   ERR_SEM_URL_HOM = 'Não informado a URL de Homologação, favor entrar em contato com a Prefeitura ou Provedor.';
 
@@ -152,6 +154,7 @@ type
     function ConsultarDFe(const ACabecalho, AMSG: string): string; virtual;
     function ConsultarParam(const ACabecalho, AMSG: string): string; virtual;
     function ConsultarSeqRps(const ACabecalho, AMSG: string): string; virtual;
+    function ObterDANFSE(const ACabecalho, AMSG: string): string; virtual;
 
     property URL: string read FPURL;
     property BaseURL: string read GetBaseUrl;
@@ -268,7 +271,8 @@ type
    FCodVerificacao: string;
    FChaveNFSe: string;
    FPagina: Integer;
-
+   FNumeroRps: string;
+   FDataRecibo: TDateTime;
  public
    constructor Create;
 
@@ -295,6 +299,8 @@ type
    property CodVerificacao: string  read FCodVerificacao write FCodVerificacao;
    property ChaveNFSe: string       read FChaveNFSe     write FChaveNFSe;
    property Pagina: Integer         read FPagina        write FPagina;
+   property NumeroRps: string       read FNumeroRps     write FNumeroRps;
+   property DataRecibo: TDateTime   read FDataRecibo    write FDataRecibo;
  end;
 
   TInfConsultaLinkNFSe = class
@@ -581,6 +587,12 @@ begin
       begin
         FPArqEnv := 'con-link';
         FPArqResp := 'link';
+      end;
+
+    tmObterDANFSE:
+      begin
+        FPArqEnv := 'con-nfse-chv';
+        FPArqResp := 'lista-nfse-chv';
       end;
   else
     begin
@@ -1154,105 +1166,112 @@ end;
 function TACBrNFSeXWebservice.Recepcionar(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Recepcionar']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarDFe(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar DFe']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarEvento(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar Evento']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarLote(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar Lote']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarSeqRps(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar Sequencial RPS']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarSituacao(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar Situação']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarNFSePorRps(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar NFSe Por RPS']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarNFSe(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar NFSe']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarNFSePorChave(const ACabecalho,
   AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar NFSe Por Chave']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarNFSePorFaixa(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar NFSe Por Faixa']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar Serviço Prestado NFSe']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarNFSeServicoTomado(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar Serviço Tomado NFSe']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarParam(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar Parâmetro']));
 end;
 
 function TACBrNFSeXWebservice.ConsultarLinkNFSe(const ACabecalho,
   AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Consultar Link NFSe']));
 end;
 
 function TACBrNFSeXWebservice.Cancelar(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Cancelar']));
 end;
 
 function TACBrNFSeXWebservice.GerarNFSe(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Gerar NFSe']));
 end;
 
 function TACBrNFSeXWebservice.RecepcionarSincrono(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Recepcionar Síncrono']));
+end;
+
+function TACBrNFSeXWebservice.ObterDANFSE(const ACabecalho,
+  AMSG: string): string;
+begin
+  Result := '';
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Obter DANFSE']));
 end;
 
 function TACBrNFSeXWebservice.RetornaHTMLNota(const Retorno: string): string;
@@ -1282,37 +1301,37 @@ end;
 function TACBrNFSeXWebservice.SubstituirNFSe(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Substituir NFSe']));
 end;
 
 function TACBrNFSeXWebservice.GerarToken(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Gerar Token']));
 end;
 
 function TACBrNFSeXWebservice.AbrirSessao(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Abrir Sessão']));
 end;
 
 function TACBrNFSeXWebservice.FecharSessao(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Fechar Sessão']));
 end;
 
 function TACBrNFSeXWebservice.TesteEnvio(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Teste Envio']));
 end;
 
 function TACBrNFSeXWebservice.EnviarEvento(const ACabecalho, AMSG: string): string;
 begin
   Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
+  raise EACBrDFeException.Create(Format(ERR_NAO_IMP, ['Enviar Evento']));
 end;
 
 { TACBrNFSeXWebserviceSoap11 }
@@ -1586,6 +1605,8 @@ begin
   CodVerificacao:= '';
   ChaveNFSe     := '';
   Pagina        := 1;
+  NumeroRps     := '';
+  DataRecibo    := 0;
 end;
 
 function TInfConsultaNFSe.LerFromIni(const AIniStr: string): Boolean;
@@ -1627,6 +1648,8 @@ begin
     CodVerificacao := INIRec.ReadString(sSecao, 'CodVerificacao', '');
     ChaveNFSe     := INIRec.ReadString(sSecao, 'ChaveNFSe', '');
     Pagina        := INIRec.ReadInteger(sSecao, 'Pagina', 1);
+    NumeroRps     := INIRec.ReadString(sSecao, 'NumeroRps', '');
+    DataRecibo    := StringToDateTime(INIRec.ReadString(sSecao, 'DataRecibo', '0'));
 
     Result := True;
   finally

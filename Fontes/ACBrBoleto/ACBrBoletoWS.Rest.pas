@@ -95,6 +95,7 @@ type
     function AddHeaderParam(AParamName, AParamValue: String): TBoletoWSREST;
     function ClearHeaderParams(): TBoletoWSREST;
     property Headers:TStringList read FPHeaders;
+    function NovoTokenAutenticacao(var AToken: String; var AValidadeToken: TDateTime; const ANewForceToken: Boolean = False): Boolean; override;
   end;
 
     { TRetornoEnvioREST }  //Implementar Retornos em JSON
@@ -151,12 +152,24 @@ end;
 
 procedure TBoletoWSREST.DefinirCertificado;
 begin
-  BoletoWS.ArquivoCRT   := Boleto.Configuracoes.WebService.ArquivoCRT;
+  BoletoWS.Senha        := Boleto.Configuracoes.WebService.Senha;
+  BoletoWS.DadosPFX     := Boleto.Configuracoes.WebService.DadosPFX;     //BLOB PFX
+  BoletoWS.ChavePrivada := Boleto.Configuracoes.WebService.ChavePrivada; //BLOB KEY
+  BoletoWS.Certificado  := Boleto.Configuracoes.WebService.Certificado;  //BLOB CRT/PEM
+  BoletoWS.ArquivoPFX   := Boleto.Configuracoes.WebService.ArquivoPFX;
   BoletoWS.ArquivoKEY   := Boleto.Configuracoes.WebService.ArquivoKEY;
-  BoletoWS.ChavePrivada := Boleto.Configuracoes.WebService.ChavePrivada;
-  BoletoWS.Certificado  := Boleto.Configuracoes.WebService.Certificado;
+  BoletoWS.ArquivoCRT   := Boleto.Configuracoes.WebService.ArquivoCRT;
 
-    // Adicionando o chave privada
+  if NaoEstaVazio(BoletoWS.Senha) then
+    HTTPSend.Sock.SSL.KeyPassword := BoletoWS.Senha;
+  // Adicionando o chave privada
+
+  if NaoEstaVazio(BoletoWS.DadosPFX) then
+    HTTPSend.Sock.SSL.PFX         := BoletoWS.DadosPFX
+  else
+  if NaoEstaVazio(BoletoWS.ArquivoPFX) then
+    HTTPSend.Sock.SSL.PFXfile     := BoletoWS.ArquivoPFX;
+
   if NaoEstaVazio(BoletoWS.ChavePrivada) then
   begin
     if StringIsPEM(BoletoWS.ChavePrivada) then
@@ -261,13 +274,12 @@ var
 begin
   LStream  := TStringStream.Create('');
   LHeaders := TStringList.Create;
-
+  httpsend.Clear;
   //Definido Valor para Timeout com a configuração da Classe
   httpsend.Timeout := Boleto.Configuracoes.WebService.TimeOut;
 
   try
     httpsend.OutputStream := LStream;
-    httpsend.Headers.Clear;
 
     if FPAccept <> '' then
       LHeaders.Add(C_ACCEPT + ': ' + FPAccept);
@@ -296,7 +308,7 @@ begin
   finally
     LHeaders.Free;
   end;
-  httpsend.Document.Clear;
+  
   try
     httpsend.Document.Position := 0;
     if FPDadosMsg <> '' then
@@ -328,12 +340,16 @@ begin
         FRetornoWS       := ReadStrFromStream(LStream, LStream.Size);
     end;
 
-    FRetornoWS                       := String(UTF8ToNativeString(FRetornoWS));
-    BoletoWS.RetornoBanco.CodRetorno := httpsend.Sock.LastError;
+    FRetornoWS                       := String(UTF8ToNativeString(Trim(FRetornoWS)));
+    if (httpsend.ResultCode = 0) then
+      BoletoWS.RetornoBanco.CodRetorno := httpsend.Sock.LastError
+    else
+      BoletoWS.RetornoBanco.CodRetorno := httpsend.ResultCode;
     try
       BoletoWS.RetornoBanco.Msg            := Trim('HTTP_Code=' + IntToStr(httpsend.ResultCode) + ' ' + httpsend.ResultString + ' ' + FRetornoWS);
       BoletoWS.RetornoBanco.HTTPResultCode := httpsend.ResultCode;
     finally
+      httpsend.OutputStream := nil;
       LStream.Free;
     end;
   end;
@@ -379,16 +395,26 @@ begin
   Result := FPDadosMsg;
 end;
 
+function TBoletoWSREST.NovoTokenAutenticacao(var AToken: String; var AValidadeToken: TDateTime; const ANewForceToken: Boolean): Boolean;
+begin
+  OAuth.ForceNewToken;
+  Result := GerarTokenAutenticacao <> '';
+  AToken         := OAuth.Token;
+  AValidadeToken := OAuth.Expire;
+end;
+
 function TBoletoWSREST.Enviar: Boolean;
 begin
   try
-    BoletoWS.RetornoBanco.CodRetorno := 0;
-    BoletoWS.RetornoBanco.Msg        := '';
+    BoletoWS.RetornoBanco.Clear;
+
+    DefinirProxy;
+
     DefinirAuthorization;
     DefinirURL;
     DefinirContentType;
     DefinirCertificado;
-    DefinirProxy;
+
 
     //Grava json gerado
     BoletoWS.DoLog('Comando Enviar: ' + ClassName, logSimples);
@@ -397,7 +423,6 @@ begin
     Executar;
 
   finally
-
     Result := (BoletoWS.RetornoBanco.HTTPResultCode in [ 200 .. 207 ]);
 
     BoletoWS.DoLog('Retorno Envio: ' + Self.ClassName, logSimples);

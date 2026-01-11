@@ -40,8 +40,12 @@ interface
 
 uses
   SysUtils, Classes,
-  ACBrBase, ACBrDFeReport,
-  ACBrCTe.Classes, pcnConversao;
+  pcnConversao,
+  ACBrBase,
+  ACBrDFeReport,
+  ACBrDFe.Conversao,
+  pcteConversaoCTe,
+  ACBrCTe.Classes;
 
 type
   {$IFDEF RTL230_UP}

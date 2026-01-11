@@ -49,7 +49,7 @@ uses
 type
   TACBrOnSolicitaCaptchaHTTP = procedure( var AHtml : String ) of object ;
   EACBrConsultaCNPJException = class ( Exception );
-  TACBrCNPJProvedorWS = (cwsNenhum, cwsBrasilAPI, cwsReceitaWS, cwsCNPJWS);
+  TACBrCNPJProvedorWS = (cwsNenhum, cwsBrasilAPI, cwsReceitaWS, cwsCNPJWS, cwsMinhaReceita);
 
   { TACBrConsultaCNPJ }
   {$IFDEF RTL230_UP}
@@ -92,6 +92,12 @@ type
     FUsuario: String;
     FSenha: String;
     FInscricaoEstadual : String;
+    FMei: Boolean;
+    FDataOpcaoMei: TDateTime;
+    FDataExclusaoMei: TDateTime;
+    FSimples: Boolean;
+    FDataOpcaoSimples: TDateTime;
+    FDataExclusaoSimples: TDateTime;
     FDefasagemMaximo : Integer;
     FProxyHost : string;
     FProxyPort : string;
@@ -144,6 +150,12 @@ type
     property Usuario: String read FUsuario write FUsuario;
     property Senha: String read FSenha write FSenha;
     property InscricaoEstadual: String read FInscricaoEstadual;
+    property Mei: Boolean read FMei write FMei;
+    property DataOpcaoMei: TDateTime read FDataOpcaoMei write FDataOpcaoMei;
+    property DataExclusaoMei: TDateTime read FDataExclusaoMei write FDataExclusaoMei;
+    property Simples: Boolean read FSimples write FSimples;
+    property DataOpcaoSimples: TDateTime read FDataOpcaoSimples write FDataOpcaoSimples;
+    property DataExclusaoSimples: TDateTime read FDataExclusaoSimples write FDataExclusaoSimples;
     property DefasagemMaximo: Integer read FDefasagemMaximo write FDefasagemMaximo default 999;
     property ProxyHost: string read FProxyHost write FProxyHost;
     property ProxyPort: string read FProxyPort write FProxyPort;
@@ -166,7 +178,8 @@ uses
   ACBrUtil.FilesIO,
   ACBrConsultaCNPJ.WS.ReceitaWS,
   ACBrConsultaCNPJ.WS.BrasilAPI,
-  ACBrConsultaCNPJ.WS.CNPJWS;
+  ACBrConsultaCNPJ.WS.CNPJWS,
+  ACBrConsultaCNPJ.WS.MinhaReceita;
 
 procedure TACBrConsultaCNPJ.Captcha(const Stream: TStream);
 begin
@@ -202,6 +215,12 @@ begin
   FMotivoSituacaoCad    := AACBrConsultaCNPJWSResposta.MotivoSituacaoCad;
   FCodigoIBGE           := AACBrConsultaCNPJWSResposta.CodigoIBGE;
   FInscricaoEstadual    := AACBrConsultaCNPJWSResposta.InscricaoEstadual;
+  FMei                  := AACBrConsultaCNPJWSResposta.Mei;
+  FDataOpcaoMei         := AACBrConsultaCNPJWSResposta.DataOpcaoMei;
+  FDataExclusaoMei      := AACBrConsultaCNPJWSResposta.DataExclusaoMei;
+  FSimples              := AACBrConsultaCNPJWSResposta.Simples;
+  FDataOpcaoSimples     := AACBrConsultaCNPJWSResposta.DataOpcaoSimples;
+  FDataExclusaoSimples  := AACBrConsultaCNPJWSResposta.DataExclusaoSimples;
   FCapitalSocial        := AACBrConsultaCNPJWSResposta.CapitalSocial;
 
   FHTTPResponse         := AACBrConsultaCNPJWSResposta.ResultString;
@@ -220,9 +239,10 @@ begin
   if Self.Provedor <> cwsNenhum then
   begin
     case Self.Provedor of
-      cwsReceitaWS : LACBrConsultaCNPJWS := TACBrConsultaCNPJWSReceitaWS.Create( ACNPJ, Self.Usuario, Self.Senha, Self.DefasagemMaximo );
-      cwsBrasilAPI : LACBrConsultaCNPJWS := TACBrConsultaCNPJWSBrasilAPI.Create( ACNPJ );
-      cwsCNPJWS    : LACBrConsultaCNPJWS := TACBrConsultaCNPJWSCNPJWS.Create( ACNPJ, Self.Usuario, Self.Senha );
+      cwsReceitaWS    : LACBrConsultaCNPJWS := TACBrConsultaCNPJWSReceitaWS.Create( ACNPJ, Self.Usuario, Self.Senha, Self.DefasagemMaximo );
+      cwsBrasilAPI    : LACBrConsultaCNPJWS := TACBrConsultaCNPJWSBrasilAPI.Create( ACNPJ );
+      cwsCNPJWS       : LACBrConsultaCNPJWS := TACBrConsultaCNPJWSCNPJWS.Create( ACNPJ, Self.Usuario, Self.Senha );
+      cwsMinhaReceita : LACBrConsultaCNPJWS := TACBrConsultaCNPJWSMinhaReceita.Create( ACNPJ );
     end;
 
     try

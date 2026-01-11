@@ -96,6 +96,8 @@ type
     function RetornaCodigoBarras(eIndice: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
     function EnviarBoleto(eCodigoOperacao: Integer; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
     function ConsultarTitulosPorPeriodo(eArquivoIni: PAnsiChar; const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+    function InformarToken(const AToken: PAnsiChar; const AValidadeToken: TDateTime): Integer;
+    function GerarToken(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
 
   end;
 
@@ -196,15 +198,14 @@ begin
       GravarLog('Boleto_IncluirTitulos', logNormal);
 
     BoletoDM.Travar;
-
     try
-{$IFDEF Demo}
-    if BoletoDM.ACBrBoleto1.ListadeBoletos.Count = 5 then
-    begin
-      Result := SetRetorno(ErrDemoExpirado,  'So pode adicionar 5 boletos na versão Demo.');
-      Exit;
-    end;
-{$ENDIF}
+    {$IFDEF Demo}
+      if BoletoDM.ACBrBoleto1.ListadeBoletos.Count = 5 then
+      begin
+        Result := SetRetorno(ErrDemoExpirado,  'So pode adicionar 5 boletos na versão Demo.');
+        Exit;
+      end;
+    {$ENDIF}
       BoletoDM.ConfigurarImpressao;
 
       try
@@ -552,17 +553,19 @@ begin
     else
       GravarLog('Boleto_GerarRemessaStream', logNormal);
 
-    AStream := TMemoryStream.Create;
     BoletoDM.Travar;
-
     try
-      BoletoDM.ACBrBoleto1.GerarRemessaStream( NumArquivo, AStream );
-      Resposta := StreamToBase64(AStream);
+      AStream := TMemoryStream.Create;
+      try
+        BoletoDM.ACBrBoleto1.GerarRemessaStream( NumArquivo, AStream );
+        Resposta := StreamToBase64(AStream);
 
-      MoverStringParaPChar(Resposta, sResposta, esTamanho);
-      Result := SetRetorno(ErrOK, Resposta);
+        MoverStringParaPChar(Resposta, sResposta, esTamanho);
+        Result := SetRetorno(ErrOK, Resposta);
+      finally
+        AStream.Free;
+      end;
     finally
-      AStream.Free;
       BoletoDM.Destravar;
     end;
   except
@@ -708,23 +711,24 @@ begin
       GravarLog('Boleto_EnviarEmail', logNormal);
 
     BoletoDM.Travar;
-
-    if EstaVazio(ePara) and (BoletoDM.ACBrBoleto1.ListadeBoletos.Count > 0) then
-      Para := BoletoDM.ACBrBoleto1.ListadeBoletos[0].Sacado.Email;
-
     try
+      if EstaVazio(ePara) and (BoletoDM.ACBrBoleto1.ListadeBoletos.Count > 0) then
+        Para := BoletoDM.ACBrBoleto1.ListadeBoletos[0].Sacado.Email;
+
       slMensagem := TStringList.Create;
-      slMensagem.Text := Mensagem;
-
       slCC := TStringList.Create;
-      slCC.Text := CC;
+      try
+        slMensagem.Text := Mensagem;
+        slCC.Text := CC;
 
-      BoletoDM.ConfigurarImpressao;
-      BoletoDM.ACBrBoleto1.EnviarEmail(Para, Assunto, slMensagem, True, slCC);
+        BoletoDM.ConfigurarImpressao;
+        BoletoDM.ACBrBoleto1.EnviarEmail(Para, Assunto, slMensagem, True, slCC);
+      finally
+        slMensagem.Free;
+        slCC.Free;
+      end;
       Result := SetRetorno(ErrOK);
     finally
-      slMensagem.Free;
-      slCC.Free;
       BoletoDM.FinalizarImpressao;
       BoletoDM.Destravar;
     end;
@@ -755,26 +759,26 @@ begin
       GravarLog('Boleto_EnviarEmailBoleto', logNormal);
 
     BoletoDM.Travar;
-
-    if eIndice > (BoletoDM.ACBrBoleto1.ListadeBoletos.Count -1) then
-      raise Exception.Create('Título de Indice '+IntToStr(eIndice)+' não identificado na Lista!');
-
-    if EstaVazio(ePara) and (BoletoDM.ACBrBoleto1.ListadeBoletos.Count > 0) then
-      Para := BoletoDM.ACBrBoleto1.ListadeBoletos[eIndice].Sacado.Email;
-
     try
+      if eIndice > (BoletoDM.ACBrBoleto1.ListadeBoletos.Count -1) then
+        raise Exception.Create('Título de Indice '+IntToStr(eIndice)+' não identificado na Lista!');
+
+      if EstaVazio(ePara) and (BoletoDM.ACBrBoleto1.ListadeBoletos.Count > 0) then
+        Para := BoletoDM.ACBrBoleto1.ListadeBoletos[eIndice].Sacado.Email;
+
       slMensagem := TStringList.Create;
-      slMensagem.Text := Mensagem;
-
       slCC := TStringList.Create;
-      slCC.Text := CC;
-
-      BoletoDM.ConfigurarImpressao;
-      BoletoDM.ACBrBoleto1.ListadeBoletos[eIndice].EnviarEmail(Para, Assunto, slMensagem, True, slCC);
+      try
+        slMensagem.Text := Mensagem;
+        slCC.Text := CC;
+        BoletoDM.ConfigurarImpressao;
+        BoletoDM.ACBrBoleto1.ListadeBoletos[eIndice].EnviarEmail(Para, Assunto, slMensagem, True, slCC);
+      finally
+        slMensagem.Free;
+        slCC.Free;
+      end;
       Result := SetRetorno(ErrOK);
     finally
-      slMensagem.Free;
-      slCC.Free;
       BoletoDM.FinalizarImpressao;
       BoletoDM.Destravar;
     end;
@@ -985,7 +989,6 @@ begin
       GravarLog('Boleto_SelecionaBanco', logNormal);
 
     BoletoDM.Travar;
-
     try
       BoletoDM.ACBrBoleto1.Banco.TipoCobranca := BoletoDM.ACBrBoleto1.GetTipoCobranca(StrToInt64Def(Trim(CodBanco),0));
       Result := SetRetorno(ErrOK);
@@ -1056,7 +1059,6 @@ begin
       raise  EACBrLibException.Create(ErrIndex, 'Titulo não encontrado.');
 
     BoletoDM.Travar;
-
     try
       Resposta := '';
       ABarras  := BoletoDM.ACBrBoleto1.Banco.MontarCodigoBarras(BoletoDM.ACBrBoleto1.ListadeBoletos[Indice]);
@@ -1199,7 +1201,6 @@ begin
       GravarLog('Boleto_EnviarBoleto', logNormal);
 
     BoletoDM.Travar;
-
     try
       BoletoDM.ACBrBoleto1.Configuracoes.WebService.Operacao:= TOperacao(CodigoOperacao);
       BoletoDM.ACBrBoleto1.Enviar;
@@ -1303,8 +1304,66 @@ begin
     on E: Exception do
       Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
   end;
-
 end;
 
-end.
+function TACBrLibBoleto.InformarToken(const AToken: PAnsiChar; const AValidadeToken: TDateTime): Integer;
+var
+  wToken: String;
+begin
+  try
+    wToken := ConverterStringEntrada(AToken);
 
+    if Config.Log.Nivel > logNormal then
+      GravarLog('Boleto_InformarToken(' + wToken + ', '+DateTimeToStr(AValidadeToken)+ ')', logCompleto, True)
+    else
+      GravarLog('Boleto_InformarToken', logNormal);
+
+    BoletoDM.Travar;
+    try
+      BoletoDM.InformarToken(wToken, AValidadeToken);
+      Result := SetRetorno(ErrOK, 'Token Informado com Sucesso');
+    finally
+      BoletoDM.Destravar;
+    end;
+  except
+    on E: EACBrLibException do
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
+    on E: Exception do
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
+  end;
+end;
+
+function TACBrLibBoleto.GerarToken(const sResposta: PAnsiChar; var esTamanho: Integer): Integer;
+var
+  LToken: String;
+  LValidade: TDateTime;
+  Resposta: AnsiString;
+  LTokenResp: TRetornoGerarToken;
+begin
+  try
+    GravarLog('Boleto_GerarToken', logNormal);
+    BoletoDM.Travar;
+    try
+      LTokenResp := TRetornoGerarToken.Create(CSessaoRetorno, Config.TipoResposta, Config.CodResposta);
+      try
+        BoletoDM.ACBrBoleto1.GerarTokenAutenticacao(LToken, LValidade);
+        LTokenResp.Processar(LToken, LValidade);
+        Resposta := LTokenResp.Gerar;
+      finally
+        LTokenResp.Free;
+      end;
+      MoverStringParaPChar(Resposta, sResposta, esTamanho);
+      Result := SetRetorno(ErrOK, Resposta);
+    finally
+      BoletoDM.Destravar;
+    end;
+  except
+    on E: EACBrLibException do
+      Result := SetRetorno(E.Erro, ConverterStringSaida(E.Message));
+    on E: Exception do
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterStringSaida(E.Message));
+  end;
+end;
+
+
+end.

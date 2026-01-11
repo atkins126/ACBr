@@ -1,24 +1,24 @@
 object FormObtemCampo: TFormObtemCampo
-  Left = 738
-  Height = 170
-  Top = 50
+  Left = 629
+  Height = 189
+  Top = 305
   Width = 422
   BorderStyle = bsDialog
   Caption = 'Entre com a Informação'
-  ClientHeight = 170
+  ClientHeight = 189
   ClientWidth = 422
   Constraints.MinHeight = 170
   Constraints.MinWidth = 420
   Font.Height = -19
+  Position = poOwnerFormCenter
+  LCLVersion = '4.4.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnShow = FormShow
-  Position = poOwnerFormCenter
-  LCLVersion = '3.4.0.0'
   object edtResposta: TEdit
     Left = 32
     Height = 33
-    Top = 80
+    Top = 99
     Width = 356
     Alignment = taCenter
     Anchors = [akLeft, akRight, akBottom]
@@ -31,7 +31,7 @@ object FormObtemCampo: TFormObtemCampo
   object btOk: TBitBtn
     Left = 317
     Height = 35
-    Top = 127
+    Top = 146
     Width = 71
     Anchors = [akRight, akBottom]
     AutoSize = True
@@ -44,7 +44,7 @@ object FormObtemCampo: TFormObtemCampo
   object btCancel: TBitBtn
     Left = 187
     Height = 35
-    Top = 127
+    Top = 146
     Width = 103
     Anchors = [akRight, akBottom]
     AutoSize = True
@@ -56,17 +56,17 @@ object FormObtemCampo: TFormObtemCampo
   end
   object pTitulo: TPanel
     Left = 0
-    Height = 56
+    Height = 75
     Top = 0
     Width = 422
     Align = alTop
     Anchors = [akTop, akLeft, akRight, akBottom]
-    ClientHeight = 56
+    ClientHeight = 75
     ClientWidth = 422
     TabOrder = 4
     object lTitulo: TLabel
       Left = 1
-      Height = 54
+      Height = 73
       Top = 1
       Width = 420
       Align = alClient
@@ -80,8 +80,8 @@ object FormObtemCampo: TFormObtemCampo
   object btVoltar: TBitBtn
     Left = 32
     Height = 35
-    Top = 127
-    Width = 97
+    Top = 146
+    Width = 96
     Anchors = [akLeft, akBottom]
     AutoSize = True
     Caption = 'Voltar'

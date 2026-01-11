@@ -38,8 +38,11 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXConversao, ACBrNFSeXLerXml;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrDFe.Conversao,
+  ACBrNFSeXConversao,
+  ACBrNFSeXLerXml;
 
 type
   { TNFSeR_GeisWeb }
@@ -398,6 +401,11 @@ begin
     LerOrgaoGerador(ANode);
     LerOutrosImpostos(ANode);
 
+    Servico.CodigoNCM := ObterConteudo(ANode.Childrens.FindAnyNs('NCM'), tcStr);
+    Servico.CodigoNBS := ObterConteudo(ANode.Childrens.FindAnyNs('NBS'), tcStr);
+
+    LerXMLIBSCBSDPS(ANode, IBSCBS);
+
     Link := ObterConteudo(ANode.Childrens.FindAnyNs('LinkConsulta'), tcStr);
     Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
   end;
@@ -417,6 +425,11 @@ begin
     LerTomadorServico(ANode);
     LerOrgaoGerador(ANode);
     LerOutrosImpostos(ANode);
+
+    Servico.CodigoNCM := ObterConteudo(ANode.Childrens.FindAnyNs('NCM'), tcStr);
+    Servico.CodigoNBS := ObterConteudo(ANode.Childrens.FindAnyNs('NBS'), tcStr);
+
+    LerXMLIBSCBSDPS(ANode, IBSCBS);
   end;
 end;
 

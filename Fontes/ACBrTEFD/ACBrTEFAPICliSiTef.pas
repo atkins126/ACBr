@@ -45,8 +45,35 @@ uses
   ACBrTEFAPIComum,
   ACBrTEFCliSiTefComum;
 
+resourcestring
+  sErroCliSiTef_SemLoja = 'Código de Loja não informado';
+  sErroCliSiTef_SemTerminal = 'Código de Terminal não informado';
+
 const
   CSUBDIRETORIO_PAYGOWEB = 'PGWeb';
+  CURL_LOCALHOST = 'localhost';
+  CURL_TLS_PROD_FISERV = 'tls-prod.fiservapp.com';
+  CVER_ACBR_SITEF = 'ACBR 10101';
+
+  CPARAM_PortaPinPad = 'PortaPinPad';
+  CPINPAD_AUTOUSB = 'AUTO_USB';
+  CPARAM_HabilitaTrace = 'HabilitaTrace';
+  CPARAM_MultiplosCupons = 'MultiplosCupons';
+  CPARAM_VersaoAutomacao = 'VersaoAutomacaoCielo';
+  CPARAM_ParmsClient = 'ParmsClient';
+  CPARAM_TipoComunicacaoExterna = 'TipoComunicacaoExterna';
+  CPARAM_TokenRegistro = 'TokenRegistro';
+  CPARAM_ExibeMsgOperadorPinpad = 'ExibeMsgOperadorPinpad';
+  CPARAM_DevolveStringQRCode = 'DevolveStringQRCode';
+
+  CPARAM_CONT_ENCERRA = -1;
+  CPARAM_CONT_CONTINUA = 0;
+  CPARAM_CONT_RETORNA = 1;
+  CPARAM_CONT_CANCELA = 2;
+  CPARAM_CONT_CONTINUA_SEM_COLETA = 10000;
+
+  CRET_SUCESSO = 0;
+  CRET_ITERATIVO_CONTINUA = 10000;
 
 // https://dev.softwareexpress.com.br/docs/clisitef/clisitef_documento_principal/
 
@@ -58,15 +85,11 @@ type
   private
     fIniciouRequisicao: Boolean;
     fUltimoRetornoAPI: Integer;
-    fReimpressao: Boolean;
-    fCancelamento: Boolean;
     fDocumentosFinalizados: String;
     fParamAdicConfig: TACBrTEFParametros;
     fParamAdicFinalizacao: TACBrTEFParametros;
     fParamAdicFuncao: TACBrTEFParametros;
     fRespostasPorTipo: TACBrTEFParametros;
-    fPinPadChaveAcesso: AnsiString;
-    fPinPadIdentificador: AnsiString;
     fTEFCliSiTefAPI: TACBrTEFCliSiTefAPI;
     fOperacaoVenda: Integer;
     fOperacaoAdministrativa: Integer;
@@ -75,12 +98,29 @@ type
     fFinalizarTransacaoIndividual: Boolean;
   private
     function ExecutarTransacaoSiTef(Funcao: Integer; Valor: Double): Boolean;
+
     procedure FazerRequisicaoSiTef(Funcao: Integer; Valor: Double);
     procedure ContinuarRequisicaoSiTef;
     procedure FinalizarTransacaoSiTef(Confirma: Boolean; const DocumentoVinculado: String = '';
       DataHora: TDateTime = 0);
     procedure InterpretarRetornoCliSiTef(const Ret: Integer);
     function DadoPinPadToOperacao(ADadoPinPad: TACBrTEFAPIDadoPinPad): String;
+
+    function TokenFiservValido(const AString: String): Boolean;
+    function ParamTemChave(AParam: TACBrTEFParametros; const Chave: String): Boolean;
+
+    procedure QuandoGravarLogAPI(const ALogLine: String; var Tratado: Boolean);
+
+    function AjustarMensagemTela(const AMsg: String): String;
+    function AjustarMensagemPinPad(const MensagemDisplay: String): String;
+
+    procedure DoExibirMensagem(const AMsg: String; Terminal: TACBrTEFAPITela; MilissegundosExibicao: Integer);
+    function DoContinuarOperacao(OperacaoAPI: TACBrTEFAPIOperacaoAPI): Boolean;
+    function DoPerguntarSimNao(const Titulo: String): String;
+    function DoPerguntarMenu(const Titulo: String; Opcoes: TStringList): String; overload;
+    function DoPerguntarMenu(const Titulo: String; const Opcoes: String): String; overload;
+    function DoPerguntarCampo(DefinicaoCampo: TACBrTEFAPIDefinicaoCampo): String;
+    procedure DoExibirQRCode(const DadosQRCode: String);
 
   protected
     procedure InterpretarRespostaAPI; override;
@@ -129,16 +169,11 @@ type
     property TEFCliSiTefAPI: TACBrTEFCliSiTefAPI read fTEFCliSiTefAPI;
 
     property OperacaoVenda: Integer read fOperacaoVenda
-      write fOperacaoVenda default CSITEF_OP_Venda;
+      write fOperacaoVenda default CSITEF_OP_Pagamento;
     property OperacaoAdministrativa: Integer read fOperacaoAdministrativa
       write fOperacaoAdministrativa default CSITEF_OP_Administrativo;
     property OperacaoCancelamento: Integer read fOperacaoCancelamento
       write fOperacaoCancelamento default CSITEF_OP_Cancelamento;
-
-    property PinPadChaveAcesso: AnsiString read fPinPadChaveAcesso
-      write fPinPadChaveAcesso;
-    property PinPadIdentificador: AnsiString read fPinPadIdentificador
-      write fPinPadIdentificador;
 
     property ParamAdicConfig: TACBrTEFParametros read fParamAdicConfig;
     property ParamAdicFuncao: TACBrTEFParametros read fParamAdicFuncao;
@@ -159,7 +194,8 @@ uses
   StrUtils,
   TypInfo,
   ACBrUtil.Strings,
-  ACBrUtil.Base;
+  ACBrUtil.Base,
+  ACBrUtil.Compatibilidade;
 
 { TACBrTEFAPIClassCliSiTef }
 
@@ -169,15 +205,13 @@ begin
 
   fpTEFRespClass := TACBrTEFRespCliSiTef;
 
-  fOperacaoVenda := CSITEF_OP_Venda;
+  fOperacaoVenda := CSITEF_OP_Pagamento;
   fOperacaoAdministrativa := CSITEF_OP_Administrativo;
   fOperacaoCancelamento := CSITEF_OP_Cancelamento;
 
-  fPinPadChaveAcesso := '';
-  fPinPadIdentificador := '';
   fIniciouRequisicao := False;
   fDocumentosFinalizados := '';
-  fUltimoRetornoAPI := 0;
+  fUltimoRetornoAPI := CRET_SUCESSO;
   fAutorizador := '';
   fFinalizarTransacaoIndividual := False;
 
@@ -185,7 +219,9 @@ begin
   fParamAdicFuncao := TACBrTEFParametros.Create;
   fParamAdicFinalizacao := TACBrTEFParametros.Create;
   fRespostasPorTipo := TACBrTEFParametros.Create;
+
   fTEFCliSiTefAPI := TACBrTEFCliSiTefAPI.Create;
+  fTEFCliSiTefAPI.OnGravarLog := QuandoGravarLogAPI;
 end;
 
 destructor TACBrTEFAPIClassCliSiTef.Destroy;
@@ -201,18 +237,10 @@ end;
 procedure TACBrTEFAPIClassCliSiTef.Inicializar;
 Var
   PortaPinPad, Sts: Integer ;
-  ParamAdic, EnderecoIP, CodLoja, NumeroTerminal: AnsiString;
-  Erro, ParamComunicacao: String;
-
-  procedure ApagarChaveSeExistir(Chave: String);
-  var
-    p: Integer;
-  begin
-    p := ParamAdicConfig.IndexOf(Chave);
-    if (p >= 0) then
-      ParamAdicConfig.Delete(p);
-  end;
-
+  ParamAdic, EnderecoIP, CodLoja, NumeroTerminal, MsgPinPad: AnsiString;
+  Erro, Aplicacao, ParmsClient, ParamComunicacao, s: String;
+  TEFParam: TACBrTEFParametros;
+  Ambiente: TACBrTEFAPIAmbiente;
 begin
   if Inicializado then
     Exit;
@@ -220,59 +248,136 @@ begin
   fTEFCliSiTefAPI.PathDLL := PathDLL;
   fTEFCliSiTefAPI.Inicializada := True;
 
-  PortaPinPad := StrToIntDef( OnlyNumber(fpACBrTEFAPI.DadosTerminal.PortaPinPad), 0);
-  // configuração da porta do pin-pad
-  if (PortaPinPad > 0) then
-    ParamAdicConfig.Values['PortaPinPad'] := IntToStr(PortaPinPad)
-  else
-    ApagarChaveSeExistir('PortaPinPad');
+  CodLoja := Trim(IfEmptyThen(fpACBrTEFAPI.DadosTerminal.CodEmpresa, fpACBrTEFAPI.DadosTerminal.CodFilial));
+  NumeroTerminal := Trim(fpACBrTEFAPI.DadosTerminal.CodTerminal);
+  EnderecoIP := Trim(fpACBrTEFAPI.DadosTerminal.EnderecoServidor);
+  Ambiente := fpACBrTEFAPI.DadosTerminal.Ambiente;
 
-  if fpACBrTEFAPI.DadosAutomacao.SuportaViasDiferenciadas then
-    ParamAdicConfig.Values['MultiplosCupons'] := '1'
-  else
-    ApagarChaveSeExistir('MultiplosCupons');
-
-  // cielo premia
-  if fpACBrTEFAPI.DadosAutomacao.SuportaDesconto then
-    ParamAdicConfig.Values['VersaoAutomacaoCielo'] := PadRight( fpACBrTEFAPI.DadosAutomacao.NomeSoftwareHouse, 8 ) + '10'
-  else
-    ApagarChaveSeExistir('VersaoAutomacaoCielo');
-
-  // acertar quebras de linhas e abertura e fechamento da lista de parametros
-  ParamAdic := StringReplace(Trim(ParamAdicConfig.Text), sLineBreak, ';', [rfReplaceAll]);
-  if NaoEstaVazio(ParamAdic) then
-    ParamAdic := '['+ ParamAdic + ']';
-
-  if NaoEstaVazio(fpACBrTEFAPI.DadosEstabelecimento.CNPJ) and
-    NaoEstaVazio(fpACBrTEFAPI.DadosAutomacao.CNPJSoftwareHouse) then
+  if (EnderecoIP = CURL_TLS_PROD_FISERV) then
   begin
-    if NaoEstaVazio(ParamAdic) then
-      ParamAdic := ParamAdic + ';';
+    if (Ambiente <> ambProducao) then
+    begin
+      fpACBrTEFAPI.GravarLog( '"EnderecoIP" informado é de Producao, mudando ambiente') ;
+      Ambiente := ambProducao;
+    end;
+  end;
 
-    ParamAdic := ParamAdic + '[ParmsClient=1='+fpACBrTEFAPI.DadosEstabelecimento.CNPJ+';'+
-                                          '2='+fpACBrTEFAPI.DadosAutomacao.CNPJSoftwareHouse+']';
+  ParamComunicacao := Trim(fpACBrTEFAPI.DadosTerminal.ParamComunicacao);
+  if NaoEstaVazio(ParamComunicacao) then
+  begin
+    if (Ambiente <> ambProducao) then
+    begin
+      fpACBrTEFAPI.GravarLog( '"ParamComunicacao" Informado, mudando para ambiente de producao') ;
+      Ambiente := ambProducao;
+    end;
+  end;
+
+  if (Ambiente = ambProducao) then
+  begin
+    fpACBrTEFAPI.GravarLog( 'Validando Loja e Terminal para ambiente de producao') ;
+    EnderecoIP := IfEmptyThen(EnderecoIP, CURL_TLS_PROD_FISERV);
+    if (CodLoja = '') then
+      fpACBrTEFAPI.DoException(ACBrStr(sErroCliSiTef_SemLoja));
+    if (NumeroTerminal = '') then
+      fpACBrTEFAPI.DoException(ACBrStr(sErroCliSiTef_SemTerminal));
+  end
+  else  // homologação
+  begin
+    fpACBrTEFAPI.GravarLog( 'Ajustando Loja e Terminal para ambiente de homologacao') ;
+    EnderecoIP := IfEmptyThen(EnderecoIP, CURL_LOCALHOST);
+    CodLoja := IfEmptyThen(CodLoja, '00000000' );
+    NumeroTerminal := IfEmptyThen(NumeroTerminal, 'SE000001');
+  end;
+
+  // Poderiamos ajustar o Diretorio de trabalho na Clisitef.ini,
+  //   mas não na ConfiguraIntSiTefInterativo.. vale a pena fazer isso ?
+  // fpACBrTEFAPI.DiretorioTrabalho;
+
+  if not ParamTemChave(ParamAdicConfig, CPARAM_PortaPinPad) then
+  begin
+    s := Trim(fpACBrTEFAPI.DadosTerminal.PortaPinPad);
+    {$IfDef MSWINDOWS}
+     PortaPinPad := StrToIntDef( OnlyNumber(s), 0);
+     if (PortaPinPad > 0) then
+       s := IntToStr(PortaPinPad);
+    {$EndIf}
+    if EstaVazio(s) then
+      s := CPINPAD_AUTOUSB;
+
+    ParamAdicConfig.Values[CPARAM_PortaPinPad] := s;
+  end;
+
+  if not ParamTemChave(ParamAdicConfig, CPARAM_HabilitaTrace) then
+    if fpACBrTEFAPI.DadosTerminal.GravarLogTEF then
+      ParamAdicConfig.Values[CPARAM_HabilitaTrace] := '1';
+
+  if not ParamTemChave(ParamAdicConfig, CPARAM_MultiplosCupons) then
+    if fpACBrTEFAPI.DadosAutomacao.SuportaViasDiferenciadas then
+      ParamAdicConfig.Values[CPARAM_MultiplosCupons] := '1';
+
+  if not ParamTemChave(ParamAdicConfig, CPARAM_VersaoAutomacao) then
+  begin
+    Aplicacao := PadRight(fpACBrTEFAPI.DadosAutomacao.NomeAplicacao, 5) +
+                 PadRight(fpACBrTEFAPI.DadosAutomacao.VersaoAplicacao, 5);
+    if EstaVazio(Trim(Aplicacao)) then
+      Aplicacao := CVER_ACBR_SITEF;
+    ParamAdicConfig.Values[CPARAM_VersaoAutomacao] := Aplicacao;
+  end;
+
+  ParmsClient := '';
+  if not ParamTemChave(ParamAdicConfig, CPARAM_ParmsClient) then
+  begin
+    if NaoEstaVazio(fpACBrTEFAPI.DadosEstabelecimento.CNPJ) then
+      ParmsClient := ParmsClient + '1='+fpACBrTEFAPI.DadosEstabelecimento.CNPJ;
+
+    if NaoEstaVazio(fpACBrTEFAPI.DadosAutomacao.CNPJSoftwareHouse) then
+      ParmsClient := ParmsClient + ';2='+fpACBrTEFAPI.DadosAutomacao.CNPJSoftwareHouse;
+
+    if NaoEstaVazio(ParmsClient) then
+      if (ParmsClient[1] = ';') then
+        System.Delete(ParmsClient, 1, 1);   // remove ; inicial
   end;
 
   // https://dev.softwareexpress.com.br/en/docs/clisitef-interface-android/habilitando_comunicacao_tls_clisitef
-  // fpACBrTEFAPI.DadosTerminal.ParamComunicacao := 'TipoComunicacaoExterna=SSL';
-  ParamComunicacao := Trim(fpACBrTEFAPI.DadosTerminal.ParamComunicacao);
-  if (ParamComunicacao <> '') then
+  if (Ambiente = ambProducao) then
   begin
-    if NaoEstaVazio(ParamAdic) then
-      ParamAdic := ParamAdic + ';';
-    ParamAdic := ParamAdic + '['+ParamComunicacao+']';
+    TEFParam := TACBrTEFParametros.Create;
+    try
+      if TokenFiservValido(ParamComunicacao) then
+        TEFParam.Values[CPARAM_TokenRegistro] := ParamComunicacao
+      else
+        TEFParam.Text := StringReplace(ParamComunicacao, ';', sLineBreak, [rfReplaceAll]);
+
+      if not ParamTemChave(TEFParam, CPARAM_TipoComunicacaoExterna) then
+        TEFParam.Values[CPARAM_TipoComunicacaoExterna] := 'TLSGWP';
+
+      // acertar quebras de linhas e abertura e fechamento da lista de parametros
+      ParamComunicacao := StringReplace(Trim(TEFParam.Text), sLineBreak, ';', [rfReplaceAll]);
+    finally
+      TEFParam.Free;
+    end;
   end;
 
-  EnderecoIP := IfEmptyThen(fpACBrTEFAPI.DadosTerminal.EnderecoServidor, 'localhost');
-  CodLoja := IfEmptyThen(fpACBrTEFAPI.DadosTerminal.CodFilial, IfEmptyThen(fpACBrTEFAPI.DadosTerminal.CodEmpresa, '00000000' ));
-  NumeroTerminal := IfEmptyThen(fpACBrTEFAPI.DadosTerminal.CodTerminal, 'SE000001');
+  // acertar quebras de linhas e abertura e fechamento da lista de parametros
+  ParamAdic := StringReplace(Trim(ParamAdicConfig.Text), sLineBreak, ';', [rfReplaceAll]);
 
-  fpACBrTEFAPI.GravarLog( '*** ConfiguraIntSiTefInterativoEx. '+
-                          ' EnderecoIP: ' + EnderecoIP +
-                          ' CodigoLoja: ' + CodLoja +
-                          ' NumeroTerminal: ' + NumeroTerminal +
-                          ' Resultado: 0' +
-                          ' ParametrosAdicionais: '+ParamAdic ) ;
+  if NaoEstaVazio(ParamComunicacao) then
+    ParamAdic := ParamAdic + ';' + ParamComunicacao;
+
+  if NaoEstaVazio(ParamAdic) then
+  begin
+    if (ParamAdic[1] = ';') then
+      System.Delete(ParamAdic, 1, 1);   // remove ; inicial
+
+    ParamAdic := '['+ ParamAdic + ']';
+  end;
+
+  if NaoEstaVazio(ParmsClient) then
+  begin
+    ParamAdic := ParamAdic + ';[' +CPARAM_ParmsClient + '=' + ParmsClient + ']';
+    if (ParamAdic[1] = ';') then
+      System.Delete(ParamAdic, 1, 1);   // remove ; inicial
+  end;
 
   Sts := fTEFCliSiTefAPI.ConfiguraIntSiTefInterativo(
            PAnsiChar(EnderecoIP),
@@ -285,7 +390,9 @@ begin
   if (Erro <> '') then
     fpACBrTEFAPI.DoException(ACBrStr(Erro));
 
-  fpACBrTEFAPI.GravarLog( '   Inicializado CliSiTEF' );
+  MsgPinPad := TrimRight(AjustarMensagemPinPad(fpACBrTEFAPI.DadosAutomacao.MensagemPinPad));
+  if (MsgPinPad <> '') then
+    fTEFCliSiTefAPI.DefineMensagemPermanentePinPad(MsgPinPad);
 
   inherited;
 end;
@@ -296,120 +403,125 @@ begin
   inherited;
 end;
 
-function TACBrTEFAPIClassCliSiTef.ExecutarTransacaoSiTef(Funcao: Integer;
-  Valor: Double): Boolean;
+function TACBrTEFAPIClassCliSiTef.ExecutarTransacaoSiTef(Funcao: Integer; Valor: Double): Boolean;
+var
+  s: String;
 begin
   FazerRequisicaoSiTef(Funcao, Valor);
-  if (fUltimoRetornoAPI = 10000) then
+  if (fUltimoRetornoAPI = CRET_ITERATIVO_CONTINUA) then
     ContinuarRequisicaoSiTef;
 
-  Result := (fUltimoRetornoAPI = 0);
+  Result := (fUltimoRetornoAPI = CRET_SUCESSO);
+
+  fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.GravaInformacao(899, CTEF_RESP_FUNCAO, IntToStr(Funcao));
+  s := Trim(fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.LeInformacao(899, CTEF_RESP_CONFIRMAR).AsString);
+  if (s = '') then
+    fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.GravaInformacao(899, CTEF_RESP_CONFIRMAR,
+      IfThen(OperacaoEmAndamento in [tefmtdPagamento, tefmtdCancelamento], 'True', 'False') );
 
   if Result then
-    fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.GravaInformacao(899,103, IntToStr(Trunc(SimpleRoundTo( Valor * 100 ,0))) );
+    fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.GravaInformacao(899, CTEF_RESP_VALOR_TRANSACAO, IntToStr(Trunc(SimpleRoundTo( Valor * 100 ,0))) );
 
-  fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.GravaInformacao(899, 102, fpACBrTEFAPI.RespostasTEF.IdentificadorTransacao);
-  fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.GravaInformacao(899, 110, IntToStr(Funcao));
+  //if (OperacaoEmAndamento = tefmtdPagamento) then
+  //begin
+  //  fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.GravaInformacao(899, CTEF_RESP_DOCTO_VINCULADO, fpACBrTEFAPI.RespostasTEF.IdentificadorTransacao);
+  //  fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.GravaInformacao(899, CTEF_RESP_DATA_HORA, FormatDateTime('YYYYMMDDHHNNSS', fpACBrTEFAPI.RespostasTEF.DataHoraIdentificador) );
+  //end;
 end;
 
-procedure TACBrTEFAPIClassCliSiTef.FazerRequisicaoSiTef(Funcao: Integer;
-  Valor: Double);
+procedure TACBrTEFAPIClassCliSiTef.FazerRequisicaoSiTef(Funcao: Integer; Valor: Double);
 Var
   ValorStr, DataStr, HoraStr, DoctoStr, OperadorStr, ParamAdicStr: AnsiString;
   DataHora: TDateTime;
 begin
-   if not fTEFCliSiTefAPI.Inicializada then
-     fpACBrTEFAPI.DoException(ACBrStr(CACBrTEFCliSiTef_NaoInicializado));
+  if not fTEFCliSiTefAPI.Inicializada then
+    fpACBrTEFAPI.DoException(ACBrStr(CACBrTEFCliSiTef_NaoInicializado));
 
-   if fIniciouRequisicao then
-     fpACBrTEFAPI.DoException(ACBrStr(CACBrTEFCliSiTef_NaoConcluido));
+  if fIniciouRequisicao then
+    fpACBrTEFAPI.DoException(ACBrStr(CACBrTEFCliSiTef_NaoConcluido));
 
-   //TODO: Verificar se precisa disso (não consta no manual atual)
-   //if (pos('{TipoTratamento=4}',ListaRestricoes) = 0) and
-   //   (pos(AHeader,'CRT,CHQ') > 0 ) and
-   //   SuportaDesconto then
-   //begin
-   //   ListaRestricoes := ListaRestricoes + '{TipoTratamento=4}';
-   //end;
+  if (OperacaoEmAndamento = tefmtdPagamento) then
+  begin
+    DataHora := fpACBrTEFAPI.RespostasTEF.DataHoraIdentificador;
+    DoctoStr := fpACBrTEFAPI.RespostasTEF.IdentificadorTransacao;
+  end
+  else
+  begin
+    DataHora := Now;
+    DoctoStr := FormatDateTime('YYYYMMDDHHNNSS', DataHora );
+  end;
 
-   DataHora := Now;
-   DataStr := FormatDateTime('YYYYMMDD', DataHora );
-   HoraStr := FormatDateTime('HHNNSS', DataHora );
-   ValorStr := FormatFloatBr( Valor );
-   if (fpACBrTEFAPI.RespostasTEF.IdentificadorTransacao = '') then
-     fpACBrTEFAPI.RespostasTEF.IdentificadorTransacao := DataStr + HoraStr;
+  DataStr := FormatDateTime('YYYYMMDD', DataHora );
+  HoraStr := FormatDateTime('HHNNSS', DataHora );
+  ValorStr := FormatFloatBr( Valor );
+  OperadorStr := fpACBrTEFAPI.DadosTerminal.Operador;
 
-   DoctoStr := fpACBrTEFAPI.RespostasTEF.IdentificadorTransacao;
-   OperadorStr := fpACBrTEFAPI.DadosTerminal.Operador;
-   ParamAdicStr := StringReplace(Trim(fParamAdicFuncao.Text), sLineBreak, ';', [rfReplaceAll]);
-   fDocumentosFinalizados := '' ;
+  // Só tem a tela do PinPad ?
+  if fpACBrTEFAPI.DadosAutomacao.AutoAtendimento then
+    if not ParamTemChave(ParamAdicFuncao, CPARAM_ExibeMsgOperadorPinpad) then
+      ParamAdicFuncao.Values[CPARAM_ExibeMsgOperadorPinpad] := '1';
 
-   fpACBrTEFAPI.UltimaRespostaTEF.Clear;
-   fpACBrTEFAPI.GravarLog( '*** IniciaFuncaoSiTefInterativo. Modalidade: '+IntToStr(Funcao)+
-                           ' Valor: '+ValorStr+
-                           ' Documento: '+DoctoStr+
-                           ' Data: '+DataStr+
-                           ' Hora: '+HoraStr+
-                           ' Operador: '+OperadorStr+
-                           ' ParamAdic: '+ParamAdicStr ) ;
+  // Exibe QRCode na tela ?
+  // https://dev.softwareexpress.com.br/docs/clisitef-interface-aplicacao/parametro-adicional-tratamento-de-qrcode
+  if (TACBrTEFAPI(fpACBrTEFAPI).ExibicaoQRCode = qrapiExibirAplicacao) then
+    if not ParamTemChave(ParamAdicFuncao, CPARAM_DevolveStringQRCode) then
+      ParamAdicFuncao.Values[CPARAM_DevolveStringQRCode] := '1';
 
-   fUltimoRetornoAPI := fTEFCliSiTefAPI.IniciaFuncaoSiTefInterativo(
-                          Funcao,
-                          PAnsiChar(ValorStr),
-                          PAnsiChar(DoctoStr),
-                          PAnsiChar(DataStr),
-                          PAnsiChar(HoraStr),
-                          PAnsiChar(OperadorStr),
-                          PAnsiChar(ParamAdicStr) ) ;
+  ParamAdicStr := StringReplace(Trim(ParamAdicFuncao.Text), sLineBreak, ';', [rfReplaceAll]);
+  fDocumentosFinalizados := '' ;
 
-   fIniciouRequisicao := True;
-   fCancelamento := False ;
-   fReimpressao := False;
-   fParamAdicFuncao.Clear;
+  fpACBrTEFAPI.UltimaRespostaTEF.Clear;
+  fUltimoRetornoAPI := fTEFCliSiTefAPI.IniciaFuncaoSiTefInterativo(
+                         Funcao,
+                         PAnsiChar(ValorStr),
+                         PAnsiChar(DoctoStr),
+                         PAnsiChar(DataStr),
+                         PAnsiChar(HoraStr),
+                         PAnsiChar(OperadorStr),
+                         PAnsiChar(ParamAdicStr) ) ;
+
+  fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.GravaInformacao(899, CTEF_RESP_DOCTO_VINCULADO, DoctoStr);
+  fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.GravaInformacao(899, CTEF_RESP_DATA_HORA, FormatDateTime('YYYYMMDDHHNNSS', DataHora ) );
+
+  fIniciouRequisicao := True;
+  fParamAdicFuncao.Clear;
+  fParamAdicFinalizacao.Clear;
 end;
 
 procedure TACBrTEFAPIClassCliSiTef.ContinuarRequisicaoSiTef;
+const
+  CBufferSize = 20480;
 var
-  Continua, ItemSelecionado, EsperaMensagem: Integer;
+  ContinuaNavegacao, EsperaMensagem: Integer;
   ProximoComando,TamanhoMinimo, TamanhoMaximo : SmallInt;
   TipoCampo: LongInt;
-  Buffer: array [0..20000] of AnsiChar;
-  Mensagem, TituloMenu: String ;
-  Resposta: String;
-  SL: TStringList ;
-  Interromper, Digitado, Voltar, Validado, EhCarteiraDigital: Boolean ;
-
+  pBuffer:PAnsiChar;
+  RespBuffer: AnsiString;
+  Mensagem, TituloMenu: String;
+  EhCarteiraDigital: Boolean ;
   DefinicaoCampo: TACBrTEFAPIDefinicaoCampo;
-  TefAPI: TACBrTEFAPI;
   RespCliSiTef: TACBrTEFRespCliSiTef;
 
-//  LRespostaTEFPendente: TACBrTEFResp;
-//  LDataHoraStr:string;
-
-  function AjustarMensagemTela(AMensagem : String): String;
+  function RespostaValidaParaContinuar(const AResp: String): Boolean;
+  var
+    s: String;
   begin
-    Result := StringReplace( ACBrStr(AMensagem), '@', sLineBreak, [rfReplaceAll] );
-    Result := StringReplace( Result, '/n', sLineBreak, [rfReplaceAll] );
+    s := Trim(AResp);
+    Result := (s <> '-1') and (s <> ':-1') and
+              (s <> '-2') and (s <> ':-2');
   end;
 
 begin
   fIniciouRequisicao := True ;
-  Interromper := False;
-  fCancelamento := False ;
-  fReimpressao := False;
   EhCarteiraDigital := False;
-  Continua := 0;
-  Resposta := '';
-  Buffer := '';
+  ContinuaNavegacao := CPARAM_CONT_CONTINUA;
+  RespBuffer := '';
   TituloMenu := '' ;
 
-  TefAPI := TACBrTEFAPI(fpACBrTEFAPI);
+  pBuffer :=  AllocMem(CBufferSize);
   RespCliSiTef := TACBrTEFRespCliSiTef(fpACBrTEFAPI.UltimaRespostaTEF);
   try
     repeat
-      fpACBrTEFAPI.GravarLog( 'ContinuaFuncaoSiTefInterativo, Chamando: Continua = '+
-                              IntToStr(Continua)+' Buffer = '+Resposta ) ;
-
       ProximoComando := 0;
       TipoCampo := 0;
       TamanhoMinimo := 0;
@@ -419,28 +531,17 @@ begin
                              TipoCampo,
                              TamanhoMinimo,
                              TamanhoMaximo,
-                             Buffer, sizeof(Buffer),
-                             Continua );
+                             pBuffer, CBufferSize,
+                             ContinuaNavegacao );
 
-      Continua := 0;
-      Resposta := '';
-      Mensagem := TrimRight(Buffer);
-      fpACBrTEFAPI.GravarLog( 'ContinuaFuncaoSiTefInterativo, '+
-                              ' Retornos: STS = '+IntToStr(fUltimoRetornoAPI)+
-                              ' ProximoComando = '+IntToStr(ProximoComando)+
-                              ' TipoCampo = '+IntToStr(TipoCampo)+
-                              ' Buffer = '+Mensagem +
-                              ' Tam.Min = '+IntToStr(TamanhoMinimo) +
-                              ' Tam.Max = '+IntToStr(TamanhoMaximo)) ;
+      ContinuaNavegacao := CPARAM_CONT_CONTINUA;
+      RespBuffer := '';
+      Mensagem := TrimRight(pBuffer);
 
-      Resposta := '';
-      Voltar := False;
-      Digitado := True;
-
-      if (fUltimoRetornoAPI = 10000) then
+      if (fUltimoRetornoAPI = CRET_ITERATIVO_CONTINUA) then
       begin
         if (TipoCampo > 0) then
-          Resposta := fRespostasPorTipo.ValueInfo[TipoCampo];
+          RespBuffer := fRespostasPorTipo.ValueInfo[TipoCampo];
 
         if (TipoCampo = 5005) then   // 5005 - Indica que a transação foi finalizada
           EsperaMensagem := CSITEF_ESPERA_MINIMA_MSG_FINALIZACAO
@@ -459,266 +560,157 @@ begin
                 RespCliSiTef.GravaInformacao(TipoCampo, 'True'); //Selecionou Credito;
               29:
                 RespCliSiTef.GravaInformacao(TipoCampo, 'True'); //Cartão Digitado;
-              56, 57, 58:
-                fReimpressao := True;
+              56, 57, 58:  // Reimpressao, NÃO deve confirmar
+                RespCliSiTef.Conteudo.GravaInformacao(899, CTEF_RESP_CONFIRMAR, 'False');
               107:
                 EhCarteiraDigital := True;
-              110:
-                fCancelamento:= True;
+              110:  // Cancelamento, precisa confirmar
+                RespCliSiTef.Conteudo.GravaInformacao(899, CTEF_RESP_CONFIRMAR, 'True');
             end;
           end;
 
           1:  // Mensagem para o visor do operador
-          begin
-            Mensagem := AjustarMensagemTela(Mensagem);
-            TefAPI.QuandoExibirMensagem(Mensagem, telaOperador, EsperaMensagem);
-          end;
+            DoExibirMensagem(Mensagem, telaOperador, EsperaMensagem);
 
           2:  // Mensagem para o visor do cliente
-          begin
-            Mensagem := AjustarMensagemTela(Mensagem);
-            TefAPI.QuandoExibirMensagem(Mensagem, telaCliente, EsperaMensagem);
-          end;
+            DoExibirMensagem(Mensagem, telaCliente, EsperaMensagem);
 
           3:  // Mensagem para os dois visores
           begin
-            Mensagem := AjustarMensagemTela(Mensagem);
-            TefAPI.QuandoExibirMensagem(Mensagem, telaTodas, EsperaMensagem);
+            DoExibirMensagem(Mensagem, telaTodas, EsperaMensagem);
+
             if EhCarteiraDigital then
-            begin
-              Interromper := False;
-              TefAPI.QuandoEsperarOperacao(opapiLeituraQRCode, Interromper);
-            end;
+              if not DoContinuarOperacao(opapiLeituraQRCode) then
+                ContinuaNavegacao := CPARAM_CONT_ENCERRA;
           end;
 
           4:  // Texto que deverá ser utilizado como título na apresentação do menu ( vide comando 21)
             TituloMenu := AjustarMensagemTela(Mensagem);
 
           11: // Deve remover a mensagem apresentada no visor do operador (comando 1)
-            TefAPI.QuandoExibirMensagem('', telaOperador, -1);
+            DoExibirMensagem('', telaOperador, -1);
 
           12: // Deve remover a mensagem apresentada no visor do cliente (comando 2)
-            TefAPI.QuandoExibirMensagem('', telaCliente, -1);
+            DoExibirMensagem('', telaCliente, -1);
 
-           13: // Deve remover mensagem apresentada no visor do operador e do cliente (comando 3)
-             TefAPI.QuandoExibirMensagem('', telaTodas, -1);
+          13: // Deve remover mensagem apresentada no visor do operador e do cliente (comando 3)
+            DoExibirMensagem('', telaTodas, -1);
 
-           14:  // Deve limpar o texto utilizado como título na apresentação do menu (comando 4)
-             TituloMenu := '';
+          14: // Deve limpar o texto utilizado como título na apresentação do menu (comando 4)
+            TituloMenu := '';
 
-           15,  // Cabeçalho a ser apresentado pela aplicação. Refere-se a exibição de informações adicionais que algumas transações necessitam mostrar na tela.
-           16:  // Deve remover o cabeçalho apresentado pelo comando 15
-              ; // TODO: ainda não implementado
+          15:  // Cabeçalho a ser apresentado pela aplicação. Refere-se a exibição de informações adicionais que algumas transações necessitam mostrar na tela.
+            DoExibirMensagem(Mensagem, telaCliente, -1);
 
-           20:  // Deve apresentar o texto em Buffer, e obter uma resposta do tipo SIM/NÃO.
-           begin
-             if Mensagem = '' then
-               Mensagem := 'CONFIRMA ?';
+          16:  // Deve remover o cabeçalho apresentado pelo comando 15
+            DoExibirMensagem('', telaCliente, -1);
 
-             SL := TStringList.Create;
-             try
-               SL.Add('SIM');
-               SL.Add(ACBrStr('NÃO'));
+          20:  // Deve apresentar o texto em pBuffer, e obter uma resposta do tipo SIM/NÃO.
+            RespBuffer := DoPerguntarSimNao(Mensagem);
 
-               ItemSelecionado := -1;
-               TefAPI.QuandoPerguntarMenu( Mensagem, SL, ItemSelecionado);
-               Resposta := IfThen(ItemSelecionado = 0, '0', '1');
-               // 5013 - Confirma Cancelamento. Se a resposta a mensagem for não, não deixar interromper voltar ao loop
-               if (TipoCampo = 5013) and (Resposta = '1') then
-                 Interromper := False;
-             finally
-               SL.Free;
-             end;
-           end ;
+          21:  // Deve apresentar um menu de opções e permitir que o usuário selecione uma delas
+            RespBuffer := DoPerguntarMenu(TituloMenu, Mensagem);
 
-           21:  // Deve apresentar um menu de opções e permitir que o usuário selecione uma delas
-           begin
-             SL := TStringList.Create;
-             try
-               SL.Text := StringReplace(Mensagem, ';', sLineBreak, [rfReplaceAll]);
-               ItemSelecionado := -1 ;
-               TefAPI.QuandoPerguntarMenu(TituloMenu, SL, ItemSelecionado);
+          22:  // Deve apresentar a mensagem em pBuffer, e aguardar uma tecla do operador.
+          begin
+            if (Mensagem = '') then
+              Mensagem := CACBrTEFCliSiTef_PressioneEnter;
 
-               if (ItemSelecionado = -1) then
-                 Interromper := True
-               else if (ItemSelecionado = -2) then
-                 Voltar := True
-               else
-               begin
-                 if (ItemSelecionado >= 0) and (ItemSelecionado < SL.Count) then
-                   Resposta := copy( SL[ItemSelecionado], 1, pos(':',SL[ItemSelecionado])-1 )
-                 else
-                   Digitado := False ;
-               end;
-             finally
-               SL.Free ;
-             end ;
-           end;
+             DoExibirMensagem(Mensagem, telaOperador, 0);
+          end;
 
-           22:  // Deve apresentar a mensagem em Buffer, e aguardar uma tecla do operador.
-           begin
-             if (Mensagem = '') then
-               Mensagem := CACBrTEFCliSiTef_PressioneEnter
-             else
-               Mensagem := AjustarMensagemTela(Mensagem);
+          23:  // Este comando indica que a rotina está perguntando para a aplicação se ele deseja interromper o processo de coleta de dados ou não
+          begin
+            if not DoContinuarOperacao(opapiPinPad) then
+              ContinuaNavegacao := CPARAM_CONT_ENCERRA;
+          end;
 
-             TefAPI.QuandoExibirMensagem(Mensagem, telaOperador, 0);
-           end;
+          29:  // deve ser coletado um campo que não requer intervenção do operador de caixa, ou seja, não precisa que seja digitado/mostrado na tela, e sim passado diretamente para a biblioteca pela automação
+            { Nada a Fazer, Resposta já foi atribuida por
+              Resposta := fRespostasPorTipo.ValueInfo[TipoCampo] };
 
-           23:  // Este comando indica que a rotina está perguntando para a aplicação se ele deseja interromper o processo de coleta de dados ou não
-           begin
-             Interromper := False;
-             TefAPI.QuandoEsperarOperacao(opapiPinPad, Interromper);
-           end;
+          30,  // Deve ser lido um campo cujo tamanho está entre TamMinimo e TamMaximo
+          31,  // Deve ser lido o número de um cheque. A coleta pode ser feita via leitura de CMC-7, digitação do CMC-7 ou pela digitação da primeira linha do cheque
+          34,  // Deve ser lido um campo monetário ou seja, aceita o delimitador de centavos e devolvido no parâmetro pBuffer
+          35,  // Deve ser lido um código em barras ou o mesmo deve ser coletado manualmente.
+          41:  // Análogo ao Comando 30, porém o campo deve ser coletado de forma mascarada
+          begin
+            if (RespBuffer = '') then
+            begin
+              DefinicaoCampo.OcultarDadosDigitados := False;
+              DefinicaoCampo.TipoCampo := TipoCampo;
+              DefinicaoCampo.TituloPergunta := ACBrStr(Mensagem);
+              DefinicaoCampo.TamanhoMaximo := TamanhoMaximo;
+              DefinicaoCampo.TamanhoMinimo := TamanhoMinimo;
+              DefinicaoCampo.MascaraDeCaptura := '';
+              DefinicaoCampo.TipoDeEntrada := tedTodos;
+              DefinicaoCampo.TipoEntradaCodigoBarras := tbQualquer;
 
-           29:  // deve ser coletado um campo que não requer intervenção do operador de caixa, ou seja, não precisa que seja digitado/mostrado na tela, e sim passado diretamente para a biblioteca pela automação
-             { Nada a Fazer, Resposta já foi atribuida por
-               Resposta := fRespostasPorTipo.ValueInfo[TipoCampo] };
+              if (ProximoComando <> 30) and (ProximoComando <> 41) then
+                DefinicaoCampo.TipoDeEntrada := tedNumerico;
 
-           30:  // Deve ser lido um campo cujo tamanho está entre TamMinimo e TamMaximo
-           begin
-             DefinicaoCampo.TipoCampo := TipoCampo;
-             DefinicaoCampo.TituloPergunta := ACBrStr(Mensagem);
-             DefinicaoCampo.TipoDeEntrada := tedTodos;
-             DefinicaoCampo.TamanhoMaximo := TamanhoMaximo;
-             DefinicaoCampo.TamanhoMinimo := TamanhoMinimo;
-             DefinicaoCampo.MascaraDeCaptura := EmptyStr;
+              if (ProximoComando = 34) then
+                DefinicaoCampo.MascaraDeCaptura := '@@@@@@@@@,@@';
 
-             Validado := True;
-             if Resposta = '' then
-               TefAPI.QuandoPerguntarCampo(DefinicaoCampo, Resposta, Validado, Interromper);
+              if (ProximoComando = 35) then
+                DefinicaoCampo.TipoEntradaCodigoBarras := tbLeitor;
 
-             if Resposta = '-1' then
-               Interromper := True
-             else if Resposta = '-2' then
-               Voltar := True
-             else
-               RespCliSiTef.GravaInformacao(TipoCampo, Resposta);
-           end;
+              if (ProximoComando = 41) then
+                DefinicaoCampo.OcultarDadosDigitados := True;
 
-           31:  // Deve ser lido o número de um cheque. A coleta pode ser feita via leitura de CMC-7, digitação do CMC-7 ou pela digitação da primeira linha do cheque
-           begin
-             DefinicaoCampo.TipoCampo := TipoCampo;
-             DefinicaoCampo.TituloPergunta := ACBrStr(Mensagem);
-             DefinicaoCampo.TipoDeEntrada := tedNumerico;
-             DefinicaoCampo.TipoEntradaCodigoBarras := tbQualquer;
-             DefinicaoCampo.TamanhoMaximo := TamanhoMaximo;
-             DefinicaoCampo.TamanhoMinimo := TamanhoMinimo;
+              RespBuffer := DoPerguntarCampo(DefinicaoCampo);
+            end;
 
-             Validado := True;
-             if Resposta = '' then
-               TefAPI.QuandoPerguntarCampo(DefinicaoCampo, Resposta, Validado, Interromper);
+            if RespostaValidaParaContinuar(RespBuffer) then
+            begin
+              if (ProximoComando = 34) then
+                RespBuffer := FormatFloatBr(StringToFloatDef(RespBuffer, 0));  // Garantindo que a Resposta é Float //
 
-             if Resposta = '-1' then
-               Interromper := True
-             else if Resposta = '-2' then
-               Voltar := True
-             else
-               RespCliSiTef.GravaInformacao(TipoCampo, Resposta);
-           end;
+              RespCliSiTef.GravaInformacao(TipoCampo, RespBuffer);
+            end;
+          end;
 
-           34:  // Deve ser lido um campo monetário ou seja, aceita o delimitador de centavos e devolvido no parâmetro Buffer
-           begin
-             DefinicaoCampo.TipoCampo := TipoCampo;
-             DefinicaoCampo.TituloPergunta := ACBrStr(Mensagem);
-             DefinicaoCampo.TipoDeEntrada := tedNumerico;
-             DefinicaoCampo.MascaraDeCaptura := '@@@@@@@@@,@@';
-             DefinicaoCampo.TipoEntradaCodigoBarras := tbQualquer;
-             DefinicaoCampo.TamanhoMaximo := TamanhoMaximo;
-             DefinicaoCampo.TamanhoMinimo := TamanhoMinimo;
+          50:  // Exibir QRCode
+            DoExibirQRCode(AjustarMensagemTela(Mensagem));
 
-             Validado := True;
-             if Resposta = '' then
-               TefAPI.QuandoPerguntarCampo(DefinicaoCampo, Resposta, Validado, Interromper);
+          51:  // Remover QRCode
+            DoExibirQRCode('');
 
-             if Resposta = '-1' then
-               Interromper := True
-             else if Resposta = '-2' then
-               Voltar := True
-             else
-             begin
-               Resposta := FormatFloatBr(StringToFloatDef(Resposta, 0));  // Garantindo que a Resposta é Float //
-               RespCliSiTef.GravaInformacao(TipoCampo, Resposta);
-             end;
-           end;
-
-           35:  // Deve ser lido um código em barras ou o mesmo deve ser coletado manualmente.
-           begin
-             DefinicaoCampo.TipoCampo := TipoCampo;
-             DefinicaoCampo.TituloPergunta := ACBrStr(Mensagem);
-             DefinicaoCampo.TipoDeEntrada := tedNumerico;
-             DefinicaoCampo.TipoEntradaCodigoBarras := tbLeitor;
-             DefinicaoCampo.TamanhoMaximo := TamanhoMaximo;
-             DefinicaoCampo.TamanhoMinimo := TamanhoMinimo;
-
-             Validado := True;
-             if Resposta = '' then
-               TefAPI.QuandoPerguntarCampo(DefinicaoCampo, Resposta, Validado, Interromper);
-
-             if Resposta = '-1' then
-               Interromper := True
-             else if Resposta = '-2' then
-               Voltar := True
-             else
-               RespCliSiTef.GravaInformacao(TipoCampo, Resposta);
-           end;
-
-           41:  // Análogo ao Comando 30, porém o campo deve ser coletado de forma mascarada
-           begin
-             DefinicaoCampo.TipoCampo := TipoCampo;
-             DefinicaoCampo.TituloPergunta := ACBrStr(Mensagem);
-             DefinicaoCampo.TipoDeEntrada := tedTodos;
-             DefinicaoCampo.TamanhoMaximo := TamanhoMaximo;
-             DefinicaoCampo.TamanhoMinimo := TamanhoMinimo;
-             DefinicaoCampo.OcultarDadosDigitados := True;
-
-             Validado := True;
-             if Resposta = '' then
-               TefAPI.QuandoPerguntarCampo(DefinicaoCampo, Resposta, Validado, Interromper);
-
-             if Resposta = '-1' then
-               Interromper := True
-             else if Resposta = '-2' then
-               Voltar := True
-             else
-               RespCliSiTef.GravaInformacao(TipoCampo, Resposta);
-           end;
-
-           50:  // Exibir QRCode
-             TefAPI.QuandoExibirQRCode(AjustarMensagemTela(Mensagem));
-
-           51:  // Remover QRCode
-             TefAPI.QuandoExibirQRCode('');
-
-           52:  // Mensagem de rodapé QRCode
-           begin
-             Interromper := False;
-             TefAPI.QuandoExibirMensagem(ACBrStr(Mensagem), telaCliente, -1);
-             TefAPI.QuandoEsperarOperacao(opapiLeituraQRCode, Interromper);
-           end;
+          52:  // Mensagem de rodapé QRCode
+          begin
+            DoExibirMensagem(Mensagem, telaCliente, -1);
+            if not DoContinuarOperacao(opapiLeituraQRCode) then
+              ContinuaNavegacao := CPARAM_CONT_ENCERRA;
+          end;
         end;
-      end;
 
-      if (fUltimoRetornoAPI <> 10000) then
-      begin
-        fpACBrTEFAPI.GravarLog( '*** ContinuaFuncaoSiTefInterativo, Finalizando: STS = '+
-                                IntToStr(fUltimoRetornoAPI) ) ;
-        Interromper := True;
-      end;
+        if (RespBuffer = '-1') or (RespBuffer = ':-1') then
+        begin
+          ContinuaNavegacao := CPARAM_CONT_ENCERRA;
+          RespBuffer := '';
+        end
+        else if (RespBuffer = '-2') or (RespBuffer = ':-2') then
+        begin
+          ContinuaNavegacao := CPARAM_CONT_RETORNA;
+          RespBuffer := '';
+        end
+        else if (RespBuffer <> '') then
+          ContinuaNavegacao := CPARAM_CONT_CONTINUA;
+      end
+      else
+        fpACBrTEFAPI.GravarLog( '*** Finalizando ContinuaFuncaoSiTefInterativo: STS = '+IntToStr(fUltimoRetornoAPI) ) ;
 
-      if Voltar then
-        Continua := 1     // Volta para o menu anterior
-      else if (not Digitado) or Interromper then
-        Continua := -1 ;  // Cancela operacao
+      //StrPCopy(pBuffer, RespBuffer);
+      RespBuffer := RespBuffer + #00;
+      Move( RespBuffer[1], pBuffer^, Length(RespBuffer)+1);
 
-      if Interromper or (not Digitado) or (Voltar and (fUltimoRetornoAPI = 10000)) then
-        TefAPI.QuandoExibirMensagem('', telaTodas, -1);
+    until (fUltimoRetornoAPI <> CRET_ITERATIVO_CONTINUA);
 
-      StrPCopy(Buffer, Resposta);
-      //Move(Resposta[1], Buffer[0], Length(Resposta));
-    until (fUltimoRetornoAPI <> 10000);
   finally
+    fRespostasPorTipo.Clear;
     fIniciouRequisicao := False;
+    Freemem(pBuffer);
+    DoExibirMensagem('', telaTodas, -1);
   end;
 end;
 
@@ -728,44 +720,28 @@ Var
   DataStr, HoraStr, DoctoStr, ParamAdic: AnsiString;
   Finalizacao: SmallInt;
 begin
-   fRespostasPorTipo.Clear;
-   fIniciouRequisicao := False;
+  if (DocumentoVinculado = '') then
+    DoctoStr := fpACBrTEFAPI.RespostasTEF.IdentificadorTransacao
+  else
+    DoctoStr := DocumentoVinculado;
 
-   // Re-Impressão não precisa de Finalização
-   if fReimpressao then
-     Exit;
-
-   // Já Finalizou este Documento por outra Transação ?
-   if (DocumentoVinculado <> '') then
-     DoctoStr := DocumentoVinculado
-   else
-     DoctoStr := fpACBrTEFAPI.RespostasTEF.IdentificadorTransacao;
-
-   if (not fFinalizarTransacaoIndividual) and (pos(DoctoStr, fDocumentosFinalizados) > 0) then
-     Exit;
-
-  fDocumentosFinalizados := fDocumentosFinalizados + DocumentoVinculado + '|' ;
   if (DataHora = 0) then
+    DataHora := fpACBrTEFAPI.RespostasTEF.DataHoraIdentificador;
+
+  if (not fFinalizarTransacaoIndividual) then
   begin
-    // Leu com sucesso o arquivo pendente. Transações com mais de três dias são finalizadas automaticamente pela SiTef
-    if (fpACBrTEFAPI.UltimaRespostaTEF.DataHoraTransacaoComprovante > (date - 3)) then
-      DataHora := fpACBrTEFAPI.UltimaRespostaTEF.DataHoraTransacaoComprovante
-    else
-      DataHora := Now;
+    // Já Finalizou este Documento por outra Transação ?
+    if (pos(DoctoStr, fDocumentosFinalizados) > 0) then
+      Exit;
+
+    fDocumentosFinalizados := fDocumentosFinalizados + DocumentoVinculado + '|' ;
   end;
 
   // acertar quebras de linhas e abertura e fechamento da lista de parametros
   ParamAdic := StringReplace(Trim(ParamAdicFinalizacao.Text), sLineBreak, '', [rfReplaceAll]);
   DataStr := FormatDateTime('YYYYMMDD', DataHora);
   HoraStr := FormatDateTime('HHNNSS', DataHora);
-  Finalizacao := ifthen(Confirma or fCancelamento, 1, 0);
-
-  fpACBrTEFAPI.GravarLog( '*** FinalizaTransacaoSiTefInterativo. Confirma: '+
-                          IfThen(Finalizacao = 1,'SIM','NAO')+
-                          ', Documento: ' +DoctoStr+
-                          ', Data: '      +DataStr+
-                          ', Hora: '      +HoraStr+
-                          ', ParametrosAdicionais: '+ParamAdic ) ;
+  Finalizacao := IfThen(Confirma, 1, 0);
 
   fTEFCliSiTefAPI.FinalizaFuncaoSiTefInterativo( Finalizacao,
                                                  PAnsiChar(DoctoStr),
@@ -780,7 +756,7 @@ var
 begin
   Erro := fTEFCliSiTefAPI.TraduzirErroTransacao(Ret);
   if (Erro <> '') then
-    fpACBrTEFAPI.DoException( ACBrStr(Erro) ) ;
+    fpACBrTEFAPI.DoException(ACBrStr(Erro));
 end;
 
 function TACBrTEFAPIClassCliSiTef.DadoPinPadToOperacao(
@@ -844,15 +820,184 @@ begin
   end;
 end;
 
+function TACBrTEFAPIClassCliSiTef.TokenFiservValido(const AString: String): Boolean;
+var
+  s: String;
+begin
+  // Ex: TokenRegistro=1234-4567-8901-2345
+  s := Trim(AString);
+  Result := (Length(s) = 19) and
+            StrIsNumber(copy(s, 1,4)) and
+            (s[05] = '-') and
+            StrIsNumber(copy(s, 6,4)) and
+            (s[10] = '-') and
+            StrIsNumber(copy(s,11,4)) and
+            (s[15] = '-') and
+            StrIsNumber(copy(s,16,4));
+end;
+
+function TACBrTEFAPIClassCliSiTef.ParamTemChave(AParam: TACBrTEFParametros;
+  const Chave: String): Boolean;
+begin
+  Result := (AParam.IndexOf(Chave) >= 0);
+end;
+
+procedure TACBrTEFAPIClassCliSiTef.QuandoGravarLogAPI(const ALogLine: String; var Tratado: Boolean);
+begin
+  fpACBrTEFAPI.GravarLog(ALogLine);
+  Tratado := True;
+end;
+
+function TACBrTEFAPIClassCliSiTef.AjustarMensagemTela(const AMsg: String): String;
+begin
+  Result := ACBrStr(AMsg);
+  Result := StringReplace(Result, '@', sLineBreak, [rfReplaceAll] );
+  Result := StringReplace(Result, '/n', sLineBreak, [rfReplaceAll] );
+end;
+
+function TACBrTEFAPIClassCliSiTef.AjustarMensagemPinPad(const MensagemDisplay: String): String;
+const
+  CPINPAD_COL = 16;
+  CPINPAD_LIN = 2;
+begin
+  Result := StringReplace(MensagemDisplay, '|', #10, [rfReplaceAll]);
+  Result := AjustaLinhas(Result, CPINPAD_COL, CPINPAD_LIN, True);
+  Result := StringReplace(Result, #10, '', [rfReplaceAll]);
+end;
+
+
+procedure TACBrTEFAPIClassCliSiTef.DoExibirMensagem(const AMsg: String;
+  Terminal: TACBrTEFAPITela; MilissegundosExibicao: Integer);
+var
+  s: String;
+begin
+  with TACBrTEFAPI(fpACBrTEFAPI) do
+  begin
+    if Assigned(QuandoExibirMensagem) then
+    begin
+      s := AjustarMensagemTela(AMsg);
+      QuandoExibirMensagem(s, Terminal, MilissegundosExibicao);
+    end;
+  end;
+end;
+
+function TACBrTEFAPIClassCliSiTef.DoContinuarOperacao(
+  OperacaoAPI: TACBrTEFAPIOperacaoAPI): Boolean;
+var
+  Cancelar: Boolean;
+begin
+  Result := True;
+  with TACBrTEFAPI(fpACBrTEFAPI) do
+  begin
+    Cancelar := False;
+    if Assigned(QuandoEsperarOperacao) then
+      QuandoEsperarOperacao(OperacaoAPI, Cancelar);
+  end;
+
+  Result := not Cancelar;
+end;
+
+function TACBrTEFAPIClassCliSiTef.DoPerguntarSimNao(const Titulo: String): String;
+var
+  s: String;
+  SL: TStringList;
+begin
+  Result := '1';   // 1-Cancela
+  with TACBrTEFAPI(fpACBrTEFAPI) do
+  begin
+    if not Assigned(QuandoPerguntarMenu) then
+      Exit;
+
+    s := Trim(Titulo);
+    if (s = '') then
+      s := 'CONFIRMA ?';
+
+    SL := TStringList.Create;
+    try
+      SL.Add('0:SIM');
+      SL.Add(ACBrStr('1:NÃO'));
+      Result := DoPerguntarMenu(s, SL);
+    finally
+      SL.Free;
+    end;
+  end;
+end;
+
+function TACBrTEFAPIClassCliSiTef.DoPerguntarMenu(const Titulo: String; Opcoes: TStringList): String;
+var
+  ItemSelecionado: Integer;
+begin
+  Result := '';
+  with TACBrTEFAPI(fpACBrTEFAPI) do
+  begin
+    if Assigned(QuandoPerguntarMenu) then
+    begin
+      ItemSelecionado := -1;
+      QuandoPerguntarMenu(ACBrStr(Titulo), Opcoes, ItemSelecionado);
+      if (ItemSelecionado >= 0) and (ItemSelecionado < Opcoes.Count) then
+        Result := copy( Opcoes[ItemSelecionado], 1, pos(':',Opcoes[ItemSelecionado]+':')-1 )
+      else if (ItemSelecionado = -1) then  // Cancelar
+        Result := ':-1'
+      else if (ItemSelecionado = -2) then  // Voltar
+        Result := ':-2';
+    end;
+  end;
+end;
+
+function TACBrTEFAPIClassCliSiTef.DoPerguntarMenu(const Titulo: String; const Opcoes: String): String;
+var
+  SL: TStringList;
+begin
+  SL := TStringList.Create;
+  try
+    SL.Text := StringReplace(Opcoes, ';', sLineBreak, [rfReplaceAll]);
+    Result := DoPerguntarMenu(Titulo, SL);
+  finally
+    SL.Free ;
+  end ;
+end;
+
+function TACBrTEFAPIClassCliSiTef.DoPerguntarCampo(DefinicaoCampo: TACBrTEFAPIDefinicaoCampo): String;
+var
+  Resposta: String;
+  Validado, Cancelado: Boolean;
+begin
+  Resposta := '';
+  with TACBrTEFAPI(fpACBrTEFAPI) do
+  begin
+    if Assigned(QuandoPerguntarCampo) then
+    begin
+      Validado := True;
+      Cancelado := False;
+      QuandoPerguntarCampo(DefinicaoCampo, Resposta, Validado, Cancelado);
+
+      if Cancelado then
+        Resposta := ':-1';
+    end;
+  end;
+
+  Result := Resposta;
+end;
+
+procedure TACBrTEFAPIClassCliSiTef.DoExibirQRCode(const DadosQRCode: String);
+begin
+  with TACBrTEFAPI(fpACBrTEFAPI) do
+  begin
+    if Assigned(QuandoExibirQRCode) then
+      QuandoExibirQRCode(DadosQRCode);
+  end;
+end;
+
 procedure TACBrTEFAPIClassCliSiTef.InterpretarRespostaAPI;
 begin
+  fpACBrTEFAPI.GravarLog( 'TACBrTEFAPIClassCliSiTef.InterpretarRespostaAPI');
+  //D Verificar segurança de log abaixo
   fpACBrTEFAPI.GravarLog( fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.Conteudo.Text );
   fpACBrTEFAPI.UltimaRespostaTEF.ViaClienteReduzida := fpACBrTEFAPI.DadosAutomacao.ImprimeViaClienteReduzida;
-  fpACBrTEFAPI.UltimaRespostaTEF.Sucesso := (fUltimoRetornoAPI = 0);
-
+  fpACBrTEFAPI.UltimaRespostaTEF.Sucesso := (fUltimoRetornoAPI = CRET_SUCESSO);
 
   fpACBrTEFAPI.UltimaRespostaTEF.ConteudoToProperty;
-  if (fUltimoRetornoAPI <> 0) then
+  if (fUltimoRetornoAPI <> CRET_SUCESSO) then
     fpACBrTEFAPI.UltimaRespostaTEF.TextoEspecialOperador := ACBrStr(fTEFCliSiTefAPI.TraduzirErroTransacao(fUltimoRetornoAPI));
 end;
 
@@ -897,13 +1042,15 @@ begin
       RespTEFPendente :=  TACBrTEFRespCliSiTef.Create;
       InfValor := TACBrInformacao.Create;
       try
-        RespTEFPendente.Conteudo.GravaInformacao(899,100,'CRT');
-        RespTEFPendente.Conteudo.GravaInformacao(899,102, CupomFiscal);
-        RespTEFPendente.Conteudo.GravaInformacao(899,500, NumIdent);
-        RespTEFPendente.Conteudo.GravaInformacao(105,000, DataFiscal + HoraFiscal);
+        RespTEFPendente.Conteudo.GravaInformacao(899, CTEF_RESP_HEADER,'CRT');
+        RespTEFPendente.Conteudo.GravaInformacao(899, CTEF_RESP_DOCTO_VINCULADO, CupomFiscal);
+        RespTEFPendente.Conteudo.GravaInformacao(899, CTEF_RESP_ID_PAGAMENTO, NumIdent);
+        RespTEFPendente.Conteudo.GravaInformacao(899, CTEF_RESP_DATA_HORA, DataFiscal + HoraFiscal);
+        RespTEFPendente.Conteudo.GravaInformacao(899, CTEF_RESP_CONFIRMAR, 'True');
+        RespTEFPendente.Conteudo.GravaInformacao(105, 000, DataFiscal + HoraFiscal);
         InfValor.AsFloat := ValorTransacao;
-        RespTEFPendente.Conteudo.GravaInformacao(899,103, InfValor);
-        RespTEFPendente.Conteudo.GravaInformacao(899,110, IntToStr(CSITEF_OP_ConsultarTrasPendente));
+        RespTEFPendente.Conteudo.GravaInformacao(899, CTEF_RESP_VALOR_TRANSACAO, InfValor);
+        RespTEFPendente.Conteudo.GravaInformacao(899, CTEF_RESP_FUNCAO, IntToStr(CSITEF_OP_ConsultarTrasPendente));
 
         RespTEFPendente.Finalizacao := CupomFiscal;
         RespTEFPendente.DocumentoVinculado := CupomFiscal;
@@ -930,7 +1077,7 @@ var
 begin
   case OperacaoAdm of
     tefopPagamento:
-      Op := CSITEF_OP_Venda;
+      Op := CSITEF_OP_Pagamento;
     tefopAdministrativo:
       Op := CSITEF_OP_Administrativo;
     tefopTesteComunicacao, tefopVersao:
@@ -973,7 +1120,7 @@ function TACBrTEFAPIClassCliSiTef.EfetuarPagamento(ValorPagto: Currency;
   Financiamento: TACBrTEFModalidadeFinanciamento; Parcelas: Byte;
   DataPreDatado: TDateTime; DadosAdicionais: String): Boolean;
 var
-  Op, i: Integer;
+  Op, i, L: Integer;
   SL: TStringList;
   Restr, Restricoes: String;
 begin
@@ -984,70 +1131,109 @@ begin
   Op := fOperacaoVenda;
   case Modalidade of
     tefmpDinheiro:
-      Op := 0;    // Pagamento genérico
+      Op := CSITEF_OP_Pagamento;
     tefmpCheque:
-      Op := 1;    // Cheque
+      Op := CSITEF_OP_Cheque;
     tefmpCarteiraVirtual:
-      Op := 122;  // Venda via Carteira Digital
+      Op := CSITEF_OP_Carteira_Digitais_PIX;  // Venda via Carteira Digital
   else
-    if (teftcCredito in CartoesAceitos) and (teftcDebito in CartoesAceitos) then
-      Op := 0   // Pagamento genérico.
+    if (CartoesAceitos = []) then
+      Op := CSITEF_OP_Pagamento
+    else if (teftcCredito in CartoesAceitos) and (teftcDebito in CartoesAceitos) then
+      Op := CSITEF_OP_Pagamento
     else if (teftcDebito in CartoesAceitos) then
-      Op := 2   // Débito
+      Op := CSITEF_OP_Debito
     else if (teftcCredito in CartoesAceitos) then
-      Op := 3   // Crédito
+      Op := CSITEF_OP_Credito
     else if (teftcVoucher in CartoesAceitos) then
-      Op := 5   // Cartão Benefício
+      Op := CSITEF_OP_Cartao_Beneficio
     else if (teftcFrota in CartoesAceitos) then
-      Op := 7   // Cartão Combustível
+      Op := CSITEF_OP_Cartao_Combustivel
     else if (teftcPrivateLabel in CartoesAceitos) then
-      Op := 15  // Venda com cartão Gift
+      Op := CSITEF_OP_Cartao_Gift
     else
-      Op := 0;  // Pagamento genérico.
+      Op := CSITEF_OP_Pagamento;
   end;
 
-  if (TACBrTEFAPI(fpACBrTEFAPI).ExibicaoQRCode = qrapiExibirAplicacao) then
+  Restricoes := '';
+  if Trim(DadosAdicionais) <> '' then
+    Restricoes := Restricoes + ';' + Trim(DadosAdicionais);
+
+  if Trim(fParamAdicFuncao.Text) <> '' then
+    Restricoes := Restricoes + ';' + Trim(fParamAdicFuncao.Text);
+
+  // removendo '[', ']', ';' do inicial e final e
+  while (Length(Restricoes) > 0) and CharInSet(Restricoes[1], ['[',';']) do
+    Delete(Restricoes, 1, 1);
+
+  L := Length(Restricoes);
+  while (L > 0) and CharInSet(Restricoes[L], [']',';']) do
   begin
-    if (pos('DevolveStringQRCode', fParamAdicConfig.Text) = 0) then
-      fParamAdicConfig.Add('{DevolveStringQRCode=1}');
+    Delete(Restricoes, L, 1);
+    L := Length(Restricoes);
   end;
 
-  Restricoes := DadosAdicionais;
-  if (pos('[', fParamAdicFuncao.Text) = 0) then   // Não especificou Restrições de Menu ?
+  if (Restricoes = '') then
   begin
-    if (Op <> 0) and (OP <> 1) then       // Débito
-      Restricoes := Restricoes + CSITEF_RestricoesCueque + ';';
+    // Aplicando Restriçoes conhecidas internamente
+    if (Op <> CSITEF_OP_Pagamento) and (Op <> CSITEF_OP_Cheque) then
+      Restricoes := Restricoes + CSITEF_RestricoesCheque + ';';
 
-    if (Op = 2) then       // Débito
-      Restricoes := Restricoes + CSITEF_RestricoesCredito + ';'
-    else if (Op = 3) then  // Crédito
-      Restricoes := Restricoes + CSITEF_RestricoesDebito + ';';
+    if (Op = CSITEF_OP_Debito) then
+      Restricoes := Restricoes + CSITEF_RestricoesConsultaDebito + ';'
+    else if (Op = CSITEF_OP_Credito) then
+      Restricoes := Restricoes + CSITEF_RestricoesConsultaCredito + ';';
 
     if (Financiamento = tefmfAVista) then
     begin
       Restricoes := Restricoes + CSITEF_RestricoesParcelado + ';';
+      Restricoes := Restricoes + CSITEF_RestricoesPreDatado + ';';
       Restricoes := Restricoes + CSITEF_RestricoesParcelaAministradora + ';';
       Restricoes := Restricoes + CSITEF_RestricoesParcelaEstabelecimento + ';';
+      if (Op = CSITEF_OP_Pagamento) then  // 0-Generico
+      begin
+        Restricoes := Restricoes + CSITEF_RestricoesConsultaDebito + ';';
+        Restricoes := Restricoes + CSITEF_RestricoesConsultaCredito + ';';
+      end;
     end
     else if (Financiamento = tefmfParceladoEmissor) then
     begin
       Restricoes := Restricoes + CSITEF_RestricoesAVista + ';';
+      Restricoes := Restricoes + CSITEF_RestricoesPreDatado + ';';
       Restricoes := Restricoes + CSITEF_RestricoesParcelaEstabelecimento + ';';
     end
     else if (Financiamento = tefmfParceladoEstabelecimento) then
     begin
       Restricoes := Restricoes + CSITEF_RestricoesAVista + ';';
+      Restricoes := Restricoes + CSITEF_RestricoesPreDatado + ';';
       Restricoes := Restricoes + CSITEF_RestricoesParcelaAministradora + ';';
+    end
+    else if (Financiamento = tefmfPredatado) then
+    begin
+      Restricoes := Restricoes + CSITEF_RestricoesAVista + ';';
+      Restricoes := Restricoes + CSITEF_RestricoesParcelaAministradora + ';';
+      Restricoes := Restricoes + CSITEF_RestricoesParcelaEstabelecimento + ';';
     end;
+  end;
 
+  if (Restricoes <> '') then
+  begin
+    // Removendo Itens repetidos e ordenando as restrições
     SL := TStringList.Create;
     try
       SL.Text := StringReplace(Restricoes, ';', sLineBreak, [rfReplaceAll]);
+      for i := 0 to SL.Count-1 do
+        SL[i] := FormatFloat('00000', StrToIntDef(SL[i], 0));
 
-      // Removendo Itens repetidos
       i := 0;
       Restr := '';
       SL.Sort;
+
+      // Apagando restrições inválidas
+      while (SL.Count > 0) and (SL[0] = '00000') do
+        SL.Delete(0);
+
+      // Removendo Itens repetidos
       while (i < SL.Count) do
       begin
         Restr := SL[i];
@@ -1056,55 +1242,58 @@ begin
           SL.Delete(i);
       end;
 
-      // Convertendo para formato de parâmetro, conforme esperado
+      // Convertendo para formato de parâmetro, em String separada por ;
       if (SL.Count > 0) then
       begin
-        Restricoes := StringReplace(Trim(SL.Text), sLineBreak, ';', [rfReplaceAll]);
-        if Restricoes <> '' then
-          Restricoes := '['+Restricoes+']';
+        for i := 0 to SL.Count-1 do
+          SL[i] := IntToStr(StrToIntDef(SL[i], 0));
 
-        if fParamAdicConfig.Count > 0 then
-           Restricoes := Restricoes + ';'+ Trim(fParamAdicConfig.Text);
-
+        Restricoes := Trim(StringReplace(Trim(SL.Text), sLineBreak, ';', [rfReplaceAll]));
         if (Restricoes <> '') then
-          fParamAdicFuncao.Add( Restricoes );
+        begin
+          Restricoes := '['+Restricoes+']';
+          fParamAdicFuncao.Text := Restricoes;
+        end;
       end;
     finally
       SL.Free;
     end;
   end;
 
-
+  // Injetando resposta de Parcelas
   if (Parcelas <> 0) then
     fRespostasPorTipo.ValueInfo[505] := IntToStr(Parcelas);
 
+  // Injetando resposta de Pré datado
   if (DataPreDatado <> 0) then
     fRespostasPorTipo.ValueInfo[506] := FormatDateTime('DDMMYYYY', DataPreDatado);
 
-  Result := ExecutarTransacaoSiTef(op, ValorPagto);
+  Result := ExecutarTransacaoSiTef(Op, ValorPagto);
 end;
 
 procedure TACBrTEFAPIClassCliSiTef.FinalizarTransacao(const Rede, NSU,
   CodigoFinalizacao: String; AStatus: TACBrTEFStatusTransacao);
 var
-  Confirma: Boolean;
+  Confirma, Finalizar: Boolean;
   i, p: Integer;
   DocumentoVinculado: String;
   DataHora: TDateTime;
 begin
-  // CliSiTEF não usa Rede, NSU e Finalizacao
   DocumentoVinculado := '';
   DataHora := 0;
   p := -1;
+  Finalizar := True;
   Confirma := (AStatus in [tefstsSucessoAutomatico, tefstsSucessoManual]);
-  if (NSU = '') and (CodigoFinalizacao <> '') then  // capturado por 130 em CarregarRespostasPendentes ?
+
+  if (NSU = '') and (CodigoFinalizacao <> '') then  // capturado por "CSITEF_OP_ConsultarTrasPendente" em CarregarRespostasPendentes ?
   begin
     DocumentoVinculado := CodigoFinalizacao;
     for i := 0 to fpACBrTEFAPI.RespostasTEF.Count-1 do
     begin
       if fpACBrTEFAPI.RespostasTEF[i].DocumentoVinculado = DocumentoVinculado then
       begin
-        DataHora := fpACBrTEFAPI.RespostasTEF[i].DataHoraTransacaoComprovante;
+        DataHora := fpACBrTEFAPI.RespostasTEF[i].LeInformacao(899, CTEF_RESP_DATA_HORA).AsTimeStampSQL;
+        Finalizar := (fpACBrTEFAPI.RespostasTEF[i].LeInformacao(899, CTEF_RESP_CONFIRMAR).AsString = 'True');
         Break;
       end;
     end;
@@ -1115,17 +1304,21 @@ begin
     if (i >= 0) then
     begin
       DocumentoVinculado := fpACBrTEFAPI.RespostasTEF[i].DocumentoVinculado;
-      DataHora := fpACBrTEFAPI.RespostasTEF[i].DataHoraTransacaoComprovante;
+      DataHora := fpACBrTEFAPI.RespostasTEF[i].LeInformacao(899, CTEF_RESP_DATA_HORA).AsTimeStampSQL;
+      Finalizar := (fpACBrTEFAPI.RespostasTEF[i].LeInformacao(899, CTEF_RESP_CONFIRMAR).AsString = 'True');
 
       if fFinalizarTransacaoIndividual then
         p := ParamAdicFinalizacao.Add('{NumeroPagamentoCupom='+IntToStr(fpACBrTEFAPI.RespostasTEF[i].IdPagamento)+'}');
     end;
   end;
 
-  FinalizarTransacaoSiTef(Confirma, DocumentoVinculado, DataHora);
-  
+  if Finalizar then
+    FinalizarTransacaoSiTef(Confirma, DocumentoVinculado, DataHora);
+
   if (p >= 0) then
     ParamAdicFinalizacao.Delete(p);
+
+  fIniciouRequisicao := False;
 end;
 
 procedure TACBrTEFAPIClassCliSiTef.ResolverTransacaoPendente(
@@ -1144,7 +1337,7 @@ begin
   else
     AMsg := CACBrTEFCliSiTef_TransacaoNaoEfetuada;
 
-  TACBrTEFAPI(fpACBrTEFAPI).QuandoExibirMensagem(ACBrStr(AMsg), telaOperador, 0);
+  DoExibirMensagem(AMsg, telaOperador, 0);
 end;
 
 function TACBrTEFAPIClassCliSiTef.VerificarPresencaPinPad: Byte;
@@ -1163,7 +1356,7 @@ end;
 
 procedure TACBrTEFAPIClassCliSiTef.AbortarTransacaoEmAndamento;
 begin
-  fUltimoRetornoAPI := -10000;
+  fUltimoRetornoAPI := CRET_ITERATIVO_CONTINUA * -1;
 end;
 
 function TACBrTEFAPIClassCliSiTef.CancelarTransacao(const NSU,
@@ -1171,6 +1364,7 @@ function TACBrTEFAPIClassCliSiTef.CancelarTransacao(const NSU,
   Valor: Double; const CodigoFinalizacao: string; const Rede: string): Boolean;
 var
    ValorStr: String;
+   Op: Integer;
 begin
   ValorStr := FormatFloat('0.00',Valor);
   fRespostasPorTipo.ValueInfo[146] := ValorStr;
@@ -1178,12 +1372,24 @@ begin
   fRespostasPorTipo.ValueInfo[515] := FormatDateTime('DDMMYYYY',DataHoraTransacao) ;
   fRespostasPorTipo.ValueInfo[516] := NSU ;
 
-  Result := ExecutarTransacaoSiTef(fOperacaoCancelamento, Valor);
+  Op := fOperacaoCancelamento;
+  if (CodigoFinalizacao <> '') then
+  begin
+    case StrToIntDef(Copy(CodigoFinalizacao, 1, 2), 0) of
+      01: Op := CSITEF_OP_Cancelamento_Debito;
+      02: Op := CSITEF_OP_Cancelamento_Credito;
+    end;
+  end;
+
+  Result := ExecutarTransacaoSiTef(Op, Valor);
 end;
 
 procedure TACBrTEFAPIClassCliSiTef.ExibirMensagemPinPad(const MsgPinPad: String);
+var
+  s: AnsiString;
 begin
-  InterpretarRetornoCliSiTef( fTEFCliSiTefAPI.DefineMensagemPermanentePinPad(MsgPinPad) );
+  s := AjustarMensagemPinPad(MsgPinPad);
+  fTEFCliSiTefAPI.EscreveMensagemPinPad(s);
 end;
 
 function TACBrTEFAPIClassCliSiTef.ObterDadoPinPad(
@@ -1193,6 +1399,7 @@ Var
   DadoPortador: String;
   Ok: Boolean;
 begin
+  Result := '';
   DadoPortador := DadoPinPadToOperacao(TipoDado);
   if (DadoPortador = '') then
   begin
@@ -1214,10 +1421,12 @@ begin
   fRespostasPorTipo.ValueInfo[2969] := IntToStr(MaxLen);
   fRespostasPorTipo.ValueInfo[2970] := IntToStr(TimeOut);
 
+  //https://dev.softwareexpress.com.br/docs/clisitef-leitura-de-campo-aberto-no-pinpad/api_prototipo_das_funcoes
   Ok := ExecutarTransacaoSiTef(CSITEF_OP_DadosPinPadAberto, 0);
   if Ok then
     Result := fpACBrTEFAPI.UltimaRespostaTEF.LeInformacao(2971,0).AsString;
 end;
 
 end.
+
 

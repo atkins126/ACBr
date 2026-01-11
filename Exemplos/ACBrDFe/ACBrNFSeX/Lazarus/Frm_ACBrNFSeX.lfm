@@ -1,111 +1,96 @@
 object frmACBrNFSe: TfrmACBrNFSe
-  Left = 343
-  Height = 601
-  Top = 83
+  Left = 282
+  Height = 643
+  Top = 118
   Width = 866
   Caption = 'ACBrNFSeX - Programa Exemplo - Versão Lazarus'
-  ClientHeight = 601
+  ClientHeight = 643
   ClientWidth = 866
   Color = clBtnFace
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
-  OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '2.0.12.0'
+  LCLVersion = '4.2.0.0'
+  OnCreate = FormCreate
   object pnlMenus: TPanel
     Left = 0
-    Height = 601
+    Height = 643
     Top = 0
     Width = 297
     Align = alLeft
-    ClientHeight = 601
+    ClientHeight = 643
     ClientWidth = 297
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    ParentFont = False
+    ParentBackground = False
     TabOrder = 0
     object lblColaborador: TLabel
       Cursor = crHandPoint
-      Left = 16
+      Left = 18
       Height = 13
-      Top = 538
+      Top = 540
       Width = 261
       Caption = 'Veja a lista de Colaboradores do Projeto ACBr'
       Font.Color = clNavy
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
-      ParentColor = False
       ParentFont = False
       OnClick = lblColaboradorClick
     end
     object lblPatrocinador: TLabel
       Cursor = crHandPoint
-      Left = 14
+      Left = 16
       Height = 13
-      Top = 553
+      Top = 555
       Width = 265
       Caption = 'Veja a lista de Patrocinadores do Projeto ACBr'
       Font.Color = clGreen
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
-      ParentColor = False
       ParentFont = False
       OnClick = lblPatrocinadorClick
     end
     object lblDoar1: TLabel
       Cursor = crHandPoint
-      Left = 19
+      Left = 21
       Height = 13
-      Top = 568
+      Top = 570
       Width = 255
       Caption = 'Para se tornar Patrocinador do Projeto ACBr,'
       Font.Color = clRed
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
-      ParentColor = False
       ParentFont = False
       OnClick = lblDoar1Click
     end
     object lblDoar2: TLabel
       Cursor = crHandPoint
-      Left = 115
+      Left = 117
       Height = 13
-      Top = 581
+      Top = 583
       Width = 63
       Caption = 'clique aqui'
       Font.Color = clRed
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
-      ParentColor = False
       ParentFont = False
       OnClick = lblDoar2Click
     end
     object PageControl1: TPageControl
-      Left = 0
+      Left = 1
       Height = 504
-      Top = 0
+      Top = 1
       Width = 295
-      ActivePage = TabSheet1
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      ParentFont = False
-      TabIndex = 0
+      ActivePage = TabSheet14
+      TabIndex = 2
       TabOrder = 0
       object TabSheet1: TTabSheet
         Caption = 'Configurações'
         ClientHeight = 478
         ClientWidth = 287
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        ParentFont = False
         object PageControl4: TPageControl
           Left = 0
           Height = 478
@@ -113,22 +98,14 @@ object frmACBrNFSe: TfrmACBrNFSe
           Width = 287
           ActivePage = TabSheet12
           Align = alClient
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
           MultiLine = True
-          ParentFont = False
+          Options = [nboMultiLine]
           TabIndex = 3
           TabOrder = 0
-          Options = [nboMultiLine]
           object TabSheet3: TTabSheet
             Caption = 'Certificado'
             ClientHeight = 434
             ClientWidth = 279
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            ParentFont = False
             object lSSLLib: TLabel
               Left = 39
               Height = 13
@@ -137,12 +114,7 @@ object frmACBrNFSe: TfrmACBrNFSe
               Alignment = taRightJustify
               Caption = 'SSLLib'
               Color = clBtnFace
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
               ParentColor = False
-              ParentFont = False
-              Transparent = False
             end
             object lCryptLib: TLabel
               Left = 29
@@ -152,12 +124,7 @@ object frmACBrNFSe: TfrmACBrNFSe
               Alignment = taRightJustify
               Caption = 'CryptLib'
               Color = clBtnFace
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
               ParentColor = False
-              ParentFont = False
-              Transparent = False
             end
             object lHttpLib: TLabel
               Left = 35
@@ -167,12 +134,7 @@ object frmACBrNFSe: TfrmACBrNFSe
               Alignment = taRightJustify
               Caption = 'HttpLib'
               Color = clBtnFace
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
               ParentColor = False
-              ParentFont = False
-              Transparent = False
             end
             object lXmlSign: TLabel
               Left = 17
@@ -182,58 +144,37 @@ object frmACBrNFSe: TfrmACBrNFSe
               Alignment = taRightJustify
               Caption = 'XMLSignLib'
               Color = clBtnFace
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
               ParentColor = False
-              ParentFont = False
-              Transparent = False
             end
             object gbCertificado: TGroupBox
-              Left = 2
-              Height = 144
-              Top = 118
+              Left = 3
+              Height = 246
+              Top = 116
               Width = 263
               Caption = 'Certificado'
-              ClientHeight = 126
+              ClientHeight = 228
               ClientWidth = 259
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
+              ParentBackground = False
               TabOrder = 4
               object Label1: TLabel
-                Left = 6
+                Left = 8
                 Height = 13
-                Top = 2
+                Top = 1
                 Width = 41
                 Caption = 'Caminho'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object Label2: TLabel
-                Left = 6
+                Left = 8
                 Height = 13
-                Top = 42
+                Top = 41
                 Width = 30
                 Caption = 'Senha'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object sbtnCaminhoCert: TSpeedButton
-                Left = 233
+                Left = 235
                 Height = 24
-                Top = 18
+                Top = 17
                 Width = 23
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
                 Glyph.Data = {
                   76010000424D7601000000000000760000002800000020000000100000000100
                   04000000000000010000130B0000130B00001000000000000000000000000000
@@ -250,28 +191,19 @@ object frmACBrNFSe: TfrmACBrNFSe
                 }
                 NumGlyphs = 2
                 OnClick = sbtnCaminhoCertClick
-                ParentFont = False
               end
               object Label25: TLabel
-                Left = 6
+                Left = 8
                 Height = 13
-                Top = 82
+                Top = 81
                 Width = 79
                 Caption = 'Número de Série'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object sbtnGetCert: TSpeedButton
-                Left = 233
+                Left = 235
                 Height = 24
-                Top = 96
+                Top = 95
                 Width = 23
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
                 Glyph.Data = {
                   76010000424D7601000000000000760000002800000020000000100000000100
                   04000000000000010000130B0000130B00001000000000000000000000000000
@@ -288,16 +220,12 @@ object frmACBrNFSe: TfrmACBrNFSe
                 }
                 NumGlyphs = 2
                 OnClick = sbtnGetCertClick
-                ParentFont = False
               end
               object sbtnNumSerie: TSpeedButton
-                Left = 204
+                Left = 206
                 Height = 24
-                Top = 96
+                Top = 95
                 Width = 23
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
                 Glyph.Data = {
                   76010000424D7601000000000000760000002800000020000000100000000100
                   04000000000000010000130B0000130B00001000000000000000000000000000
@@ -314,275 +242,146 @@ object frmACBrNFSe: TfrmACBrNFSe
                 }
                 NumGlyphs = 2
                 OnClick = sbtnNumSerieClick
-                ParentFont = False
               end
               object edtCaminho: TEdit
-                Left = 6
+                Left = 8
                 Height = 21
-                Top = 18
+                Top = 17
                 Width = 225
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 0
               end
               object edtSenha: TEdit
-                Left = 6
+                Left = 8
                 Height = 21
-                Top = 58
+                Top = 57
                 Width = 249
                 EchoMode = emPassword
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 PasswordChar = '*'
                 TabOrder = 1
               end
               object edtNumSerie: TEdit
-                Left = 6
+                Left = 8
                 Height = 21
-                Top = 98
+                Top = 97
                 Width = 193
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 2
               end
-            end
-            object btnDataValidade: TButton
-              Left = 8
-              Height = 25
-              Top = 266
-              Width = 99
-              Caption = 'Data de Validade'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnDataValidadeClick
-              ParentFont = False
-              TabOrder = 5
-            end
-            object btnNumSerie: TButton
-              Left = 112
-              Height = 25
-              Top = 266
-              Width = 73
-              Caption = 'Num.Série'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnNumSerieClick
-              ParentFont = False
-              TabOrder = 6
-            end
-            object btnSubName: TButton
-              Left = 8
-              Height = 25
-              Top = 298
-              Width = 99
-              Caption = 'Subject Name'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnSubNameClick
-              ParentFont = False
-              TabOrder = 7
-            end
-            object btnCNPJ: TButton
-              Left = 112
-              Height = 25
-              Top = 298
-              Width = 73
-              Caption = 'CNPJ'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnCNPJClick
-              ParentFont = False
-              TabOrder = 8
-            end
-            object btnIssuerName: TButton
-              Left = 188
-              Height = 25
-              Top = 298
-              Width = 76
-              Caption = 'Issuer Name'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnIssuerNameClick
-              ParentFont = False
-              TabOrder = 9
-            end
-            object grpCalculo: TGroupBox
-              Left = 2
-              Height = 69
-              Top = 328
-              Width = 263
-              Caption = 'Calculo de Hash e assinatura'
-              ClientHeight = 51
-              ClientWidth = 259
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
-              TabOrder = 10
-              object edtTexto: TEdit
-                Left = 1
-                Height = 21
-                Top = 0
-                Width = 249
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
-                TabOrder = 0
-                Text = '0548133600013704583493000190'
-              end
-              object btnSha256: TButton
-                Left = 6
+              object btnDataValidade: TButton
+                Left = 8
                 Height = 25
-                Top = 27
-                Width = 99
-                Caption = 'SHA256+RSA'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                OnClick = btnSha256Click
-                ParentFont = False
-                TabOrder = 1
+                Top = 133
+                Width = 118
+                Caption = 'Data de Validade'
+                TabOrder = 3
+                OnClick = btnDataValidadeClick
               end
-              object cbAssinar: TCheckBox
-                Left = 142
-                Height = 19
-                Top = 27
-                Width = 55
-                Caption = 'Assinar'
-                Checked = True
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
-                State = cbChecked
-                TabOrder = 2
+              object btnNumSerie: TButton
+                Left = 130
+                Height = 25
+                Top = 133
+                Width = 124
+                Caption = 'Numero de Série'
+                TabOrder = 4
+                OnClick = btnNumSerieClick
               end
-            end
-            object btnHTTPS: TButton
-              Left = 8
-              Height = 25
-              Top = 403
-              Width = 128
-              Caption = 'HTTPS sem Certificado'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnHTTPSClick
-              ParentFont = False
-              TabOrder = 11
-            end
-            object btnLeituraX509: TButton
-              Left = 144
-              Height = 25
-              Top = 403
-              Width = 115
-              Caption = 'Leitura de X509'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnLeituraX509Click
-              ParentFont = False
-              TabOrder = 12
+              object btnSubName: TButton
+                Left = 8
+                Height = 25
+                Top = 165
+                Width = 118
+                Caption = 'Subject Name'
+                TabOrder = 5
+                OnClick = btnSubNameClick
+              end
+              object btnIssuerName: TButton
+                Left = 130
+                Height = 25
+                Top = 165
+                Width = 124
+                Caption = 'Issuer Name'
+                TabOrder = 6
+                OnClick = btnIssuerNameClick
+              end
+              object btnCNPJ: TButton
+                Left = 8
+                Height = 25
+                Top = 197
+                Width = 118
+                Caption = 'CNPJ'
+                TabOrder = 7
+                OnClick = btnCNPJClick
+              end
+              object btnLeituraX509: TButton
+                Left = 130
+                Height = 25
+                Top = 197
+                Width = 124
+                Caption = 'Leitura de X509'
+                TabOrder = 8
+                OnClick = btnLeituraX509Click
+              end
             end
             object cbSSLLib: TComboBox
               Left = 80
               Height = 21
               Top = 8
               Width = 160
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
               ItemHeight = 13
-              OnChange = cbSSLLibChange
-              ParentFont = False
               Style = csDropDownList
               TabOrder = 0
+              OnChange = cbSSLLibChange
             end
             object cbCryptLib: TComboBox
               Left = 80
               Height = 21
               Top = 35
               Width = 160
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
               ItemHeight = 13
-              OnChange = cbCryptLibChange
-              ParentFont = False
               Style = csDropDownList
               TabOrder = 1
+              OnChange = cbCryptLibChange
             end
             object cbHttpLib: TComboBox
               Left = 80
               Height = 21
               Top = 62
               Width = 160
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
               ItemHeight = 13
-              OnChange = cbHttpLibChange
-              ParentFont = False
               Style = csDropDownList
               TabOrder = 2
+              OnChange = cbHttpLibChange
             end
             object cbXmlSignLib: TComboBox
               Left = 80
               Height = 21
               Top = 89
               Width = 160
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
               ItemHeight = 13
-              OnChange = cbXmlSignLibChange
-              ParentFont = False
               Style = csDropDownList
               TabOrder = 3
+              OnChange = cbXmlSignLibChange
             end
           end
           object TabSheet4: TTabSheet
             Caption = 'Geral'
             ClientHeight = 434
             ClientWidth = 279
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 1
-            ParentFont = False
             object GroupBox3: TGroupBox
               Left = 3
-              Height = 365
+              Height = 378
               Top = 12
               Width = 265
               Caption = 'Geral'
-              ClientHeight = 347
+              ClientHeight = 360
               ClientWidth = 261
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
+              ParentBackground = False
               TabOrder = 0
               object sbtnPathSalvar: TSpeedButton
                 Left = 236
                 Height = 24
-                Top = 145
+                Top = 132
                 Width = 23
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
                 Glyph.Data = {
                   76010000424D7601000000000000760000002800000020000000100000000100
                   04000000000000010000130B0000130B00001000000000000000000000000000
@@ -599,40 +398,26 @@ object frmACBrNFSe: TfrmACBrNFSe
                 }
                 NumGlyphs = 2
                 OnClick = sbtnPathSalvarClick
-                ParentFont = False
               end
               object Label29: TLabel
                 Left = 6
                 Height = 13
-                Top = 74
+                Top = 61
                 Width = 86
                 Caption = 'Forma de Emissão'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object Label31: TLabel
                 Left = 6
                 Height = 13
-                Top = 36
+                Top = 23
                 Width = 72
                 Caption = 'Formato Alerta'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object spPathSchemas: TSpeedButton
-                Left = 236
+                Left = 235
                 Height = 24
-                Top = 221
+                Top = 197
                 Width = 23
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
                 Glyph.Data = {
                   76010000424D7601000000000000760000002800000020000000100000000100
                   04000000000000010000130B0000130B00001000000000000000000000000000
@@ -649,202 +434,148 @@ object frmACBrNFSe: TfrmACBrNFSe
                 }
                 NumGlyphs = 2
                 OnClick = spPathSchemasClick
-                ParentFont = False
               end
               object Label6: TLabel
-                Left = 7
+                Left = 6
                 Height = 13
-                Top = 206
+                Top = 182
                 Width = 108
                 Caption = 'Schemas do Provedor:'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
+              end
+              object Label49: TLabel
+                Left = 5
+                Height = 13
+                Top = 271
+                Width = 80
+                Alignment = taRightJustify
+                Caption = 'Layout da NFS-e'
+                Color = clBtnFace
                 ParentColor = False
-                ParentFont = False
+              end
+              object Label51: TLabel
+                Left = 7
+                Height = 13
+                Top = 314
+                Width = 107
+                Caption = 'Formato Discriminação'
+                Color = clBtnFace
+                ParentColor = False
               end
               object edtPathLogs: TEdit
                 Left = 6
                 Height = 21
-                Top = 148
+                Top = 135
                 Width = 228
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
-                TabOrder = 6
+                TabOrder = 5
               end
               object chkSalvarGer: TCheckBox
                 Left = 6
-                Height = 19
-                Top = 132
-                Width = 196
+                Height = 17
+                Top = 119
+                Width = 194
                 Caption = 'Salvar Arquivos de Envio e Resposta'
                 Font.Color = clWindowText
                 Font.Height = -11
                 Font.Name = 'MS Sans Serif'
                 ParentFont = False
-                TabOrder = 5
+                TabOrder = 4
               end
               object cbFormaEmissao: TComboBox
                 Left = 6
                 Height = 21
-                Top = 90
+                Top = 77
                 Width = 248
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
                 ItemHeight = 13
-                ParentFont = False
-                TabOrder = 3
-              end
-              object cbxAtualizarXML: TCheckBox
-                Left = 6
-                Height = 19
-                Top = 2
-                Width = 84
-                Caption = 'Atualizar XML'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
-                TabOrder = 0
+                TabOrder = 2
               end
               object cbxExibirErroSchema: TCheckBox
                 Left = 6
-                Height = 19
-                Top = 18
-                Width = 109
+                Height = 17
+                Top = 5
+                Width = 107
                 Caption = 'Exibir Erro Schema'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
-                TabOrder = 1
+                TabOrder = 0
               end
               object edtFormatoAlerta: TEdit
                 Left = 6
                 Height = 21
-                Top = 52
+                Top = 37
                 Width = 248
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
-                TabOrder = 2
+                TabOrder = 1
               end
               object cbxRetirarAcentos: TCheckBox
                 Left = 6
-                Height = 19
-                Top = 114
-                Width = 188
+                Height = 17
+                Top = 101
+                Width = 186
                 Caption = 'Retirar Acentos dos XMLs enviados'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
-                TabOrder = 4
+                TabOrder = 3
               end
               object edtPathSchemas: TEdit
-                Left = 6
+                Left = 5
                 Height = 21
-                Top = 221
+                Top = 197
                 Width = 228
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
-                TabOrder = 7
+                TabOrder = 6
               end
               object chkConsultaLoteAposEnvio: TCheckBox
-                Left = 7
-                Height = 19
-                Top = 250
-                Width = 146
+                Left = 6
+                Height = 17
+                Top = 226
+                Width = 144
                 Caption = 'Consultar Lote Após Envio'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
-                TabOrder = 8
+                TabOrder = 7
               end
               object chkConsultaAposCancelar: TCheckBox
-                Left = 7
-                Height = 19
-                Top = 266
-                Width = 138
+                Left = 6
+                Height = 17
+                Top = 246
+                Width = 136
                 Caption = 'Consultar Após Cancelar'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
-                TabOrder = 9
+                TabOrder = 8
               end
               object chkMontarPathSchemas: TCheckBox
-                Left = 7
-                Height = 19
-                Top = 185
-                Width = 239
+                Left = 6
+                Height = 17
+                Top = 161
+                Width = 237
                 Caption = 'Montar automaticamente o Path dos Schemas'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
-                TabOrder = 10
-              end
-              object Label49: TLabel
-                Left = 7
-                Height = 13
-                Top = 288
-                Width = 80
-                Alignment = taRightJustify
-                Caption = 'Layout da NFS-e'
-                Color = clBtnFace
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
-                Transparent = False
+                TabOrder = 9
               end
               object cbLayoutNFSe: TComboBox
-                Left = 8
+                Left = 6
                 Height = 21
-                Top = 301
-                Width = 184
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
+                Top = 287
+                Width = 160
                 ItemHeight = 13
-                OnChange = cbSSLLibChange
-                ParentFont = False
+                Style = csDropDownList
+                TabOrder = 10
+              end
+              object cbFormatoDiscr: TComboBox
+                Left = 7
+                Height = 21
+                Top = 332
+                Width = 160
+                ItemHeight = 13
                 Style = csDropDownList
                 TabOrder = 11
               end
             end
             object btnInformacoes: TButton
-              Left = 16
+              Left = 12
               Height = 25
-              Top = 392
-              Width = 232
+              Top = 396
+              Width = 247
               Caption = 'Informações sobre o Provedor'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnInformacoesClick
-              ParentFont = False
               TabOrder = 1
+              OnClick = btnInformacoesClick
             end
           end
           object TabSheet7: TTabSheet
             Caption = 'WebService'
             ClientHeight = 434
             ClientWidth = 279
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 2
-            ParentFont = False
             object GroupBox4: TGroupBox
               Left = 5
               Height = 253
@@ -853,105 +584,67 @@ object frmACBrNFSe: TfrmACBrNFSe
               Caption = 'WebService'
               ClientHeight = 235
               ClientWidth = 261
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
+              ParentBackground = False
               TabOrder = 0
               object lTimeOut: TLabel
-                Left = 167
+                Left = 168
                 Height = 13
-                Top = 58
+                Top = 55
                 Width = 40
                 Caption = 'TimeOut'
                 Color = clBtnFace
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
                 ParentColor = False
-                ParentFont = False
-                Transparent = False
               end
               object lSSLLib1: TLabel
-                Left = 19
+                Left = 20
                 Height = 13
-                Top = 110
+                Top = 107
                 Width = 41
                 Alignment = taRightJustify
                 Caption = 'SSLType'
                 Color = clBtnFace
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
                 ParentColor = False
-                ParentFont = False
-                Transparent = False
               end
               object Label30: TLabel
-                Left = 3
+                Left = 4
                 Height = 13
-                Top = 129
+                Top = 126
                 Width = 30
                 Caption = 'Senha'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object Label33: TLabel
-                Left = 133
+                Left = 134
                 Height = 13
-                Top = 129
+                Top = 126
                 Width = 36
                 Caption = 'Usuário'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object Label34: TLabel
-                Left = 3
+                Left = 4
                 Height = 13
-                Top = 162
+                Top = 159
                 Width = 67
                 Caption = 'Frase Secreta'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object Label41: TLabel
-                Left = 3
+                Left = 4
                 Height = 13
-                Top = 196
+                Top = 193
                 Width = 83
                 Caption = 'Chave de Acesso'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object Label44: TLabel
-                Left = 133
+                Left = 134
                 Height = 13
-                Top = 196
+                Top = 193
                 Width = 106
                 Caption = 'Chave de Autorização'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object cbxVisualizar: TCheckBox
-                Left = 8
-                Height = 19
-                Top = 60
-                Width = 119
+                Left = 9
+                Height = 17
+                Top = 57
+                Width = 117
                 Caption = 'Visualizar Mensagem'
                 Font.Color = clWindowText
                 Font.Height = -11
@@ -960,9 +653,9 @@ object frmACBrNFSe: TfrmACBrNFSe
                 TabOrder = 1
               end
               object rgTipoAmb: TRadioGroup
-                Left = 8
+                Left = 9
                 Height = 52
-                Top = 3
+                Top = 0
                 Width = 249
                 AutoFill = True
                 Caption = 'Selecione o Ambiente de Destino'
@@ -976,114 +669,79 @@ object frmACBrNFSe: TfrmACBrNFSe
                 ClientHeight = 34
                 ClientWidth = 245
                 Columns = 2
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
                 ItemIndex = 0
                 Items.Strings = (
                   'Produção'
                   'Homologação'
                 )
-                ParentFont = False
+                ParentBackground = False
                 TabOrder = 0
               end
               object chkSalvarSOAP: TCheckBox
-                Left = 8
-                Height = 19
-                Top = 78
-                Width = 127
+                Left = 9
+                Height = 17
+                Top = 75
+                Width = 125
                 Caption = 'Salvar envelope SOAP'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 2
               end
               object seTimeOut: TSpinEdit
-                Left = 167
+                Left = 168
                 Height = 21
-                Top = 74
+                Top = 71
                 Width = 66
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
                 Increment = 10
                 MaxValue = 999999
                 MinValue = 1000
-                ParentFont = False
                 TabOrder = 3
                 Value = 5000
               end
               object cbSSLType: TComboBox
-                Left = 72
+                Left = 73
                 Height = 21
                 Hint = 'Depende de configuração de  SSL.HttpLib'
-                Top = 102
+                Top = 99
                 Width = 160
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
                 ItemHeight = 13
-                OnChange = cbSSLTypeChange
-                ParentFont = False
                 Style = csDropDownList
                 TabOrder = 4
+                OnChange = cbSSLTypeChange
               end
               object edtSenhaWeb: TEdit
-                Left = 3
+                Left = 4
                 Height = 21
-                Top = 142
+                Top = 139
                 Width = 126
                 EchoMode = emPassword
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 PasswordChar = '*'
                 TabOrder = 5
               end
               object edtUserWeb: TEdit
-                Left = 133
+                Left = 134
                 Height = 21
-                Top = 142
+                Top = 139
                 Width = 124
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 6
               end
               object edtFraseSecWeb: TEdit
-                Left = 3
+                Left = 4
                 Height = 21
-                Top = 176
+                Top = 173
                 Width = 254
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 7
               end
               object edtChaveAcessoWeb: TEdit
-                Left = 3
+                Left = 4
                 Height = 21
-                Top = 210
+                Top = 207
                 Width = 126
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 8
               end
               object edtChaveAutorizWeb: TEdit
-                Left = 133
+                Left = 134
                 Height = 21
-                Top = 210
+                Top = 207
                 Width = 124
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 9
               end
             end
@@ -1095,102 +753,63 @@ object frmACBrNFSe: TfrmACBrNFSe
               Caption = 'Proxy'
               ClientHeight = 75
               ClientWidth = 261
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
+              ParentBackground = False
               TabOrder = 1
               object Label8: TLabel
-                Left = 6
+                Left = 7
                 Height = 13
-                Top = 0
+                Top = -2
                 Width = 22
                 Caption = 'Host'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object Label9: TLabel
-                Left = 206
+                Left = 207
                 Height = 13
-                Top = 0
+                Top = -2
                 Width = 26
                 Caption = 'Porta'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object Label10: TLabel
-                Left = 6
+                Left = 7
                 Height = 13
                 Top = 36
                 Width = 36
                 Caption = 'Usuário'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object Label11: TLabel
-                Left = 136
+                Left = 137
                 Height = 13
                 Top = 36
                 Width = 30
                 Caption = 'Senha'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object edtProxyHost: TEdit
-                Left = 6
+                Left = 7
                 Height = 21
                 Top = 14
                 Width = 193
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 0
               end
               object edtProxyPorta: TEdit
-                Left = 206
+                Left = 207
                 Height = 21
                 Top = 14
                 Width = 50
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 1
               end
               object edtProxyUser: TEdit
-                Left = 6
+                Left = 7
                 Height = 21
                 Top = 52
                 Width = 123
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 2
               end
               object edtProxySenha: TEdit
-                Left = 133
+                Left = 134
                 Height = 21
                 Top = 52
                 Width = 123
                 EchoMode = emPassword
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 PasswordChar = '*'
                 TabOrder = 3
               end
@@ -1203,92 +822,58 @@ object frmACBrNFSe: TfrmACBrNFSe
               Caption = 'Retorno de Envio'
               ClientHeight = 53
               ClientWidth = 261
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
+              ParentBackground = False
               TabOrder = 2
               object Label36: TLabel
-                Left = 91
+                Left = 94
                 Height = 13
                 Top = 13
                 Width = 51
                 Caption = 'Tentativas'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object Label37: TLabel
-                Left = 174
+                Left = 177
                 Height = 13
                 Top = 13
                 Width = 44
                 Caption = 'Intervalo'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object Label38: TLabel
-                Left = 6
+                Left = 9
                 Height = 13
                 Hint = 'Aguardar quantos segundos para primeira consulta de retorno de envio'
                 Top = 13
                 Width = 45
                 Caption = 'Aguardar'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentColor = False
-                ParentFont = False
               end
               object cbxAjustarAut: TCheckBox
-                Left = 6
-                Height = 19
-                Top = 0
-                Width = 227
+                Left = 9
+                Height = 17
+                Top = -2
+                Width = 225
                 Caption = 'Ajustar Automaticamente prop. "Aguardar"'
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 0
               end
               object edtTentativas: TEdit
-                Left = 91
+                Left = 94
                 Height = 21
                 Top = 29
                 Width = 57
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 2
               end
               object edtIntervalo: TEdit
-                Left = 174
+                Left = 177
                 Height = 21
                 Top = 29
                 Width = 57
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 3
               end
               object edtAguardar: TEdit
-                Left = 6
+                Left = 9
                 Height = 21
                 Hint = 'Aguardar quantos segundos para primeira consulta de retorno de envio'
                 Top = 29
                 Width = 57
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                ParentFont = False
                 TabOrder = 1
               end
             end
@@ -1297,22 +882,13 @@ object frmACBrNFSe: TfrmACBrNFSe
             Caption = 'Emitente'
             ClientHeight = 434
             ClientWidth = 279
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 3
-            ParentFont = False
             object Label12: TLabel
               Left = 8
               Height = 13
               Top = 4
               Width = 25
               Caption = 'CNPJ'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label13: TLabel
               Left = 136
@@ -1320,11 +896,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 4
               Width = 70
               Caption = 'Insc. Municipal'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label14: TLabel
               Left = 8
@@ -1332,11 +903,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 44
               Width = 60
               Caption = 'Razão Social'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label15: TLabel
               Left = 8
@@ -1344,11 +910,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 84
               Width = 41
               Caption = 'Fantasia'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label16: TLabel
               Left = 8
@@ -1356,11 +917,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 164
               Width = 55
               Caption = 'Logradouro'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label17: TLabel
               Left = 208
@@ -1368,11 +924,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 164
               Width = 37
               Caption = 'Número'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label18: TLabel
               Left = 8
@@ -1380,11 +931,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 204
               Width = 65
               Caption = 'Complemento'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label19: TLabel
               Left = 136
@@ -1392,11 +938,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 204
               Width = 28
               Caption = 'Bairro'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label23: TLabel
               Left = 136
@@ -1404,11 +945,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 124
               Width = 19
               Caption = 'CEP'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label24: TLabel
               Left = 8
@@ -1416,11 +952,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 124
               Width = 24
               Caption = 'Fone'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label21: TLabel
               Left = 8
@@ -1428,11 +959,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 248
               Width = 33
               Caption = 'Cidade'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label22: TLabel
               Left = 8
@@ -1440,11 +966,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 288
               Width = 13
               Caption = 'UF'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label20: TLabel
               Left = 63
@@ -1452,11 +973,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 288
               Width = 59
               Caption = 'Cód. Cidade'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label32: TLabel
               Left = 167
@@ -1464,11 +980,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 288
               Width = 80
               Caption = 'Total de Cidades'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label43: TLabel
               Left = 8
@@ -1476,11 +987,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 328
               Width = 76
               Caption = 'CNPJ Prefeitura'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object Label47: TLabel
               Left = 8
@@ -1488,11 +994,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 372
               Width = 48
               Caption = 'Provedor:'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object lblSchemas: TLabel
               Left = 61
@@ -1504,23 +1005,17 @@ object frmACBrNFSe: TfrmACBrNFSe
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
               Font.Style = [fsBold]
-              ParentColor = False
               ParentFont = False
             end
             object Label45: TLabel
-              Left = 8
+              Left = 150
               Height = 13
               Top = 389
               Width = 37
               Caption = 'Versão:'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object lblVersaoSchemas: TLabel
-              Left = 61
+              Left = 203
               Height = 13
               Top = 390
               Width = 53
@@ -1529,18 +1024,39 @@ object frmACBrNFSe: TfrmACBrNFSe
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
               Font.Style = [fsBold]
-              ParentColor = False
               ParentFont = False
+            end
+            object Label48: TLabel
+              Left = 8
+              Height = 13
+              Top = 390
+              Width = 37
+              Caption = 'Layout:'
+            end
+            object lblLayout: TLabel
+              Left = 61
+              Height = 13
+              Top = 390
+              Width = 52
+              Caption = 'lblLayout'
+              Font.Color = clRed
+              Font.Height = -11
+              Font.Name = 'MS Sans Serif'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object Label50: TLabel
+              Left = 149
+              Height = 13
+              Top = 328
+              Width = 107
+              Caption = 'Cidades com Provedor'
             end
             object edtEmitCNPJ: TEdit
               Left = 8
               Height = 21
               Top = 20
               Width = 123
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 0
             end
             object edtEmitIM: TEdit
@@ -1548,10 +1064,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 21
               Top = 20
               Width = 123
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 1
             end
             object edtEmitRazao: TEdit
@@ -1559,10 +1071,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 21
               Top = 60
               Width = 252
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 2
             end
             object edtEmitFantasia: TEdit
@@ -1570,10 +1078,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 21
               Top = 100
               Width = 252
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 3
             end
             object edtEmitFone: TEdit
@@ -1581,10 +1085,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 21
               Top = 140
               Width = 125
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 4
             end
             object edtEmitCEP: TEdit
@@ -1592,10 +1092,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 21
               Top = 140
               Width = 123
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 5
             end
             object edtEmitLogradouro: TEdit
@@ -1603,10 +1099,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 21
               Top = 180
               Width = 196
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 6
             end
             object edtEmitNumero: TEdit
@@ -1614,10 +1106,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 21
               Top = 180
               Width = 50
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 7
             end
             object edtEmitComp: TEdit
@@ -1625,10 +1113,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 21
               Top = 220
               Width = 123
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 8
             end
             object edtEmitBairro: TEdit
@@ -1636,10 +1120,6 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 21
               Top = 220
               Width = 123
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 9
             end
             object edtEmitUF: TEdit
@@ -1674,7 +1154,7 @@ object frmACBrNFSe: TfrmACBrNFSe
               Left = 167
               Height = 21
               Top = 304
-              Width = 89
+              Width = 93
               Font.Color = clRed
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -1689,23 +1169,16 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 21
               Top = 264
               Width = 142
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               ReadOnly = True
               TabStop = False
               TabOrder = 14
               Visible = False
             end
             object cbCidades: TComboBox
-              Left = 8
+              Left = 3
               Height = 21
               Top = 264
               Width = 257
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
               ItemHeight = 13
               Items.Strings = (
                 'Alfenas/3101607/MG'
@@ -1889,65 +1362,42 @@ object frmACBrNFSe: TfrmACBrNFSe
                 'Votuporanga/3557105/SP'
                 'Nova Serrana/3145208/MG'
               )
-              OnChange = cbCidadesChange
-              ParentFont = False
               TabOrder = 10
               Text = 'Selecione uma Cidade'
+              OnChange = cbCidadesChange
             end
             object edtCNPJPrefeitura: TEdit
               Left = 8
               Height = 21
               Top = 344
               Width = 123
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 15
             end
-            object Label48: TLabel
-              Left = 6
-              Height = 13
-              Top = 410
-              Width = 37
-              Caption = 'Layout:'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
-            end
-            object lblLayout: TLabel
-              Left = 61
-              Height = 13
-              Top = 410
-              Width = 52
-              Caption = 'lblLayout'
+            object edtCidComProv: TEdit
+              Left = 149
+              Height = 21
+              Top = 344
+              Width = 111
               Font.Color = clRed
-              Font.Height = -10
+              Font.Height = -11
               Font.Name = 'MS Sans Serif'
               Font.Style = [fsBold]
-              ParentColor = False
               ParentFont = False
+              ReadOnly = True
+              TabStop = False
+              TabOrder = 16
             end
           end
           object TabSheet13: TTabSheet
             Caption = 'Arquivos'
-            ClientHeight = 570
-            ClientWidth = 353
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
+            ClientHeight = 434
+            ClientWidth = 279
             ImageIndex = 4
-            ParentFont = False
             object sbPathNFSe: TSpeedButton
               Left = 247
               Height = 24
               Top = 131
               Width = 23
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
               Glyph.Data = {
                 76010000424D7601000000000000760000002800000020000000100000000100
                 04000000000000010000130B0000130B00001000000000000000000000000000
@@ -1964,89 +1414,59 @@ object frmACBrNFSe: TfrmACBrNFSe
               }
               NumGlyphs = 2
               OnClick = sbPathNFSeClick
-              ParentFont = False
             end
             object Label35: TLabel
               Left = 6
-              Height = 17
+              Height = 13
               Top = 116
-              Width = 125
+              Width = 100
               Caption = 'Pasta Arquivos NFSe'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentColor = False
-              ParentFont = False
             end
             object chkSalvarArq: TCheckBox
               Left = 6
-              Height = 23
+              Height = 17
               Top = 0
-              Width = 251
+              Width = 199
               Caption = 'Salvar Arquivos em Pastas Separadas'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 0
             end
             object cbxPastaMensal: TCheckBox
               Left = 6
-              Height = 23
+              Height = 17
               Top = 16
-              Width = 178
+              Width = 142
               Caption = 'Criar Pastas Mensalmente'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 1
             end
             object cbxAdicionaLiteral: TCheckBox
               Left = 6
-              Height = 23
+              Height = 17
               Top = 32
-              Width = 245
+              Width = 193
               Caption = 'Adicionar Literal no nome das pastas'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 2
             end
             object cbxEmissaoPathNFSe: TCheckBox
               Left = 6
-              Height = 23
+              Height = 17
               Top = 48
-              Width = 318
+              Width = 244
               Caption = 'Salvar Documento pelo campo Data de Emissão'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 3
             end
             object cbxSepararPorCNPJ: TCheckBox
               Left = 6
-              Height = 23
+              Height = 17
               Top = 80
-              Width = 255
+              Width = 202
               Caption = 'Separar Arqs pelo CNPJ do Certificado'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 4
             end
             object edtPathNFSe: TEdit
               Left = 6
-              Height = 25
+              Height = 21
               Top = 132
               Width = 235
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              ParentFont = False
               TabOrder = 5
             end
           end
@@ -2054,33 +1474,21 @@ object frmACBrNFSe: TfrmACBrNFSe
       end
       object TabSheet2: TTabSheet
         Caption = 'Documento Auxiliar'
-        ClientHeight = 600
-        ClientWidth = 361
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
+        ClientHeight = 478
+        ClientWidth = 287
         ImageIndex = 1
-        ParentFont = False
         object Label7: TLabel
           Left = 8
-          Height = 17
+          Height = 13
           Top = 8
-          Width = 152
+          Width = 121
           Caption = 'Logo Marca da Prefeitura'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentColor = False
-          ParentFont = False
         end
         object sbtnLogoMarca: TSpeedButton
           Left = 238
           Height = 24
           Top = 22
           Width = 23
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
           Glyph.Data = {
             76010000424D7601000000000000760000002800000020000000100000000100
             04000000000000010000130B0000130B00001000000000000000000000000000
@@ -2097,28 +1505,19 @@ object frmACBrNFSe: TfrmACBrNFSe
           }
           NumGlyphs = 2
           OnClick = sbtnLogoMarcaClick
-          ParentFont = False
         end
         object Label39: TLabel
           Left = 8
-          Height = 17
+          Height = 13
           Top = 112
-          Width = 228
+          Width = 178
           Caption = 'Logo Marca do Prestador de Serviços'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentColor = False
-          ParentFont = False
         end
         object sbtnPrestLogo: TSpeedButton
           Left = 238
           Height = 24
           Top = 127
           Width = 23
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
           Glyph.Data = {
             76010000424D7601000000000000760000002800000020000000100000000100
             04000000000000010000130B0000130B00001000000000000000000000000000
@@ -2135,40 +1534,26 @@ object frmACBrNFSe: TfrmACBrNFSe
           }
           NumGlyphs = 2
           OnClick = sbtnPrestLogoClick
-          ParentFont = False
         end
         object Label40: TLabel
           Left = 8
-          Height = 17
+          Height = 13
           Top = 151
-          Width = 117
+          Width = 93
           Caption = 'Nome da Prefeitura'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentColor = False
-          ParentFont = False
         end
         object Label46: TLabel
           Left = 8
-          Height = 17
+          Height = 13
           Top = 198
-          Width = 62
+          Width = 49
           Caption = 'Pasta PDF'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentColor = False
-          ParentFont = False
         end
         object sbtnPathPDF: TSpeedButton
           Left = 249
           Height = 24
           Top = 213
           Width = 23
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
           Glyph.Data = {
             76010000424D7601000000000000760000002800000020000000100000000100
             04000000000000010000130B0000130B00001000000000000000000000000000
@@ -2185,17 +1570,12 @@ object frmACBrNFSe: TfrmACBrNFSe
           }
           NumGlyphs = 2
           OnClick = sbtnPathPDFClick
-          ParentFont = False
         end
         object edtLogoMarca: TEdit
           Left = 8
-          Height = 25
+          Height = 21
           Top = 24
           Width = 228
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 0
         end
         object rgTipoDANFSE: TRadioGroup
@@ -2215,209 +1595,131 @@ object frmACBrNFSe: TfrmACBrNFSe
           ClientHeight = 31
           ClientWidth = 253
           Columns = 2
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
           ItemIndex = 0
           Items.Strings = (
             'Retrato'
             'Paisagem'
           )
-          ParentFont = False
+          ParentBackground = False
           TabOrder = 1
         end
         object edtPrestLogo: TEdit
           Left = 8
-          Height = 25
+          Height = 21
           Top = 128
           Width = 228
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 2
         end
         object edtPrefeitura: TEdit
           Left = 8
-          Height = 25
+          Height = 21
           Top = 167
           Width = 249
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 3
         end
         object edtPathPDF: TEdit
           Left = 8
-          Height = 25
+          Height = 21
           Top = 214
           Width = 235
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 4
         end
       end
       object TabSheet14: TTabSheet
         Caption = 'Email'
-        ClientHeight = 600
-        ClientWidth = 361
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
+        ClientHeight = 478
+        ClientWidth = 287
         ImageIndex = 2
-        ParentFont = False
         object Label3: TLabel
           Left = 8
-          Height = 17
+          Height = 13
           Top = 8
-          Width = 89
+          Width = 69
           Caption = 'Servidor SMTP'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentColor = False
-          ParentFont = False
         end
         object Label4: TLabel
           Left = 206
-          Height = 17
+          Height = 13
           Top = 8
-          Width = 33
+          Width = 26
           Caption = 'Porta'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentColor = False
-          ParentFont = False
         end
         object Label5: TLabel
           Left = 8
-          Height = 17
+          Height = 13
           Top = 48
-          Width = 45
+          Width = 36
           Caption = 'Usuário'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentColor = False
-          ParentFont = False
         end
         object Label26: TLabel
           Left = 137
-          Height = 17
+          Height = 13
           Top = 48
-          Width = 38
+          Width = 30
           Caption = 'Senha'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentColor = False
-          ParentFont = False
         end
         object Label27: TLabel
           Left = 8
-          Height = 17
+          Height = 13
           Top = 88
-          Width = 155
+          Width = 122
           Caption = 'Assunto do email enviado'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentColor = False
-          ParentFont = False
         end
         object Label28: TLabel
           Left = 8
-          Height = 17
+          Height = 13
           Top = 175
-          Width = 120
+          Width = 93
           Caption = 'Mensagem do Email'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentColor = False
-          ParentFont = False
         end
         object Label42: TLabel
           Left = 9
-          Height = 17
+          Height = 13
           Top = 307
-          Width = 126
+          Width = 99
           Caption = 'e-mail do Remetente'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentColor = False
-          ParentFont = False
         end
         object edtSmtpHost: TEdit
           Left = 8
-          Height = 25
+          Height = 21
           Top = 24
           Width = 193
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 0
         end
         object edtSmtpPort: TEdit
           Left = 206
-          Height = 25
+          Height = 21
           Top = 24
           Width = 51
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 1
         end
         object edtSmtpUser: TEdit
           Left = 8
-          Height = 25
+          Height = 21
           Top = 64
           Width = 120
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 2
         end
         object edtSmtpPass: TEdit
           Left = 137
-          Height = 25
+          Height = 21
           Top = 64
           Width = 120
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 3
         end
         object edtEmailAssunto: TEdit
           Left = 8
-          Height = 25
+          Height = 21
           Top = 104
           Width = 249
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 4
         end
         object cbEmailSSL: TCheckBox
           Left = 10
-          Height = 23
+          Height = 17
           Top = 136
-          Width = 196
+          Width = 153
           Caption = 'SMTP exige conexão segura'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 5
         end
         object mmEmailMsg: TMemo
@@ -2425,46 +1727,31 @@ object frmACBrNFSe: TfrmACBrNFSe
           Height = 115
           Top = 191
           Width = 249
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 7
         end
         object edtEmailRemetente: TEdit
           Left = 8
-          Height = 25
+          Height = 21
           Top = 323
           Width = 249
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 8
         end
         object cbEmailTLS: TCheckBox
           Left = 10
-          Height = 23
+          Height = 17
           Top = 152
-          Width = 187
+          Width = 144
           Caption = 'SMTP exige conexão - TLS'
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabOrder = 6
         end
       end
     end
     object btnSalvarConfig: TBitBtn
-      Left = 76
+      Left = 78
       Height = 25
-      Top = 513
+      Top = 515
       Width = 153
       Caption = 'Salvar Configurações'
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
       Glyph.Data = {
         76010000424D7601000000000000760000002800000020000000100000000100
         04000000000000010000130B0000130B00001000000000000000000000000000
@@ -2480,49 +1767,37 @@ object frmACBrNFSe: TfrmACBrNFSe
         93337FFFF7737777733300000033333333337777773333333333
       }
       NumGlyphs = 2
-      OnClick = btnSalvarConfigClick
-      ParentFont = False
       TabOrder = 1
+      OnClick = btnSalvarConfigClick
     end
   end
   object pnlCentral: TPanel
     Left = 297
-    Height = 601
+    Height = 643
     Top = 0
     Width = 569
     Align = alClient
-    ClientHeight = 601
+    ClientHeight = 643
     ClientWidth = 569
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    ParentFont = False
+    ParentBackground = False
     TabOrder = 1
     object pgRespostas: TPageControl
       Left = 1
-      Height = 436
-      Top = 164
+      Height = 438
+      Top = 204
       Width = 567
-      ActivePage = TabSheet8
+      ActivePage = TabSheet9
       Align = alClient
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      ParentFont = False
-      TabIndex = 0
+      TabIndex = 1
       TabOrder = 0
       object TabSheet8: TTabSheet
         Caption = 'Log'
-        ClientHeight = 410
+        ClientHeight = 412
         ClientWidth = 559
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
         ImageIndex = 2
-        ParentFont = False
         object memoLog: TMemo
           Left = 0
-          Height = 410
+          Height = 412
           Top = 0
           Width = 559
           Align = alClient
@@ -2536,18 +1811,14 @@ object frmACBrNFSe: TfrmACBrNFSe
       end
       object TabSheet9: TTabSheet
         Caption = 'XML de Envio'
-        ClientHeight = 529
-        ClientWidth = 701
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
+        ClientHeight = 412
+        ClientWidth = 559
         ImageIndex = 3
-        ParentFont = False
         inline WBXmlEnvio: TSynEdit
           Left = 0
-          Height = 529
+          Height = 412
           Top = 0
-          Width = 701
+          Width = 559
           Align = alClient
           Font.Height = -13
           Font.Name = 'Courier New'
@@ -2560,7 +1831,428 @@ object frmACBrNFSe: TfrmACBrNFSe
           Gutter.MouseActions = <>
           RightGutter.Width = 0
           RightGutter.MouseActions = <>
-          Keystrokes = <>
+          Highlighter = SynXMLSyn1
+          Keystrokes = <          
+            item
+              Command = ecUp
+              ShortCut = 38
+            end          
+            item
+              Command = ecSelUp
+              ShortCut = 8230
+            end          
+            item
+              Command = ecScrollUp
+              ShortCut = 16422
+            end          
+            item
+              Command = ecDown
+              ShortCut = 40
+            end          
+            item
+              Command = ecSelDown
+              ShortCut = 8232
+            end          
+            item
+              Command = ecScrollDown
+              ShortCut = 16424
+            end          
+            item
+              Command = ecLeft
+              ShortCut = 37
+            end          
+            item
+              Command = ecSelLeft
+              ShortCut = 8229
+            end          
+            item
+              Command = ecWordLeft
+              ShortCut = 16421
+            end          
+            item
+              Command = ecSelWordLeft
+              ShortCut = 24613
+            end          
+            item
+              Command = ecRight
+              ShortCut = 39
+            end          
+            item
+              Command = ecSelRight
+              ShortCut = 8231
+            end          
+            item
+              Command = ecWordRight
+              ShortCut = 16423
+            end          
+            item
+              Command = ecSelWordRight
+              ShortCut = 24615
+            end          
+            item
+              Command = ecPageDown
+              ShortCut = 34
+            end          
+            item
+              Command = ecSelPageDown
+              ShortCut = 8226
+            end          
+            item
+              Command = ecPageBottom
+              ShortCut = 16418
+            end          
+            item
+              Command = ecSelPageBottom
+              ShortCut = 24610
+            end          
+            item
+              Command = ecPageUp
+              ShortCut = 33
+            end          
+            item
+              Command = ecSelPageUp
+              ShortCut = 8225
+            end          
+            item
+              Command = ecPageTop
+              ShortCut = 16417
+            end          
+            item
+              Command = ecSelPageTop
+              ShortCut = 24609
+            end          
+            item
+              Command = ecLineStart
+              ShortCut = 36
+            end          
+            item
+              Command = ecSelLineStart
+              ShortCut = 8228
+            end          
+            item
+              Command = ecEditorTop
+              ShortCut = 16420
+            end          
+            item
+              Command = ecSelEditorTop
+              ShortCut = 24612
+            end          
+            item
+              Command = ecLineEnd
+              ShortCut = 35
+            end          
+            item
+              Command = ecSelLineEnd
+              ShortCut = 8227
+            end          
+            item
+              Command = ecEditorBottom
+              ShortCut = 16419
+            end          
+            item
+              Command = ecSelEditorBottom
+              ShortCut = 24611
+            end          
+            item
+              Command = ecToggleMode
+              ShortCut = 45
+            end          
+            item
+              Command = ecCopy
+              ShortCut = 16429
+            end          
+            item
+              Command = ecPaste
+              ShortCut = 8237
+            end          
+            item
+              Command = ecDeleteChar
+              ShortCut = 46
+            end          
+            item
+              Command = ecCut
+              ShortCut = 8238
+            end          
+            item
+              Command = ecDeleteLastChar
+              ShortCut = 8
+            end          
+            item
+              Command = ecDeleteLastChar
+              ShortCut = 8200
+            end          
+            item
+              Command = ecDeleteLastWord
+              ShortCut = 16392
+            end          
+            item
+              Command = ecUndo
+              ShortCut = 32776
+            end          
+            item
+              Command = ecRedo
+              ShortCut = 40968
+            end          
+            item
+              Command = ecLineBreak
+              ShortCut = 13
+            end          
+            item
+              Command = ecSelectAll
+              ShortCut = 16449
+            end          
+            item
+              Command = ecCopy
+              ShortCut = 16451
+            end          
+            item
+              Command = ecBlockIndent
+              ShortCut = 16457
+            end          
+            item
+              Command = ecLineBreak
+              ShortCut = 16461
+            end          
+            item
+              Command = ecInsertLine
+              ShortCut = 16462
+            end          
+            item
+              Command = ecDeleteWord
+              ShortCut = 16468
+            end          
+            item
+              Command = ecBlockUnindent
+              ShortCut = 16469
+            end          
+            item
+              Command = ecPaste
+              ShortCut = 16470
+            end          
+            item
+              Command = ecCut
+              ShortCut = 16472
+            end          
+            item
+              Command = ecDeleteLine
+              ShortCut = 16473
+            end          
+            item
+              Command = ecDeleteEOL
+              ShortCut = 24665
+            end          
+            item
+              Command = ecUndo
+              ShortCut = 16474
+            end          
+            item
+              Command = ecRedo
+              ShortCut = 24666
+            end          
+            item
+              Command = ecGotoMarker0
+              ShortCut = 16432
+            end          
+            item
+              Command = ecGotoMarker1
+              ShortCut = 16433
+            end          
+            item
+              Command = ecGotoMarker2
+              ShortCut = 16434
+            end          
+            item
+              Command = ecGotoMarker3
+              ShortCut = 16435
+            end          
+            item
+              Command = ecGotoMarker4
+              ShortCut = 16436
+            end          
+            item
+              Command = ecGotoMarker5
+              ShortCut = 16437
+            end          
+            item
+              Command = ecGotoMarker6
+              ShortCut = 16438
+            end          
+            item
+              Command = ecGotoMarker7
+              ShortCut = 16439
+            end          
+            item
+              Command = ecGotoMarker8
+              ShortCut = 16440
+            end          
+            item
+              Command = ecGotoMarker9
+              ShortCut = 16441
+            end          
+            item
+              Command = ecSetMarker0
+              ShortCut = 24624
+            end          
+            item
+              Command = ecSetMarker1
+              ShortCut = 24625
+            end          
+            item
+              Command = ecSetMarker2
+              ShortCut = 24626
+            end          
+            item
+              Command = ecSetMarker3
+              ShortCut = 24627
+            end          
+            item
+              Command = ecSetMarker4
+              ShortCut = 24628
+            end          
+            item
+              Command = ecSetMarker5
+              ShortCut = 24629
+            end          
+            item
+              Command = ecSetMarker6
+              ShortCut = 24630
+            end          
+            item
+              Command = ecSetMarker7
+              ShortCut = 24631
+            end          
+            item
+              Command = ecSetMarker8
+              ShortCut = 24632
+            end          
+            item
+              Command = ecSetMarker9
+              ShortCut = 24633
+            end          
+            item
+              Command = EcFoldLevel1
+              ShortCut = 41009
+            end          
+            item
+              Command = EcFoldLevel2
+              ShortCut = 41010
+            end          
+            item
+              Command = EcFoldLevel3
+              ShortCut = 41011
+            end          
+            item
+              Command = EcFoldLevel4
+              ShortCut = 41012
+            end          
+            item
+              Command = EcFoldLevel5
+              ShortCut = 41013
+            end          
+            item
+              Command = EcFoldLevel6
+              ShortCut = 41014
+            end          
+            item
+              Command = EcFoldLevel7
+              ShortCut = 41015
+            end          
+            item
+              Command = EcFoldLevel8
+              ShortCut = 41016
+            end          
+            item
+              Command = EcFoldLevel9
+              ShortCut = 41017
+            end          
+            item
+              Command = EcFoldLevel0
+              ShortCut = 41008
+            end          
+            item
+              Command = EcFoldCurrent
+              ShortCut = 41005
+            end          
+            item
+              Command = EcUnFoldCurrent
+              ShortCut = 41003
+            end          
+            item
+              Command = EcToggleMarkupWord
+              ShortCut = 32845
+            end          
+            item
+              Command = ecNormalSelect
+              ShortCut = 24654
+            end          
+            item
+              Command = ecColumnSelect
+              ShortCut = 24643
+            end          
+            item
+              Command = ecLineSelect
+              ShortCut = 24652
+            end          
+            item
+              Command = ecTab
+              ShortCut = 9
+            end          
+            item
+              Command = ecShiftTab
+              ShortCut = 8201
+            end          
+            item
+              Command = ecMatchBracket
+              ShortCut = 24642
+            end          
+            item
+              Command = ecColSelUp
+              ShortCut = 40998
+            end          
+            item
+              Command = ecColSelDown
+              ShortCut = 41000
+            end          
+            item
+              Command = ecColSelLeft
+              ShortCut = 40997
+            end          
+            item
+              Command = ecColSelRight
+              ShortCut = 40999
+            end          
+            item
+              Command = ecColSelPageDown
+              ShortCut = 40994
+            end          
+            item
+              Command = ecColSelPageBottom
+              ShortCut = 57378
+            end          
+            item
+              Command = ecColSelPageUp
+              ShortCut = 40993
+            end          
+            item
+              Command = ecColSelPageTop
+              ShortCut = 57377
+            end          
+            item
+              Command = ecColSelLineStart
+              ShortCut = 40996
+            end          
+            item
+              Command = ecColSelLineEnd
+              ShortCut = 40995
+            end          
+            item
+              Command = ecColSelEditorTop
+              ShortCut = 57380
+            end          
+            item
+              Command = ecColSelEditorBottom
+              ShortCut = 57379
+            end>
           MouseActions = <>
           MouseTextActions = <>
           MouseSelActions = <>
@@ -2587,6 +2279,8 @@ object frmACBrNFSe: TfrmACBrNFSe
             object SynGutterMarks1: TSynGutterMarks
               Width = 24
               MouseActions = <>
+              MaxExtraMarksColums = 0
+              Options = [sgmoDeDuplicateMarksOnOverflow]
             end
             object SynGutterLineNumber1: TSynGutterLineNumber
               Width = 17
@@ -2622,18 +2316,14 @@ object frmACBrNFSe: TfrmACBrNFSe
       end
       object TabSheet6: TTabSheet
         Caption = 'XML de Retorno'
-        ClientHeight = 529
-        ClientWidth = 701
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
+        ClientHeight = 412
+        ClientWidth = 559
         ImageIndex = 1
-        ParentFont = False
         inline WBXmlRetorno: TSynEdit
           Left = 0
-          Height = 529
+          Height = 412
           Top = 0
-          Width = 701
+          Width = 559
           Align = alClient
           Font.Height = -13
           Font.Name = 'Courier New'
@@ -2646,7 +2336,428 @@ object frmACBrNFSe: TfrmACBrNFSe
           Gutter.MouseActions = <>
           RightGutter.Width = 0
           RightGutter.MouseActions = <>
-          Keystrokes = <>
+          Highlighter = SynXMLSyn1
+          Keystrokes = <          
+            item
+              Command = ecUp
+              ShortCut = 38
+            end          
+            item
+              Command = ecSelUp
+              ShortCut = 8230
+            end          
+            item
+              Command = ecScrollUp
+              ShortCut = 16422
+            end          
+            item
+              Command = ecDown
+              ShortCut = 40
+            end          
+            item
+              Command = ecSelDown
+              ShortCut = 8232
+            end          
+            item
+              Command = ecScrollDown
+              ShortCut = 16424
+            end          
+            item
+              Command = ecLeft
+              ShortCut = 37
+            end          
+            item
+              Command = ecSelLeft
+              ShortCut = 8229
+            end          
+            item
+              Command = ecWordLeft
+              ShortCut = 16421
+            end          
+            item
+              Command = ecSelWordLeft
+              ShortCut = 24613
+            end          
+            item
+              Command = ecRight
+              ShortCut = 39
+            end          
+            item
+              Command = ecSelRight
+              ShortCut = 8231
+            end          
+            item
+              Command = ecWordRight
+              ShortCut = 16423
+            end          
+            item
+              Command = ecSelWordRight
+              ShortCut = 24615
+            end          
+            item
+              Command = ecPageDown
+              ShortCut = 34
+            end          
+            item
+              Command = ecSelPageDown
+              ShortCut = 8226
+            end          
+            item
+              Command = ecPageBottom
+              ShortCut = 16418
+            end          
+            item
+              Command = ecSelPageBottom
+              ShortCut = 24610
+            end          
+            item
+              Command = ecPageUp
+              ShortCut = 33
+            end          
+            item
+              Command = ecSelPageUp
+              ShortCut = 8225
+            end          
+            item
+              Command = ecPageTop
+              ShortCut = 16417
+            end          
+            item
+              Command = ecSelPageTop
+              ShortCut = 24609
+            end          
+            item
+              Command = ecLineStart
+              ShortCut = 36
+            end          
+            item
+              Command = ecSelLineStart
+              ShortCut = 8228
+            end          
+            item
+              Command = ecEditorTop
+              ShortCut = 16420
+            end          
+            item
+              Command = ecSelEditorTop
+              ShortCut = 24612
+            end          
+            item
+              Command = ecLineEnd
+              ShortCut = 35
+            end          
+            item
+              Command = ecSelLineEnd
+              ShortCut = 8227
+            end          
+            item
+              Command = ecEditorBottom
+              ShortCut = 16419
+            end          
+            item
+              Command = ecSelEditorBottom
+              ShortCut = 24611
+            end          
+            item
+              Command = ecToggleMode
+              ShortCut = 45
+            end          
+            item
+              Command = ecCopy
+              ShortCut = 16429
+            end          
+            item
+              Command = ecPaste
+              ShortCut = 8237
+            end          
+            item
+              Command = ecDeleteChar
+              ShortCut = 46
+            end          
+            item
+              Command = ecCut
+              ShortCut = 8238
+            end          
+            item
+              Command = ecDeleteLastChar
+              ShortCut = 8
+            end          
+            item
+              Command = ecDeleteLastChar
+              ShortCut = 8200
+            end          
+            item
+              Command = ecDeleteLastWord
+              ShortCut = 16392
+            end          
+            item
+              Command = ecUndo
+              ShortCut = 32776
+            end          
+            item
+              Command = ecRedo
+              ShortCut = 40968
+            end          
+            item
+              Command = ecLineBreak
+              ShortCut = 13
+            end          
+            item
+              Command = ecSelectAll
+              ShortCut = 16449
+            end          
+            item
+              Command = ecCopy
+              ShortCut = 16451
+            end          
+            item
+              Command = ecBlockIndent
+              ShortCut = 16457
+            end          
+            item
+              Command = ecLineBreak
+              ShortCut = 16461
+            end          
+            item
+              Command = ecInsertLine
+              ShortCut = 16462
+            end          
+            item
+              Command = ecDeleteWord
+              ShortCut = 16468
+            end          
+            item
+              Command = ecBlockUnindent
+              ShortCut = 16469
+            end          
+            item
+              Command = ecPaste
+              ShortCut = 16470
+            end          
+            item
+              Command = ecCut
+              ShortCut = 16472
+            end          
+            item
+              Command = ecDeleteLine
+              ShortCut = 16473
+            end          
+            item
+              Command = ecDeleteEOL
+              ShortCut = 24665
+            end          
+            item
+              Command = ecUndo
+              ShortCut = 16474
+            end          
+            item
+              Command = ecRedo
+              ShortCut = 24666
+            end          
+            item
+              Command = ecGotoMarker0
+              ShortCut = 16432
+            end          
+            item
+              Command = ecGotoMarker1
+              ShortCut = 16433
+            end          
+            item
+              Command = ecGotoMarker2
+              ShortCut = 16434
+            end          
+            item
+              Command = ecGotoMarker3
+              ShortCut = 16435
+            end          
+            item
+              Command = ecGotoMarker4
+              ShortCut = 16436
+            end          
+            item
+              Command = ecGotoMarker5
+              ShortCut = 16437
+            end          
+            item
+              Command = ecGotoMarker6
+              ShortCut = 16438
+            end          
+            item
+              Command = ecGotoMarker7
+              ShortCut = 16439
+            end          
+            item
+              Command = ecGotoMarker8
+              ShortCut = 16440
+            end          
+            item
+              Command = ecGotoMarker9
+              ShortCut = 16441
+            end          
+            item
+              Command = ecSetMarker0
+              ShortCut = 24624
+            end          
+            item
+              Command = ecSetMarker1
+              ShortCut = 24625
+            end          
+            item
+              Command = ecSetMarker2
+              ShortCut = 24626
+            end          
+            item
+              Command = ecSetMarker3
+              ShortCut = 24627
+            end          
+            item
+              Command = ecSetMarker4
+              ShortCut = 24628
+            end          
+            item
+              Command = ecSetMarker5
+              ShortCut = 24629
+            end          
+            item
+              Command = ecSetMarker6
+              ShortCut = 24630
+            end          
+            item
+              Command = ecSetMarker7
+              ShortCut = 24631
+            end          
+            item
+              Command = ecSetMarker8
+              ShortCut = 24632
+            end          
+            item
+              Command = ecSetMarker9
+              ShortCut = 24633
+            end          
+            item
+              Command = EcFoldLevel1
+              ShortCut = 41009
+            end          
+            item
+              Command = EcFoldLevel2
+              ShortCut = 41010
+            end          
+            item
+              Command = EcFoldLevel3
+              ShortCut = 41011
+            end          
+            item
+              Command = EcFoldLevel4
+              ShortCut = 41012
+            end          
+            item
+              Command = EcFoldLevel5
+              ShortCut = 41013
+            end          
+            item
+              Command = EcFoldLevel6
+              ShortCut = 41014
+            end          
+            item
+              Command = EcFoldLevel7
+              ShortCut = 41015
+            end          
+            item
+              Command = EcFoldLevel8
+              ShortCut = 41016
+            end          
+            item
+              Command = EcFoldLevel9
+              ShortCut = 41017
+            end          
+            item
+              Command = EcFoldLevel0
+              ShortCut = 41008
+            end          
+            item
+              Command = EcFoldCurrent
+              ShortCut = 41005
+            end          
+            item
+              Command = EcUnFoldCurrent
+              ShortCut = 41003
+            end          
+            item
+              Command = EcToggleMarkupWord
+              ShortCut = 32845
+            end          
+            item
+              Command = ecNormalSelect
+              ShortCut = 24654
+            end          
+            item
+              Command = ecColumnSelect
+              ShortCut = 24643
+            end          
+            item
+              Command = ecLineSelect
+              ShortCut = 24652
+            end          
+            item
+              Command = ecTab
+              ShortCut = 9
+            end          
+            item
+              Command = ecShiftTab
+              ShortCut = 8201
+            end          
+            item
+              Command = ecMatchBracket
+              ShortCut = 24642
+            end          
+            item
+              Command = ecColSelUp
+              ShortCut = 40998
+            end          
+            item
+              Command = ecColSelDown
+              ShortCut = 41000
+            end          
+            item
+              Command = ecColSelLeft
+              ShortCut = 40997
+            end          
+            item
+              Command = ecColSelRight
+              ShortCut = 40999
+            end          
+            item
+              Command = ecColSelPageDown
+              ShortCut = 40994
+            end          
+            item
+              Command = ecColSelPageBottom
+              ShortCut = 57378
+            end          
+            item
+              Command = ecColSelPageUp
+              ShortCut = 40993
+            end          
+            item
+              Command = ecColSelPageTop
+              ShortCut = 57377
+            end          
+            item
+              Command = ecColSelLineStart
+              ShortCut = 40996
+            end          
+            item
+              Command = ecColSelLineEnd
+              ShortCut = 40995
+            end          
+            item
+              Command = ecColSelEditorTop
+              ShortCut = 57380
+            end          
+            item
+              Command = ecColSelEditorBottom
+              ShortCut = 57379
+            end>
           MouseActions = <>
           MouseTextActions = <>
           MouseSelActions = <>
@@ -2673,6 +2784,8 @@ object frmACBrNFSe: TfrmACBrNFSe
             object SynGutterMarks1: TSynGutterMarks
               Width = 24
               MouseActions = <>
+              MaxExtraMarksColums = 0
+              Options = [sgmoDeDuplicateMarksOnOverflow]
             end
             object SynGutterLineNumber1: TSynGutterLineNumber
               Width = 17
@@ -2708,15 +2821,11 @@ object frmACBrNFSe: TfrmACBrNFSe
       end
       object TabSheet5: TTabSheet
         Caption = 'XML das Notas'
-        ClientHeight = 410
+        ClientHeight = 412
         ClientWidth = 559
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        ParentFont = False
         inline WBXmlNotas: TSynEdit
           Left = 0
-          Height = 410
+          Height = 412
           Top = 0
           Width = 559
           Align = alClient
@@ -2731,7 +2840,428 @@ object frmACBrNFSe: TfrmACBrNFSe
           Gutter.MouseActions = <>
           RightGutter.Width = 0
           RightGutter.MouseActions = <>
-          Keystrokes = <>
+          Highlighter = SynXMLSyn1
+          Keystrokes = <          
+            item
+              Command = ecUp
+              ShortCut = 38
+            end          
+            item
+              Command = ecSelUp
+              ShortCut = 8230
+            end          
+            item
+              Command = ecScrollUp
+              ShortCut = 16422
+            end          
+            item
+              Command = ecDown
+              ShortCut = 40
+            end          
+            item
+              Command = ecSelDown
+              ShortCut = 8232
+            end          
+            item
+              Command = ecScrollDown
+              ShortCut = 16424
+            end          
+            item
+              Command = ecLeft
+              ShortCut = 37
+            end          
+            item
+              Command = ecSelLeft
+              ShortCut = 8229
+            end          
+            item
+              Command = ecWordLeft
+              ShortCut = 16421
+            end          
+            item
+              Command = ecSelWordLeft
+              ShortCut = 24613
+            end          
+            item
+              Command = ecRight
+              ShortCut = 39
+            end          
+            item
+              Command = ecSelRight
+              ShortCut = 8231
+            end          
+            item
+              Command = ecWordRight
+              ShortCut = 16423
+            end          
+            item
+              Command = ecSelWordRight
+              ShortCut = 24615
+            end          
+            item
+              Command = ecPageDown
+              ShortCut = 34
+            end          
+            item
+              Command = ecSelPageDown
+              ShortCut = 8226
+            end          
+            item
+              Command = ecPageBottom
+              ShortCut = 16418
+            end          
+            item
+              Command = ecSelPageBottom
+              ShortCut = 24610
+            end          
+            item
+              Command = ecPageUp
+              ShortCut = 33
+            end          
+            item
+              Command = ecSelPageUp
+              ShortCut = 8225
+            end          
+            item
+              Command = ecPageTop
+              ShortCut = 16417
+            end          
+            item
+              Command = ecSelPageTop
+              ShortCut = 24609
+            end          
+            item
+              Command = ecLineStart
+              ShortCut = 36
+            end          
+            item
+              Command = ecSelLineStart
+              ShortCut = 8228
+            end          
+            item
+              Command = ecEditorTop
+              ShortCut = 16420
+            end          
+            item
+              Command = ecSelEditorTop
+              ShortCut = 24612
+            end          
+            item
+              Command = ecLineEnd
+              ShortCut = 35
+            end          
+            item
+              Command = ecSelLineEnd
+              ShortCut = 8227
+            end          
+            item
+              Command = ecEditorBottom
+              ShortCut = 16419
+            end          
+            item
+              Command = ecSelEditorBottom
+              ShortCut = 24611
+            end          
+            item
+              Command = ecToggleMode
+              ShortCut = 45
+            end          
+            item
+              Command = ecCopy
+              ShortCut = 16429
+            end          
+            item
+              Command = ecPaste
+              ShortCut = 8237
+            end          
+            item
+              Command = ecDeleteChar
+              ShortCut = 46
+            end          
+            item
+              Command = ecCut
+              ShortCut = 8238
+            end          
+            item
+              Command = ecDeleteLastChar
+              ShortCut = 8
+            end          
+            item
+              Command = ecDeleteLastChar
+              ShortCut = 8200
+            end          
+            item
+              Command = ecDeleteLastWord
+              ShortCut = 16392
+            end          
+            item
+              Command = ecUndo
+              ShortCut = 32776
+            end          
+            item
+              Command = ecRedo
+              ShortCut = 40968
+            end          
+            item
+              Command = ecLineBreak
+              ShortCut = 13
+            end          
+            item
+              Command = ecSelectAll
+              ShortCut = 16449
+            end          
+            item
+              Command = ecCopy
+              ShortCut = 16451
+            end          
+            item
+              Command = ecBlockIndent
+              ShortCut = 16457
+            end          
+            item
+              Command = ecLineBreak
+              ShortCut = 16461
+            end          
+            item
+              Command = ecInsertLine
+              ShortCut = 16462
+            end          
+            item
+              Command = ecDeleteWord
+              ShortCut = 16468
+            end          
+            item
+              Command = ecBlockUnindent
+              ShortCut = 16469
+            end          
+            item
+              Command = ecPaste
+              ShortCut = 16470
+            end          
+            item
+              Command = ecCut
+              ShortCut = 16472
+            end          
+            item
+              Command = ecDeleteLine
+              ShortCut = 16473
+            end          
+            item
+              Command = ecDeleteEOL
+              ShortCut = 24665
+            end          
+            item
+              Command = ecUndo
+              ShortCut = 16474
+            end          
+            item
+              Command = ecRedo
+              ShortCut = 24666
+            end          
+            item
+              Command = ecGotoMarker0
+              ShortCut = 16432
+            end          
+            item
+              Command = ecGotoMarker1
+              ShortCut = 16433
+            end          
+            item
+              Command = ecGotoMarker2
+              ShortCut = 16434
+            end          
+            item
+              Command = ecGotoMarker3
+              ShortCut = 16435
+            end          
+            item
+              Command = ecGotoMarker4
+              ShortCut = 16436
+            end          
+            item
+              Command = ecGotoMarker5
+              ShortCut = 16437
+            end          
+            item
+              Command = ecGotoMarker6
+              ShortCut = 16438
+            end          
+            item
+              Command = ecGotoMarker7
+              ShortCut = 16439
+            end          
+            item
+              Command = ecGotoMarker8
+              ShortCut = 16440
+            end          
+            item
+              Command = ecGotoMarker9
+              ShortCut = 16441
+            end          
+            item
+              Command = ecSetMarker0
+              ShortCut = 24624
+            end          
+            item
+              Command = ecSetMarker1
+              ShortCut = 24625
+            end          
+            item
+              Command = ecSetMarker2
+              ShortCut = 24626
+            end          
+            item
+              Command = ecSetMarker3
+              ShortCut = 24627
+            end          
+            item
+              Command = ecSetMarker4
+              ShortCut = 24628
+            end          
+            item
+              Command = ecSetMarker5
+              ShortCut = 24629
+            end          
+            item
+              Command = ecSetMarker6
+              ShortCut = 24630
+            end          
+            item
+              Command = ecSetMarker7
+              ShortCut = 24631
+            end          
+            item
+              Command = ecSetMarker8
+              ShortCut = 24632
+            end          
+            item
+              Command = ecSetMarker9
+              ShortCut = 24633
+            end          
+            item
+              Command = EcFoldLevel1
+              ShortCut = 41009
+            end          
+            item
+              Command = EcFoldLevel2
+              ShortCut = 41010
+            end          
+            item
+              Command = EcFoldLevel3
+              ShortCut = 41011
+            end          
+            item
+              Command = EcFoldLevel4
+              ShortCut = 41012
+            end          
+            item
+              Command = EcFoldLevel5
+              ShortCut = 41013
+            end          
+            item
+              Command = EcFoldLevel6
+              ShortCut = 41014
+            end          
+            item
+              Command = EcFoldLevel7
+              ShortCut = 41015
+            end          
+            item
+              Command = EcFoldLevel8
+              ShortCut = 41016
+            end          
+            item
+              Command = EcFoldLevel9
+              ShortCut = 41017
+            end          
+            item
+              Command = EcFoldLevel0
+              ShortCut = 41008
+            end          
+            item
+              Command = EcFoldCurrent
+              ShortCut = 41005
+            end          
+            item
+              Command = EcUnFoldCurrent
+              ShortCut = 41003
+            end          
+            item
+              Command = EcToggleMarkupWord
+              ShortCut = 32845
+            end          
+            item
+              Command = ecNormalSelect
+              ShortCut = 24654
+            end          
+            item
+              Command = ecColumnSelect
+              ShortCut = 24643
+            end          
+            item
+              Command = ecLineSelect
+              ShortCut = 24652
+            end          
+            item
+              Command = ecTab
+              ShortCut = 9
+            end          
+            item
+              Command = ecShiftTab
+              ShortCut = 8201
+            end          
+            item
+              Command = ecMatchBracket
+              ShortCut = 24642
+            end          
+            item
+              Command = ecColSelUp
+              ShortCut = 40998
+            end          
+            item
+              Command = ecColSelDown
+              ShortCut = 41000
+            end          
+            item
+              Command = ecColSelLeft
+              ShortCut = 40997
+            end          
+            item
+              Command = ecColSelRight
+              ShortCut = 40999
+            end          
+            item
+              Command = ecColSelPageDown
+              ShortCut = 40994
+            end          
+            item
+              Command = ecColSelPageBottom
+              ShortCut = 57378
+            end          
+            item
+              Command = ecColSelPageUp
+              ShortCut = 40993
+            end          
+            item
+              Command = ecColSelPageTop
+              ShortCut = 57377
+            end          
+            item
+              Command = ecColSelLineStart
+              ShortCut = 40996
+            end          
+            item
+              Command = ecColSelLineEnd
+              ShortCut = 40995
+            end          
+            item
+              Command = ecColSelEditorTop
+              ShortCut = 57380
+            end          
+            item
+              Command = ecColSelEditorBottom
+              ShortCut = 57379
+            end>
           MouseActions = <>
           MouseTextActions = <>
           MouseSelActions = <>
@@ -2758,6 +3288,8 @@ object frmACBrNFSe: TfrmACBrNFSe
             object SynGutterMarks1: TSynGutterMarks
               Width = 24
               MouseActions = <>
+              MaxExtraMarksColums = 0
+              Options = [sgmoDeDuplicateMarksOnOverflow]
             end
             object SynGutterLineNumber1: TSynGutterLineNumber
               Width = 17
@@ -2795,24 +3327,16 @@ object frmACBrNFSe: TfrmACBrNFSe
     object pgcProvedores: TPageControl
       Left = 1
       Height = 163
-      Top = 1
+      Top = 41
       Width = 567
       ActivePage = tsDemais
       Align = alTop
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      ParentFont = False
       TabIndex = 0
       TabOrder = 1
       object tsDemais: TTabSheet
         Caption = 'Demais Provedores'
         ClientHeight = 137
         ClientWidth = 559
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        ParentFont = False
         object pgcBotoes: TPageControl
           Left = 0
           Height = 137
@@ -2820,33 +3344,21 @@ object frmACBrNFSe: TfrmACBrNFSe
           Width = 559
           ActivePage = tsEnvios
           Align = alClient
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
           TabIndex = 0
           TabOrder = 0
           object tsEnvios: TTabSheet
             Caption = 'Envios'
             ClientHeight = 111
             ClientWidth = 551
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 2
-            ParentFont = False
             object btnGerarEnviarLote: TButton
               Left = 1
               Height = 25
               Top = 41
               Width = 177
               Caption = 'Enviar Lote RPS (Assíncrono)'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnGerarEnviarLoteClick
-              ParentFont = False
               TabOrder = 3
+              OnClick = btnGerarEnviarLoteClick
             end
             object btnGerarEnviarNFSe: TButton
               Left = 184
@@ -2854,12 +3366,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 40
               Width = 177
               Caption = 'Enviar um RPS (Unitário)'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnGerarEnviarNFSeClick
-              ParentFont = False
               TabOrder = 4
+              OnClick = btnGerarEnviarNFSeClick
             end
             object btnGerarEnviarSincrono: TButton
               Left = 367
@@ -2867,12 +3375,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 40
               Width = 177
               Caption = 'Enviar Lote RPS (Síncrono)'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnGerarEnviarSincronoClick
-              ParentFont = False
               TabOrder = 5
+              OnClick = btnGerarEnviarSincronoClick
             end
             object btnImprimir: TButton
               Left = 184
@@ -2880,12 +3384,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 10
               Width = 177
               Caption = 'Imprimir DANFSe'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnImprimirClick
-              ParentFont = False
               TabOrder = 1
+              OnClick = btnImprimirClick
             end
             object btnEnviaremail: TButton
               Left = 367
@@ -2893,12 +3393,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 10
               Width = 177
               Caption = 'Enviar e-mail'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnEnviarEmailClick
-              ParentFont = False
               TabOrder = 2
+              OnClick = btnEnviarEmailClick
             end
             object btnLinkNFSe: TButton
               Left = 184
@@ -2906,12 +3402,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 72
               Width = 177
               Caption = 'Link NFSe'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnLinkNFSeClick
-              ParentFont = False
               TabOrder = 7
+              OnClick = btnLinkNFSeClick
             end
             object btnGerarLoteRPS: TButton
               Left = 367
@@ -2919,12 +3411,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 72
               Width = 177
               Caption = 'Gerar Lote RPS'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnGerarLoteRPSClick
-              ParentFont = False
               TabOrder = 8
+              OnClick = btnGerarLoteRPSClick
             end
             object btnSubsNFSe: TButton
               Left = 1
@@ -2932,12 +3420,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 72
               Width = 177
               Caption = 'Substituir NFSe'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnSubsNFSeClick
-              ParentFont = False
               TabOrder = 6
+              OnClick = btnSubsNFSeClick
             end
             object btnEmitir: TButton
               Left = 1
@@ -2949,32 +3433,24 @@ object frmACBrNFSe: TfrmACBrNFSe
               Font.Height = -13
               Font.Name = 'Tahoma'
               Font.Style = [fsBold]
-              OnClick = btnEmitirClick
               ParentFont = False
               TabOrder = 0
+              OnClick = btnEmitirClick
             end
           end
           object tsConsultas: TTabSheet
             Caption = 'Consultas'
             ClientHeight = 111
             ClientWidth = 551
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 3
-            ParentFont = False
             object btnConsultarSitLote: TButton
               Left = 3
               Height = 25
               Top = 10
               Width = 177
               Caption = 'Consultar Situação do Lote'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarSitLoteClick
-              ParentFont = False
               TabOrder = 0
+              OnClick = btnConsultarSitLoteClick
             end
             object btnConsultarLote: TButton
               Left = 186
@@ -2982,12 +3458,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 10
               Width = 177
               Caption = 'Consultar Lote'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarLoteClick
-              ParentFont = False
               TabOrder = 1
+              OnClick = btnConsultarLoteClick
             end
             object btnConsultarNFSeRPS: TButton
               Left = 369
@@ -2995,12 +3467,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 10
               Width = 177
               Caption = 'Consultar NFSe por RPS'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSeRPSClick
-              ParentFont = False
               TabOrder = 2
+              OnClick = btnConsultarNFSeRPSClick
             end
             object btnConsultarNFSePeriodo: TButton
               Left = 186
@@ -3008,12 +3476,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 41
               Width = 177
               Caption = 'Consultar NFSe por Período'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSePeriodoClick
-              ParentFont = False
               TabOrder = 4
+              OnClick = btnConsultarNFSePeriodoClick
             end
             object btnConsultarNFSePeloNumero: TButton
               Left = 3
@@ -3021,12 +3485,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 41
               Width = 177
               Caption = 'Consultar NFSe por numero '
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSePeloNumeroClick
-              ParentFont = False
               TabOrder = 3
+              OnClick = btnConsultarNFSePeloNumeroClick
             end
             object btnConsultarNFSeFaixa: TButton
               Left = 369
@@ -3034,12 +3494,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 41
               Width = 177
               Caption = 'Consultar NFSe por Faixa'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSeFaixaClick
-              ParentFont = False
               TabOrder = 5
+              OnClick = btnConsultarNFSeFaixaClick
             end
             object btnConsultarNFSeGenerico: TButton
               Left = 186
@@ -3047,25 +3503,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 72
               Width = 177
               Caption = 'Consultar NFSe Genérico'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSeGenericoClick
-              ParentFont = False
               TabOrder = 6
-            end
-            object btnConsultarNFSePelaChave: TButton
-              Left = 3
-              Height = 25
-              Top = 72
-              Width = 177
-              Caption = 'Consultar NFSe por Chave'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSePelaChaveClick
-              ParentFont = False
-              TabOrder = 7
+              OnClick = btnConsultarNFSeGenericoClick
             end
             object btnConsultarLinkNFSe: TButton
               Left = 369
@@ -3073,35 +3512,32 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 72
               Width = 177
               Caption = 'Consultar Link NFSe'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
+              TabOrder = 7
               OnClick = btnConsultarLinkNFSeClick
-              ParentFont = False
+            end
+            object btnConsultarNFSePelaChave: TButton
+              Left = 3
+              Height = 25
+              Top = 72
+              Width = 177
+              Caption = 'Consultar NFSe por Chave'
               TabOrder = 8
+              OnClick = btnConsultarNFSePelaChaveClick
             end
           end
           object tsConsServPrest: TTabSheet
             Caption = 'Cons. Serv. Prestados'
             ClientHeight = 111
             ClientWidth = 551
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 4
-            ParentFont = False
             object btnConsultarNFSeServicoPrestadoPorNumero: TButton
               Left = 3
               Height = 25
               Top = 10
               Width = 238
               Caption = 'Consultar NFSe Serviço Prestado Por Número'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSeServicoPrestadoPorNumeroClick
-              ParentFont = False
               TabOrder = 0
+              OnClick = btnConsultarNFSeServicoPrestadoPorNumeroClick
             end
             object btnConsultarNFSeServicoPrestadoPorPeriodo: TButton
               Left = 259
@@ -3109,12 +3545,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 10
               Width = 262
               Caption = 'Consultar NFSe Serviço Prestado Por Periodo'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSeServicoPrestadoPorPeriodoClick
-              ParentFont = False
               TabOrder = 1
+              OnClick = btnConsultarNFSeServicoPrestadoPorPeriodoClick
             end
             object btnConsultarNFSeServicoPrestadoPorTomador: TButton
               Left = 3
@@ -3122,12 +3554,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 41
               Width = 238
               Caption = 'Consultar NFSe Serviço Prestado Por Tomador'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSeServicoPrestadoPorTomadorClick
-              ParentFont = False
               TabOrder = 2
+              OnClick = btnConsultarNFSeServicoPrestadoPorTomadorClick
             end
             object btnConsultarNFSeServicoPrestadoPorIntermediario: TButton
               Left = 259
@@ -3135,35 +3563,23 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 41
               Width = 262
               Caption = 'Consultar NFSe Serviço Prestado Por Intermediário'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSeServicoPrestadoPorIntermediarioClick
-              ParentFont = False
               TabOrder = 3
+              OnClick = btnConsultarNFSeServicoPrestadoPorIntermediarioClick
             end
           end
           object tsConsServTom: TTabSheet
             Caption = 'Cons. Serv. Tomados'
             ClientHeight = 111
             ClientWidth = 551
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 5
-            ParentFont = False
             object btnConsultarNFSeServicoTomadoPorNumero: TButton
               Left = 3
               Height = 25
               Top = 10
               Width = 238
               Caption = 'Consultar NFSe Serviço Tomado Por Número'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSeServicoTomadoPorNumeroClick
-              ParentFont = False
               TabOrder = 0
+              OnClick = btnConsultarNFSeServicoTomadoPorNumeroClick
             end
             object btnConsultarNFSeServicoTomadoPorPeriodo: TButton
               Left = 259
@@ -3171,12 +3587,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 10
               Width = 262
               Caption = 'Consultar NFSe Serviço Tomado Por Periodo'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSeServicoTomadoPorPeriodoClick
-              ParentFont = False
               TabOrder = 1
+              OnClick = btnConsultarNFSeServicoTomadoPorPeriodoClick
             end
             object btnConsultarNFSeServicoTomadoPorPrestador: TButton
               Left = 3
@@ -3184,12 +3596,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 41
               Width = 238
               Caption = 'Consultar NFSe Serviço Tomado Por Prestador'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSeServicoTomadoPorPrestadorClick
-              ParentFont = False
               TabOrder = 2
+              OnClick = btnConsultarNFSeServicoTomadoPorPrestadorClick
             end
             object btnConsultarNFSeServicoTomadoPorIntermediario: TButton
               Left = 259
@@ -3197,12 +3605,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 41
               Width = 262
               Caption = 'Consultar NFSe Serviço Tomado Por Intermediário'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSeServicoTomadoPorIntermediarioClick
-              ParentFont = False
               TabOrder = 3
+              OnClick = btnConsultarNFSeServicoTomadoPorIntermediarioClick
             end
             object btnConsultarNFSeServicoTomadoPorTomador: TButton
               Left = 3
@@ -3210,58 +3614,38 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 72
               Width = 238
               Caption = 'Consultar NFSe Serviço Tomado Por Tomador'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSeServicoTomadoPorTomadorClick
-              ParentFont = False
               TabOrder = 4
+              OnClick = btnConsultarNFSeServicoTomadoPorTomadorClick
             end
           end
           object tsCancelamento: TTabSheet
             Caption = 'Cancelamento'
             ClientHeight = 111
             ClientWidth = 551
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 4
-            ParentFont = False
             object btnCancNFSe: TButton
               Left = 3
               Height = 25
               Top = 10
               Width = 177
               Caption = 'Cancelar NFSe'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnCancNFSeClick
-              ParentFont = False
               TabOrder = 0
+              OnClick = btnCancNFSeClick
             end
           end
           object tsTeste: TTabSheet
             Caption = 'Teste'
             ClientHeight = 111
             ClientWidth = 551
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 3
-            ParentFont = False
             object btnGerarEnviarTeste_SP: TButton
               Left = 3
               Height = 25
               Top = 10
               Width = 177
               Caption = 'Enviar Lote RPS (Teste)'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnGerarEnviarTeste_SPClick
-              ParentFont = False
               TabOrder = 0
+              OnClick = btnGerarEnviarTeste_SPClick
             end
             object mmoObs: TMemo
               Left = 3
@@ -3273,7 +3657,7 @@ object frmACBrNFSe: TfrmACBrNFSe
               Font.Name = 'Tahoma'
               Font.Style = [fsBold]
               Lines.Strings = (
-                'Somente para os provedores: ISSDSF, Siat e ISSSaoPaulo.'
+                'Somente para os provedores: ISSDSF, NFSeBrasil, Siat e ISSSaoPaulo.'
               )
               ParentFont = False
               ReadOnly = True
@@ -3284,36 +3668,33 @@ object frmACBrNFSe: TfrmACBrNFSe
             Caption = 'Outros'
             ClientHeight = 111
             ClientWidth = 551
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 6
-            ParentFont = False
             object btnGerarToken: TButton
               Left = 3
               Height = 25
               Top = 10
               Width = 177
               Caption = 'Gerar Token'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnGerarTokenClick
-              ParentFont = False
               TabOrder = 0
+              OnClick = btnGerarTokenClick
             end
             object btnLerINI: TButton
               Left = 3
               Height = 25
-              Top = 40
+              Top = 41
               Width = 177
               Caption = 'Ler Arq. INI e Gerar Rps'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnLerINIClick
-              ParentFont = False
               TabOrder = 1
+              OnClick = btnLerINIClick
+            end
+            object btnGerarArqINI: TButton
+              Left = 3
+              Height = 25
+              Top = 72
+              Width = 177
+              Caption = 'Gerar Arq. INI'
+              TabOrder = 2
+              OnClick = btnGerarArqINIClick
             end
           end
         end
@@ -3322,45 +3703,29 @@ object frmACBrNFSe: TfrmACBrNFSe
         Caption = 'Provedor Padrão Nacional'
         ClientHeight = 137
         ClientWidth = 559
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
         ImageIndex = 1
-        ParentFont = False
         object pgcBotoes1: TPageControl
           Left = 0
           Height = 136
           Top = 0
           Width = 559
-          ActivePage = tsEnvios1
+          ActivePage = tsEventos1
           Align = alTop
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          ParentFont = False
-          TabIndex = 0
+          TabIndex = 1
           TabOrder = 0
           object tsEnvios1: TTabSheet
             Caption = 'Envios'
             ClientHeight = 110
             ClientWidth = 551
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 2
-            ParentFont = False
             object btnImprimirPN: TButton
               Left = 186
               Height = 25
               Top = 9
               Width = 177
               Caption = 'Imprimir DANFSe'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnImprimirPNClick
-              ParentFont = False
               TabOrder = 1
+              OnClick = btnImprimirPNClick
             end
             object btnEnviaremailPN: TButton
               Left = 369
@@ -3368,12 +3733,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 9
               Width = 177
               Caption = 'Enviar e-mail'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnEnviaremailPNClick
-              ParentFont = False
               TabOrder = 2
+              OnClick = btnEnviaremailPNClick
             end
             object btnEmitirPN: TButton
               Left = 3
@@ -3384,32 +3745,24 @@ object frmACBrNFSe: TfrmACBrNFSe
               Font.Color = clWindowText
               Font.Height = -13
               Font.Name = 'Tahoma'
-              OnClick = btnEmitirPNClick
               ParentFont = False
               TabOrder = 0
+              OnClick = btnEmitirPNClick
             end
           end
           object tsEventos1: TTabSheet
             Caption = 'Eventos'
             ClientHeight = 110
             ClientWidth = 551
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 7
-            ParentFont = False
             object btnEventoCancNFSePN: TButton
               Left = 4
               Height = 25
               Top = 13
               Width = 177
               Caption = 'Cancelar NFSe'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnEventoCancNFSePNClick
-              ParentFont = False
               TabOrder = 0
+              OnClick = btnEventoCancNFSePNClick
             end
             object btnEventoCancPorSubPN: TButton
               Left = 187
@@ -3417,12 +3770,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 13
               Width = 177
               Caption = 'Cancelar por Substituição'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnEventoCancPorSubPNClick
-              ParentFont = False
               TabOrder = 1
+              OnClick = btnEventoCancPorSubPNClick
             end
             object btnEventoAnaliseCancPN: TButton
               Left = 368
@@ -3430,12 +3779,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 13
               Width = 177
               Caption = 'Analise para Cancelamento'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnEventoAnaliseCancPNClick
-              ParentFont = False
               TabOrder = 2
+              OnClick = btnEventoAnaliseCancPNClick
             end
             object btnEventoConfPrestPN: TButton
               Left = 4
@@ -3443,12 +3788,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 44
               Width = 177
               Caption = 'Confirmação Prestador'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnEventoConfPrestPNClick
-              ParentFont = False
               TabOrder = 3
+              OnClick = btnEventoConfPrestPNClick
             end
             object btnEventoConfTomPN: TButton
               Left = 187
@@ -3456,12 +3797,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 44
               Width = 177
               Caption = 'Confirmação Tomador'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnEventoConfTomPNClick
-              ParentFont = False
               TabOrder = 4
+              OnClick = btnEventoConfTomPNClick
             end
             object btnEventoConfInterPN: TButton
               Left = 368
@@ -3469,12 +3806,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 43
               Width = 177
               Caption = 'Confirmação Intermediário'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnEventoConfInterPNClick
-              ParentFont = False
               TabOrder = 5
+              OnClick = btnEventoConfInterPNClick
             end
             object btnEventoRejPrestPN: TButton
               Left = 4
@@ -3482,12 +3815,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 75
               Width = 177
               Caption = 'Rejeição Prestador'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnEventoRejPrestPNClick
-              ParentFont = False
               TabOrder = 6
+              OnClick = btnEventoRejPrestPNClick
             end
             object btnEventoRejTomPN: TButton
               Left = 187
@@ -3495,12 +3824,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 75
               Width = 177
               Caption = 'Rejeição Tomador'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnEventoRejTomPNClick
-              ParentFont = False
               TabOrder = 7
+              OnClick = btnEventoRejTomPNClick
             end
             object btnEventoRejInterPN: TButton
               Left = 368
@@ -3508,35 +3833,23 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 75
               Width = 177
               Caption = 'Rejeição Intermediário'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnEventoRejInterPNClick
-              ParentFont = False
               TabOrder = 8
+              OnClick = btnEventoRejInterPNClick
             end
           end
           object tsConsultas1: TTabSheet
             Caption = 'Consultas'
             ClientHeight = 110
             ClientWidth = 551
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 3
-            ParentFont = False
             object btnConsultarDPSPorChavePN: TButton
               Left = 3
               Height = 25
               Top = 10
               Width = 177
               Caption = 'Consultar DPS por Chave'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarDPSPorChavePNClick
-              ParentFont = False
               TabOrder = 0
+              OnClick = btnConsultarDPSPorChavePNClick
             end
             object btnConsultarNFSePelaChavePN: TButton
               Left = 186
@@ -3544,12 +3857,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 10
               Width = 177
               Caption = 'Consultar NFSe por Chave'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarNFSePelaChavePNClick
-              ParentFont = False
               TabOrder = 1
+              OnClick = btnConsultarNFSePelaChavePNClick
             end
             object btnObterPDFdoDANFSEPN: TButton
               Left = 3
@@ -3557,12 +3866,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 72
               Width = 177
               Caption = 'Obter PDF do DANFSE'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnObterPDFdoDANFSEPNClick
-              ParentFont = False
               TabOrder = 2
+              OnClick = btnObterPDFdoDANFSEPNClick
             end
             object btnConsultarEventoChavPN: TButton
               Left = 3
@@ -3570,12 +3875,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 41
               Width = 177
               Caption = 'Consultar Evento por Chave'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarEventoChavPNClick
-              ParentFont = False
               TabOrder = 3
+              OnClick = btnConsultarEventoChavPNClick
             end
             object btnConsultarDFe: TButton
               Left = 186
@@ -3583,48 +3884,32 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 41
               Width = 177
               Caption = 'Consultar DFe'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarDFeClick
-              ParentFont = False
               TabOrder = 4
+              OnClick = btnConsultarDFeClick
             end
           end
           object tsConsultarParametros: TTabSheet
             Caption = 'Consultar Parâmetros Municipais'
             ClientHeight = 110
             ClientWidth = 551
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
             ImageIndex = 3
-            ParentFont = False
             object btnConsultarParamMunicConvenio: TButton
               Left = 368
               Height = 25
               Top = 10
               Width = 177
               Caption = 'Convênio'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarParamMunicConvenioClick
-              ParentFont = False
               TabOrder = 0
+              OnClick = btnConsultarParamMunicConvenioClick
             end
             object btnConsultarParamMunicAliquota: TButton
               Left = 3
               Height = 25
-              Top = 9
+              Top = 10
               Width = 177
               Caption = 'Aliquota'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarParamMunicAliquotaClick
-              ParentFont = False
               TabOrder = 1
+              OnClick = btnConsultarParamMunicAliquotaClick
             end
             object btnConsultarParamMunicHistAliquota: TButton
               Left = 186
@@ -3632,12 +3917,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 10
               Width = 177
               Caption = 'Historico Aliquotas'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarParamMunicHistAliquotaClick
-              ParentFont = False
               TabOrder = 2
+              OnClick = btnConsultarParamMunicHistAliquotaClick
             end
             object btnConsultarParamMunicRegimesEspeciais: TButton
               Left = 3
@@ -3645,12 +3926,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 44
               Width = 177
               Caption = 'Regimes Especiais'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarParamMunicRegimesEspeciaisClick
-              ParentFont = False
               TabOrder = 3
+              OnClick = btnConsultarParamMunicRegimesEspeciaisClick
             end
             object btnConsultarParamMunicRetencoes: TButton
               Left = 186
@@ -3658,12 +3935,8 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 44
               Width = 177
               Caption = 'Retenções'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarParamMunicRetencoesClick
-              ParentFont = False
               TabOrder = 4
+              OnClick = btnConsultarParamMunicRetencoesClick
             end
             object btnConsultarParamMunicBeneficio: TButton
               Left = 369
@@ -3671,24 +3944,75 @@ object frmACBrNFSe: TfrmACBrNFSe
               Top = 44
               Width = 177
               Caption = 'Beneficio'
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              OnClick = btnConsultarParamMunicBeneficioClick
-              ParentFont = False
               TabOrder = 5
+              OnClick = btnConsultarParamMunicBeneficioClick
+            end
+          end
+          object tsOutrosPN: TTabSheet
+            Caption = 'Outros'
+            ClientHeight = 110
+            ClientWidth = 551
+            ImageIndex = 4
+            object btnLerINIPN: TButton
+              Left = 11
+              Height = 25
+              Top = 17
+              Width = 134
+              Caption = 'Ler Arq. INI e Gerar Lote'
+              TabOrder = 0
+              OnClick = btnLerINIPNClick
+            end
+            object btnGerarArqINIPN: TButton
+              Left = 11
+              Height = 25
+              Top = 64
+              Width = 134
+              Caption = 'Gerar Arq. INI'
+              TabOrder = 1
+              OnClick = btnGerarArqINIPNClick
             end
           end
         end
       end
+    end
+    object rgReformaTributaria: TRadioGroup
+      Left = 1
+      Height = 40
+      Top = 1
+      Width = 567
+      Align = alTop
+      AutoFill = True
+      Caption = 'Gera os campos da ReformaTributaria (somente Padrão Nacional)'
+      ChildSizing.LeftRightSpacing = 6
+      ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+      ChildSizing.EnlargeVertical = crsHomogenousChildResize
+      ChildSizing.ShrinkHorizontal = crsScaleChilds
+      ChildSizing.ShrinkVertical = crsScaleChilds
+      ChildSizing.Layout = cclLeftToRightThenTopToBottom
+      ChildSizing.ControlsPerLine = 2
+      ClientHeight = 22
+      ClientWidth = 563
+      Columns = 2
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ItemIndex = 1
+      Items.Strings = (
+        'Sim'
+        'Não'
+      )
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 2
     end
   end
   object OpenDialog1: TOpenDialog
     Title = 'Selecione a NFe'
     DefaultExt = '.*-nfe.XML'
     Filter = 'Arquivos NFE (*-nfe.XML)|*-nfe.XML|Arquivos XML (*.XML)|*.XML|Todos os Arquivos (*.*)|*.*'
-    Left = 336
-    Top = 208
+    Left = 352
+    Top = 248
   end
   object ACBrMail1: TACBrMail
     Host = '127.0.0.1'
@@ -3698,8 +4022,8 @@ object frmACBrNFSe: TfrmACBrNFSe
     Attempts = 3
     DefaultCharset = UTF_8
     IDECharset = CP1252
-    Left = 336
-    Top = 320
+    Left = 352
+    Top = 360
   end
   object ACBrNFSeX1: TACBrNFSeX
     MAIL = ACBrMail1
@@ -3714,13 +4038,15 @@ object frmACBrNFSe: TfrmACBrNFSe
     Configuracoes.Geral.Provedor = proNenhum
     Configuracoes.Geral.Versao = ve100
     Configuracoes.Geral.Emitente.DadosEmitente.Email = 'contato@provedor.com.br'
+    Configuracoes.Geral.FormatoDiscriminacao = fdTabulado
     Configuracoes.Arquivos.OrdenacaoPath = <>
+    Configuracoes.Arquivos.TabServicosExt = True
     Configuracoes.WebServices.UF = 'SP'
     Configuracoes.WebServices.AguardarConsultaRet = 0
     Configuracoes.WebServices.QuebradeLinha = '|'
     DANFSE = ACBrNFSeXDANFSeRL1
-    Left = 334
-    Top = 265
+    Left = 350
+    Top = 305
   end
   object ACBrNFSeXDANFSeRL1: TACBrNFSeXDANFSeRL
     Sistema = 'Projeto ACBr - www.projetoacbr.com.br'
@@ -3743,11 +4069,18 @@ object frmACBrNFSe: TfrmACBrNFSe
     CasasDecimais.MaskAliquota = ',0.00'
     ACBrNFSe = ACBrNFSeX1
     Cancelada = False
-    Provedor = proNenhum
     TamanhoFonte = 6
     FormatarNumeroDocumentoNFSe = True
+    Provedor = proNenhum
     Producao = snSim
-    Left = 470
-    Top = 265
+    Left = 486
+    Top = 305
+  end
+  object SynXMLSyn1: TSynXMLSyn
+    DefaultFilter = 'XML Document (*.xml,*.xsd,*.xsl,*.xslt,*.dtd)|*.xml;*.xsd;*.xsl;*.xslt;*.dtd'
+    Enabled = False
+    WantBracesParsed = False
+    Left = 616
+    Top = 288
   end
 end

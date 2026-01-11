@@ -100,19 +100,23 @@ type
     function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
   end;
 
-  TACBrNFSeProviderfintelISS204 = class (TACBrNFSeProviderfintelISS202)
+  TACBrNFSeProviderfintelISS204 = class (TACBrNFSeProviderABRASFv2)
   protected
     procedure Configuracao; override;
 
     function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; override;
     function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
+  public
+    function GetSchemaPath: string; override;
   end;
 
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrUtil.XMLHTML,
+  ACBrUtil.FilesIO,
   ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, fintelISS.GravarXml, fintelISS.LerXml;
 
@@ -180,7 +184,7 @@ function TACBrNFSeProviderfintelISS200.GetSchemaPath: string;
 begin
   Result := inherited GetSchemaPath;
 
-  Result := Result + ConfigGeral.CodIBGE + '\';
+  Result := PathWithDelim(Result + ConfigGeral.CodIBGE);
 end;
 
 { TACBrNFSeXWebservicefintelISS200 }
@@ -422,6 +426,19 @@ procedure TACBrNFSeProviderfintelISS204.Configuracao;
 begin
   inherited Configuracao;
 
+  ConfigGeral.DetalharServico := True;
+
+  ConfigGeral.Particularidades.PermiteMaisDeUmServico := True;
+  ConfigGeral.Particularidades.PermiteTagOutrasInformacoes := True;
+
+  with ConfigAssinar do
+  begin
+    Rps := False;
+    LoteRps := True;
+    CancelarNFSe := True;
+    RpsGerarNFSe := True;
+  end;
+
   with ConfigWebServices do
   begin
     VersaoDados := '2.04';
@@ -465,6 +482,11 @@ begin
     else
       raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
   end;
+end;
+
+function TACBrNFSeProviderfintelISS204.GetSchemaPath: string;
+begin
+  Result := inherited GetSchemaPath;
 end;
 
 { TACBrNFSeXWebservicefintelISS204 }

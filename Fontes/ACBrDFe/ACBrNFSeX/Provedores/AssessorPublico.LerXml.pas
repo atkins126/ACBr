@@ -38,8 +38,11 @@ interface
 
 uses
   SysUtils, Classes, StrUtils, IniFiles,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXConversao, ACBrNFSeXLerXml;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrDFe.Conversao,
+  ACBrNFSeXConversao,
+  ACBrNFSeXLerXml;
 
 type
   { TNFSeR_AssessorPublico }
@@ -97,7 +100,7 @@ begin
   DataCancel := ObterConteudo(ANode.Childrens.FindAnyNs('DATACANCEL'), tcStr);
   HoraCancel := ObterConteudo(ANode.Childrens.FindAnyNs('HORACANCEL'), tcStr);
 
-  if OnlyNumber(HoraCancel) <> '' then
+  if (OnlyNumber(DataCancel) <> '') and (OnlyNumber(HoraCancel) <> '') then
     DataCancel := DataCancel + ' ' + HoraCancel;
 
   if OnlyNumber(DataCancel) <> '' then
@@ -260,7 +263,7 @@ begin
   with NFSe.Prestador.IdentificacaoPrestador do
   begin
     CpfCnpj := ObterConteudo(AuxNode.Childrens.FindAnyNs('PRESTCPFCNPJ'), tcStr);
-    InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('PRESTCODMOBILIARIO'), tcStr);
+    InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('PRESTINSCRICAOMUN'), tcStr);
   end;
 
   with NFSe.Prestador.Endereco do

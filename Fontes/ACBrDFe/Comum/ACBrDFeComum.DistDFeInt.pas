@@ -38,6 +38,8 @@ interface
 
 uses
   SysUtils, Classes,
+  ACBrXmlBase,
+  ACBrDFe.Conversao,
   pcnConversao;
 
 type
@@ -113,6 +115,7 @@ function TDistDFeInt.GerarXML: string;
 var
  sNSU, sTagGrupoMsgIni, sTagGrupoMsgFim,
  xUFAutor, xDoc, xConsulta: string;
+ Tamanho: Integer;
 begin
   sTagGrupoMsgIni := '';
   sTagGrupoMsgFim := '';
@@ -124,10 +127,27 @@ begin
     sTagGrupoMsgFim := '</' + FptagGrupoMsg + '>';
   end;
 
-  if FpGerarcUFAutor then
+  if FpGerarcUFAutor and (cUFAutor > 0) then
     xUFAutor := '<cUFAutor>' + IntToStr(cUFAutor) + '</cUFAutor>';
 
-  if Length(CNPJCPF) = 14 then
+  CNPJCPF := OnlyAlphaNum(trim(CNPJCPF));
+  Tamanho := length(CNPJCPF);
+
+  if (Tamanho > 0) and (Tamanho <= 11) then
+  begin
+    CNPJCPF := PadLeft(CNPJCPF, 11, '0');
+    Tamanho := 11;
+  end
+  else
+  begin
+    if (Tamanho > 0) and (Tamanho <> 14) then
+    begin
+      CNPJCPF := PadLeft(CNPJCPF, 14, '0');
+      Tamanho := 14;
+    end;
+  end;
+
+  if Tamanho = 14 then
     xDoc := '<CNPJ>' + CNPJCPF + '</CNPJ>'
   else
     xDoc := '<CPF>' + CNPJCPF + '</CPF>';
@@ -154,7 +174,7 @@ begin
 
   Result := sTagGrupoMsgIni +
               '<distDFeInt ' + FpNameSpace + ' versao="' + FpVersao + '">' +
-                '<tpAmb>' + tpAmbToStr(tpAmb) + '</tpAmb>' +
+                '<tpAmb>' + TpAmbToStr(tpAmb) + '</tpAmb>' +
                 xUFAutor +
                 xDoc +
                 xConsulta +

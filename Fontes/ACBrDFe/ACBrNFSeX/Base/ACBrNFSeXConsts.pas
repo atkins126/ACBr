@@ -54,7 +54,18 @@ resourcestring
   DSC_MUNINCI = 'Municipio de Incidencia';
   DSC_INDRESPRET = 'Indicador de Responsável pela Retenção';
   DSC_COBRA = 'Código da Obra';
+  DSC_TOBRA = 'Tipo Identificação Obra';
+  DSC_EOBRA = 'Endereço da obra';
+  DSC_NEOBRA = 'Número do endereço da obra';
+  DSC_CEOBRA = 'Complemento do endereço da obra';
+  DSC_BEOBRA = 'Bairro do endereço da obra';
+  DSC_CODMUNOBRA = 'Código do município da obra';
+  DSC_CEPOBRA = 'Cep do endereço da obra';
+  DSC_UFOBRA = 'UF do endereço da obra';
   DSC_ART = 'Arte';
+  DSC_LOCAL_CONSTRUCAO = 'Local Construção';
+  DSC_CIB = 'Cib';
+  DSC_INSCMOB = 'Inscricao imobiliária da obra';
   DSC_QPARC = 'Quantidade de Parcelas';
   DSC_NPARC = 'Numero da Parcela';
   DSC_VPARC = 'Valor da Parcela';
@@ -101,6 +112,7 @@ resourcestring
   DSC_VDESCINCOND = 'Valor Desconto Incondicionado';
   DSC_VDESCCOND = 'Valor Desconto Condicionado';
   DSC_VDESC = 'Valor do desconto';
+  DSC_CNBS = 'Codigo da lista de Nomenclatura Brasileira de Serviços (NBS)';
 
   DSC_INDISS = 'Indicador da Exigibilidade do ISS';
   DSC_NPROCESSO = 'Número do Processo';
@@ -115,6 +127,7 @@ resourcestring
   DSC_CPF = 'CPF';
   DSC_IE = 'Inscrição Estadual';
   DSC_IM = 'Inscrição Municipal';
+  DSC_NIF = 'NIF';
 
   // Descrição de Identificação do Documento Fiscal - Futuramente vai para ACBrDFeConst
   DSC_TPAMB = 'Identificação do Ambiente';
@@ -145,6 +158,9 @@ resourcestring
   DSC_XPAIS = 'Nome do País';
   DSC_FONE = 'Telefone';
   DSC_EMAIL = 'Endereço de E-mail';
+
+  // Reforma Tributária
+  DSC_REFNFSE = 'Chave da NFS-e referenciada';
 
   // Descrição de Mensagens de Erro - Futuramente vai para ACBrDFeConst
   ERR_MSG_MAIOR = 'Tamanho maior que o máximo permitido';
@@ -241,6 +257,10 @@ resourcestring
   Desc134 = 'Número da NFSe ou RPS não informado.';
   Cod135 = 'X135';
   Desc135 = 'Número da NFSe Substituta não informado.';
+  Cod136 = 'X136';
+  Desc136 =	'Data de Recibo não informada.';
+  Cod137 = 'X137';
+  Desc137 = 'CNPJ do Prestador não informado.';
 
   Cod201 = 'X201';
   Desc201 = 'WebService retornou um XML vazio.';
@@ -268,6 +288,8 @@ resourcestring
   Desc212 = 'Não foi retornado nenhum JSON.';
   Cod213 = 'X213';
   Desc213 = 'Não foi retornado nenhum Token.';
+  Cod214 = 'X214';
+  Desc214 = 'Não foi retornado nenhum DANFSE, chave/ambiente pode estar errado.';
 
   Cod800 = 'X800';
   Desc800 = 'Erro de Validação: ';

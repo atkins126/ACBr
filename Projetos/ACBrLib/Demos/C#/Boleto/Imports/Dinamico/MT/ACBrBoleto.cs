@@ -241,6 +241,29 @@ namespace ACBrLib.Boleto
             CheckResult(ret);
         }
 
+        public string GerarToken()
+        {
+            var bufferLen = BUFFER_LEN;
+            var buffer = new StringBuilder(bufferLen);
+
+            var method = GetMethod<Boleto_GerarToken>();
+            var ret = ExecuteMethod<int>(() => method(libHandle, buffer, ref bufferLen));
+
+            CheckResult(ret);
+
+            return ProcessResult(buffer, bufferLen);
+        }
+        public string InformarToken(string eToken, DateTime eData)
+        {
+
+            var method = GetMethod<Boleto_InformarToken>();
+            var ret = ExecuteMethod<int>(() => method(libHandle, eToken, eData));
+
+            CheckResult(ret);
+            return ret.ToString();
+
+        }
+
         public void GerarPDF(int indice, Stream aStream)
         {
             if (aStream == null) throw new ArgumentNullException(nameof(aStream));
@@ -488,6 +511,19 @@ namespace ACBrLib.Boleto
 
             var method = GetMethod<Boleto_ConsultarTitulosPorPeriodo>();
             var ret = ExecuteMethod<int>(() => method(libHandle, eArquivoIni, buffer, ref bufferLen));
+
+            CheckResult(ret);
+
+            return ProcessResult(buffer, bufferLen);
+        }
+
+        public string OpenSSLInfo()
+        {
+            var bufferLen = BUFFER_LEN;
+            var buffer = new StringBuilder(bufferLen);
+
+            var method = GetMethod<Boleto_OpenSSLInfo>();
+            var ret = ExecuteMethod(() => method(libHandle, buffer, ref bufferLen));
 
             CheckResult(ret);
 

@@ -37,9 +37,9 @@ unit EloTech.LerXml;
 interface
 
 uses
-  SysUtils, Classes, StrUtils,
-  IniFiles,
-  ACBrXmlDocument, ACBrXmlBase,
+  SysUtils, Classes, StrUtils, IniFiles,
+  ACBrXmlBase,
+  ACBrXmlDocument,
   ACBrNFSeXClass,
   ACBrNFSeXLerXml_ABRASFv2;
 
@@ -53,7 +53,7 @@ type
     procedure LerServicos(const ANode: TACBrXmlNode); override;
     procedure LerDadosDeducao(const ANode: TACBrXmlNode; Item: Integer);
 
-    procedure LerINISecaoServicos(const AINIRec: TMemIniFile); override;
+    procedure LerINISecaoItens(const AINIRec: TMemIniFile); override;
     procedure LerINISecaoDadosDeducao(const AINIRec: TMemIniFile;
         Item: TItemServicoCollectionItem; const AIndice: Integer); override;
   public
@@ -63,6 +63,7 @@ type
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrUtil.Base;
 
 //==============================================================================
@@ -72,7 +73,7 @@ uses
 
 { TNFSeR_EloTech203 }
 
-procedure TNFSeR_EloTech203.LerINISecaoServicos(const AINIRec: TMemIniFile);
+procedure TNFSeR_EloTech203.LerINISecaoItens(const AINIRec: TMemIniFile);
 var
   i: Integer;
   sSecao, sFim: string;
@@ -101,6 +102,8 @@ begin
     Item.ValorTotal := StringToFloatDef(AINIRec.ReadString(sSecao, 'ValorTotal', ''), 0);
 
     LerINISecaoDadosDeducao(AINIRec, Item, i);
+
+    Inc(i);
   end;
 end;
 

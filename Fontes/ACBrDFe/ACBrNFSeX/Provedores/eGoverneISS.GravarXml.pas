@@ -59,6 +59,7 @@ type
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrUtil.Strings;
 
 //==============================================================================
@@ -98,7 +99,7 @@ begin
                                             NFSe.Servico.Valores.Aliquota, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'Atividade', 1, 9, 1,
-                                   NFSe.Servico.CodigoTributacaoMunicipio, ''));
+                                   NFSe.Servico.ItemListaServico, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'CEPPrestacaoServico', 1, 36, 1,
                                                 NFSe.Tomador.Endereco.CEP, ''));

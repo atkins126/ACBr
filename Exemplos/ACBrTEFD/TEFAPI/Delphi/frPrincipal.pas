@@ -48,21 +48,11 @@ type
   { TFormPrincipal }
 
   TFormPrincipal = class(TForm)
-    ACBrPosPrinter1: TACBrPosPrinter;
-    ACBrTEFAPI1: TACBrTEFAPI;
-    btAdministrativo: TBitBtn;
     btImprimir: TBitBtn;
-    btIncluirPagamentos: TBitBtn;
-    btExcluirPagamento: TBitBtn;
     btLimparImpressora: TBitBtn;
     btMudaPagina: TBitBtn;
-    btMsgPinPad: TButton;
     btOperacao: TBitBtn;
-    btEfetuarPagamentos: TBitBtn;
-    btObterCPF: TButton;
-    cbSimularErroNoDoctoFiscal: TCheckBox;
     cbEnviarImpressora: TCheckBox;
-    gbPagamentos: TGroupBox;
     imgQRCode: TImage;
     lMensagemCliente: TLabel;
     lMensagemOperador: TLabel;
@@ -81,59 +71,22 @@ type
     pMensagemOperador: TPanel;
     pPrincipal: TPanel;
     pLogs: TPanel;
-    pBotoesPagamentos: TPanel;
     pSimulador: TPanel;
     pStatus: TPanel;
-    edTotalVenda: TEdit;
-    edTotalPago: TEdit;
-    edTroco: TEdit;
-    gbTotaisVenda: TGroupBox;
-    Label13: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
     pOperacao: TPanel;
     pgPrincipal: TPageControl;
     sbLimparLog: TSpeedButton;
     Splitter1: TSplitter;
-    sgPagamentos: TStringGrid;
     Splitter2: TSplitter;
     Splitter3: TSplitter;
     tsConfiguracao: TTabSheet;
     tsOperacao: TTabSheet;
     ImageList1: TImageList;
-    seValorInicialVenda: TEdit;
-    seTotalDesconto: TEdit;
-    seTotalAcrescimo: TEdit;
-    PageControl1: TPageControl;
+    pgConfiguracao: TPageControl;
     tsConfigTEF: TTabSheet;
     pConfiguracao: TPanel;
-    gbConfigTEF: TGroupBox;
-    Label11: TLabel;
-    SbArqLog: TSpeedButton;
-    Label9: TLabel;
-    Label1: TLabel;
-    Label10: TLabel;
-    Label12: TLabel;
-    Label18: TLabel;
-    cbSuportaDesconto: TCheckBox;
-    cbSuportaSaque: TCheckBox;
-    cbImprimirViaReduzida: TCheckBox;
-    edLog: TEdit;
-    btTestarTEF: TBitBtn;
-    cbxQRCode: TComboBox;
-    cbConfirmarAutomaticamente: TCheckBox;
-    cbxGP: TComboBox;
-    cbAutoAtendimento: TCheckBox;
-    btSalvarParametros: TBitBtn;
-    btLerParametros: TBitBtn;
-    cbxImpressaoViaCliente: TComboBox;
-    cbxTransacaoPendente: TComboBox;
-    cbxTransacaoPendenteInicializacao: TComboBox;
     pConfigImpSwHouseEstab: TPanel;
-    GroupBox1: TGroupBox;
+    gbSwHouseAplicacao: TGroupBox;
     Label14: TLabel;
     Label16: TLabel;
     Label19: TLabel;
@@ -142,7 +95,7 @@ type
     edNomeAplicacao: TEdit;
     edVersaoAplicacao: TEdit;
     edCNPJSwHouse: TEdit;
-    GroupBox2: TGroupBox;
+    gbEstabelecimentoComercial: TGroupBox;
     Label17: TLabel;
     Label21: TLabel;
     edRazaoSocialEstabelecimento: TEdit;
@@ -152,9 +105,7 @@ type
     Label25: TLabel;
     Label26: TLabel;
     Label27: TLabel;
-    Label28: TLabel;
     Label7: TLabel;
-    Label29: TLabel;
     btSerial: TSpeedButton;
     btProcuraImpressoras: TSpeedButton;
     seLinhasPular: TSpinEdit;
@@ -175,11 +126,105 @@ type
     edCodEmpresa: TEdit;
     Label30: TLabel;
     edCodTerminal: TEdit;
+    ACBrPosPrinter1: TACBrPosPrinter;
     ACBrAbecsPinPad1: TACBrAbecsPinPad;
-    btExibirImagemPinPad: TButton;
-    btMenuPinPad: TButton;
+    ACBrTEFAPI1: TACBrTEFAPI;
+    Label31: TLabel;
+    cbxAmbiente: TComboBox;
+    Label32: TLabel;
+    edParamComunic: TEdit;
+    cbGravarLogTEF: TCheckBox;
+    pBotaoConfig: TPanel;
+    btLerParametros: TBitBtn;
+    btSalvarParametros: TBitBtn;
+    Label37: TLabel;
+    edMsgPinPad: TEdit;
+    gbSaidaImpressao: TGroupBox;
+    rbImpressora: TRadioButton;
+    rbArquivo: TRadioButton;
+    Label22: TLabel;
+    edArquivoImpressao: TEdit;
+    Label28: TLabel;
+    Label29: TLabel;
+    pgOperacoes: TPageControl;
+    tsVenda: TTabSheet;
+    tsAdm: TTabSheet;
+    gbVenda: TGroupBox;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label13: TLabel;
+    edTotalVenda: TEdit;
+    edTotalPago: TEdit;
+    edTroco: TEdit;
+    btEfetuarPagamentos: TBitBtn;
+    seValorInicialVenda: TEdit;
+    seTotalDesconto: TEdit;
+    seTotalAcrescimo: TEdit;
+    gbPagamentos: TGroupBox;
+    sgPagamentos: TStringGrid;
+    pBotoesPagamentos: TPanel;
+    btIncluirPagamentos: TBitBtn;
+    btExcluirPagamento: TBitBtn;
+    gbAdmOutrasFuncoes: TGroupBox;
+    gbAdmPinPad: TGroupBox;
+    btAdministrativo: TBitBtn;
     btCancelarUltima: TBitBtn;
-    Button1: TButton;
+    btExibirImagemPinPad: TButton;
+    btVerPinPad: TButton;
+    btObterCPF: TButton;
+    btMsgPinPad: TButton;
+    btMenuPinPad: TButton;
+    cbSimularErroNoDoctoFiscal: TCheckBox;
+    Label34: TLabel;
+    cbTipoFinanciamento: TComboBox;
+    Label33: TLabel;
+    seParcelas: TSpinEdit;
+    dtPreDatado: TDateTimePicker;
+    Label35: TLabel;
+    Label36: TLabel;
+    edParamAdic: TEdit;
+    btTestarTEF: TBitBtn;
+    pConfigTEF: TPanel;
+    gbConfigTEF: TGroupBox;
+    Label11: TLabel;
+    SbArqLog: TSpeedButton;
+    Label9: TLabel;
+    Label1: TLabel;
+    Label10: TLabel;
+    Label12: TLabel;
+    Label18: TLabel;
+    cbSuportaDesconto: TCheckBox;
+    cbSuportaSaque: TCheckBox;
+    cbImprimirViaReduzida: TCheckBox;
+    edLog: TEdit;
+    cbxQRCode: TComboBox;
+    cbConfirmarAutomaticamente: TCheckBox;
+    cbxGP: TComboBox;
+    cbAutoAtendimento: TCheckBox;
+    cbxImpressaoViaCliente: TComboBox;
+    cbxTransacaoPendente: TComboBox;
+    cbxTransacaoPendenteInicializacao: TComboBox;
+    gbDadosTEFTXT: TGroupBox;
+    Label38: TLabel;
+    edDirReq: TEdit;
+    edDirResp: TEdit;
+    Label39: TLabel;
+    sbDirReq: TSpeedButton;
+    sbDirResp: TSpeedButton;
+    edArqReq: TEdit;
+    Label40: TLabel;
+    Label41: TLabel;
+    edArqSts: TEdit;
+    Label42: TLabel;
+    edArqResp: TEdit;
+    Label44: TLabel;
+    cbxGPTXT: TComboBox;
+    Label43: TLabel;
+    seNivelLogTXT: TSpinEdit;
+    btVersaoTEF: TButton;
     procedure ACBrTEFAPI1QuandoDetectarTransacaoPendente(
       RespostaTEF: TACBrTEFResp; const MsgErro: String);
     procedure ACBrTEFAPI1QuandoExibirMensagem(const Mensagem: String;
@@ -229,15 +274,29 @@ type
     procedure seValorInicialVendaKeyPress(Sender: TObject; var Key: Char);
     procedure ACBrAbecsPinPad1WriteLog(const ALogLine: string;
       var Tratado: Boolean);
-    procedure Button1Click(Sender: TObject);
+    procedure btVerPinPadClick(Sender: TObject);
+    procedure cbTipoFinanciamentoChange(Sender: TObject);
+    procedure lSaidaImpressaoClick(Sender: TObject);
+    procedure pgOperacoesChanging(Sender: TObject; var AllowChange: Boolean);
+    procedure rbImpressoraChange(Sender: TObject);
+    procedure sbDirReqClick(Sender: TObject);
+    procedure sbDirRespClick(Sender: TObject);
+    procedure cbxGPChange(Sender: TObject);
+    procedure btVersaoTEFClick(Sender: TObject);
   private
     FVenda: TVenda;
     FTipoBotaoOperacao: TTipoBotaoOperacao;
     FCanceladoPeloOperador: Boolean;
     FTempoDeEspera: TDateTime;
+    FNomeArquivoImpressora: String;
+    FNomeArquivoLog: String;
 
     function GetNomeArquivoConfiguracao: String;
     function GetNomeArquivoVenda: String;
+    function GetNomeArquivoLog: String;
+    function GetNomeArquivoImpressora: String;
+    function GetNomeArquivoComData(const f: String): String;
+
     function GetStatusVenda: TStatusVenda;
     procedure SetTipoBotaoOperacao(AValue: TTipoBotaoOperacao);
     procedure SetStatusVenda(AValue: TStatusVenda);
@@ -254,6 +313,7 @@ type
     procedure AtivarTEF;
     procedure ConfigurarPosPrinter;
     procedure AtivarPosPrinter;
+    procedure AtivarArquivoImpressao;
     procedure Ativar;
     procedure Desativar;
 
@@ -296,13 +356,15 @@ var
 implementation
 
 uses
-  IniFiles, typinfo, dateutils, math, strutils,
+  IniFiles, typinfo, dateutils, math, strutils, FileCtrl,
   frIncluirPagamento, frMenuTEF, frObtemCampo, frExibeMensagem,
   configuraserial,
   //ACBrUtil,
   ACBrDelphiZXingQRCode,
   ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime, ACBrUtil.FilesIO,
-  ACBrTEFPayGoComum, ACBrTEFAPIPayGoWeb, ACBrTEFAPIStoneAutoTEF;
+  ACBrTEFPayGoComum,
+  ACBrTEFAPIPayGoWeb, ACBrTEFAPIScope, ACBrTEFAPICliSiTef, ACBrTEFAPIPayKit,
+  ACBrTEFAPITXT;
 
 {$R *.dfm}
 
@@ -310,15 +372,18 @@ uses
 
 procedure TFormPrincipal.FormCreate(Sender: TObject);
 var
-  I: TACBrTEFAPITipo;
+  M: TACBrTEFAPITipo;
   N: TACBrPosPrinterModelo;
   O: TACBrPosPaginaCodigo;
+  P: TACBrTEFAPIAmbiente;
+  l, i: Integer;
+  Q: TACBrTEFTXTModelo;
 begin
   FVenda := TVenda.Create(NomeArquivoVenda);
 
   cbxGP.Items.Clear ;
-  For I := Low(TACBrTEFAPITipo) to High(TACBrTEFAPITipo) do
-     cbxGP.Items.Add( GetEnumName(TypeInfo(TACBrTEFAPITipo), integer(I) ) ) ;
+  For M := Low(TACBrTEFAPITipo) to High(TACBrTEFAPITipo) do
+     cbxGP.Items.Add( GetEnumName(TypeInfo(TACBrTEFAPITipo), integer(M) ) ) ;
   cbxGP.ItemIndex := 0 ;
 
   cbxModeloPosPrinter.Items.Clear ;
@@ -328,6 +393,21 @@ begin
   cbxPagCodigo.Items.Clear ;
   For O := Low(TACBrPosPaginaCodigo) to High(TACBrPosPaginaCodigo) do
      cbxPagCodigo.Items.Add( GetEnumName(TypeInfo(TACBrPosPaginaCodigo), integer(O) ) ) ;
+
+  cbxAmbiente.Items.Clear ;
+  For P := Low(TACBrTEFAPIAmbiente) to High(TACBrTEFAPIAmbiente) do
+     cbxAmbiente.Items.Add( GetEnumName(TypeInfo(TACBrTEFAPIAmbiente), integer(P) ) ) ;
+
+  cbxGPTXT.Items.Clear ;
+  For Q := Low(TACBrTEFTXTModelo) to High(TACBrTEFTXTModelo) do
+     cbxGPTXT.Items.Add( GetEnumName(TypeInfo(TACBrTEFTXTModelo), integer(Q) ) ) ;
+  cbxGPTXT.ItemIndex := 0;
+
+  cbTipoFinanciamento.Clear;
+  l := Length(CITENS_TIPO_FINANCIAMENTO)-1;
+  for i := 0 to l do
+    cbTipoFinanciamento.Items.Add(CITENS_TIPO_FINANCIAMENTO[i]);
+  cbTipoFinanciamento.ItemIndex := 0;
 
   ImageList1.GetBitmap(1, btMudaPagina.Glyph);
   ImageList1.GetBitmap(1, btEfetuarPagamentos.Glyph);
@@ -342,6 +422,7 @@ begin
   ImageList1.GetBitmap(8, btIncluirPagamentos.Glyph);
   ImageList1.GetBitmap(9, btExcluirPagamento.Glyph);
   ImageList1.GetBitmap(10, btAdministrativo.Glyph);
+  ImageList1.GetBitmap(11, btCancelarUltima.Glyph);
   ImageList1.GetBitmap(11, sbLimparLog.Glyph);
   ImageList1.GetBitmap(12, btProcuraImpressoras.Glyph);
 
@@ -367,6 +448,8 @@ begin
   tsConfiguracao.TabVisible := False;
   tsOperacao.TabVisible := False;
   pgPrincipal.ActivePageIndex := 0;
+  pgConfiguracao.ActivePageIndex := 0;
+  pgOperacoes.ActivePageIndex := 0;
 
   LerConfiguracao;
   LimparMensagensTEF;
@@ -374,6 +457,8 @@ begin
   Venda.Status := High(TStatusVenda);                // Força atualizar tela
   FCanceladoPeloOperador := False;
   FTempoDeEspera := 0;
+  FNomeArquivoImpressora := '';
+  FNomeArquivoLog := '';
 
   Application.OnException := TratarException;
 
@@ -382,6 +467,7 @@ end;
 
 procedure TFormPrincipal.FormDestroy(Sender: TObject);
 begin
+  ACBrTEFAPI1.ArqLOG := '';
   if Assigned(FVenda) then
     FVenda.Free;
 end;
@@ -396,21 +482,57 @@ begin
   end;
 end;
 
+procedure TFormPrincipal.lSaidaImpressaoClick(Sender: TObject);
+begin
+  if rbArquivo.Checked then
+    if FileExists(GetNomeArquivoImpressora) then
+      OpenURL(GetNomeArquivoImpressora);
+end;
+
 procedure TFormPrincipal.lURLTEFClick(Sender: TObject);
 begin
   OpenURL('https://projetoacbr.com.br/tef/');
+end;
+
+procedure TFormPrincipal.pgOperacoesChanging(Sender: TObject;
+  var AllowChange: Boolean);
+begin
+  if (pgOperacoes.ActivePage = tsVenda) and (Venda.Status <> stsLivre) then
+    AllowChange := False
+  else
+    AllowChange := True;
+end;
+
+procedure TFormPrincipal.rbImpressoraChange(Sender: TObject);
+begin
+  gbConfigImpressora.Enabled := rbImpressora.Checked;
+  edArquivoImpressao.Enabled := rbArquivo.Checked;
 end;
 
 procedure TFormPrincipal.SbArqLogClick(Sender: TObject);
 var
   AFileLog: String;
 begin
-  if pos(PathDelim,edLog.Text) = 0 then
-    AFileLog := ExtractFilePath( Application.ExeName ) + edLog.Text
-  else
-    AFileLog := edLog.Text;
-
+  AFileLog := GetNomeArquivoLog;
   OpenURL( AFileLog );
+end;
+
+procedure TFormPrincipal.sbDirReqClick(Sender: TObject);
+var
+  lDir: String;
+begin
+  lDir := edDirReq.Text;
+  if SelectDirectory(lDir, [], 0) then
+    edDirReq.Text := lDir;
+end;
+
+procedure TFormPrincipal.sbDirRespClick(Sender: TObject);
+var
+  lDir: String;
+begin
+  lDir := edDirResp.Text;
+  if SelectDirectory(lDir, [], 0) then
+    edDirResp.Text := lDir;
 end;
 
 procedure TFormPrincipal.btImprimirClick(Sender: TObject);
@@ -494,22 +616,29 @@ end;
 procedure TFormPrincipal.btOperacaoClick(Sender: TObject);
 begin
   AdicionarLinhaLog('- btOperacaoClick');
+  btOperacao.Enabled := False;
+  try
+    case TipoBotaoOperacao of
+      bopLiberarCaixa:
+      begin
+        StatusVenda := stsLivre;
+        ACBrTEFAPI1.LimparRespostasTEF;  // Limpa respostas TEF anteriores, e apaga Arqs Backup
+      end;
 
-  case TipoBotaoOperacao of
-    bopLiberarCaixa:
-    begin
-      StatusVenda := stsLivre;
-      ACBrTEFAPI1.LimparRespostasTEF;  // Limpa respostas TEF anteriores, e apaga Arqs Backup
+      bopCancelarVenda:
+        CancelarVenda;
+
+      bopCancelarEsperaTEF:
+      begin
+        AdicionarLinhaLog( '  Operação Cancelada Pelo Operador');
+        if FCanceladoPeloOperador then
+          StatusVenda := stsLivre
+        else
+          FCanceladoPeloOperador := True;
+      end;
     end;
-
-    bopCancelarVenda:
-      CancelarVenda;
-
-    bopCancelarEsperaTEF:
-    begin
-      AdicionarLinhaLog( '  Operação Cancelada Pelo Operador');
-      FCanceladoPeloOperador := True;
-    end;
+  finally
+    btOperacao.Enabled := True;
   end;
 end;
 
@@ -534,17 +663,19 @@ var
   AValor: Double;
 begin
   FormIncluirPagamento := TFormIncluirPagamento.Create(Self);
+  pBotoesPagamentos.Enabled := False;
   try
     FormIncluirPagamento.cbFormaPagamento.ItemIndex := 2;
     FormIncluirPagamento.seValorPago.Text := FormatFloatBr(Venda.Troco);
     if (FormIncluirPagamento.ShowModal = mrOK) then
     begin
       AValor := StrToIntDef(OnlyNumber(FormIncluirPagamento.seValorPago.Text), 0)/100;
-      AdicionarPagamento( cPagamentos[FormIncluirPagamento.cbFormaPagamento.ItemIndex, 0],
+      AdicionarPagamento( CITENS_FORMAS_PAGAMENTO[FormIncluirPagamento.cbFormaPagamento.ItemIndex, 0],
                           AValor );
     end;
   finally
     FormIncluirPagamento.Free;
+    pBotoesPagamentos.Enabled := True;
   end;
 end;
 
@@ -581,84 +712,98 @@ var
   i: Integer;
   ms: TMemoryStream;
 begin
-  // Procura a Porta do PinPad
-  sl := TStringList.Create;
-  try
-    ACBrAbecsPinPad1.Device.AcharPortasSeriais( sl );
-    i := 0;
-    PortFound := '';
-    while (i < sl.Count) and (PortFound = '') do
-    begin
-      try
-        ACBrAbecsPinPad1.Disable;
-        ACBrAbecsPinPad1.Port := sl[i];
-        ACBrAbecsPinPad1.Enable;
-        try
-          ACBrAbecsPinPad1.OPN;
-          ACBrAbecsPinPad1.CLO;
-          PortFound := ACBrAbecsPinPad1.Port;
-        finally
-          ACBrAbecsPinPad1.Disable;
-        end;
-      except
-      end;
-      Inc(i);
-    end;
+  if (ACBrTEFAPI1.TEF is TACBrTEFAPIClassPayGoWeb) or
+     (ACBrTEFAPI1.TEF is TACBrTEFAPIClassScope) then
+  begin
+    FileLogo := ApplicationPath+'LogoACBr.png';
+    if not FileExists(FileLogo) then
+      raise Exception.Create('Imagem não encontrada: '+FileLogo);
 
-    if (PortFound = '') then
-      raise Exception.Create('Porta do PinPad não encontrada');
+    ACBrTEFAPI1.CarregarImagemPinPad('LOGOACBR', FileLogo);
+    ACBrTEFAPI1.ExibirImagemPinPad('LOGOACBR');
+  end
+  else
+  begin
 
-    // Liga comunicação com o PinPad
-    ACBrAbecsPinPad1.Enable;
+    // Procura a Porta do PinPad
+    sl := TStringList.Create;
     try
-      ACBrAbecsPinPad1.OPN;
-
-      // Carrega lista de imagens carregadas no PinPad
-      ACBrAbecsPinPad1.LMF;
-      sl.Clear;
-      ACBrAbecsPinPad1.Response.GetResponseFromTagValue(PP_MFNAME, sl);
-
-      // Verifica se o "LOGOACBR" já está na memória do PinPad
-      MediaName := '';
-      for i := 0 to sl.Count-1 do
+      ACBrAbecsPinPad1.Device.AcharPortasSeriais( sl );
+      i := 0;
+      PortFound := '';
+      while (i < sl.Count) and (PortFound = '') do
       begin
-        if (trim(UpperCase(sl[i])) = 'LOGOACBR') then
-        begin
-          MediaName := sl[i];
-          Break;
-        end;
-      end;
-
-      // Se não estiver.. carrega o PNG do Logo e sobe no PinPad
-      if (MediaName = '') then
-      begin
-        FileLogo := ApplicationPath+'LogoACBr.png';
-        if not FileExists(FileLogo) then
-          raise Exception.Create('Imagem não encontrada: '+FileLogo);
-
-        ms := TMemoryStream.Create;
         try
-          ms.LoadFromFile(FileLogo);
-          MediaName := 'LOGOACBR';
-          ACBrAbecsPinPad1.LoadMedia(MediaName, ms, mtPNG);
-        finally
-          ms.Free;
+          ACBrAbecsPinPad1.Disable;
+          ACBrAbecsPinPad1.Port := sl[i];
+          ACBrAbecsPinPad1.Enable;
+          try
+            ACBrAbecsPinPad1.OPN;
+            ACBrAbecsPinPad1.CLO;
+            PortFound := ACBrAbecsPinPad1.Port;
+          finally
+            ACBrAbecsPinPad1.Disable;
+          end;
+        except
         end;
+        Inc(i);
       end;
 
-      // Exibindo no PinPad, imagem gravada previamente
-      if (MediaName <> '') then
-        ACBrAbecsPinPad1.DSI(MediaName);
+      if (PortFound = '') then
+        raise Exception.Create('Porta do PinPad não encontrada');
 
+      // Liga comunicação com o PinPad
+      ACBrAbecsPinPad1.Enable;
+      try
+        ACBrAbecsPinPad1.OPN;
+
+        // Carrega lista de imagens carregadas no PinPad
+        ACBrAbecsPinPad1.LMF;
+        sl.Clear;
+        ACBrAbecsPinPad1.Response.GetResponseFromTagValue(PP_MFNAME, sl);
+
+        // Verifica se o "LOGOACBR" já está na memória do PinPad
+        MediaName := '';
+        for i := 0 to sl.Count-1 do
+        begin
+          if (trim(UpperCase(sl[i])) = 'LOGOACBR') then
+          begin
+            MediaName := sl[i];
+            Break;
+          end;
+        end;
+
+        // Se não estiver.. carrega o PNG do Logo e sobe no PinPad
+        if (MediaName = '') then
+        begin
+          FileLogo := ApplicationPath+'LogoACBr.png';
+          if not FileExists(FileLogo) then
+            raise Exception.Create('Imagem não encontrada: '+FileLogo);
+
+          ms := TMemoryStream.Create;
+          try
+            ms.LoadFromFile(FileLogo);
+            MediaName := 'LOGOACBR';
+            ACBrAbecsPinPad1.LoadMedia(MediaName, ms, mtPNG);
+          finally
+            ms.Free;
+          end;
+        end;
+
+        // Exibindo no PinPad, imagem gravada previamente
+        if (MediaName <> '') then
+          ACBrAbecsPinPad1.DSI(MediaName);
+
+      finally
+        // Fecha comunicação com o PinPad, para liberar a Porta
+        if ACBrAbecsPinPad1.IsEnabled then
+          ACBrAbecsPinPad1.CLO;
+
+        ACBrAbecsPinPad1.Disable;
+      end;
     finally
-      // Fecha comunicação com o PinPad, para liberar a Porta
-      if ACBrAbecsPinPad1.IsEnabled then
-        ACBrAbecsPinPad1.CLO;
-
-      ACBrAbecsPinPad1.Disable;
+      sl.Free;
     end;
-  finally
-    sl.Free;
   end;
 end;
 
@@ -861,6 +1006,9 @@ begin
 
       ImprimirTodosComprovantes
     end;
+
+    if (MsgFinal <> '')  then
+      MessageDlg( MsgFinal, mtInformation, [mbOK], 0);
   end;
 
   // --- Exemplo de como usar as Propriedades da API, fazendo TypeCast
@@ -1073,7 +1221,7 @@ begin
     FormObtemCampo.Resposta := DefinicaoCampo.ValorInicial;
     FormObtemCampo.Ocultar := DefinicaoCampo.OcultarDadosDigitados;
     FormObtemCampo.Mascara := DefinicaoCampo.MascaraDeCaptura;
-    FormObtemCampo.btVoltar.Visible := False;  // PayGoWeb não suporta Voltar;
+    FormObtemCampo.btVoltar.Visible := (ACBrTEFAPI1.TEF is TACBrTEFAPIClassCliSiTef);
 
     if (pos('R$', DefinicaoCampo.MascaraDeCaptura) > 0) or
        (pos('@.@@@,@@', DefinicaoCampo.MascaraDeCaptura) > 0) or
@@ -1164,6 +1312,85 @@ begin
   Result := ApplicationPath+'Venda.ini' ;
 end;
 
+function TFormPrincipal.GetNomeArquivoLog: String;
+var
+  s, p, f, e: String;
+begin
+  Result := '';
+  if (FNomeArquivoLog = '') then
+  begin
+    s := Trim(edLog.Text);
+    p := ExtractFilePath(s);
+    f := ExtractFileName(s);
+    e := ExtractFileExt(f);
+    if (f = '') then
+       Exit;
+    if (p = '') then
+      p := ApplicationPath;
+    if (e = '') then
+      f := f + '.txt';
+
+    f := GetNomeArquivoComData(f);
+    FNomeArquivoLog := PathWithDelim(p) + f;
+  end;
+
+  Result := FNomeArquivoLog;
+end;
+
+function TFormPrincipal.GetNomeArquivoImpressora: String;
+var
+  s, p, f, e: String;
+begin
+  if (FNomeArquivoImpressora = '') then
+  begin
+    s := Trim(edArquivoImpressao.Text);
+    p := ExtractFilePath(s);
+    f := ExtractFileName(s);
+    e := ExtractFileExt(f);
+    if (f = '') then
+       raise Exception.Create('Nome Arquivo Impressora não definido');
+    if (p = '') then
+      p := ApplicationPath;
+    if (e = '') then
+      f := f + '.txt';
+
+    f := GetNomeArquivoComData(f);
+    FNomeArquivoImpressora := PathWithDelim(p) + f;
+  end;
+
+  Result := FNomeArquivoImpressora;
+end;
+
+function TFormPrincipal.GetNomeArquivoComData(const f: String): String;
+var
+  s, u, y: String;
+  p: Integer;
+begin
+  u := UpperCase(f);
+  s := f;
+  p := pos('DD', u);
+  if (p > 0) then
+    s := copy(s, 1, p-1)+ FormatFloat('00', DayOf(date)) + copy(s, p+2, Length(s));
+
+  p := pos('MM', u);
+  if (p > 0) then
+    s := copy(s, 1, p-1)+ FormatFloat('00', MonthOf(date)) + copy(s, p+2, Length(s));
+
+  p := pos('YYYY', u);
+  if (p > 0) then
+  begin
+    y := FormatFloat('0000', YearOf(date));
+    s := copy(s, 1, p-1)+ y + copy(s, p+4, Length(s));
+    u := StringReplace(u, 'YYYY', Y, []);
+  end;
+
+  p := pos('YY', u);
+  if (p > 0) then
+    s := copy(s, 1, p-1)+ copy(FormatFloat('0000', YearOf(date)), 3,2) + copy(s, p+2, Length(s));
+
+  Result := s;
+end;
+
 function TFormPrincipal.GetStatusVenda: TStatusVenda;
 begin
   Result := Venda.Status;
@@ -1178,6 +1405,7 @@ begin
   INI := TIniFile.Create(NomeArquivoConfiguracao);
   try
     cbxGP.ItemIndex := INI.ReadInteger('TEF', 'GP', 0);
+    cbxGPChange(nil);
     cbxQRCode.ItemIndex := INI.ReadInteger('TEF', 'QRCode', 1);
     edLog.Text := INI.ReadString('TEF', 'Log', '');
     cbxImpressaoViaCliente.ItemIndex := INI.ReadInteger('TEF', 'ImpressaoViaCliente', 0);
@@ -1189,19 +1417,35 @@ begin
     cbSuportaDesconto.Checked := INI.ReadBool('TEF', 'SuportaDesconto', True);
     cbSuportaSaque.Checked := INI.ReadBool('TEF', 'SuportaSaque', True);
 
+    cbxGPTXT.ItemIndex := INI.ReadInteger('TXT', 'GP', 0);
+    edDirReq.Text := INI.ReadString('TXT', 'DirReq', edDirReq.Text);
+    edDirResp.Text := INI.ReadString('TXT', 'DirResp', edDirResp.Text);
+    edArqReq.Text := INI.ReadString('TXT', 'ArqReq', edArqReq.Text);
+    edArqSts.Text := INI.ReadString('TXT', 'ArqSts', edArqSts.Text);
+    edArqResp.Text := INI.ReadString('TXT', 'ArqResp', edArqResp.Text);
+    seNivelLogTXT.Value := INI.ReadInteger('TXT', 'NivelLog', seNivelLogTXT.Value);
+
     edRazaoSocialSwHouse.Text := INI.ReadString('SwHouse', 'RazaoSocial', edRazaoSocialSwHouse.Text);
     edCNPJSwHouse.Text := INI.ReadString('SwHouse', 'CNPJ', edCNPJSwHouse.Text);
     edNomeAplicacao.Text := INI.ReadString('Aplicacao', 'Nome', edNomeAplicacao.Text);
     edVersaoAplicacao.Text := INI.ReadString('Aplicacao', 'Versao', edVersaoAplicacao.Text);
+    edMsgPinPad.Text := INI.ReadString('Aplicacao', 'MsgPinPad', edMsgPinPad.Text);
 
     edRazaoSocialEstabelecimento.Text := INI.ReadString('Estabelecimento', 'RazaoSocial', edRazaoSocialEstabelecimento.Text);
     edCNPJEstabelecimento.Text := INI.ReadString('Estabelecimento', 'CNPJ', edCNPJEstabelecimento.Text);
 
+    edCodTerminal.Text := INI.ReadString('Terminal', 'CodTerminal', edCodTerminal.Text);
     edCodEmpresa.Text := INI.ReadString('Terminal', 'CodEmpresa', edCodEmpresa.Text);
     edCodFilial.Text := INI.ReadString('Terminal', 'CodFilial', edCodFilial.Text);
-    edCodTerminal.Text := INI.ReadString('Terminal', 'CodTerminal', edCodTerminal.Text);
     edPortaPinPad.Text := INI.ReadString('Terminal', 'PortaPinPad', edPortaPinPad.Text);
     edEnderecoServidor.Text := INI.ReadString('Terminal', 'EnderecoServidor', edEnderecoServidor.Text);
+    cbxAmbiente.ItemIndex := INI.ReadInteger('Terminal', 'Ambiente', cbxAmbiente.ItemIndex);
+    edParamComunic.Text := INI.ReadString('Terminal', 'ParamComunic', edParamComunic.Text);
+    cbGravarLogTEF.Checked := INI.ReadBool('Terminal', 'GravarLogTEF', cbGravarLogTEF.Checked);
+
+    rbImpressora.Checked := INI.ReadBool('Impressora', 'Saida', rbImpressora.Checked);
+    rbArquivo.Checked := not rbImpressora.Checked;
+    edArquivoImpressao.Text := INI.ReadString('Impressora','ArquivoSaida', edArquivoImpressao.Text);
 
     cbxModeloPosPrinter.ItemIndex := INI.ReadInteger('PosPrinter', 'Modelo', 1);
     cbxPorta.Text := INI.ReadString('PosPrinter','Porta',ACBrPosPrinter1.Porta);
@@ -1211,8 +1455,10 @@ begin
     seEspLinhas.Value := INI.ReadInteger('PosPrinter','EspacoLinhas',ACBrPosPrinter1.EspacoEntreLinhas);
     seLinhasPular.Value := INI.ReadInteger('PosPrinter','LinhasEntreCupons',ACBrPosPrinter1.LinhasEntreCupons);
   finally
-     INI.Free ;
+    INI.Free ;
   end ;
+
+  FNomeArquivoLog := '';
 end;
 
 procedure TFormPrincipal.GravarConfiguracao;
@@ -1235,19 +1481,34 @@ begin
     INI.WriteBool('TEF', 'SuportaDesconto', cbSuportaDesconto.Checked);
     INI.WriteBool('TEF', 'SuportaSaque', cbSuportaSaque.Checked);
 
+    INI.WriteInteger('TXT', 'GP', cbxGPTXT.ItemIndex);
+    INI.WriteString('TXT', 'DirReq', edDirReq.Text);
+    INI.WriteString('TXT', 'DirResp', edDirResp.Text);
+    INI.WriteString('TXT', 'ArqReq', edArqReq.Text);
+    INI.WriteString('TXT', 'ArqSts', edArqSts.Text);
+    INI.WriteString('TXT', 'ArqResp', edArqResp.Text);
+    INI.WriteInteger('TXT', 'NivelLog', seNivelLogTXT.Value);
+
     INI.WriteString('SwHouse', 'RazaoSocial', edRazaoSocialSwHouse.Text);
     INI.WriteString('SwHouse', 'CNPJ', edCNPJSwHouse.Text);
     INI.WriteString('Aplicacao', 'Nome', edNomeAplicacao.Text);
     INI.WriteString('Aplicacao', 'Versao', edVersaoAplicacao.Text);
+    INI.WriteString('Aplicacao', 'MsgPinPad', edMsgPinPad.Text);
 
     INI.WriteString('Estabelecimento', 'RazaoSocial', edRazaoSocialEstabelecimento.Text);
     INI.WriteString('Estabelecimento', 'CNPJ', edCNPJEstabelecimento.Text);
 
+    INI.WriteString('Terminal', 'CodTerminal', edCodTerminal.Text);
     INI.WriteString('Terminal', 'CodEmpresa', edCodEmpresa.Text);
     INI.WriteString('Terminal', 'CodFilial', edCodFilial.Text);
-    INI.WriteString('Terminal', 'CodTerminal', edCodTerminal.Text);
     INI.WriteString('Terminal', 'PortaPinPad', edPortaPinPad.Text);
     INI.WriteString('Terminal', 'EnderecoServidor', edEnderecoServidor.Text);
+    INI.WriteInteger('Terminal', 'Ambiente', cbxAmbiente.ItemIndex);
+    INI.WriteString('Terminal', 'ParamComunic', edParamComunic.Text);
+    INI.WriteBool('Terminal', 'GravarLogTEF', cbGravarLogTEF.Checked);
+
+    INI.WriteBool('Impressora', 'Saida', rbImpressora.Checked);
+    INI.WriteString('Impressora','ArquivoSaida', edArquivoImpressao.Text);
 
     INI.WriteInteger('PosPrinter', 'Modelo', cbxModeloPosPrinter.ItemIndex);
     INI.WriteString('PosPrinter','Porta', cbxPorta.Text);
@@ -1257,8 +1518,10 @@ begin
     INI.WriteInteger('PosPrinter','EspacoLinhas', seEspLinhas.Value);
     INI.WriteInteger('PosPrinter','LinhasEntreCupons', seLinhasPular.Value);
   finally
-     INI.Free ;
-  end ;
+    INI.Free ;
+  end;
+
+  FNomeArquivoLog := '';
 end;
 
 procedure TFormPrincipal.IrParaOperacaoTEF;
@@ -1287,7 +1550,8 @@ end;
 
 procedure TFormPrincipal.AdicionarLinhaLog(AMensagem: String);
 begin
-  mLog.Lines.Add(AMensagem);
+  if Assigned(mLog) then
+    mLog.Lines.Add(AMensagem);
 end;
 
 procedure TFormPrincipal.AdicionarLinhaImpressao(ALinha: String);
@@ -1307,16 +1571,23 @@ begin
 
   case AValue of
     bopCancelarVenda, bopCancelarEsperaTEF:
+    begin
       MsgOperacao := 'Cancelar';
+      ImageList1.GetBitmap(11, btOperacao.Glyph);
+    end;
 
     bopLiberarCaixa:
+    begin
       MsgOperacao := 'Liberar';
+      ImageList1.GetBitmap(5, btOperacao.Glyph);
+    end;
   end;
 
   FTipoBotaoOperacao := AValue;
 
   btOperacao.Visible := (MsgOperacao <> '');
   btOperacao.Caption := 'ESC - '+MsgOperacao;
+  Application.ProcessMessages;
 end;
 
 procedure TFormPrincipal.SetStatusVenda(AValue: TStatusVenda);
@@ -1328,16 +1599,13 @@ begin
 
   AdicionarLinhaLog('- StatusOperacao: '+GetEnumName(TypeInfo(TStatusVenda), integer(AValue) ));
 
-  gbTotaisVenda.Enabled := (AValue in [stsLivre, stsIniciada]);
+  gbVenda.Enabled := (AValue in [stsLivre, stsIniciada]);
+  tsAdm.Enabled := (AValue = stsLivre);
   gbPagamentos.Enabled := (AValue = stsEmPagamento);
-  btAdministrativo.Enabled := (AValue = stsLivre);
-  btCancelarUltima.Enabled := (AValue = stsLivre);
-  btMsgPinPad.Enabled := (AValue = stsLivre);
-  btMenuPinPad.Enabled := (AValue = stsLivre);
-  btObterCPF.Enabled := btAdministrativo.Enabled;
   pImpressao.Enabled := (AValue in [stsLivre, stsFinalizada, stsCancelada]);
   btEfetuarPagamentos.Enabled := (AValue = stsIniciada);
   lNumOperacao.Visible := (AValue <> stsLivre);
+  Application.ProcessMessages;
 
   case AValue of
     stsIniciada:
@@ -1383,6 +1651,7 @@ begin
     MsgStatus := 'CAIXA LIVRE';
     TipoBotaoOperacao := bopNaoExibir;
     AtualizarCaixaLivreNaInterface;
+    pgOperacoes.ActivePage := tsVenda;
     if pgPrincipal.ActivePage = tsOperacao then
       seValorInicialVenda.SetFocus;
   end;
@@ -1493,13 +1762,6 @@ begin
   end;
 end;
 
-procedure TFormPrincipal.Button1Click(Sender: TObject);
-begin
-  ACBrTEFAPI1.ExibirQRCodePinPad(
-  '00020101021226900014BR.GOV.BCB.PIX2568pix-qr.mercadopago.com/instore/p/v2/7edcf890b0de4f0689fe7aea52e447b843540016com.mercadolibre0130'+
-  'https://mpago.la/pos/1078225765204000053039865802BR5907GETCARD6009SAO PAULO62070503***6304424C', 'QRCODE');
-end;
-
 procedure TFormPrincipal.btObterCPFClick(Sender: TObject);
 var
   Saida: String;
@@ -1511,9 +1773,40 @@ begin
     ShowMessage('Falha ao Obter CPF no PinPad');
 end;
 
+procedure TFormPrincipal.btVerPinPadClick(Sender: TObject);
+var
+  p: Byte;
+begin
+  p := ACBrTEFAPI1.VerificarPresencaPinPad;
+  if (p > 0) then
+    ShowMessage('PinPad encontrado')
+  else
+    ShowMessage('PinPad NÃO encontrado');
+end;
+
+procedure TFormPrincipal.btVersaoTEFClick(Sender: TObject);
+var
+  lVer: String;
+begin
+  lVer := ACBrTEFAPI1.VersaoAPI;
+  ShowMessage('Versão do TEF: '+lVer);
+end;
+
 procedure TFormPrincipal.cbEnviarImpressoraChange(Sender: TObject);
 begin
   btImprimir.Enabled := ACBrPosPrinter1.Ativo and (not cbEnviarImpressora.Checked);
+end;
+
+procedure TFormPrincipal.cbTipoFinanciamentoChange(Sender: TObject);
+begin
+  seParcelas.Enabled := (cbTipoFinanciamento.ItemIndex = 2) or
+                        (cbTipoFinanciamento.ItemIndex = 3);
+  dtPreDatado.Enabled := (cbTipoFinanciamento.ItemIndex = 4);
+end;
+
+procedure TFormPrincipal.cbxGPChange(Sender: TObject);
+begin
+  gbDadosTEFTXT.Enabled := (cbxGP.ItemIndex = Integer(tefTXT));
 end;
 
 procedure TFormPrincipal.seValorInicialVendaChange(Sender: TObject);
@@ -1545,6 +1838,7 @@ begin
   Venda.Clear;
   AtualizarVendaNaInterface;
   FCanceladoPeloOperador := False;
+  dtPreDatado.Date := 0;
   FTempoDeEspera := 0;
 end;
 
@@ -1573,6 +1867,7 @@ var
   CartoesAceitos: TACBrTEFTiposCartao;
   ReajusteValor: Double;
   IndicePagto: LongInt;
+  Financiamento: TACBrTEFModalidadeFinanciamento;
 begin
   AdicionarLinhaLog('- AdicionarPagamento( '+Indice+', '+FloatToStr(AValor)+' )');
 
@@ -1589,7 +1884,7 @@ begin
     Modalidade := tefmpNaoDefinido;
     CartoesAceitos := [];
 
-    TemTEF := (IndicePagto >= 2) and (IndicePagto <= 6);
+    TemTEF := (IndicePagto >= 2);  // and (IndicePagto <= 6);
     case IndicePagto of
       2:
         Modalidade := tefmpCheque;
@@ -1610,6 +1905,16 @@ begin
           Modalidade := tefmpCartao;
           CartoesAceitos := [teftcVoucher]
         end;
+    end;
+
+    case cbTipoFinanciamento.ItemIndex of
+      1: Financiamento := tefmfAVista;
+      2: Financiamento := tefmfParceladoEmissor;
+      3: Financiamento := tefmfParceladoEstabelecimento;
+      4: Financiamento := tefmfPredatado;
+      5: Financiamento := tefmfCreditoEmissor;
+    else
+      Financiamento := tefmfNaoDefinido;
     end;
 
     if TemTEF then
@@ -1643,8 +1948,40 @@ begin
         end;
       end;
       *)
-      Ok := ACBrTEFAPI1.EfetuarPagamento( IntToStr(Venda.NumOperacao),
-                                          AValor, Modalidade, CartoesAceitos);
+
+      // -- Exemplo, usando TypeCast, para inserir Propriedades direto na Classe de TEF -- //
+
+      (*
+      if ACBrTEFAPI1.TEF is TACBrTEFAPIClassCliSiTef then
+      begin
+        with TACBrTEFAPIClassCliSiTef(ACBrTEFAPI1.TEF) do
+        begin
+          // Veja: 5.3.2 - Tabela de valores para TipoCampo
+          RespostasPorTipo.ValueInfo[504] := '0';   // Taxa Serviço
+          RespostasPorTipo.ValueInfo[505] := '2';   // Número de Parcelas
+        end;
+      end;
+      *)
+
+      if ACBrTEFAPI1.TEF is TACBrTEFAPIClassPayKit then
+      begin
+        with TACBrTEFAPIClassPayKit(ACBrTEFAPI1.TEF) do
+        begin
+          ValorParcela := 10;
+          ValorTaxaServico := 10;
+        end;
+      end;
+
+      Ok := ACBrTEFAPI1.EfetuarPagamento(
+               IntToStr(Venda.NumOperacao),
+               AValor,
+               Modalidade,
+               CartoesAceitos,
+               Financiamento,
+               seParcelas.Value,
+               ifthen(Financiamento <> tefmfPredatado, 0, dtPreDatado.Date),
+               edParamAdic.Text );
+
       AdicionarLinhaLog(' EfetuarPagamento - OK: '+IfThen(Ok, 'Sim', 'Não'));
 
       Ok := Ok and
@@ -1921,7 +2258,13 @@ end;
 
 procedure TFormPrincipal.ImprimirRelatorio(ATexto: String);
 begin
-  AdicionarLinhaImpressao('</zera>' + ATexto + '</lf></corte_total>');
+  if rbImpressora.Checked then
+    AdicionarLinhaImpressao('</zera>' + ATexto + '</lf></corte_total>')
+  else
+  begin
+    mImpressao.Lines.Add(ATexto);
+    WriteToTXT(GetNomeArquivoImpressora, ATexto + sLineBreak + sLineBreak);
+  end;
 end;
 
 function TFormPrincipal.ImprimirViaCliente: Boolean;
@@ -2035,10 +2378,11 @@ end;
 
 procedure TFormPrincipal.ConfigurarTEF;
 begin
+  FNomeArquivoLog := '';
   AdicionarLinhaLog('- ConfigurarTEF');
 
   ACBrTEFAPI1.Modelo := TACBrTEFAPITipo(cbxGP.ItemIndex);
-  ACBrTEFAPI1.ArqLOG := edLog.Text;
+  ACBrTEFAPI1.ArqLOG := GetNomeArquivoLog;
   ACBrTEFAPI1.TratamentoTransacaoPendente := TACBrTEFTratamentoTransacaoPendente(cbxTransacaoPendente.ItemIndex);
   ACBrTEFAPI1.TratamentoTransacaoInicializacao := TACBrTEFTratamentoTransacaoInicializacao(cbxTransacaoPendenteInicializacao.ItemIndex);
   ACBrTEFAPI1.DadosAutomacao.AutoAtendimento := cbAutoAtendimento.Checked;
@@ -2051,15 +2395,18 @@ begin
   ACBrTEFAPI1.DadosAutomacao.CNPJSoftwareHouse := edCNPJSwHouse.Text;
   ACBrTEFAPI1.DadosAutomacao.NomeAplicacao := edNomeAplicacao.Text;
   ACBrTEFAPI1.DadosAutomacao.VersaoAplicacao := edVersaoAplicacao.Text;
-
+  ACBrTEFAPI1.DadosAutomacao.MensagemPinPad := edMsgPinPad.Text;
   ACBrTEFAPI1.DadosEstabelecimento.RazaoSocial := edRazaoSocialEstabelecimento.Text;
   ACBrTEFAPI1.DadosEstabelecimento.CNPJ := edCNPJEstabelecimento.Text;
 
+  ACBrTEFAPI1.DadosTerminal.CodTerminal := edCodTerminal.Text;
   ACBrTEFAPI1.DadosTerminal.CodEmpresa := edCodEmpresa.Text;
   ACBrTEFAPI1.DadosTerminal.CodFilial  := edCodFilial.Text;
-  ACBrTEFAPI1.DadosTerminal.CodTerminal := edCodTerminal.Text;
   ACBrTEFAPI1.DadosTerminal.PortaPinPad := edPortaPinPad.Text;
   ACBrTEFAPI1.DadosTerminal.EnderecoServidor := edEnderecoServidor.Text;
+  ACBrTEFAPI1.DadosTerminal.Ambiente := TACBrTEFAPIAmbiente(cbxAmbiente.ItemIndex);
+  ACBrTEFAPI1.DadosTerminal.ParamComunicacao := edParamComunic.Text;
+  ACBrTEFAPI1.DadosTerminal.GravarLogTEF := cbGravarLogTEF.Checked;
 
   case cbxQRCode.ItemIndex of
     0: ACBrTEFAPI1.ExibicaoQRCode := qrapiNaoSuportado;
@@ -2085,13 +2432,43 @@ begin
     end;
   end;
 
-  //if (ACBrTEFAPI1.TEF is TACBrTEFAPIClassScope) then
+  if (ACBrTEFAPI1.TEF is TACBrTEFAPIClassScope) then
+  begin
+    with TACBrTEFAPIClassScope(ACBrTEFAPI1.TEF) do
+    begin
+      //TEFScopeAPI.ControleConexao := True;
+      // Mudar a propriedade UsarScopeClientConnector para True,
+      // caso for utilizar o ScopeConnector (Pix / Carteiras Digitais)
+      // Informar também a porta no Endereço Servidor Exemplo: "127.0.0.1:2050"
+      TEFScopeAPI.UsarScopeClientConnector := False;
+    end;
+  end;
+
+  //if ACBrTEFAPI1.TEF is TACBrTEFAPIClassCliSiTef then
   //begin
-  //  with TACBrTEFAPIClassScope(ACBrTEFAPI1.TEF) do
+  //  with TACBrTEFAPIClassCliSiTef(ACBrTEFAPI1.TEF) do
   //  begin
-  //    TEFScopeAPI.ControleConexao := True;
+  //    FinalizarTransacaoIndividual := True;
   //  end;
   //end;
+
+  if ACBrTEFAPI1.TEF is TACBrTEFAPIClassTXT then
+  begin
+    with TACBrTEFAPIClassTXT(ACBrTEFAPI1.TEF) do
+    begin
+      Modelo := TACBrTEFTXTModelo(cbxGPTXT.ItemIndex);
+      with TEFTXT.Config do
+      begin
+        DirReq := edDirReq.Text;
+        DirResp := edDirResp.Text;
+        ArqReq := edArqReq.Text;
+        ArqSts := edArqSts.Text;
+        ArqResp := edArqResp.Text;
+        NivelLog := seNivelLogTXT.Value; // 1-Baixo, 2-Normal, 3-Alto
+      end;
+    end;
+  end;
+
 end;
 
 procedure TFormPrincipal.AtivarTEF;
@@ -2104,6 +2481,7 @@ end;
 procedure TFormPrincipal.ConfigurarPosPrinter;
 begin
   AdicionarLinhaLog('- ConfigurarPosPrinter');
+  FNomeArquivoImpressora := '';
   ACBrPosPrinter1.Desativar;
   ACBrPosPrinter1.Modelo := TACBrPosPrinterModelo( cbxModeloPosPrinter.ItemIndex );
   ACBrPosPrinter1.PaginaDeCodigo := TACBrPosPaginaCodigo( cbxPagCodigo.ItemIndex );
@@ -2116,6 +2494,7 @@ end;
 procedure TFormPrincipal.AtivarPosPrinter;
 begin
   AdicionarLinhaLog('- AtivarPosPrinter');
+  lSaidaImpressao.Caption := 'Saída de Impressão';
   ConfigurarPosPrinter;
   if (ACBrPosPrinter1.Porta <> '') then
     ACBrPosPrinter1.Ativar
@@ -2123,12 +2502,26 @@ begin
     raise Exception.Create('Porta não definida');
 end;
 
+procedure TFormPrincipal.AtivarArquivoImpressao;
+begin
+  AdicionarLinhaLog('- AtivarArquivoImpressao');
+  //if FileExists(GetNomeArquivoImpressora) then
+  //  DeleteFile(GetNomeArquivoImpressora);
+
+  lSaidaImpressao.Caption := ExtractFileName( GetNomeArquivoImpressora );
+  WriteToTXT(GetNomeArquivoImpressora, '---- ' +
+     FormatDateTime('dd/mm/yy hh:nn:ss:zzz',now) + ' ----');
+end;
+
 procedure TFormPrincipal.Ativar;
 begin
   AdicionarLinhaLog('- Ativar');
   GravarConfiguracao;
   try
-    AtivarPosPrinter;
+    if rbImpressora.Checked then
+      AtivarPosPrinter
+    else
+      AtivarArquivoImpressao;
   except
     On E: Exception do
     begin

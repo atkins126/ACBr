@@ -434,14 +434,13 @@ var
   S: String;
 begin
   S := OnlyAlphaNum(AValue);
-  if Length(S) = 0 then
-     Result := S
-  else
-  begin
-    if Length(S) > 11 then
-      Result := FormatarCNPJ(S)
+  case Length(S) of
+    11 : Result := FormatarCPF(S);
+    14 : Result := FormatarCNPJ(S);
     else
-      Result := FormatarCPF(S);
+      // Devolve o [AValue] de entrada sem processamentos, pois não
+      // encontrou no case um tamanho válido para CPF 11 ou CNPJ 14.
+      Result := AValue;
   end;
 end;
 
@@ -482,7 +481,7 @@ begin
   IF UF = 'RJ' Then Mascara := '**.***.**-*';
   IF UF = 'RN' Then Mascara := IfThen((LenDoc>9),'**.*.***.***-*','**.***.***-*');
   IF UF = 'RS' Then Mascara := '***/*******';
-  IF UF = 'RO' Then Mascara := IfThen((LenDoc>13),'*************-*','***.*****-*');
+  IF UF = 'RO' Then Mascara := '*************-*';
   IF UF = 'RR' Then Mascara := '********-*';
   IF UF = 'SC' Then Mascara := '***.***.***';
   IF UF = 'SP' Then Mascara := ifthen((LenDoc>1) and (AValue[1]='P'),'*-********.*/***', '***.***.***.***');
@@ -925,7 +924,7 @@ end;
 
 procedure TACBrValidador.ValidarEmail;
 const
-  InvalidChar = ' àâêôûãõáéíóúçüñıÀÂÊÔÛÃÕÁÉÍÓÚÇÜÑİ*;:\|#$%&*§!()][{}<>˜ˆ´ªº+¹²³';
+  InvalidChar = ' àâêôûãõáéíóúçüñıÀÂÊÔÛÃÕÁÉÍÓÚÇÜÑİ*,;:\|#$%&*§!()][{}<>˜ˆ´ªº+¹²³';
 var
   i: Integer;
 begin
@@ -1289,7 +1288,7 @@ begin
   begin
      Tamanho  := 9 ;
      vDigitos := VarArrayOf(
-        ['DVX',c0_9,c0_9,c0_9,c0_9,c0_9,c0_9,'8','2','','','','',''] ) ;
+        ['DVX',c0_9,c0_9,c0_9,c0_9,c0_9,c0_9,'0,8','2,5','','','','',''] ) ;
   end ;
 
   if fsComplemento = 'MG' then

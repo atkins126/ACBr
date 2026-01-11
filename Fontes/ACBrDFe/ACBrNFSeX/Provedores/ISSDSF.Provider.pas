@@ -105,6 +105,7 @@ type
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.XMLHTML,
   ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
@@ -397,6 +398,7 @@ var
   DataInicial, DataFinal: TDateTime;
   vTotServicos, vTotDeducoes: Double;
   wAno, wMes, wDia: Word;
+  Transacao: Boolean;
 begin
   if TACBrNFSeX(FAOwner).NotasFiscais.Count <= 0 then
   begin
@@ -428,6 +430,7 @@ begin
   DataFinal := 0;
   vTotServicos := 0;
   vTotDeducoes := 0;
+  Transacao := True;
 
   for i := 0 to TACBrNFSeX(FAOwner).NotasFiscais.Count -1 do
   begin
@@ -453,6 +456,8 @@ begin
     begin
       DataInicial := Nota.NFSe.DataEmissao;
       DataFinal := DataInicial;
+
+      Transacao := (Nota.NFSe.Transacao = snSim);
     end;
 
     if Nota.NFSe.DataEmissao < DataInicial then
@@ -514,7 +519,8 @@ begin
                     TiraAcentos(Trim(Emitente.RazSocial)) +
                   '</RazaoSocialRemetente>' +
                   '<transacao>' +
-                     LowerCase(BoolToStr(TACBrNFSeX(FAOwner).NotasFiscais.Transacao, True)) +
+//                     LowerCase(BoolToStr(TACBrNFSeX(FAOwner).NotasFiscais.Transacao, True)) +
+                     LowerCase(BoolToStr(Transacao, True)) +
                   '</transacao>' +
                   '<dtInicio>' + xDataI + '</dtInicio>' +
                   '<dtFim>' + xDataF + '</dtFim>' +

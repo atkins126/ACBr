@@ -37,14 +37,15 @@ unit Betha.GravarXml;
 interface
 
 uses
-  SysUtils, Classes,
-  INIFiles,
+  SysUtils, Classes, IniFiles,
   ACBrXmlBase,
   ACBrXmlDocument,
   ACBrNFSeXGravarXml_ABRASFv1,
   ACBrNFSeXGravarXml_ABRASFv2,
   ACBrNFSeXConversao,
-  ACBrNFSeXConsts;
+  ACBrNFSeXConsts,
+  ACBrNFSeXClass,
+  PadraoNacional.GravarXml;
 
 type
   { TNFSeW_Betha }
@@ -75,9 +76,21 @@ type
     function GerarXml: Boolean; override;
   end;
 
+  { TNFSeW_BethaAPIPropria }
+
+  TNFSeW_BethaAPIPropria = class(TNFSeW_PadraoNacional)
+  protected
+    procedure Configuracao; override;
+
+    // Reescrito a geração do grupo IBSCBS do DPS pelo fato do provedor ainda
+    // estar usando o layout definido na NT 003 versão 1.2
+    function GerarXMLIBSCBS(IBSCBS: TIBSCBSDPS): TACBrXmlNode; override;
+  end;
+
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrUtil.Base,
   ACBrUtil.Strings;
 
@@ -218,6 +231,45 @@ begin
     NrOcorrCodigoPaisTomador := -1;
 
   Result := inherited GerarXml;
+end;
+
+{ TNFSeW_BethaAPIPropria }
+
+procedure TNFSeW_BethaAPIPropria.Configuracao;
+begin
+  inherited Configuracao;
+
+  PrefixoPadrao := 'dps';
+end;
+
+function TNFSeW_BethaAPIPropria.GerarXMLIBSCBS(
+  IBSCBS: TIBSCBSDPS): TACBrXmlNode;
+begin
+  Result := CreateElement(TagIBSCBS);
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'finNFSe', 1, 1, NrOcorrfinNFSe,
+                                             finNFSeToStr(IBSCBS.finNFSe), ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'indFinal', 1, 1, NrOcorrindFinal,
+                                           indFinalToStr(IBSCBS.indFinal), ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'cIndOp', 6, 6, NrOcorrcIndOp,
+                                                            IBSCBS.cIndOp, ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'tpEnteGov', 1, 1, 0,
+                                         tpEnteGovToStr(IBSCBS.tpEnteGov), ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'indPessoas', 1, 1, NrOcorrindDest,
+                                             indDestToStr(IBSCBS.indDest), ''));
+
+  if (IBSCBS.dest.xNome <> '') and GerarDest then
+    Result.AppendChild(GerarXMLDestinatario(IBSCBS.dest));
+
+  if ((IBSCBS.imovel.cCIB <> '') or (IBSCBS.imovel.ender.xLgr <> '')) and
+     GerarImovel then
+    Result.AppendChild(GerarXMLImovel(IBSCBS.imovel));
+
+  Result.AppendChild(GerarXMLIBSCBSTribValores(IBSCBS.valores));
 end;
 
 end.

@@ -183,6 +183,7 @@ uses
 
 {$R *.dfm}
 
+
 // retornar o caminho completo para o arquivo .ini de configurações
 function TfrmPrincipal.PathArquivoIni: String;
 begin
@@ -306,6 +307,7 @@ end;
 
 procedure TfrmPrincipal.IniciaNovaInstalacao(const MaximoPassosProgresso: Integer; const
     NomeCaminhoArquivoLog: string; const Cabecalho: string);
+//var LPath : String;
 begin
   // setar barra de progresso
   pgbInstalacao.Position := 0;
@@ -554,7 +556,7 @@ begin
   ckbRemoverCastWarnings.Checked    := OpcoesCompilacao.RemoverStringCastWarnings;
   chkExportadorFastSVG.Checked      := OpcoesCompilacao.UsarExportadorFRSVG;
   chkExportadorFastPNG.Checked      := OpcoesCompilacao.UsarExportadorFRPNG;
-  ckbUsarACBrXmlDocument.Checked    := OpcoesCompilacao.UsarACBrXmlDocument;
+  ckbUsarACBrXmlDocument.Checked    := True;//OpcoesCompilacao.UsarACBrXmlDocument;
 end;
 
 procedure TfrmPrincipal.btnDesmarcarTodasClick(Sender: TObject);
@@ -580,7 +582,6 @@ var
 begin
   // limpar o log
   lstMsgInstalacao.Clear;
-
   Instalou := False;
   btnInstalarACBr.Enabled := False;
   btnVisualizarLogCompilacao.Enabled := False;

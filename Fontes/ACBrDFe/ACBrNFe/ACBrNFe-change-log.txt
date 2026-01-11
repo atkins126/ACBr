@@ -44,6 +44,339 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+08/01/2026
+-- Diversos --
+[*] #ACBR-8745: Altera o tipo da propriedade do CSTIS de enumerado para string.
+  Por: Diego Folieni
+
+30/12/2025
+-- ACBrNFe.Conversao/pcnConversaoNFe --
+[*] #ACBR-8623 - Atualiza o enumerado do CSTIS e a respectiva função de conversão StrToCST.
+  Por: Daniel Ostoic / Diego Folieni
+
+23/12/2025
+-- ACBrNFe.EventoClass --
+[*] #ACBR-8532 - Complementa a rotina DescricaoTipoEvento utilizada para nomear o evento no impresso do Fast Reports.
+  Por: Diego Folieni
+
+16/12/2025
+-- ACBrNFe.XmlWriter --
+[*] No grupo Retirada e Entrega o CNPJ é opcional.
+  Por: Italo Giurizzato Junior
+
+12/12/2025
+-- ACBrNFe.ValidarRegrasdeNegocio --
+[*] Comentado a validação da regra 571, pois não existe mais.
+  Por: Italo Giurizzato Junior
+
+09/12/2025
+-- ACBrNFe.XmlWriter --
+[-] Possível solução para gerar corretamente o grupo Entrega.
+  Por: Italo Giurizzato Junior
+-- ACBrNFeNotasFiscais/ACBrNFeWebServices/ACBrNFe.XmlReader --
+[*] Melhorias na leitura do XML da NF-e.
+  Por: Diego Folieni/Italo Giurizzato Junior
+
+05/12/2025
+-- ACBrNFe.EnvEvento --
+[-] #ACBR-8506 - Ajuste para que os eventos de Manifestação sobre Pedido de Transferência de Crédito tanto para o IBS quanto para o CBS não tenham seus acentos removidos.
+  Por: C4Dev
+
+03/12/2025
+-- ACBrNFe.EnvEvento, ACBrNFe.RetEnvEvento --
+[+] #ACBR-8514 - Implementado a leitura de XML dos eventos da Reforma Tributária
+  Por: Diego Folieni
+-- ACBrNFe.IniReader.pas --
+[+] Ajustado a leitura do da propriedade indDoacao da seção IBSCBS do metodo Ler_IBSCBS()
+  Por: Daniel de Morais InfoCodidiano
+
+27/11/2025
+-- ACBrNFe.EnvEvento --
+[+] #ACBR-5451 - Implementado a leitura INI e JSON dos eventos "Imobilização de Item", "Solicitação de Apropriação de Crédito de Combustível" e "Solicitação de Apropriação de Crédito para bens e serviços que dependem de atividade do adquirente".
+  Por: Diego Folieni
+
+26/11/2025
+-- ACBrNFe.EnvEvento --
+[+] #ACBR-5451 - Implementado a leitura INI e JSON do evento "Aceite de débito na apuração por emissão de nota de crédito".
+  Por: Diego Folieni
+[+] #ACBR-5451 - Implementado a leitura INI e JSON dos eventos: "Destinação de item para consumo pessoal" e "Perecimento, perda, roubo ou furto durante o transporte contratado pelo adquirente".
+  Por: Diego Folieni
+
+25/11/2025
+-- ACBrNFe.EnvEvento --
+[+] #ACBR-5451 - Implementado a leitura INI e JSON dos eventos: "Informação de efetivo pagamento integral para liberar crédito presumido do adquirente" e "Solicitação de Apropriação de crédito presumido".
+  Por: Diego Folieni
+-- ACBrNFe.XmlWriter --
+[*] #ACBR-8446 - Comentado as linhas que geram os grupos IS e ISTot, uma vez que só devem ser gerados a partir de 2027.
+  Por: Elton Barbosa/Italo Giurizzato Junior
+
+24/11/2025
+-- ACBrNFe.Envento --
+[+] Adiciona leitura do elemento tpAutor para os eventos já implementados na rotina que lê o JSON dos eventos.
+  Por: Diego Folieni
+-- ACBrNFeWebServices/ACBrNFe.Conversao/ACBrNFe.EnvEvento/ACBrNFe.EventoClass/pcnConversaoNFe --
+[+] #ACBR-5451 - Implementado os eventos: Manifestação sobre Pedido de Transferência de Crédito de IBS em Operações de Sucessão e Manifestação sobre Pedido de Transferência de Crédito de CBS em Operações de Sucessão.
+  Por: Diego Folieni
+
+21/11/2025
+-- ACBrNFeWebServices/ACBrNFe.EnvEvento/ACBrNFe.EventoClass/ACBrNFe.Conversao/pcnConversaoNFe --
+[+] #ACBR-5451 - Implementado o evento: Atualização da Data de Previsão de Entrega
+  Por: Everson.turossi
+
+-- ACBrNFeWebServices/ACBrNFe.EnvEvento/ACBrNFe.EventoClass --
+[+] #ACBR-5451 - Implementado o evento: Fornecimento não realizado com pagamento antecipado
+  Por: everson.turossi / Diego Folieni
+
+19/11/2025
+-- ACBrNFeWebServices/ACBrNFe.EnvEvento/ACBrNFe.EventoClass --
+[+] #ACBR-5451 - Implementado o evento: Perecimento, perda, roubo ou furto durante o transporte contratado pelo fornecedor
+  Por: Bruno Siqueira / Diego Folieni
+-- ACBrNFe.XmlWriter --
+[*] #ACBR-8424 - Ajuste para gerar corretamente o grupo ICMS tendo em vista a regra B25-80.
+  Por: C4Dev
+
+18/11/2025
+-- ACBrNFeWebServices/ACBrNFe.EnvEvento/ACBrNFe.EventoClass --
+[+] #ACBR-5451 - Implementado o evento: Importação em ALC/ZFM não convertida em isenção.
+  Por: Diego Folieni
+
+12/11/2025
+-- ACBrNFeWebServices/ACBrNFe.Conversao/ACBrNFe.EnvEvento/ACBrNFe.EventoClass/pcnConversaoNFe --
+[+] Implementado o evento: Aceite de Débito na apuração por emissão de nota de Crédito.
+  Por: SG Sistemas
+
+30/10/2025
+-- ACBrNFe.EnvEvento --
+[*] Alguns eventos não funcionam sem acentos, alterado a condição que define que 
+    não deve remover os acentos.
+  Por: Italo Giurizzato Junior
+
+29/10/2025
+-- ACBrNFeWebServices/ACBrNFe.Conversao/pcnConversaoNFe --
+[*] Alguns eventos não estavam mapeados e quem vai recepcionar os eventos da 
+    Reforma Tributária é a SVRS.
+  Por: Microsys Sistemas
+
+28/10/2025
+-- ACBrNFe.Conversao/pcnConversaoNFe --
+[*] ACBR-8304 - A função de conversão StrToFormaPagamento não contemplava o enumerado:
+    fpPagamentoPosterior.
+  Por: Ao3 Tech/Italo Giurizzato Junior
+-- ACBrNFe.Conversao/pcnConversaoNFe --
+[+] ACBR-8283 - Adicionado os novos tipos de eventos referente a Reforma Tributária.
+  Por: Italo Giurizzato Junior
+
+27/10/2025
+-- pcnConversaoNFe, ACBrNFe.Conversao --
+[*] ACBR-8201 - Adiciona novos tipos de combustível VeiculosCombustivelStr conforme tabela atualizada.
+   Por: Ao3 Tech
+-- ACBrNFe.XmlReader --
+[-] Correção na leitura do campo: cRegTrib.
+  Por: Italo Giurizzato Junior
+
+24/10/2025
+-- ACBrNFe.IniReader --
+[*] Alterado a posição de algumas units em uses.
+   Por: Italo Giurizzato Junior
+-- ACBrNFe.IniReader --
+[-] Correção na leitura do campo: cRegTrib.
+  Por: Italo Giurizzato Junior
+
+22/10/2025
+-- ACBrNFe.RetEnvEvento --
+[-] Algumas tags dos eventos e Pedido de Prorrogação e Cancelamento de Pedido 
+    de Prorrogação não estavam sendo identificados ao Ler o XML do evento.
+  Por: Jeanny Paiva
+-- ACBrNFe.XmlReader --
+[-] Correção na leitura da tag competApur.
+  Por: Italo Giurizzato Junior
+
+17/10/2025
+-- Diversos --
+[+] Implementação dos eventos: 211110, 211120, 211124, 211130, 211140 e 211150.
+  Por: SG Sistemas
+
+16/10/2025
+-- ACBrNFeNotasFiscais --
+[-] Ajuste visando evitar erro ao ler XML na codificação UTF-8 BOM.
+  Por: Microsys Sistemas 
+
+14/10/2025
+-- ACBrNFe.IniWriter/ACBrNFe.XmlWriter --
+[*] Ajustes na geração do grupo IBSCBS por conta das alterações na tabela CST/cClassTrib
+   Por: Italo Giurizzato Junior
+
+13/10/2025
+-- Diversos --
+[*] Ajustes diversos no componente visando a NT 2025/002 versão 1.30
+   Por: Italo Giurizzato Junior
+
+08/10/2025
+-- ACBrNFeDANFeRLSimplificado --
+[*] Ajustado o texto "Série" e "informações adicionais" que estavam sem ACbrStr, causando erro acentuacao na lib e lazarus
+   ACBr-8116 - https://www.projetoacbr.com.br/forum/topic/86025-erro-na-impress%C3%A3o-da-danfe-simplificada/
+   Por: Daniel de Morais InfoCotidiano  
+
+29/09/2025
+-- ACBrNFe.XMLReader --
+[-] Ajuste visando corrigir AV ao carregar XML somente com o xCampo.
+  Por: Diego Folieni
+-- ACBrNFeWebServices --
+[*] A unit passou as novas units ACBrDFeComum.DistDFeInt e ACBrDFeComum.RetDistDFeInt.
+  Por: Italo Giurizzato Junior
+
+26/09/2025
+-- ACBrNFeWebServices --
+[*] Possível solução para salvar os XMLs retornados pela consulta com a versão correta.
+   Por: Italo Giurizzato Junior
+-- ACBrNFe.XmlWriter --
+[*] Correção no tamanho mínimo do cProdANVISA
+   Por: Renato Rubinho
+
+23/09/2025
+-- ACBrNFe.XmlWriter --
+[*] Possível solução para geração dos campos vCredPres e vCredPresCondSus.
+   Por: Italo Giurizzato Junior
+
+22/09/2025
+-- ACBrNFe.XmlWriter --
+[*] Alterado o valor padrão da propriedade: AjustarTagNro para False visando não
+    ajustar o conteudo da tag nro (numero do endereço).
+   Por: Italo Giurizzato Junior
+
+20/09/2025
+-- ACBrNFeNotasFiscais --
+[*] Correção para evitar vazamento de memória.
+   Por: Italo Giurizzato Junior
+
+19/09/2025
+-- ACBrNFe.ValidarRegasdeNegocio --
+[*] Alteração na validação da regra 321 por conta da Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+18/09/2025
+-- ACBrNFe.ValidarRegasdeNegocio --
+[*] Melhorias na comparação da unit Regras de Negócios.
+   Por: Waldir Paim
+
+18/09/2025
+-- ACBrNFe.JSONReader, ACBrNFe.EnvEvento --
+[*] Altera nome da função usada para LerArquivoOuString no JSON.
+   Por: Diego Folieni
+
+16/09/2025
+-- Diversos --
+[+] Implementado a unit ACBrNFe.ValidarRegrasdeNegocio, Implementado os Eventos:
+    CancelamentoGenerico, PagIntegLibCredPresAdq, SolicApropCredPres e DestItemConsPessoal.
+   Por: Italo Giurizzato Junior
+-- ACBrNFeNotasFiscais, ACBrNFe.JSONReader, ACBrNFe.JSONWriter, ACBrNFe.EnvEvento --
+[+] Adiciona leitura e geração de arquivo JSON com os dados de uma NFe e de um evento
+   Por: Diego Folieni
+
+15/09/2025
+-- ACBrNFe.XmlWriter --
+[*] #ACBr-8051 - Quando a nota for de Débito ou Crédito os grupos: ICMS, PIS COFINS não devem ser gerados.
+   Por: Uillian Chagas Prates
+-- ACBrNFeNotasFiscais --
+[-] Desabilita validação das regras de negócios 629 e 630 - #ACBR-8024
+    Por: doszapro
+
+12/09/2025
+-- ACBrNFe.IniWriter/ACBrNFe.XmlWriter --
+[*] Possível solução para gerar o grupo gCBSTot no arquivo INI
+   Por: Italo Giurizzato Junior
+
+10/09/2025
+-- pcnProcNFe --
+[*] #ACBr-8033 - Possível solução para constar o ID no grupo infProt.
+   Por: Italo Giurizzato Junior
+
+03/09/2025
+-- ACBrNFe.Classes/ACBrNFe.IniReader/ACBrNFe.IniWriter/ACBrNFe.XmlReader/ACBrNFe.XmlWriter --
+[*] Alteração visando deixar o componente em conformidade com a versão 1.20 da NT 2025/002.
+   Por: Italo Giurizzato Junior
+
+-- ACBrNFeDANFeRLPaisagem.dfm --
+[*] #ACBR-5592 - Corrigida impressão do quadro de Local de Retirada no DANFe paisagem em Fortes. - https://www.projetoacbr.com.br/forum/topic/82535-danfe-n%C3%A3o-exibe-local-de-retirada-no-modelo-paisagem-apenas-local-de-entrega/
+   Por: Renato Rubinho
+
+01/09/2025
+-- ACBrNFeDANFeRLRetrato --
+[*] Quando a nota é autorizada fora do prazo, estava colocando em cima do código de barras
+    a mensagem "Autorizado o Uso Fora do Prazo".
+   Por: Italo Giurizzato Junior
+
+27/08/2025
+-- ACBrNFe.XmlWriter --
+[*] Corrigido a quantidade mínima de caracteres no campo nItemPed, estava 6 sendo 
+    que o correto é 1.
+   Por: Italo Giurizzato Junior
+
+21/08/2025
+-- ACBrNFe.RetConsSit --
+[*] Removido o espaço em branco do nome da tag: retCancNFe.
+   Por: Italo Giurizzato Junior
+
+19/08/2025
+-- Diversos --
+[*] O campo cClassTrib deixa de ser enumerado e passa a ser string.
+   Por: Italo Giurizzato Junior
+
+14/08/2025
+-- ACBrNFe.XmlWriter --
+[*] A geração dos campos CST e cClassTrib do IBSCBS estavam como opcionais, sendo que o 
+    correto é obrigatório.
+   Por: Italo Giurizzato Junior
+
+01/08/2025
+-- ACBrNFe.Classes/ACBrNFe.IniReader/ACBrNFe.IniWriter/ACBrNFe.XmlReader/ACBrNFe.XmlWriter --
+[*] #TK-7446: Alteração visando deixar o componente em conformidade com a versão 1.20 da 
+    NT 2025/002 - Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+31/07/2025
+-- ACBrNFe.XmlWriter --
+[*] #TK-7435: Ajuste nas condições para gerar o grupo gIBS e gCBS em IBSCBSTot.
+   Por: Pablo Cerbaro
+
+30/07/2025
+-- ACBrNFeServicos --
+[-] #TK-7442: Ajuste na URL da consulta da Chave para RN.
+   Por: totvs_back
+
+28/07/2025
+-- ACBrNFe.XmlReader --
+[-] #TK-7392: Correção no tipo de campo da tag cMunFG do grupo retTransp.
+   Por: Italo Giurizzato Junior
+
+26/07/2025
+-- ACBrNFe.XmlWriter --
+[*] Ajuste nas condições para gerar o grupo gRed.
+   Por: Italo Giurizzato Junior
+
+24/07/2025
+-- ACBrNFe.XmlWriter --
+[*] #TK-7359: Alterado as condições para gerar o grupo gRed.
+  Por: Simons/Italo Giurizzato Junior
+
+22/07/2025
+-- ACBrNFe.XmlWriter --
+[*] #TK-7355: Removido o cst410 do case, pois para este CST não se calcula o IBS/CBS.
+  Por: Daniel Pohren
+
+18/07/2025
+-- ACBrNFe.XmlWriter --
+[*] #TK-7355: Alteração visando gerar os grupos gIBSCBS e IBSCBSTot para o CST = 410.
+  Por: Daniel Pohren/Italo Giurizzato Junior
+
+11/07/2025
+-- ACBrNFe.XmlWriter --
+[*] #TK-7311: Correção visando gerar o grupo Monofasia corretamente.
+  Por: Uillian Chagas Prates
+-- ACBrNFe.EnvEvento --
+[-] #TK-7307: Correção visando ler corretamente o evento ECONF.
+  Por: Desenvolvimento Farol Soft
+
 08/07/2025
 -- ACBrNFe.XmlReader --
 [-] #TK-7299: Correção visando ler corretamente o grupo detPag.

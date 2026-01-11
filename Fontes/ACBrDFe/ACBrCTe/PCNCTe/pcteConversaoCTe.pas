@@ -42,6 +42,9 @@ uses
   pcnConversao;
 
 type
+  TpcnTamanhoPapel = (tpA4, tpA4_2vias, tpA5);
+
+type
   TpcteModeloNF = (moNF011AAvulsa, moNFProdutor);
 const
   TpcteModeloNFArrayStrings: array[TpcteModeloNF] of string = ('01','04');
@@ -498,11 +501,11 @@ begin
   Result := StrToEnumerado(ok, s,
             ['-99999', '110110', '110111', '110113', '110160', '110170',
              '110180', '110181', '610110', '310610', '310611', '610111',
-             '110190', '110191'],
+             '110190', '110191', '510630'],
             [teNaoMapeado, teCCe, teCancelamento, teEPEC, teMultiModal,
              teGTV, teComprEntrega, teCancComprEntrega, tePrestDesacordo,
              teMDFeAutorizado2, teMDFeCancelado2, teCancPrestDesacordo,
-             teInsucessoEntregaCTe, teCancInsucessoEntregaCTe]);
+             teInsucessoEntregaCTe, teCancInsucessoEntregaCTe, teRegistroPassagemMDFe]);
 end;
 
 function LayOutToServico(const t: TLayOutCTe): String;
@@ -897,41 +900,19 @@ function GetVersaoModalCTe(AVersaoDF: TVersaoCTe; AModal: TpcteModal): string;
 begin
   result := '';
 
-  case AVersaoDF of
-    ve300:
-      begin
-        case AModal of
-          mdRodoviario:  result := '3.00';
-          mdAereo:       result := '3.00';
-          mdAquaviario:  result := '3.00';
-          mdFerroviario: result := '3.00';
-          mdDutoviario:  result := '3.00';
-          mdMultimodal:  result := '3.00';
-        end;
+  case AModal of
+    mdRodoviario,
+    mdAereo,
+    mdAquaviario,
+    mdFerroviario,
+    mdDutoviario,
+    mdMultimodal:
+      case AVersaoDF of
+        ve300: Result := '3.00';
+        ve400: Result := '4.00';
+      else
+        Result := '2.00';
       end;
-
-    ve400:
-      begin
-        case AModal of
-          mdRodoviario:  result := '4.00';
-          mdAereo:       result := '4.00';
-          mdAquaviario:  result := '4.00';
-          mdFerroviario: result := '4.00';
-          mdDutoviario:  result := '4.00';
-          mdMultimodal:  result := '4.00';
-        end;
-      end;
-  else
-    begin
-      case AModal of
-        mdRodoviario:  result := '2.00';
-        mdAereo:       result := '2.00';
-        mdAquaviario:  result := '2.00';
-        mdFerroviario: result := '2.00';
-        mdDutoviario:  result := '2.00';
-        mdMultimodal:  result := '2.00';
-      end;
-    end;
   end;
 end;
 

@@ -38,9 +38,13 @@ interface
 
 uses
   SysUtils, Classes, StrUtils, Math,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXConversao, ACBrNFSeXLerXml,
-  ACBrNFSeXLerXml_ABRASFv2;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrDFe.Conversao,
+  ACBrNFSeXConversao,
+  ACBrNFSeXLerXml,
+  ACBrNFSeXLerXml_ABRASFv2,
+  PadraoNacional.LerXml;
 
 type
   { Provedor com layout próprio }
@@ -72,6 +76,15 @@ type
   { TNFSeR_EL204 }
 
   TNFSeR_EL204 = class(TNFSeR_ABRASFv2)
+  protected
+
+  public
+
+  end;
+
+  { TNFSeR_ELAPIPropria }
+
+  TNFSeR_ELAPIPropria = class(TNFSeR_PadraoNacional)
   protected
 
   public

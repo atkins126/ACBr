@@ -48,8 +48,6 @@ type
 
   TACBrBancoBrasil = class(TACBrBancoClass)
    protected
-     procedure EhObrigatorioContaDV; override;
-     procedure EhObrigatorioAgenciaDV; override;
      function FormataNossoNumero(const ACBrTitulo :TACBrTitulo): String;
    private
     fQtMsg: Integer;
@@ -101,18 +99,6 @@ begin
    fpTamanhoCarteira       := 2;
    fpCodigosMoraAceitos    := '123';
    fQtMsg                  := 0;
-end;
-
-procedure TACBrBancoBrasil.EhObrigatorioAgenciaDV;
-begin
-  if ACBrBanco.TipoCobranca <> cobBancoDoBrasilAPI then
-    inherited;
-end;
-
-procedure TACBrBancoBrasil.EhObrigatorioContaDV;
-begin
-  if ACBrBanco.TipoCobranca <> cobBancoDoBrasilAPI then
-    inherited;
 end;
 
 function TACBrBancoBrasil.CalcularDigitoVerificador(const ACBrTitulo: TACBrTitulo ): String;
@@ -264,17 +250,10 @@ end;
 function TACBrBancoBrasil.MontarCampoCodigoCedente (
    const ACBrTitulo: TACBrTitulo ) : String;
 begin
-  if(ACBrTitulo.ACBrBoleto.Banco.TipoCobranca = cobBancoDoBrasilAPI) then
-  begin
-    Result := ACBrTitulo.ACBrBoleto.Cedente.Agencia+'/'+
-             IntToStr(StrToIntDef(ACBrTitulo.ACBrBoleto.Cedente.Conta,0));
-  end else
-  begin
-    Result := ACBrTitulo.ACBrBoleto.Cedente.Agencia+'-'+
-             ACBrTitulo.ACBrBoleto.Cedente.AgenciaDigito+'/'+
-             IntToStr(StrToIntDef(ACBrTitulo.ACBrBoleto.Cedente.Conta,0)) +'-'+
-             ACBrTitulo.ACBrBoleto.Cedente.ContaDigito;
-   end;
+  Result := ACBrTitulo.ACBrBoleto.Cedente.Agencia+'-'+
+           ACBrTitulo.ACBrBoleto.Cedente.AgenciaDigito+'/'+
+           IntToStr(StrToIntDef(ACBrTitulo.ACBrBoleto.Cedente.Conta,0)) +'-'+
+           ACBrTitulo.ACBrBoleto.Cedente.ContaDigito;
 end;
 
 function TACBrBancoBrasil.MontarCampoCarteira(const ACBrTitulo: TACBrTitulo
@@ -977,7 +956,7 @@ var
   aModalidade,wLinha, aTipoCobranca:String;
   TamConvenioMaior6                :Boolean;
   wCarteira, LDiasProtesto, LDiasTrabalhados : Integer;
-  sDiasBaixa, LConvenio: String;
+  sDiasBaixa, LConvenio, LPermitePagamentoParcial: String;
 begin
 
    with ACBrTitulo do
@@ -1204,8 +1183,12 @@ begin
 
      with ACBrBoleto do
      begin
+       lPermitePagamentoParcial := ' ';
        if TamConvenioMaior6 then
-         wLinha := '7'
+        begin
+         wLinha := '7';
+         lPermitePagamentoParcial := IfThen(TipoPagamento = tpNao_Aceita_Valor_Divergente,'N','S');
+        end
        else
          wLinha := '1';
 
@@ -1267,19 +1250,21 @@ begin
                          trim(Sacado.Complemento), 40)                  + // Endereço do sacado
                 PadRight( Trim(Sacado.Bairro), 12)                      +
                 PadLeft( OnlyNumber(Sacado.CEP), 8 )                    + // CEP do endereço do sacado
-                PadRight( trim(Sacado.Cidade), 15)                      + // Cidade do sacado
+                PadRight( trim(Sacado.Cidade), 15)                      + // 335 - 349 Cidade do sacado
                 PadRight( Sacado.UF, 2 )                                + // UF da cidade do sacado
-                PadRight( AMensagem, 40)                                + // Observações
+                PadRight( AMensagem, 40)                                + // 352a391-Observações
 
                 IfThen(DiasDeNegativacao > 0,
                   PadLeft(IntToStr(DiasDeNegativacao),2,'0'),
-                  PadLeft(DiasProtesto,2,'0')  ) + ' '                  + // Número de dias para protesto ou negativacao + Branco
+                  PadLeft(DiasProtesto,2,'0')  )                        + // 392-393 Número de dias para protesto ou negativacao
+
+                LPermitePagamentoParcial                                + // 394-394 Se permite pagamento parcial; (manual 7 posicoes)
 
                 IntToStrZero( aRemessa.Count + 1, 6 );
-
+        aRemessa.Add(UpperCase(wLinha));
        if ATipoOcorrencia = '01' then
        begin
-         wLinha:= wLinha + sLineBreak                            +
+         wLinha:=
                 '5'                                              + //Tipo Registro
                 '99'                                             + //Tipo de Serviço (Cobrança de Multa)
                 IfThen((PercentualMulta > 0),
@@ -1290,10 +1275,9 @@ begin
                 IntToStrZero( round( PercentualMulta * 100), 12) + //Perc. Multa
                 sDiasBaixa                                       + //Qtd dias Recebimento após vencimento
                 Space(369)                                       + //Brancos
-                IntToStrZero(aRemessa.Count + 2 ,6);
+                IntToStrZero(aRemessa.Count + 1 ,6);
+               aRemessa.Add(UpperCase(wLinha));
        end;
-
-       aRemessa.Text := aRemessa.Text + UpperCase(wLinha);
 
        if (StrToIntDef(ATipoOcorrencia,0) in [1,85,86]) and ((Instrucao1 = '88') or (Instrucao2 = '88')) then
        begin

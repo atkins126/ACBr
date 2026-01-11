@@ -150,7 +150,8 @@ type
     cobBancoSulcredi,
     cobBancoCredisan,
     cobBancoSofisa,
-    cobBancoVortx
+    cobBancoVortx,
+    cobBancoAsaas
     );
 
   TACBrTitulo = class;
@@ -636,6 +637,11 @@ type
     function DefineSeuNumeroRetorno(const ALinha: String): String; virtual;         //Define o Seu Numero
     function DefinerCnpjCPFRetorno240(const ALinha: String): String; virtual;       //Define retorno rCnpjCPF
     function DefineNumeroDocumentoRetorno(const ALinha: String): String; virtual;   //Define o Numero Documento do Retorno
+    function DefinePosicaoAgenciaRetorno:Integer; virtual;                          //Define posição para leitura de Retorno campo: Agencia
+    function DefinePosicaoAgenciaDigitoRetorno:Integer; virtual;                    //Define posição para leitura de Retorno campo: Agencia DV
+    function DefinePosicaoContaRetorno:Integer; virtual;                            //Define posição para leitura de Retorno campo: Conta
+    function DefinePosicaoContaDigitoRetorno:Integer; virtual;                      //Define posição para leitura de Retorno campo: Conta DV
+
     procedure DefineRejeicaoComplementoRetorno(const ALinha: String; out ATitulo : TACBrTitulo); virtual;   //Define o Motivo da Rejeição ou Complemento no Retorno
     procedure DefineCanalLiquidacaoRetorno240(const ALinha: String; out ATitulo : TACBrTitulo); virtual;   //Define o Canal de Liquidacao Retorno CNAB 240
 
@@ -1009,8 +1015,10 @@ type
   end;
 
   { TACBrWebService }
-  TACBrWebServiceOnAntesAutenticar  = procedure(var aToken: String; var aValidadeToken: TDateTime) of object;
-  TACBrWebServiceOnDepoisAutenticar = procedure(const aToken: String; const aValidadeToken: TDateTime) of object;
+  TACBrWebServiceOnAntesAutenticar   = procedure(var AToken: String; var AValidadeToken: TDateTime) of object;
+  TACBrWebServiceOnDepoisAutenticar  = procedure(const AToken: String; const AValidadeToken: TDateTime) of object;
+  TACBrWebServiceOnPrecisaAutenticar = procedure(var AToken: String; var AValidadeToken: TDateTime) of object;
+
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
   {$ENDIF RTL230_UP}
@@ -1514,11 +1522,14 @@ type
     fConfiguracoes: TConfiguracoes;
     fListaConsultaRetornoWeb: TListaACBrBoletoRetornoWS;
     fPrefixArqRemessa : string;
+    fOnQuandoAlterarBanco: TNotifyEvent;
     fOnAntesAutenticar:  TACBrWebServiceOnAntesAutenticar;
     fOnDepoisAutenticar: TACBrWebServiceOnDepoisAutenticar;
+    fOnPrecisaAutenticar: TACBrWebServiceOnPrecisaAutenticar;
     FKeySoftwareHouse: String;
 
     procedure SetACBrBoletoFC(const Value: TACBrBoletoFCClass);
+    procedure SetBanco(AValue: TACBrBanco);
     procedure SetMAIL(AValue: TACBrMail);
 
   protected
@@ -1578,6 +1589,7 @@ type
 
     function EnviarBoleto: Boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método Enviar' {$ENDIF};
     function Enviar: Boolean;
+    function GerarTokenAutenticacao( out AToken: String; out AValidadeToken: TDateTime) : Boolean;
 
     function GetOcorrenciasRemessa() : TACBrOcorrenciasRemessa;
   	function GetOcorrenciasRetorno() : TACBrOcorrenciasRetorno;
@@ -1592,7 +1604,7 @@ type
     property MAIL  : TACBrMail read FMAIL write SetMAIL;
 
     property Homologacao    : Boolean            read fHomologacao            write fHomologacao default False;
-    property Banco          : TACBrBanco         read fBanco                  write fBanco;
+    property Banco          : TACBrBanco         read fBanco                  write SetBanco;
     property Cedente        : TACBrCedente       read fCedente                write fCedente ;
     property PrefixArqRemessa : String           read fPrefixArqRemessa       write fPrefixArqRemessa;
     property NomeArqRemessa : String             read fNomeArqRemessa         write fNomeArqRemessa;
@@ -1609,10 +1621,11 @@ type
     property RemoveAcentosArqRemessa: Boolean    read fRemoveAcentosArqRemessa write fRemoveAcentosArqRemessa default False;
     property LerNossoNumeroCompleto : Boolean    read fLerNossoNumeroCompleto write fLerNossoNumeroCompleto default False;
     property Configuracoes: TConfiguracoes       read fConfiguracoes          write fConfiguracoes;
-    property OnAntesAutenticar : TACBrWebServiceOnAntesAutenticar  read fOnAntesAutenticar  write fOnAntesAutenticar;
-    property OnDepoisAutenticar: TACBrWebServiceOnDepoisAutenticar read fOnDepoisAutenticar write fOnDepoisAutenticar;
     property KeySoftwareHouse: String 			     read FKeySoftwareHouse 	    write FKeySoftwareHouse;
-
+    property OnAntesAutenticar   : TACBrWebServiceOnAntesAutenticar    read fOnAntesAutenticar    write fOnAntesAutenticar;
+    property OnDepoisAutenticar  : TACBrWebServiceOnDepoisAutenticar   read fOnDepoisAutenticar   write fOnDepoisAutenticar;
+    property OnPrecisaAutenticar : TACBrWebServiceOnPrecisaAutenticar  read fOnPrecisaAutenticar  write fOnPrecisaAutenticar;
+    property OnQuandoAlterarBanco: TNotifyEvent read fOnQuandoAlterarBanco write fOnQuandoAlterarBanco;
   end;
 
   {TACBrBoletoFCClass}
@@ -2152,7 +2165,8 @@ Uses {$IFNDEF NOGUI}Forms,{$ENDIF}
      ACBrBancoSulcredi,
      ACBrBancoCredisan,
      ACBrBancoSofisa,
-     ACBrBancoVortx;
+     ACBrBancoVortx,
+     ACBrBancoAsaas;
 
 {$IFNDEF FPC}
    {$R ACBrBoleto.dcr}
@@ -3095,8 +3109,10 @@ begin
    {$IFDEF COMPILER6_UP}
    fConfiguracoes.SetSubComponent(True);   // Ajustando como SubComponente para aparecer no ObjectInspector
    {$ENDIF}
-   FOnAntesAutenticar  := nil;
-   FOnDepoisAutenticar := nil;
+   FOnAntesAutenticar    := nil;
+   FOnDepoisAutenticar   := nil;
+   fOnPrecisaAutenticar  := nil;
+   fOnQuandoAlterarBanco := nil;
 end;
 
 destructor TACBrBoleto.Destroy;
@@ -3131,6 +3147,12 @@ begin
          Value.ACBrBoleto := self ;
       end ;
    end ;
+end;
+
+procedure TACBrBoleto.SetBanco(AValue: TACBrBanco);
+begin
+  if (fBanco = AValue) then Exit;
+    fBanco := AValue;
 end;
 
 procedure TACBrBoleto.SetMAIL(AValue: TACBrMail);
@@ -3444,7 +3466,7 @@ begin
     ATipoMulta := 'após o vencimento';
 
   if ATitulo.MultaValorFixo then
-    Result := ACBrStr(Format('Cobrar multa de R$%s para pagamento %s.',[FormatFloatBr(AValorMulta),ATipoMulta]))
+    Result := ACBrStr(Format('Cobrar multa de R$ %s para pagamento %s.',[FormatFloatBr(AValorMulta),ATipoMulta]))
   else
     Result := ACBrStr(Format('Cobrar multa de %s%s  para pagamento %s.',[FormatFloatBr(AValorMulta),'%',ATipoMulta]));
 end;
@@ -3664,12 +3686,28 @@ begin
    end;
 end;
 
+function TACBrBoleto.GerarTokenAutenticacao(out AToken: String; out AValidadeToken: TDateTime): Boolean;
+var
+  LBoletoWS: TBoletoWS;
+  LBoletoWSClass : TBoletoWSClass;
+begin
+  LBoletoWS      := TBoletoWS.Create(Self);
+  LBoletoWSClass := TBoletoWSClass.Create(LBoletoWS);
+
+  try
+    Result := LBoletoWS.NovoTokenAutenticacao(AToken, AValidadeToken);
+  finally
+    LBoletoWS.Free;
+  end;
+end;
+
 procedure TACBrBoleto.LerRetorno(AStream: TStream);
 var
   LListaRetorno: TStringList;
   LNomeArquivo: String;
   LCodigoBanco: String;
   LTamanhoLayout : Cardinal;
+  LCarteira : String;
 begin
   LListaRetorno := TStringList.Create;
   try
@@ -3712,7 +3750,7 @@ begin
     case Length(LListaRetorno.Strings[0]) of
       240:
         begin
-          if (Length(LListaRetorno.Strings[0]) = 240) and (Copy(LListaRetorno.Strings[0], 7, 1) = '0') then
+          if (Length(LListaRetorno.Strings[0]) = 240) and (Copy(LListaRetorno.Strings[0], 143, 1) = '2') then
           begin
             LCodigoBanco := Copy(LListaRetorno.Strings[0], 1, 3);
             LayoutRemessa := c240;
@@ -3735,8 +3773,14 @@ begin
     (IntToStrZero(Banco.NumeroCorrespondente, 3) <> LCodigoBanco) then
     begin
       if LeCedenteRetorno then
-        Banco.TipoCobranca := GetTipoCobranca(StrToIntDef(LCodigoBanco, 0))
-      else
+      begin
+        if (LCodigoBanco = '637') and (LListaRetorno.Count > 0) then
+          LCarteira := Copy(LListaRetorno.Strings[1], 83, 3)
+        else
+          LCarteira := '0';
+
+        Banco.TipoCobranca := GetTipoCobranca(StrToIntDef(LCodigoBanco, 0), LCarteira);
+      end else
         raise EACBrBoleto.Create(ACBrStr('Arquivo de retorno de banco diferente do Cedente'));
     end;
 
@@ -3937,6 +3981,7 @@ begin
     403: Result := cobBancoCora;
     422: Result := cobBancoSafra;
     457: Result := cobBancoUY3;
+    461: Result := cobBancoAsaas;
     604: Result := cobBancoIndustrialBrasil;
     633: Result := cobBancoRendimento;
     637: begin
@@ -4148,6 +4193,7 @@ begin
         CedenteWS.IndicadorPix              := IniBoletos.ReadBool(CWebService,'IndicadorPix', CedenteWS.IndicadorPix);
         CedenteWS.Scope                     := IniBoletos.ReadString(CWebService,'Scope', CedenteWS.Scope);
 
+        Configuracoes.WebService.UseCertificateHTTP := IniBoletos.ReadBool(CWebService,'UseCertificateHTTP', Configuracoes.WebService.UseCertificateHTTP);
         Configuracoes.WebService.Ambiente   := TTipoAmbienteWS(IniBoletos.ReadInteger(CWebService,'Ambiente', Integer(Configuracoes.WebService.Ambiente)));
         Configuracoes.WebService.SSLHttpLib := TSSLHttpLib(IniBoletos.ReadInteger(CWebService,'SSLHttpLib', Integer(Configuracoes.WebService.SSLHttpLib)));
         Configuracoes.WebService.SSLCryptLib := TSSLCryptLib( IniBoletos.ReadInteger(CWebService,'SSLCryptLib',Integer(Configuracoes.WebService.SSLCryptLib)));
@@ -4365,6 +4411,8 @@ begin
       Configuracoes.WebService.Filtro.indicadorSituacao := TACBrIndicadorSituacaoBoleto(StrToInt64Def(sFim,0));
       NaoPermiteFiltroWSNenhum;
 
+      Configuracoes.WebService.Filtro.boletoVencido := TACBrIndicadorBoletoVencido(StrToInt64Def(IniBoletos.ReadString(Sessao,'boletoVencido','0'),0));
+
       DtMovimento  := Trim(IniBoletos.ReadString(Sessao,'DataInicioMovimento','0'));
       DtVencimento := Trim(IniBoletos.ReadString(Sessao,'DataInicioVencimento','0'));
       DtRegistro   := Trim(IniBoletos.ReadString(Sessao,'DataInicioRegistro','0'));
@@ -4409,6 +4457,7 @@ end;
 function TACBrBoleto.GravarArqIni(DirIniRetorno: string; const NomeArquivo: String; const SomenteConfig:Boolean = false): String;
 var
   IniRetorno: TMemIniFile;
+  LStream : TStream;
   SL: TStringList;
   wSessao: String;
   I: Integer;
@@ -4416,155 +4465,185 @@ var
 begin
   Result:= '';
   DirIniRetorno:= PathWithDelim(DirIniRetorno);
+  LStream := nil;
+  //No Lazarus está persistindo em disco mesmo IniRetorno sendo TMemIniFile,
+  //Comportamento diferente de Lazarus Vs Delphi
+{$IFDEF FPC}
+  if (EstaVazio(DirIniRetorno) and EstaVazio(NomeArquivo)) then
+    LStream := TMemoryStream.Create;
+{$ENDIF}
 
-  IniRetorno:= TMemIniFile.Create(DirIniRetorno + IfThen( EstaVazio(NomeArquivo), 'Retorno.ini', NomeArquivo ) );
+
   try
-    with Self do
-    begin
-       { BENEFICIARIO }
-       IniRetorno.WriteString(CCedente,'CNPJCPF',Cedente.CNPJCPF);
-       IniRetorno.WriteString(CCedente,'Nome',Cedente.Nome);
-       IniRetorno.WriteString(CCedente,'FantasiaCedente',Cedente.FantasiaCedente);
-       IniRetorno.WriteString(CCedente,'Logradouro',Cedente.Logradouro);
-       IniRetorno.WriteString(CCedente,'Numero',Cedente.NumeroRes);
-       IniRetorno.WriteString(CCedente,'Complemento',Cedente.Complemento);
-       IniRetorno.WriteString(CCedente,'Bairro',Cedente.Bairro);
-       IniRetorno.WriteString(CCedente,'Cidade',Cedente.Cidade);
-       IniRetorno.WriteString(CCedente,'UF',Cedente.UF);
-       IniRetorno.WriteString(CCedente,'CEP',Cedente.CEP);
-       IniRetorno.WriteString(CCedente,'Telefone',Cedente.Telefone);
-
-       IniRetorno.WriteString(CCedente,'CodigoCedente',Cedente. CodigoCedente);
-       IniRetorno.WriteString(CCedente,'MODALIDADE',Cedente.Modalidade);
-       IniRetorno.WriteString(CCedente,'CODTRANSMISSAO',Cedente.CodigoTransmissao);
-       IniRetorno.WriteString(CCedente,'CONVENIO',Cedente.Convenio);
-
-       IniRetorno.WriteString(CConta,'Conta',Cedente.Conta);
-       IniRetorno.WriteString(CConta,'DigitoConta',Cedente.ContaDigito);
-       IniRetorno.WriteString(CConta,'Agencia',Cedente.Agencia);
-       IniRetorno.WriteString(CConta,'DigitoAgencia',Cedente.AgenciaDigito);
-       IniRetorno.WriteString(CConta,'DigitoVerificadorAgenciaConta',Cedente.DigitoVerificadorAgenciaConta);
-
-       IniRetorno.WriteInteger(CCedente,'CaracTitulo',Integer(Cedente.CaracTitulo));
-       IniRetorno.WriteInteger(CCedente,'TipoDocumento',Integer(Cedente.TipoDocumento));
-       IniRetorno.WriteInteger(CCedente,'TipoCarteira',Integer(Cedente.TipoCarteira));
-       IniRetorno.WriteInteger(CCedente,'TipoInscricao',Integer(Cedente.TipoInscricao));
-       IniRetorno.WriteInteger(CCedente,'IdentDistribuicao',Integer(Cedente.IdentDistribuicao));
-       IniRetorno.WriteInteger(CCedente,'ResponEmissao',Integer(Cedente.ResponEmissao));
-       IniRetorno.WriteString(CCedente,'Operacao',Cedente.Operacao);
-       IniRetorno.WriteString(CCedente,'CodigoFlash',Cedente.CodigoFlash);
-
-       IniRetorno.WriteInteger(CCedente,'IntegradoraBoleto',Integer(Cedente.IntegradoraBoleto));
-       
-       IniRetorno.WriteString(CCedente,'PIX.Chave',Cedente.PIX.Chave);
-       IniRetorno.WriteInteger(CCedente,'PIX.TipoChavePIX',Integer(Cedente.PIX.TipoChavePIX));
-
-       { BANCO }
-       IniRetorno.WriteInteger(CBanco,'Numero',Banco.Numero);
-       IniRetorno.WriteInteger(CBanco,'IndiceACBr',Integer(Banco.TipoCobranca));
-       IniRetorno.WriteInteger(CBanco,'NumeroCorrespondente',Banco.NumeroCorrespondente);
-       IniRetorno.WriteInteger(CBanco,'VersaoArquivo',Banco.LayoutVersaoArquivo);
-       IniRetorno.WriteInteger(CBanco,'VersaoLote',Banco.LayoutVersaoLote);
-       IniRetorno.WriteString(CBanco,'OrientacoesBanco',StringReplace( Banco.OrientacoesBanco.Text, sLineBreak, '|', [rfReplaceAll] ));
-       IniRetorno.WriteInteger(CBanco,'NumeroArquivo',NumeroArquivo);
-       IniRetorno.WriteString(CBanco,'NomeArqRetorno',NomeArqRetorno);
-
-       IniRetorno.WriteString(CBanco,'LocalPagamento',Banco.LocalPagamento);
-       IniRetorno.WriteInteger(CBanco,'CasasDecimaisMoraJuros',Banco.CasasDecimaisMoraJuros);
-       IniRetorno.WriteString(CBanco,'DensidadeGravacao',Banco.DensidadeGravacao);
-       IniRetorno.WriteString(CBanco,'CIP',Banco.CIP);
-
-       { BOLETO }
-       IniRetorno.WriteString(CBanco,'PrefixArqRemessa',PrefixArqRemessa);
-
-       if LayoutRemessa = c240 then
-         IniRetorno.WriteInteger(CBanco,'CNAB',0)
-       else
-         IniRetorno.WriteInteger(CBanco,'CNAB',1);
-
-       IniRetorno.WriteBool(CBanco,'Homologacao',Homologacao);
-       IniRetorno.WriteBool(CBanco,'ImprimirMensagemPadrao',ImprimirMensagemPadrao);
-       IniRetorno.WriteBool(CBanco,'LeCedenteRetorno',LeCedenteRetorno);
-       IniRetorno.WriteBool(CBanco,'LerNossoNumeroCompleto',LerNossoNumeroCompleto);
-       IniRetorno.WriteBool(CBanco,'RemoveAcentosArqRemessa',RemoveAcentosArqRemessa);
-
-       { ARQUIVOS }
-       IniRetorno.WriteInteger(CArquivos,'LogNivel',Integer(Configuracoes.Arquivos.LogNivel));
-       IniRetorno.WriteString(CArquivos,'PathGravarRegistro',Configuracoes.Arquivos.PathGravarRegistro);
-       IniRetorno.WriteString(CArquivos,'NomeArquivoLog',Configuracoes.Arquivos.NomeArquivoLog);
-
-       { WEBSERVICES }
-       IniRetorno.WriteString(CWebService,'ClientID',Cedente.CedenteWS.ClientID);
-       IniRetorno.WriteString(CWebService,'ClientSecret',Cedente.CedenteWS.ClientSecret);
-       IniRetorno.WriteString(CWebService,'KeyUser',Cedente.CedenteWS.KeyUser);
-       IniRetorno.WriteBool(CWebService,'IndicadorPix',Cedente.CedenteWS.IndicadorPix);
-       IniRetorno.WriteString(CWebService,'Scope',Cedente.CedenteWS.Scope);
-       IniRetorno.WriteInteger(CWebService,'Ambiente',Integer(Configuracoes.WebService.Ambiente));
-       IniRetorno.WriteInteger(CWebService,'SSLHttpLib',Integer(Configuracoes.WebService.SSLHttpLib));
-       IniRetorno.WriteInteger(CWebService,'SSLCryptLib',Integer(Configuracoes.WebService.SSLCryptLib));
-       IniRetorno.WriteInteger(CWebService,'SSLXmlSignLib',Integer(Configuracoes.WebService.SSLXmlSignLib));
-       IniRetorno.WriteInteger(CWebService,'SSLType',Integer(Configuracoes.WebService.SSLType));
-
-
-       IniRetorno.WriteString(CWebService,'ArquivoCRT', Configuracoes.WebService.ArquivoCRT);
-       IniRetorno.WriteString(CWebService,'ArquivoKEY', Configuracoes.WebService.ArquivoKEY);
-       IniRetorno.WriteString(CWebService,'ArquivoPFX', Configuracoes.WebService.ArquivoPFX);
-       IniRetorno.WriteString(CWebService,'Senha', Configuracoes.WebService.Senha);
-
-       if not SomenteConfig then
-       begin
-         for I:= 0 to Pred(ListadeBoletos.Count) do
-         begin
-           wSessao:= 'Titulo'+ IntToStr(I+1);
-           IniRetorno.WriteString(wSessao,'Sacado.Nome', ListadeBoletos[I].Sacado.NomeSacado);
-           IniRetorno.WriteString(wSessao,'Sacado.CNPJCPF', ListadeBoletos[I].Sacado.CNPJCPF);
-           IniRetorno.WriteString(wSessao,'Vencimento',DateToStr(ListadeBoletos[I].Vencimento));
-           IniRetorno.WriteString(wSessao,'DataRegistro',DateToStr(ListadeBoletos[I].DataRegistro));
-           IniRetorno.WriteString(wSessao,'DataDocumento',DateToStr(ListadeBoletos[I].DataDocumento));
-           IniRetorno.WriteString(wSessao,'NumeroDocumento',ListadeBoletos[I].NumeroDocumento);
-           IniRetorno.WriteString(wSessao,'DataProcessamento',DateToStr(ListadeBoletos[I].DataProcessamento));
-           IniRetorno.WriteString(wSessao,'NossoNumero',ListadeBoletos[I].NossoNumero);
-           IniRetorno.WriteString(wSessao,'NossoNumeroCorrespondente',ListadeBoletos[I].NossoNumeroCorrespondente);
-           IniRetorno.WriteString(wSessao,'Carteira',ListadeBoletos[I].Carteira);
-           IniRetorno.WriteFloat(wSessao,'ValorDocumento',ListadeBoletos[I].ValorDocumento);
-           IniRetorno.WriteString(wSessao,'DataOcorrencia',DateToStr(ListadeBoletos[I].DataOcorrencia));
-           IniRetorno.WriteString(wSessao,'DataCredito',DateToStr(ListadeBoletos[I].DataCredito));
-           IniRetorno.WriteString(wSessao,'DataBaixa',DateToStr(ListadeBoletos[I].DataBaixa));
-           IniRetorno.WriteString(wSessao,'DataMoraJuros',DateToStr(ListadeBoletos[I].DataMoraJuros));
-           IniRetorno.WriteFloat(wSessao,'ValorDespesaCobranca',ListadeBoletos[I].ValorDespesaCobranca);
-           IniRetorno.WriteFloat(wSessao,'ValorAbatimento',ListadeBoletos[I].ValorAbatimento);
-           IniRetorno.WriteFloat(wSessao,'ValorDesconto',ListadeBoletos[I].ValorDesconto);
-           IniRetorno.WriteFloat(wSessao,'ValorMoraJuros',ListadeBoletos[I].ValorMoraJuros);
-           IniRetorno.WriteFloat(wSessao,'ValorIOF',ListadeBoletos[I].ValorIOF);
-           IniRetorno.WriteFloat(wSessao,'ValorOutrasDespesas',ListadeBoletos[I].ValorOutrasDespesas);
-           IniRetorno.WriteFloat(wSessao,'ValorOutrosCreditos',ListadeBoletos[I].ValorOutrosCreditos);
-           IniRetorno.WriteFloat(wSessao,'ValorRecebido',ListadeBoletos[I].ValorRecebido);
-           IniRetorno.WriteString(wSessao,'SeuNumero',ListadeBoletos[I].SeuNumero);
-           IniRetorno.WriteString(wSessao,'EMV',ListadeBoletos[I].QrCode.emv);
-
-           IniRetorno.WriteString(wSessao,'CodTipoOcorrencia',
-                                  GetEnumName( TypeInfo(TACBrTipoOcorrencia),
-                                               Integer(ListadeBoletos[I].OcorrenciaOriginal.Tipo)));
-           IniRetorno.WriteString(wSessao,'DescricaoTipoOcorrencia',ListadeBoletos[I].OcorrenciaOriginal.Descricao);
-
-           for J:= 0 to ListadeBoletos[I].DescricaoMotivoRejeicaoComando.Count-1 do
-              IniRetorno.WriteString(wSessao,'MotivoRejeicao' + IntToStr(I+1),
-                                     ListadeBoletos[I].DescricaoMotivoRejeicaoComando[J]);
-         end;
-       end;
-
+{$IFDEF FPC}
+    if Assigned(LStream) then
+      IniRetorno := TMemIniFile.Create(LStream)
+    else begin
+      IniRetorno:= TMemIniFile.Create(
+                                       DirIniRetorno + IfThen( EstaVazio(NomeArquivo),
+                                       'Retorno.ini',
+                                        NomeArquivo )
+                                     );
     end;
+{$ELSE}
+  IniRetorno:= TMemIniFile.Create(
+                                   DirIniRetorno + IfThen( EstaVazio(NomeArquivo),
+                                   'Retorno.ini',
+                                   NomeArquivo )
+                                 );
+{$ENDIF}
 
-    SL:= TStringList.Create;
     try
-      IniRetorno.GetStrings(SL);
-      Result:= ACBrStr(SL.Text);
-    finally
-      SL.Free;
-    end;
+      with Self do
+      begin
+         { BENEFICIARIO }
+         IniRetorno.WriteString(CCedente,'CNPJCPF',Cedente.CNPJCPF);
+         IniRetorno.WriteString(CCedente,'Nome',Cedente.Nome);
+         IniRetorno.WriteString(CCedente,'FantasiaCedente',Cedente.FantasiaCedente);
+         IniRetorno.WriteString(CCedente,'Logradouro',Cedente.Logradouro);
+         IniRetorno.WriteString(CCedente,'Numero',Cedente.NumeroRes);
+         IniRetorno.WriteString(CCedente,'Complemento',Cedente.Complemento);
+         IniRetorno.WriteString(CCedente,'Bairro',Cedente.Bairro);
+         IniRetorno.WriteString(CCedente,'Cidade',Cedente.Cidade);
+         IniRetorno.WriteString(CCedente,'UF',Cedente.UF);
+         IniRetorno.WriteString(CCedente,'CEP',Cedente.CEP);
+         IniRetorno.WriteString(CCedente,'Telefone',Cedente.Telefone);
 
+         IniRetorno.WriteString(CCedente,'CodigoCedente',Cedente. CodigoCedente);
+         IniRetorno.WriteString(CCedente,'MODALIDADE',Cedente.Modalidade);
+         IniRetorno.WriteString(CCedente,'CODTRANSMISSAO',Cedente.CodigoTransmissao);
+         IniRetorno.WriteString(CCedente,'CONVENIO',Cedente.Convenio);
+
+         IniRetorno.WriteString(CConta,'Conta',Cedente.Conta);
+         IniRetorno.WriteString(CConta,'DigitoConta',Cedente.ContaDigito);
+         IniRetorno.WriteString(CConta,'Agencia',Cedente.Agencia);
+         IniRetorno.WriteString(CConta,'DigitoAgencia',Cedente.AgenciaDigito);
+         IniRetorno.WriteString(CConta,'DigitoVerificadorAgenciaConta',Cedente.DigitoVerificadorAgenciaConta);
+
+         IniRetorno.WriteInteger(CCedente,'CaracTitulo',Integer(Cedente.CaracTitulo));
+         IniRetorno.WriteInteger(CCedente,'TipoDocumento',Integer(Cedente.TipoDocumento));
+         IniRetorno.WriteInteger(CCedente,'TipoCarteira',Integer(Cedente.TipoCarteira));
+         IniRetorno.WriteInteger(CCedente,'TipoInscricao',Integer(Cedente.TipoInscricao));
+         IniRetorno.WriteInteger(CCedente,'IdentDistribuicao',Integer(Cedente.IdentDistribuicao));
+         IniRetorno.WriteInteger(CCedente,'ResponEmissao',Integer(Cedente.ResponEmissao));
+         IniRetorno.WriteString(CCedente,'Operacao',Cedente.Operacao);
+         IniRetorno.WriteString(CCedente,'CodigoFlash',Cedente.CodigoFlash);
+
+         IniRetorno.WriteInteger(CCedente,'IntegradoraBoleto',Integer(Cedente.IntegradoraBoleto));
+
+         IniRetorno.WriteString(CCedente,'PIX.Chave',Cedente.PIX.Chave);
+         IniRetorno.WriteInteger(CCedente,'PIX.TipoChavePIX',Integer(Cedente.PIX.TipoChavePIX));
+
+         { BANCO }
+         IniRetorno.WriteInteger(CBanco,'Numero',Banco.Numero);
+         IniRetorno.WriteInteger(CBanco,'IndiceACBr',Integer(Banco.TipoCobranca));
+         IniRetorno.WriteInteger(CBanco,'NumeroCorrespondente',Banco.NumeroCorrespondente);
+         IniRetorno.WriteInteger(CBanco,'VersaoArquivo',Banco.LayoutVersaoArquivo);
+         IniRetorno.WriteInteger(CBanco,'VersaoLote',Banco.LayoutVersaoLote);
+         IniRetorno.WriteString(CBanco,'OrientacoesBanco',StringReplace( Banco.OrientacoesBanco.Text, sLineBreak, '|', [rfReplaceAll] ));
+         IniRetorno.WriteInteger(CBanco,'NumeroArquivo',NumeroArquivo);
+         IniRetorno.WriteString(CBanco,'NomeArqRetorno',NomeArqRetorno);
+
+         IniRetorno.WriteString(CBanco,'LocalPagamento',Banco.LocalPagamento);
+         IniRetorno.WriteInteger(CBanco,'CasasDecimaisMoraJuros',Banco.CasasDecimaisMoraJuros);
+         IniRetorno.WriteString(CBanco,'DensidadeGravacao',Banco.DensidadeGravacao);
+         IniRetorno.WriteString(CBanco,'CIP',Banco.CIP);
+
+         { BOLETO }
+         IniRetorno.WriteString(CBanco,'PrefixArqRemessa',PrefixArqRemessa);
+
+         if LayoutRemessa = c240 then
+           IniRetorno.WriteInteger(CBanco,'CNAB',0)
+         else
+           IniRetorno.WriteInteger(CBanco,'CNAB',1);
+
+         IniRetorno.WriteBool(CBanco,'Homologacao',Homologacao);
+         IniRetorno.WriteBool(CBanco,'ImprimirMensagemPadrao',ImprimirMensagemPadrao);
+         IniRetorno.WriteBool(CBanco,'LeCedenteRetorno',LeCedenteRetorno);
+         IniRetorno.WriteBool(CBanco,'LerNossoNumeroCompleto',LerNossoNumeroCompleto);
+         IniRetorno.WriteBool(CBanco,'RemoveAcentosArqRemessa',RemoveAcentosArqRemessa);
+
+         { ARQUIVOS }
+         IniRetorno.WriteInteger(CArquivos,'LogNivel',Integer(Configuracoes.Arquivos.LogNivel));
+         IniRetorno.WriteString(CArquivos,'PathGravarRegistro',Configuracoes.Arquivos.PathGravarRegistro);
+         IniRetorno.WriteString(CArquivos,'NomeArquivoLog',Configuracoes.Arquivos.NomeArquivoLog);
+
+         { WEBSERVICES }
+         IniRetorno.WriteString(CWebService,'ClientID',Cedente.CedenteWS.ClientID);
+         IniRetorno.WriteString(CWebService,'ClientSecret',Cedente.CedenteWS.ClientSecret);
+         IniRetorno.WriteString(CWebService,'KeyUser',Cedente.CedenteWS.KeyUser);
+         IniRetorno.WriteBool(CWebService,'IndicadorPix',Cedente.CedenteWS.IndicadorPix);
+         IniRetorno.WriteString(CWebService,'Scope',Cedente.CedenteWS.Scope);
+         IniRetorno.WriteInteger(CWebService,'Ambiente',Integer(Configuracoes.WebService.Ambiente));
+         IniRetorno.WriteInteger(CWebService,'SSLHttpLib',Integer(Configuracoes.WebService.SSLHttpLib));
+         IniRetorno.WriteInteger(CWebService,'SSLCryptLib',Integer(Configuracoes.WebService.SSLCryptLib));
+         IniRetorno.WriteInteger(CWebService,'SSLXmlSignLib',Integer(Configuracoes.WebService.SSLXmlSignLib));
+         IniRetorno.WriteInteger(CWebService,'SSLType',Integer(Configuracoes.WebService.SSLType));
+
+
+         IniRetorno.WriteString(CWebService,'ArquivoCRT', Configuracoes.WebService.ArquivoCRT);
+         IniRetorno.WriteString(CWebService,'ArquivoKEY', Configuracoes.WebService.ArquivoKEY);
+         IniRetorno.WriteString(CWebService,'ArquivoPFX', Configuracoes.WebService.ArquivoPFX);
+         IniRetorno.WriteString(CWebService,'Senha', Configuracoes.WebService.Senha);
+
+         if not SomenteConfig then
+         begin
+           for I:= 0 to Pred(ListadeBoletos.Count) do
+           begin
+             wSessao:= 'Titulo'+ IntToStr(I+1);
+             IniRetorno.WriteString(wSessao,'Sacado.Nome', ListadeBoletos[I].Sacado.NomeSacado);
+             IniRetorno.WriteString(wSessao,'Sacado.CNPJCPF', ListadeBoletos[I].Sacado.CNPJCPF);
+             IniRetorno.WriteString(wSessao,'Vencimento',DateToStr(ListadeBoletos[I].Vencimento));
+             IniRetorno.WriteString(wSessao,'DataRegistro',DateToStr(ListadeBoletos[I].DataRegistro));
+             IniRetorno.WriteString(wSessao,'DataDocumento',DateToStr(ListadeBoletos[I].DataDocumento));
+             IniRetorno.WriteString(wSessao,'NumeroDocumento',ListadeBoletos[I].NumeroDocumento);
+             IniRetorno.WriteString(wSessao,'DataProcessamento',DateToStr(ListadeBoletos[I].DataProcessamento));
+             IniRetorno.WriteString(wSessao,'NossoNumero',ListadeBoletos[I].NossoNumero);
+             IniRetorno.WriteString(wSessao,'NossoNumeroCorrespondente',ListadeBoletos[I].NossoNumeroCorrespondente);
+             IniRetorno.WriteString(wSessao,'Carteira',ListadeBoletos[I].Carteira);
+             IniRetorno.WriteFloat(wSessao,'ValorDocumento',ListadeBoletos[I].ValorDocumento);
+             IniRetorno.WriteString(wSessao,'DataOcorrencia',DateToStr(ListadeBoletos[I].DataOcorrencia));
+             IniRetorno.WriteString(wSessao,'DataCredito',DateToStr(ListadeBoletos[I].DataCredito));
+             IniRetorno.WriteString(wSessao,'DataBaixa',DateToStr(ListadeBoletos[I].DataBaixa));
+             IniRetorno.WriteString(wSessao,'DataMoraJuros',DateToStr(ListadeBoletos[I].DataMoraJuros));
+             IniRetorno.WriteFloat(wSessao,'ValorDespesaCobranca',ListadeBoletos[I].ValorDespesaCobranca);
+             IniRetorno.WriteFloat(wSessao,'ValorAbatimento',ListadeBoletos[I].ValorAbatimento);
+             IniRetorno.WriteFloat(wSessao,'ValorDesconto',ListadeBoletos[I].ValorDesconto);
+             IniRetorno.WriteFloat(wSessao,'ValorMoraJuros',ListadeBoletos[I].ValorMoraJuros);
+             IniRetorno.WriteFloat(wSessao,'ValorIOF',ListadeBoletos[I].ValorIOF);
+             IniRetorno.WriteFloat(wSessao,'ValorOutrasDespesas',ListadeBoletos[I].ValorOutrasDespesas);
+             IniRetorno.WriteFloat(wSessao,'ValorOutrosCreditos',ListadeBoletos[I].ValorOutrosCreditos);
+             IniRetorno.WriteFloat(wSessao,'ValorRecebido',ListadeBoletos[I].ValorRecebido);
+             IniRetorno.WriteString(wSessao,'SeuNumero',ListadeBoletos[I].SeuNumero);
+             IniRetorno.WriteString(wSessao,'EMV',ListadeBoletos[I].QrCode.emv);
+
+             IniRetorno.WriteString(wSessao,'CodTipoOcorrencia',
+                                    GetEnumName( TypeInfo(TACBrTipoOcorrencia),
+                                                 Integer(ListadeBoletos[I].OcorrenciaOriginal.Tipo)));
+             IniRetorno.WriteString(wSessao,'DescricaoTipoOcorrencia',ListadeBoletos[I].OcorrenciaOriginal.Descricao);
+
+             for J:= 0 to ListadeBoletos[I].DescricaoMotivoRejeicaoComando.Count-1 do
+                IniRetorno.WriteString(wSessao,'MotivoRejeicao' + IntToStr(I+1),
+                                       ListadeBoletos[I].DescricaoMotivoRejeicaoComando[J]);
+           end;
+         end;
+
+      end;
+
+      SL:= TStringList.Create;
+      try
+        IniRetorno.GetStrings(SL);
+        Result:= ACBrStr(SL.Text);
+      finally
+        SL.Free;
+      end;
+
+    finally
+      IniRetorno.Free;
+    end;
   finally
-    IniRetorno.Free;
+    if Assigned(LStream) then
+      LStream.Free;
   end;
 
 end;
@@ -4876,11 +4955,15 @@ begin
      cobBancoCredisan        : fBancoClass := TACBrBancoCredisan.create(Self);          {089}
      cobBancoSofisa          : fBancoClass := TACBRBancoSofisa.create(self);            {637}
      cobBancoVortx           : fBancoClass := TACBRBancoVortx.create(self);             {310}
+     cobBancoAsaas           : fBancoClass := TACBrBancoAsaas.Create(Self);             {461}
    else
      fBancoClass := TACBrBancoClass.create(Self);
    end;
 
    fTipoCobranca := AValue;
+
+  if Assigned(fACBrBoleto.fOnQuandoAlterarBanco) then
+    fACBrBoleto.fOnQuandoAlterarBanco(Self);
 end;
 
 function TACBrBanco.TipoOcorrenciaToDescricao( const TipoOcorrencia: TACBrTipoOcorrencia) : String;
@@ -5295,6 +5378,7 @@ var
   Linha, rCedente, rCNPJCPF :String;
   rCodEmpresa               :String;
 begin
+  Titulo := nil;
   //ErroAbstract('LerRetorno400');
 
   //Utiliza o layout padrão para leitura de retorno CNAB400
@@ -5306,10 +5390,11 @@ begin
   rCedente   := trim(Copy(ARetorno[0],47,30));
 
   // A leitura deverá ser feita a partir da posição 26 devido ao fato de não existirem agências bancárias com mais de 4 (quatro) algarismos.
-  rAgencia := trim(Copy(ARetorno[1], 26, ACBrBanco.TamanhoAgencia));
-  rConta   := trim(Copy(ARetorno[1], 30, DefineTamanhoContaRemessa));
+  rAgencia := trim(Copy(ARetorno[1], DefinePosicaoAgenciaRetorno, ACBrBanco.TamanhoAgencia));
+  rConta   := trim(Copy(ARetorno[1], DefinePosicaoContaRetorno, DefineTamanhoContaRemessa));
 
-  rDigitoConta := Copy(ARetorno[1], 30 + DefineTamanhoContaRemessa ,1);
+  //rDigitoConta := Copy(ARetorno[1], 30 + DefineTamanhoContaRemessa ,1);
+  rDigitoConta := Copy(ARetorno[1], DefinePosicaoContaRetorno + DefineTamanhoContaRemessa ,1);
 
   ACBrBanco.ACBrBoleto.NumeroArquivo := StrToIntDef(Copy(ARetorno[0],109,5),0);
 
@@ -5374,116 +5459,118 @@ begin
          Continue;
 
        Titulo := ACBrBanco.ACBrBoleto.CriarTituloNaLista;
-
-       with Titulo do
+       if Assigned(Titulo) then
        begin
-          SeuNumero                   := copy(Linha,38,25);
-          NumeroDocumento             := copy(Linha,117,10);
-          OcorrenciaOriginal.Tipo     := CodOcorrenciaToTipo(StrToIntDef(
-                                         copy(Linha,109,2),0));
+         with Titulo do
+         begin
+            SeuNumero                   := copy(Linha,38,25);
+            NumeroDocumento             := copy(Linha,117,10);
+            OcorrenciaOriginal.Tipo     := CodOcorrenciaToTipo(StrToIntDef(
+                                           copy(Linha,109,2),0));
 
-          CodOcorrencia := StrToIntDef(IfThen(copy(Linha,109,2) = '  ','00',copy(Linha,109,2)),0);
+            CodOcorrencia := StrToIntDef(IfThen(copy(Linha,109,2) = '  ','00',copy(Linha,109,2)),0);
 
-          //-|Se a ocorrencia for igual a 19 - Confirmação de Receb. de Protesto
-          //-|Verifica o motivo na posição 295 - A = Aceite , D = Desprezado
-          if(CodOcorrencia = 19)then
-           begin
-             CodMotivo_19:= copy(Linha,295,1);
-             if(CodMotivo_19 = 'A')then
-              begin
-                MotivoRejeicaoComando.Add(copy(Linha,295,1));
-                DescricaoMotivoRejeicaoComando.Add('A - Aceito');
-              end
-             else
-              begin
-                MotivoRejeicaoComando.Add(copy(Linha,295,1));
-                DescricaoMotivoRejeicaoComando.Add('D - Desprezado');
-              end;
-           end
-          else
-           begin
-             MotivoLinha := 319;
-             for i := 0 to 4 do
+            //-|Se a ocorrencia for igual a 19 - Confirmação de Receb. de Protesto
+            //-|Verifica o motivo na posição 295 - A = Aceite , D = Desprezado
+            if(CodOcorrencia = 19)then
              begin
-                CodMotivo := IfThen(copy(Linha,MotivoLinha,2) = '  ','00',copy(Linha,MotivoLinha,2));
+               CodMotivo_19:= copy(Linha,295,1);
+               if(CodMotivo_19 = 'A')then
+                begin
+                  MotivoRejeicaoComando.Add(copy(Linha,295,1));
+                  DescricaoMotivoRejeicaoComando.Add('A - Aceito');
+                end
+               else
+                begin
+                  MotivoRejeicaoComando.Add(copy(Linha,295,1));
+                  DescricaoMotivoRejeicaoComando.Add('D - Desprezado');
+                end;
+             end
+            else
+             begin
+               MotivoLinha := 319;
+               for i := 0 to 4 do
+               begin
+                  CodMotivo := IfThen(copy(Linha,MotivoLinha,2) = '  ','00',copy(Linha,MotivoLinha,2));
 
-                {Se for o primeiro motivo}
-                if (i = 0) then
-                 begin
-                   {Somente estas ocorrencias possuem motivos 00}
-                   if(CodOcorrencia in [02, 06, 09, 10, 12, 13, 14, 15, 17, 33])then
-                    begin
-                      MotivoRejeicaoComando.Add(IfThen(copy(Linha,MotivoLinha,2) = '  ','00',copy(Linha,MotivoLinha,2)));
-                      if VarIsNumeric(CodMotivo) then
-                        DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo,Integer(CodMotivo)))
-                      else
-                        DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo,VarToStr(CodMotivo)));
-                    end
-                   else
-                    begin
-                      if(CodMotivo = 0)then
-                       begin
-                         MotivoRejeicaoComando.Add('00');
-                         DescricaoMotivoRejeicaoComando.Add('Sem Motivo');
-                       end
-                      else
-                       begin
-                         MotivoRejeicaoComando.Add(IfThen(copy(Linha,MotivoLinha,2) = '  ','00',copy(Linha,MotivoLinha,2)));
-                         if VarIsNumeric(CodMotivo) then
-                            DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo,Integer(CodMotivo)))
-                          else
-                            DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo,VarToStr(CodMotivo)));
-                       end;
-                    end;
-                 end
-                else
-                 begin
-                   //Apos o 1º motivo os 00 significam que não existe mais motivo
-                  if (not(VarIsNumeric(CodMotivo)) or (CodMotivo <> 0)) then
+                  {Se for o primeiro motivo}
+                  if (i = 0) then
                    begin
-                      MotivoRejeicaoComando.Add(IfThen(copy(Linha,MotivoLinha,2) = '  ','00',copy(Linha,MotivoLinha,2)));
-                      if VarIsNumeric(CodMotivo) then
-                        DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo,Integer(CodMotivo)))
-                      else
-                        DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo,VarToStr(CodMotivo)));
+                     {Somente estas ocorrencias possuem motivos 00}
+                     if(CodOcorrencia in [02, 06, 09, 10, 12, 13, 14, 15, 17, 33])then
+                      begin
+                        MotivoRejeicaoComando.Add(IfThen(copy(Linha,MotivoLinha,2) = '  ','00',copy(Linha,MotivoLinha,2)));
+                        if VarIsNumeric(CodMotivo) then
+                          DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo,Integer(CodMotivo)))
+                        else
+                          DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo,VarToStr(CodMotivo)));
+                      end
+                     else
+                      begin
+                        if(CodMotivo = 0)then
+                         begin
+                           MotivoRejeicaoComando.Add('00');
+                           DescricaoMotivoRejeicaoComando.Add('Sem Motivo');
+                         end
+                        else
+                         begin
+                           MotivoRejeicaoComando.Add(IfThen(copy(Linha,MotivoLinha,2) = '  ','00',copy(Linha,MotivoLinha,2)));
+                           if VarIsNumeric(CodMotivo) then
+                              DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo,Integer(CodMotivo)))
+                            else
+                              DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo,VarToStr(CodMotivo)));
+                         end;
+                      end;
+                   end
+                  else
+                   begin
+                     //Apos o 1º motivo os 00 significam que não existe mais motivo
+                    if (not(VarIsNumeric(CodMotivo)) or (CodMotivo <> 0)) then
+                     begin
+                        MotivoRejeicaoComando.Add(IfThen(copy(Linha,MotivoLinha,2) = '  ','00',copy(Linha,MotivoLinha,2)));
+                        if VarIsNumeric(CodMotivo) then
+                          DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo,Integer(CodMotivo)))
+                        else
+                          DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo,VarToStr(CodMotivo)));
+                     end;
                    end;
-                 end;
 
-                MotivoLinha := MotivoLinha + 2; //Incrementa a coluna dos motivos
+                  MotivoLinha := MotivoLinha + 2; //Incrementa a coluna dos motivos
+               end;
              end;
-           end;
 
-          if (StrToIntDef(Copy(Linha,111,6),0) > 0) then
-            DataOcorrencia := StringToDateTimeDef( Copy(Linha,111,2)+'/'+
-                                                 Copy(Linha,113,2)+'/'+
-                                                 Copy(Linha,115,2),0, 'DD/MM/YY' );
-          if (StrToIntDef(Copy(Linha,147,6),0) > 0) then
-             Vencimento := StringToDateTimeDef( Copy(Linha,147,2)+'/'+
-                                                Copy(Linha,149,2)+'/'+
-                                                Copy(Linha,151,2),0, 'DD/MM/YY' );
+            if (StrToIntDef(Copy(Linha,111,6),0) > 0) then
+              DataOcorrencia := StringToDateTimeDef( Copy(Linha,111,2)+'/'+
+                                                   Copy(Linha,113,2)+'/'+
+                                                   Copy(Linha,115,2),0, 'DD/MM/YY' );
+            if (StrToIntDef(Copy(Linha,147,6),0) > 0) then
+               Vencimento := StringToDateTimeDef( Copy(Linha,147,2)+'/'+
+                                                  Copy(Linha,149,2)+'/'+
+                                                  Copy(Linha,151,2),0, 'DD/MM/YY' );
 
-          ValorDocumento       := StrToFloatDef(Copy(Linha,153,13),0)/100;
-          ValorIOF             := StrToFloatDef(Copy(Linha,215,13),0)/100;
-          ValorAbatimento      := StrToFloatDef(Copy(Linha,228,13),0)/100;
-          ValorDesconto        := StrToFloatDef(Copy(Linha,241,13),0)/100;
-          ValorMoraJuros       := StrToFloatDef(Copy(Linha,267,13),0)/100;
-          ValorOutrosCreditos  := StrToFloatDef(Copy(Linha,280,13),0)/100;
-          ValorRecebido        := StrToFloatDef(Copy(Linha,254,13),0)/100;
-          ValorPago            := StrToFloatDef(Copy(Linha,254,13),0)/100;
-          NossoNumero          := DefineNossoNumeroRetorno(Linha);
-          Carteira             := Copy(Linha,DefinePosicaoCarteiraRetorno,3);
-          ValorDespesaCobranca := StrToFloatDef(Copy(Linha,176,13),0)/100;
-          ValorOutrasDespesas  := StrToFloatDef(Copy(Linha,189,13),0)/100;
+            ValorDocumento       := StrToFloatDef(Copy(Linha,153,13),0)/100;
+            ValorIOF             := StrToFloatDef(Copy(Linha,215,13),0)/100;
+            ValorAbatimento      := StrToFloatDef(Copy(Linha,228,13),0)/100;
+            ValorDesconto        := StrToFloatDef(Copy(Linha,241,13),0)/100;
+            ValorMoraJuros       := StrToFloatDef(Copy(Linha,267,13),0)/100;
+            ValorOutrosCreditos  := StrToFloatDef(Copy(Linha,280,13),0)/100;
+            ValorRecebido        := StrToFloatDef(Copy(Linha,254,13),0)/100;
+            ValorPago            := StrToFloatDef(Copy(Linha,254,13),0)/100;
+            NossoNumero          := DefineNossoNumeroRetorno(Linha);
+            Carteira             := Copy(Linha,DefinePosicaoCarteiraRetorno,3);
+            ValorDespesaCobranca := StrToFloatDef(Copy(Linha,176,13),0)/100;
+            ValorOutrasDespesas  := StrToFloatDef(Copy(Linha,189,13),0)/100;
 
-          // informações do local de pagamento
-          Liquidacao.Banco      := StrToIntDef(Copy(Linha,166,3), -1);
-          Liquidacao.Agencia    := Copy(Linha,169,4);
-          Liquidacao.Origem     := '';
+            // informações do local de pagamento
+            Liquidacao.Banco      := StrToIntDef(Copy(Linha,166,3), -1);
+            Liquidacao.Agencia    := Copy(Linha,169,4);
+            Liquidacao.Origem     := '';
 
-          if (StrToIntDef(Copy(Linha,296,6),0) > 0) then
-             DataCredito:= StringToDateTimeDef( Copy(Linha,296,2)+'/'+
-                                                Copy(Linha,298,2)+'/'+
-                                                Copy(Linha,300,2),0, 'DD/MM/YY' );
+            if (StrToIntDef(Copy(Linha,296,6),0) > 0) then
+               DataCredito:= StringToDateTimeDef( Copy(Linha,296,2)+'/'+
+                                                  Copy(Linha,298,2)+'/'+
+                                                  Copy(Linha,300,2),0, 'DD/MM/YY' );
+         end;
        end;
      end;
   end;
@@ -5534,14 +5621,14 @@ begin
        Cedente.Nome     := rCedente;
        Cedente.CNPJCPF  := rCNPJCPF;
        Cedente.Convenio := rConvenioCedente;
-       Cedente.Agencia       := trim(copy(ARetorno[0], 53, 5));
-       Cedente.AgenciaDigito := trim(copy(ARetorno[0], 58, 1));
+       Cedente.Agencia       := trim(copy(ARetorno[0], DefinePosicaoAgenciaRetorno, 5));
+       Cedente.AgenciaDigito := trim(copy(ARetorno[0], DefinePosicaoAgenciaDigitoRetorno, 1));
        if (ACodBeneficiario <> '') then
          Cedente.CodigoCedente := trim(copy(ARetorno[0], 59, 14))
        else
        begin
-         Cedente.Conta         := trim(copy(ARetorno[0], 59, 12));
-         Cedente.ContaDigito   := trim(copy(ARetorno[0], 71, 1));
+         Cedente.Conta         := trim(copy(ARetorno[0], DefinePosicaoContaRetorno, 12));
+         Cedente.ContaDigito   := trim(copy(ARetorno[0], DefinePosicaoContaDigitoRetorno, 1));
        end;
 
        if (StrToIntDef(copy(ARetorno[0], 18, 1), 0) = 1) then
@@ -6382,6 +6469,40 @@ end;
 function TACBrBancoClass.DefineTamanhoNossoNumeroRetorno: Integer;
 begin
   Result := TamanhoMaximoNossoNum;
+end;
+
+function TACBrBancoClass.DefinePosicaoAgenciaDigitoRetorno: Integer;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result := 58
+  else
+  Raise EACBrBoleto.Create(ACBrStr('Método DefinePosicaoAgenciaDigiretorno ' +
+            ' não implementado CNAB400!'));
+end;
+
+function TACBrBancoClass.DefinePosicaoAgenciaRetorno: Integer;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result := 53
+  else
+    Result := 26;
+end;
+
+function TACBrBancoClass.DefinePosicaoContaDigitoRetorno: Integer;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result := 71
+  else
+    Raise EACBrBoleto.Create(ACBrStr('Método DefinePosicaoContaDigitoRetorno ' +
+            ' não implementado CNAB400!'));
+end;
+
+function TACBrBancoClass.DefinePosicaoContaRetorno: Integer;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result := 59
+  else
+    Result := 30;
 end;
 
 function TACBrBancoClass.DefinePosicaoCarteiraRetorno: Integer;

@@ -166,6 +166,92 @@ uses
   ACBrUtil.FilesIO, ACBrUtil.Strings, ACBr.InstallUtils, IniFiles,
   JvVersionInfo;
 
+function GetSVNRevision(const APath: string): string;
+var
+  SA: TSecurityAttributes;
+  SI: TStartupInfo;
+  PI: TProcessInformation;
+  StdOutRead, StdOutWrite: THandle;
+  Buffer: array[0..1023] of AnsiChar;
+  BytesRead: DWORD;
+  Output: TStringList;
+  Command, LastDate, Rev: string;
+begin
+  Result := '';
+  try
+    Output := TStringList.Create;
+    try
+      SA.nLength := SizeOf(SA);
+      SA.bInheritHandle := True;
+      SA.lpSecurityDescriptor := nil;
+      if not CreatePipe(StdOutRead, StdOutWrite, @SA, 0) then
+        RaiseLastOSError;
+
+      try
+        FillChar(SI, SizeOf(SI), 0);
+        SI.cb := SizeOf(SI);
+        SI.dwFlags := STARTF_USESTDHANDLES or STARTF_USESHOWWINDOW;
+        SI.wShowWindow := SW_HIDE;
+        SI.hStdOutput := StdOutWrite;
+        SI.hStdError := StdOutWrite;
+
+        Command := 'svn info "\\?\' + APath + '"';
+
+        if not CreateProcess(nil, PChar(Command), nil, nil, True,
+          CREATE_NO_WINDOW, nil, nil, SI, PI) then
+          RaiseLastOSError;
+
+        CloseHandle(StdOutWrite);
+
+        repeat
+          BytesRead := 0;
+          if not ReadFile(StdOutRead, Buffer, SizeOf(Buffer)-1, BytesRead, nil) then
+            Break;
+          if BytesRead > 0 then
+          begin
+            Buffer[BytesRead] := #0;
+            Output.Text := Output.Text + string(Buffer);
+          end;
+        until BytesRead = 0;
+
+        WaitForSingleObject(PI.hProcess, INFINITE);
+        CloseHandle(PI.hProcess);
+        CloseHandle(PI.hThread);
+
+      finally
+        CloseHandle(StdOutRead);
+      end;
+
+      // Extrai o campo "Revision" e "LastDate"
+      for var S in Output do
+      begin
+        if Pos('Revision:', S) = 1 then
+          Rev := 'Revision SVN: '+Trim(Copy(S, 10, MaxInt));
+
+        if Pos('Last Changed Date:', S) = 1 then
+          LastDate := 'Last Changed Date: ' + Trim(Copy(S, 20, MaxInt));
+
+        if (Rev <> '') and (LastDate <> '') then
+        begin
+          Result := Rev + sLineBreak + LastDate;
+          Break;
+        end;
+      end;
+    finally
+      Output.Free;
+    end;
+  except
+//    on E: EOSError do
+//    begin
+//      Result := 'Não foi possível obter informações SVN:' + E.Message;
+//    end;
+    on E: Exception do
+    begin
+      Result := 'Não foi possível obter informações SVN. Erro:' + E.Message;
+    end;
+  end;
+
+end;
 
 function sVersaoInstalador: string;
 var
@@ -255,8 +341,8 @@ end;
 
 procedure TACBrInstallComponentes.BeforeExecute(Sender: TJclBorlandCommandLineTool);
 const
-  VersoesComNamespaces: array[0..13] of string = ('d16', 'd17','d18','d19','d20','d21','d22','d23','d24','d25',
-                                                  'd26','d27', 'd28','d29');
+  //VersoesComNamespaces: array[0..14] of string = ('d16', 'd17','d18','d19','d20','d21','d22','d23','d24', 'd25',
+  //                                                'd26','d27', 'd28','d29', 'd37');
   NamespacesBase = 'System;Xml;Data;Datasnap;Web;Soap;';
   NamespacesWindows = 'Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Winapi;System.Win;';
   NamespacesOSX = 'Macapi;Posix;System.Mac;';
@@ -327,7 +413,7 @@ begin
     end;
 
     //Montar namespaces:
-    if MatchText(InstalacaoAtual.VersionNumberStr, VersoesComNamespaces) then
+    if (InstalacaoAtual.IDEPackageVersionNumber >= 16) then
     begin
   //    Namespaces := '';
 
@@ -393,7 +479,8 @@ begin
                  'Executado em: ' + DateTimeToStr(Now) + sLineBreak +
                  'Versão do delphi: ' + NomeVersao + ' ' + sPlatform + sLineBreak +
                  'Dir. Instalação : ' + OpcoesInstall.DiretorioRaizACBr + sLineBreak +
-                 'Dir. Bibliotecas: ' + sDirLibrary;
+                 'Dir. Bibliotecas: ' + sDirLibrary + sLineBreak +
+                 GetSVNRevision( ExtractFilePath(ParamStr(0)) );
 
     FazLog(Cabecalho + sLineBreak, nlMinimo, True);
 
@@ -730,10 +817,10 @@ begin
   with FUmaPlataformaDestino do
   begin
     // remover pacotes antigos
-    for I := InstalacaoAtual.IdePackages.Count - 1 downto 0 do
+    for I := InstalacaoAtual.IdePackages.Count[False] - 1 downto 0 do
     begin
-      if Pos('ACBR', AnsiUpperCase(InstalacaoAtual.IdePackages.PackageFileNames[I])) > 0 then
-        InstalacaoAtual.IdePackages.RemovePackage(InstalacaoAtual.IdePackages.PackageFileNames[I]);
+      if Pos('ACBR', AnsiUpperCase(InstalacaoAtual.IdePackages.PackageFileNames[I, False])) > 0 then
+        InstalacaoAtual.IdePackages.RemovePackage(InstalacaoAtual.IdePackages.PackageFileNames[I, False], False);
     end;
   end;//---endwith
 end;
@@ -1257,7 +1344,8 @@ begin
   ArqIni := TIniFile.Create(ArquivoIni);
   try
     DeveInstalarCapicom       := ArqIni.ReadBool('CONFIG','InstalaCapicom', DeveInstalarCapicom);
-    DeveInstalarOpenSSL       := ArqIni.ReadBool('CONFIG','InstalaOpenSSL', DeveInstalarOpenSSL);
+    DeveInstalarOpenSSL       := True;
+//    DeveInstalarOpenSSL       := ArqIni.ReadBool('CONFIG','InstalaOpenSSL', DeveInstalarOpenSSL);
 //    DeveInstalarXMLSec        := False;
     DeveInstalarMsXML         := ArqIni.ReadBool('CONFIG','InstalaMsXML', DeveInstalarMsXML);
     UsarCargaTardiaDLL        := ArqIni.ReadBool('CONFIG','CargaDllTardia', True);

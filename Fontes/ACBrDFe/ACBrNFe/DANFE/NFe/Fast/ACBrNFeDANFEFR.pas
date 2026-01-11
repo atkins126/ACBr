@@ -374,14 +374,41 @@ begin
 end;
 
 procedure TACBrNFeDANFEFR.ImprimirDANFEPDF(NFE: TNFe);
+var I : Integer;
 begin
-  FdmDanfe.ImprimirDANFEPDF(NFE);
-  FPArquivoPDF := FdmDanfe.frxPDFExport.FileName;
+  if Assigned(NFE) then
+  begin
+    FdmDanfe.ImprimirDANFEPDF(NFE);
+    FPArquivoPDF := FdmDanfe.frxPDFExport.FileName;
+  end else
+  begin
+    for I := 1 to TACBrNFe(FdmDanfe.DANFEClassOwner.ACBrNFe).NotasFiscais.Count do
+    begin
+      FdmDanfe.DANFEClassOwner.FIndexImpressaoIndividual := I;
+      FdmDanfe.ImprimirDANFEPDF(NFE);
+      FPArquivoPDF := FdmDanfe.frxPDFExport.FileName;
+    end;
+  end;
 end;
 
 procedure TACBrNFeDANFEFR.ImprimirEVENTO(NFE: TNFe);
+var I : Integer;
 begin
-  FdmDanfe.ImprimirEVENTO(NFE);
+  FdmDanfe.DANFEClassOwner.FIndexImpressaoIndividual     := -2;
+  if Assigned(NFE) then
+  begin
+    FdmDanfe.DANFEClassOwner.FIndexImpressaoEventosIndividual := 1;
+    FdmDanfe.ImprimirEVENTO(NFE);
+    FPArquivoPDF := FdmDanfe.frxPDFExport.FileName;
+  end else
+  begin
+    for I := 1 to TACBrNFe(FdmDanfe.DANFEClassOwner.ACBrNFe).EventoNFe.Evento.Count do
+    begin
+      FdmDanfe.DANFEClassOwner.FIndexImpressaoEventosIndividual := I;
+      FdmDanfe.ImprimirEVENTO(NFE);
+      FPArquivoPDF := FdmDanfe.frxPDFExport.FileName;
+    end;
+  end;
 end;
 
 procedure TACBrNFeDANFEFR.ImprimirEVENTOPDF(AStream: TStream; ANFe: TNFe);
@@ -390,9 +417,24 @@ begin
 end;
 
 procedure TACBrNFeDANFEFR.ImprimirEVENTOPDF(NFE: TNFe);
+var I : Integer;
 begin
-  FdmDanfe.ImprimirEVENTOPDF(NFE);
-  FPArquivoPDF := FdmDanfe.frxPDFExport.FileName;
+  FdmDanfe.DANFEClassOwner.FIndexImpressaoIndividual        := -1;
+  if Assigned(NFE) then
+  begin
+    FdmDanfe.DANFEClassOwner.FIndexImpressaoEventosIndividual  := 1;
+    FdmDanfe.ImprimirEVENTOPDF(NFE);
+    FPArquivoPDF := FdmDanfe.frxPDFExport.FileName;
+  end else
+  begin
+    for I := 1 to TACBrNFe(FdmDanfe.DANFEClassOwner.ACBrNFe).EventoNFe.Evento.Count do
+    begin
+      FdmDanfe.DANFEClassOwner.FIndexImpressaoEventosIndividual := I;
+      FdmDanfe.ImprimirEVENTOPDF(NFE);
+      FPArquivoPDF := FdmDanfe.frxPDFExport.FileName;
+    end;
+  end; 
+  FdmDanfe.DANFEClassOwner.FIndexImpressaoEventosIndividual := 0;   
 end;
 
 procedure TACBrNFeDANFEFR.ImprimirINUTILIZACAO(NFE: TNFe);

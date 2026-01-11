@@ -38,6 +38,7 @@ interface
 
 uses
   SysUtils, Classes,
+  ACBrXmlBase,
   ACBrXmlDocument, ACBrNFSeXClass, ACBrNFSeXConversao,
   ACBrNFSeXGravarXml, ACBrNFSeXLerXml, ACBrNFSeXProviderABRASFv1,
   ACBrNFSeXWebserviceBase, ACBrNFSeXWebservicesResponse;
@@ -71,7 +72,8 @@ implementation
 
 uses
   ACBrUtil.XMLHTML, ACBrUtil.Strings,
-  ACBrDFeException, ACBrXmlBase, ACBrNFSeX, ACBrNFSeXConsts,
+  ACBrDFe.Conversao,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConsts,
   ISSSalvador.GravarXml, ISSSalvador.LerXml;
 
 { TACBrNFSeXWebserviceISSSalvador }
@@ -176,6 +178,8 @@ begin
     CancelarNFSe := True;
     RpsGerarNFSe := True;
   end;
+
+  configschemas.Validar := False;
 end;
 
 function TACBrNFSeProviderISSSalvador.CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass;

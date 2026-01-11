@@ -81,6 +81,7 @@ const
 
   CContentTypeUTF8 = 'charset=utf-8';
   CContentTypeTextPlain = 'text/plain';
+  CContentTypeApplicationPDF = 'application/pdf';
   CContentTypeApplicationJSon = 'application/json';
   CContentTypeApplicationWwwFormUrlEncoded = 'application/x-www-form-urlencoded';
 
@@ -305,7 +306,7 @@ type
 
     function CriarRecorrencia: Boolean;
     function RevisarRecorrencia(const aIdRec: String): Boolean;
-    function ConsultarRecorrencia(aIdRec: String): Boolean;
+    function ConsultarRecorrencia(aIdRec: String; aTxId: String = ''): Boolean;
     function ConsultarRecorrencias(aInicio: TDateTime; aFim: TDateTime;
       const aCpfCnpj: String = ''; aLocationPresente: Boolean = False;
       aStatus: TACBrPIXStatusRecorrencia = strNENHUM; aConvenio: String = '';
@@ -497,6 +498,8 @@ type
 
   TACBrOnDepoisAutenticar = procedure(const aToken: String; const aValidadeToken: TDateTime) of object;
 
+  TACBrOnPrecisaAutenticar = procedure(var aToken: String; var aValidadeToken: TDateTime) of object;
+
   { TACBrQueryParams }
 
   TACBrQueryParams = class(TStringList)
@@ -560,6 +563,7 @@ type
     fpQuandoReceberRespostaEndPoint: TACBrQuandoReceberRespostaEndPoint;
     fpOnAntesAutenticar: TACBrOnAntesAutenticar;
     fpOnDepoisAutenticar: TACBrOnDepoisAutenticar;
+    fpOnPrecisaAutenticar: TACBrOnPrecisaAutenticar;
 
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure VerificarPIXCDAtribuido;
@@ -618,9 +622,10 @@ type
     procedure VerificarValidadeToken; virtual;
     procedure RenovarToken; virtual;
     procedure VerificarAutenticacao; virtual;
+    function GerarToken(out aToken: String; out aValidadeToken: TDateTime): Boolean; virtual;
+
     property Autenticado: Boolean read fpAutenticado;
     property ValidadeToken: TDateTime read fpValidadeToken;
-
     property epPix: TACBrPixEndPointPix read fepPix;
     property epRec: TACBrPixEndPointRec read fepRec;
     property epCob: TACBrPixEndPointCob read fepCob;
@@ -645,6 +650,7 @@ type
     property QuandoReceberRespostaHttp: TACBrQuandoReceberRespostaHttp read fQuandoReceberRespostaHttp write fQuandoReceberRespostaHttp;
     property OnAntesAutenticar: TACBrOnAntesAutenticar read fpOnAntesAutenticar write fpOnAntesAutenticar;
     property OnDepoisAutenticar: TACBrOnDepoisAutenticar read fpOnDepoisAutenticar write fpOnDepoisAutenticar;
+    property OnPrecisaAutenticar: TACBrOnPrecisaAutenticar read fpOnPrecisaAutenticar write fpOnPrecisaAutenticar;
   end;
 
   { TACBrPSPCertificate }
@@ -772,6 +778,7 @@ type
     fProxy: TACBrHttpProxy;
     fPSP: TACBrPSP;
     fQuandoGravarLog: TACBrGravarLog;
+    fpOnQuandoAlterarPSP: TNotifyEvent;
     fRecebedor: TACBrPixRecebedor;
     fTimeOut: Integer;
 
@@ -810,6 +817,7 @@ type
     property ArqLOG: String read fArqLOG write fArqLOG;
     property NivelLog: Byte read fNivelLog write fNivelLog default 1;
     property QuandoGravarLog: TACBrGravarLog read fQuandoGravarLog write fQuandoGravarLog;
+    property OnQuandoAlterarPSP: TNotifyEvent read fpOnQuandoAlterarPSP write fpOnQuandoAlterarPSP;
   end;
 
 function StreamToAnsiString(AStream: TStream): AnsiString;
@@ -1229,7 +1237,7 @@ begin
     fPSP.TratarRetornoComErro(ResultCode, RespostaHttp, Problema);
 end;
 
-function TACBrPixEndPointRec.ConsultarRecorrencia(aIdRec: String): Boolean;
+function TACBrPixEndPointRec.ConsultarRecorrencia(aIdRec: String; aTxId: String): Boolean;
 var
   RespostaHttp: AnsiString;
   ResultCode: Integer;
@@ -1241,6 +1249,10 @@ begin
   Clear;
   fPSP.PrepararHTTP;
   fPSP.URLPathParams.Add(aIdRec);
+
+  if NaoEstaVazio(aTxId) then
+    fPSP.URLQueryParams.Values['txid'] := aTxId;
+
   fPSP.AcessarEndPoint(ChttpMethodGET, EndPoint, ResultCode, RespostaHttp);
   Result := (ResultCode = HTTP_OK);
 
@@ -2550,7 +2562,7 @@ begin
   if (Trim(e2eid) = '') then
     raise EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['e2eid']);
 
-  if (Trim(idDevolucao) = '') then
+  if (Trim(idDevolucao) = '') and Assigned(fPSP) and fPSP.IsBacen then
     raise EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['idDevolucao']);
 
   Clear;
@@ -2853,6 +2865,7 @@ begin
   fQuandoReceberRespostaHttp := Nil;
   fpOnAntesAutenticar := Nil;
   fpOnDepoisAutenticar := Nil;
+  fpOnPrecisaAutenticar := Nil;
 end;
 
 destructor TACBrPSP.Destroy;
@@ -2912,7 +2925,7 @@ begin
   begin
     AValue.FreeNotification(Self);
     AValue.PSP := Self;
-  end ;
+  end;
 end;
 
 procedure TACBrPSP.Notification(AComponent: TComponent; Operation: TOperation);
@@ -3197,7 +3210,7 @@ begin
     scRecWrite: Result := 'rec.write';
     scRecRead: Result := 'rec.read';
     scSolicRecWrite: Result := 'solicrec.write';
-    scSolicRecRead: Result := 'rec.read';
+    scSolicRecRead: Result := 'solicrec.read';
   end;
 end;
 
@@ -3603,7 +3616,10 @@ end;
 
 procedure TACBrPSP.RenovarToken;
 begin
-  Autenticar;
+  if Assigned(fpOnPrecisaAutenticar) then
+    fpOnPrecisaAutenticar(fpToken, fpValidadeToken)
+  else
+    Autenticar;
 
   if Assigned(fpOnDepoisAutenticar) then
     fpOnDepoisAutenticar(fpToken, fpValidadeToken);
@@ -3616,13 +3632,34 @@ begin
     if (NivelLog > 2) then
       RegistrarLog('Autenticar');
 
-    Autenticar;
+    if Assigned(fpOnPrecisaAutenticar) then
+      fpOnPrecisaAutenticar(fpToken, fpValidadeToken)
+    else
+      Autenticar;
 
     if Assigned(fpOnDepoisAutenticar) then
       fpOnDepoisAutenticar(fpToken, fpValidadeToken);
   end;
 
   VerificarValidadeToken;
+end;
+
+function TACBrPSP.GerarToken(out aToken: String; out aValidadeToken: TDateTime): Boolean;
+begin
+  RegistrarLog('GerarToken');
+  Autenticar;
+  aToken := fpToken;
+  aValidadeToken := fpValidadeToken;
+  Result := NaoEstaVazio(aToken);
+
+  Clear;
+  fpToken := EmptyStr;
+  fpValidadeToken := 0;
+  fpAutenticado := False;
+
+  RegistrarLog(sLineBreak +
+    'Token: ' + aToken + sLineBreak +
+    'Validade: ' + FormatDateBr(aValidadeToken), 3);
 end;
 
 { TACBrPixRecebedor }
@@ -3765,6 +3802,7 @@ begin
   fNivelLog := 1;
   fAmbiente := ambTeste;
   fQuandoGravarLog := Nil;
+  fpOnQuandoAlterarPSP := Nil;
 end;
 
 destructor TACBrPixCD.Destroy;
@@ -3838,7 +3876,10 @@ begin
   begin
     AValue.FreeNotification(Self);
     AValue.ACBrPixCD := Self;
-  end ;
+  end;
+
+  if Assigned(fpOnQuandoAlterarPSP) then
+    fpOnQuandoAlterarPSP(Self);
 end;
 
 procedure TACBrPixCD.SetDadosAutomacao(AValue: TACBrPixDadosAutomacao);

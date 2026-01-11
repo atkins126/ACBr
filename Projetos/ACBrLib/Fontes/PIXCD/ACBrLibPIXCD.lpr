@@ -71,6 +71,7 @@ exports
 
   //PIXCD
   PIXCD_GerarQRCodeEstatico,
+  PIXCD_GerarQRCodeEstaticoComChavePix,
 
   //EndPoint /pix
   PIXCD_ConsultarPix,
@@ -91,6 +92,10 @@ exports
   PIXCD_ConsultarCobrancasCobV,
   PIXCD_RevisarCobranca,
   PIXCD_CancelarCobranca,
+
+  // Autenticacao
+  PIXCD_GerarToken,
+  PIXCD_InformarToken,
 
   //PSP Matera
   PIXCD_Matera_IncluirConta,
@@ -117,6 +122,7 @@ begin
   {$ENDIF}
 
   MainThreadID := GetCurrentThreadId();
+  Application.FindGlobalComponentEnabled := False;
   Application.Initialize;
 end.
 

@@ -45,6 +45,7 @@ uses
   {$IfEnd}
   ACBrBase,
   ACBrDFe,
+  ACBrDFe.Conversao,
   pcnConversao,
   ACBrXmlBase,
   ACBrXmlDocument;
@@ -83,7 +84,7 @@ type
     FnDue: string;
     FnItem: Integer;
     FnItemDue: Integer;
-    FqItem: Integer;
+    FqItem: Double;
     FmotAlteracao: Integer;
 
   public
@@ -92,7 +93,7 @@ type
     property nDue: string           read FnDue         write FnDue;
     property nItem: Integer         read FnItem        write FnItem;
     property nItemDue: Integer      read FnItemDue     write FnItemDue;
-    property qItem: Integer         read FqItem        write FqItem;
+    property qItem: Double          read FqItem        write FqItem;
     property motAlteracao: Integer  read FmotAlteracao write FmotAlteracao;
   end;
 
@@ -186,17 +187,17 @@ type
     FnProt: string;
     FcSitDFe: TSituacaoDFe;
   public
-    property chDFe: string            read FchDFe    write FchDFe;
-    property CNPJCPF: string          read FCNPJCPF  write FCNPJCPF;
-    property xNome: string            read FxNome    write FxNome;
-    property IE: string               read FIE       write FIE;
-    property dhEmi: TDateTime         read FdhEmi    write FdhEmi;
-    property tpNF: TpcnTipoNFe        read FtpNF     write FtpNF;
-    property vNF: Currency            read FvNF      write FvNF;
-    property digVal: string           read FdigVal   write FdigVal;
-    property dhRecbto: TDateTime      read FdhRecbto write FdhRecbto;
-    property nProt: string            read FnProt    write FnProt;
-    property cSitDFe: TSituacaoDFe    read FcSitDFe  write FcSitDFe;
+    property chDFe: string         read FchDFe    write FchDFe;
+    property CNPJCPF: string       read FCNPJCPF  write FCNPJCPF;
+    property xNome: string         read FxNome    write FxNome;
+    property IE: string            read FIE       write FIE;
+    property dhEmi: TDateTime      read FdhEmi    write FdhEmi;
+    property tpNF: TpcnTipoNFe     read FtpNF     write FtpNF;
+    property vNF: Currency         read FvNF      write FvNF;
+    property digVal: string        read FdigVal   write FdigVal;
+    property dhRecbto: TDateTime   read FdhRecbto write FdhRecbto;
+    property nProt: string         read FnProt    write FnProt;
+    property cSitDFe: TSituacaoDFe read FcSitDFe  write FcSitDFe;
   end;
 
   TresEvento = class(TObject)
@@ -346,6 +347,7 @@ type
       const AtpDFe: string = 'NFe'): Boolean;
     function GerarPathDistribuicao(AItem :TdocZipCollectionItem): string;
     function GerarNomeArquivo(AItem :TdocZipCollectionItem): string;
+    procedure CarregarArquivo(Const CaminhoArquivo: string);
 
     property versao: string            read Fversao   write Fversao;
     property tpAmb: TpcnTipoAmbiente   read FtpAmb    write FtpAmb;
@@ -365,6 +367,7 @@ implementation
 
 uses 
   synacode,
+  StrUtils,
   ACBrDFeException,
   ACBrUtil.Strings, ACBrUtil.XMLHTML, ACBrUtil.FilesIO;
 
@@ -471,6 +474,11 @@ end;
 
 { TRetDistDFeInt }
 
+procedure TRetDistDFeInt.CarregarArquivo(const CaminhoArquivo: string);
+begin
+  XmlRetorno := ACBrUtil.FilesIO.CarregarArquivo(CaminhoArquivo);
+end;
+
 constructor TRetDistDFeInt.Create(AOwner: TACBrDFe; const AtpDFe: string);
 begin
   inherited Create;
@@ -572,11 +580,17 @@ end;
 
 procedure TRetDistDFeInt.LerGrupo_total(const ANode: TACBrXmlNode;
   Indice: Integer);
+var
+  ICMSTot: TACBrXmlNode;
 begin
   if not Assigned(ANode) then Exit;
 
+  ICMSTot := ANode.Childrens.FindAnyNs('ICMSTot');
+  if not Assigned(ICMSTot) then
+    Exit;
+
   // Leitura do valor da nota fiscal - NF-e
-  docZip[Indice].resDFe.vNF := ObterConteudoTag(ANode.Childrens.FindAnyNs('vNF'), tcDe2);
+  docZip[Indice].resDFe.vNF := ObterConteudoTag(ICMSTot.Childrens.FindAnyNs('vNF'), tcDe2);
 end;
 
 procedure TRetDistDFeInt.LerGrupo_vPrest(const ANode: TACBrXmlNode;
@@ -616,7 +630,15 @@ begin
 
   docZip[Indice].XML := InserirDeclaracaoXMLSeNecessario(ANode.OuterXml);
 
-  AuxNode := ANode.Childrens.FindAnyNs(FptpDFe);
+  if FptpDFe = 'CTe' then
+  begin
+    AuxNode := ANode.Childrens.FindAnyNs(FptpDFe);
+
+    if AuxNode = nil then
+      AuxNode := ANode.Childrens.FindAnyNs(FptpDFe + 'OS');
+  end
+  else
+    AuxNode := ANode.Childrens.FindAnyNs(FptpDFe);
 
   if Assigned(AuxNode) then
   begin
@@ -628,7 +650,7 @@ begin
 
     if Assigned(AuxNode) then
     begin
-      docZip[Indice].resDFe.chDFe := ObterConteudoTag(AuxNode.Attributes.Items['Id']);
+      docZip[Indice].resDFe.chDFe := RightStr(ObterConteudoTag(AuxNode.Attributes.Items['Id']), 44);
 
       LerGrupo_ide(AuxNode.Childrens.FindAnyNs('ide'), Indice);
       LerGrupo_emit(AuxNode.Childrens.FindAnyNs('emit'), Indice);
@@ -698,7 +720,7 @@ begin
     docZip.Items[Indice].procEvento.detEvento.itensAverbados[i].nDue := ObterConteudoTag(ANodes[i].Childrens.FindAnyNs('nDue'), tcStr);
     docZip.Items[Indice].procEvento.detEvento.itensAverbados[i].nItem := ObterConteudoTag(ANodes[i].Childrens.FindAnyNs('nItem'), tcInt);
     docZip.Items[Indice].procEvento.detEvento.itensAverbados[i].nItemDue := ObterConteudoTag(ANodes[i].Childrens.FindAnyNs('nItemDue'), tcInt);
-    docZip.Items[Indice].procEvento.detEvento.itensAverbados[i].qItem := ObterConteudoTag(ANodes[i].Childrens.FindAnyNs('qItem'), tcInt);
+    docZip.Items[Indice].procEvento.detEvento.itensAverbados[i].qItem := ObterConteudoTag(ANodes[i].Childrens.FindAnyNs('qItem'), tcDe4);
     docZip.Items[Indice].procEvento.detEvento.itensAverbados[i].motAlteracao := ObterConteudoTag(ANodes[i].Childrens.FindAnyNs('motAlteracao'), tcInt);
   end;
 end;
@@ -753,13 +775,16 @@ end;
 procedure TRetDistDFeInt.LerEvento(const ANode: TACBrXmlNode; Indice: Integer);
 var
   Ok: Boolean;
-  AuxNode: TACBrXmlNode;
+  AuxNode, AuxNode1: TACBrXmlNode;
 begin
-  if not Assigned(ANode) then Exit;
+  AuxNode1 := ANode.Childrens.FindAnyNs('evento');
+  if not Assigned(AuxNode1) then
+    AuxNode1 := ANode.Childrens.FindAnyNs('evento' + FptpDFe);
+  if not Assigned(AuxNode1) then Exit;
 
   docZip[Indice].XML := InserirDeclaracaoXMLSeNecessario(ANode.OuterXml);
 
-  AuxNode := ANode.Childrens.FindAnyNs('infEvento');
+  AuxNode := AuxNode1.Childrens.FindAnyNs('infEvento');
 
   if Assigned(AuxNode) then
   begin
@@ -814,8 +839,7 @@ begin
 
       if ANode.Name = 'procEvento' + FptpDFe then
       begin
-        LerEvento(ANode.Childrens.FindAnyNs('evento'), Indice);
-        LerEvento(ANode.Childrens.FindAnyNs('evento' + FptpDFe), Indice);
+        LerEvento(ANode, Indice);
 
         LerGrupo_detEvento(ANode.Childrens.FindAnyNs('detEvento'), Indice);
         LerGrupo_retEvento(ANode.Childrens.FindAnyNs('retEvento'), Indice);

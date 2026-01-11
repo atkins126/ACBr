@@ -49,7 +49,7 @@ uses
 
 type
   EACBrBoletoWSOAuthException = class(Exception);
-  TpAuthorizationType = (atNoAuth, atBearer, atJWT);
+  TpAuthorizationType = (atNoAuth, atBearer, atJWT, atApiKey);
 
   TParams = record
     prName, PrValue: String;
@@ -76,6 +76,7 @@ type
     FACBrBoleto       : TACBrBoleto;
     FArqLOG           : String;
     FExigirClientSecret : Boolean;
+    FForceNewToken    : Boolean;
     procedure setContentType(const AValue: String);
     procedure setGrantType(const AValue: String);
     procedure setPayload(const AValue: Boolean);
@@ -89,17 +90,23 @@ type
     procedure ProcessarRespostaOAuth(const ARetorno: AnsiString);
     function Executar(const AAuthBase64: String): Boolean;
     procedure SetAuthorizationType(const Value: TpAuthorizationType);
+    function AutenticarTokenWebService: Boolean;
+
   protected
 
   public
     constructor Create(ASSL: THTTPSend; AACBrBoleto: TACBrBoleto = nil);
     destructor Destroy; Override;
-    property URL: TACBrBoletoWebServiceURL read FURL write FURL;
+
     function GerarToken: Boolean;
-    property ParamsOAuth: String read FParamsOAuth write FParamsOAuth;
     function AddHeaderParam(AParamName, AParamValue: String): TOAuth;
 
     function ClearHeaderParams(): TOAuth;
+    procedure DoLog(const AString: String; const ANivelSeveridadeLog : TNivelLog);
+    procedure CarregaCertificados;
+
+    property URL: TACBrBoletoWebServiceURL read FURL write FURL;
+    property ParamsOAuth: String read FParamsOAuth write FParamsOAuth;
     property ContentType: String read getContentType write setContentType;
     property GrantType: String read getGrantType write setGrantType;
     property Scope: String read getScope;
@@ -111,14 +118,14 @@ type
     property Token: String read FToken;
     property Payload: Boolean read FPayload write setPayload;
     property AuthorizationType: TpAuthorizationType read FAuthorizationType write SetAuthorizationType;
-    procedure DoLog(const AString: String; const ANivelSeveridadeLog : TNivelLog);
     property ExigirClientSecret : Boolean read FExigirClientSecret write FExigirClientSecret;
-    procedure CarregaCertificados;
+    procedure ForceNewToken;
   end;
 implementation
 uses
   ACBrUtil.DateTime,
   ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
   ACBrUtil.Base,
   ACBrBoletoWS,
   ACBrJSON,
@@ -201,8 +208,11 @@ function TOAuth.getScope: String;
 begin
   if FScope = '' then
     Raise EACBrBoletoWSOAuthException.Create(ACBrStr('Scope não Informado'));
-
-  Result := FScope;
+  //decodificando para garantir que não está vindo já codificado
+  //por exemplo: escopoA%20escopoB%20escopoC
+  Result := URLDecodeRFC3986(FScope);
+  if not Self.Payload then
+    Result := URLEncodeRFC3986(Result);
 end;
 
 procedure TOAuth.ProcessarRespostaOAuth(const ARetorno: AnsiString);
@@ -214,7 +224,10 @@ begin
   FExpire          := 0;
   FErroComunicacao := '';
   try
-    LJson := TACBrJSONObject.Parse(UTF8ToNativeString(Trim(ARetorno)));
+    if ACBrUtil.FilesIO.StringIsJSON(ARetorno) then
+      LJson := TACBrJSONObject.Parse(UTF8ToNativeString(Trim(ARetorno)))
+    else
+      raise EACBrBoletoWSOAuthException.Create('Resposta do Webservices não é um JSON Válido');
 
     try
       if (FHTTPSend.ResultCode in [ 200 .. 205 ]) then
@@ -265,36 +278,37 @@ begin
   if not Assigned(FHTTPSend) then
     Raise EACBrBoletoWSOAuthException.Create(ClassName + Format(S_METODO_NAO_IMPLEMENTADO, [ C_DFESSL ]));
 
-  CarregaCertificados;
+  FHTTPSend.Clear;
 
+  CarregaCertificados;
   //Definido Valor para Timeout com a configuração da Classe
   FHTTPSend.Timeout := FACBrBoleto.Configuracoes.WebService.TimeOut;
 
   //Definindo Header da requisição OAuth
-  FHTTPSend.Headers.Clear;
+
   LHeaders := TStringList.Create;
   try
-      //LHeaders.Add(C_CONTENT_TYPE  + ': ' + ContentType);
-    if Self.AuthorizationType = atBearer then
-      LHeaders.Add(C_AUTHORIZATION + ': ' + AAuthBase64);
-    if Self.AuthorizationType = atJWT then
-    begin
-      LJWTAuth := TACBrJWTAuth.Create(FHTTPSend.Sock.SSL.PrivateKey);
-      if not FACBrBoleto.Configuracoes.WebService.UseCertificateHTTP then
-      begin
-        FHTTPSend.Sock.SSL.PrivateKey      := '';
-        FHTTPSend.Sock.SSL.CertificateFile := '';
-        FHTTPSend.Sock.SSL.Certificate     := '';
-      end;
-      try
-        LParamsOAuth := FParamsOAuth;
-        FParamsOAuth := 'grant_type=' + FGrantType +'&'+
-                        'assertion=' + LJWTAuth.GenerateJWT(LParamsOAuth);
-      finally
-        LJWTAuth.Free;
-      end;
+    case Self.AuthorizationType of
+      atNoAuth: ;
+      atBearer: LHeaders.Add(C_AUTHORIZATION + ': ' + AAuthBase64);
+      atJWT:
+        begin
+          LJWTAuth := TACBrJWTAuth.Create(FHTTPSend.Sock.SSL.PrivateKey);
+          if not FACBrBoleto.Configuracoes.WebService.UseCertificateHTTP then
+          begin
+            FHTTPSend.Sock.SSL.PrivateKey      := '';
+            FHTTPSend.Sock.SSL.CertificateFile := '';
+            FHTTPSend.Sock.SSL.Certificate     := '';
+          end;
+          try
+            LParamsOAuth := FParamsOAuth;
+            FParamsOAuth := 'grant_type=' + FGrantType +'&'+
+                            'assertion=' + LJWTAuth.GenerateJWT(LParamsOAuth);
+          finally
+            LJWTAuth.Free;
+          end;
+        end;
     end;
-      //LHeaders.Add(C_CACHE_CONTROL + ': ' + C_NO_CACHE);
 
     for I := 0 to Length(FHeaderParamsList) - 1 do
       LHeaders.Add(FHeaderParamsList[ I ].prName + ': ' + FHeaderParamsList[ I ].PrValue);
@@ -351,7 +365,6 @@ begin
     DoLog('Body Resposta (payload):' + ReadStrFromStream(FHTTPSend.Document, FHTTPSend.Document.Size), logParanoico);
     if FErroComunicacao <> '' then
       Raise EACBrBoletoWSOAuthException.Create('Falha na Autenticação: ' + FErroComunicacao);
-   URL.Clear;
   end;
 end;
 
@@ -361,6 +374,11 @@ begin
   SetLength(FHeaderParamsList, Length(FHeaderParamsList) + 1);
   FHeaderParamsList[ Length(FHeaderParamsList) - 1 ].prName := AParamName;
   FHeaderParamsList[ Length(FHeaderParamsList) - 1 ].PrValue := AParamValue;
+end;
+
+function TOAuth.AutenticarTokenWebService: Boolean;
+begin
+
 end;
 
 procedure TOAuth.CarregaCertificados;
@@ -417,6 +435,11 @@ begin
   Result := Self;
 end;
 
+procedure TOAuth.ForceNewToken;
+begin
+  FForceNewToken  := True;
+end;
+
 constructor TOAuth.Create(ASSL: THTTPSend; AACBrBoleto: TACBrBoleto = nil);
 begin
   if Assigned(ASSL) then
@@ -445,7 +468,7 @@ begin
     FArqLOG := AACBrBoleto.Configuracoes.Arquivos.NomeArquivoLog
   else
     FArqLOG := PathWithDelim(AACBrBoleto.Configuracoes.Arquivos.PathGravarRegistro) + ExtractFileName(AACBrBoleto.Configuracoes.Arquivos.NomeArquivoLog);
-
+  URL.Clear;
 end;
 
 destructor TOAuth.Destroy;
@@ -474,25 +497,58 @@ end;
 
 function TOAuth.GerarToken: Boolean;
 var
-  LToken : String;
-  LExpire: TDateTime;
-begin
+  LToken  : String;
+  LExpire : TDateTime;
 
-  if (Assigned(FACBrBoleto.OnAntesAutenticar)) then
+  function TokenValido: Boolean;
   begin
-    CarregaCertificados;
-    FACBrBoleto.OnAntesAutenticar(LToken, LExpire);
-    FToken  := LToken;
-    FExpire := LExpire;
+    Result := (FToken <> '') and (FExpire > Now);
   end;
 
-  if (Token <> '') and (CompareDateTime(Expire, now) = 1) then //Token ja gerado e ainda válido
-    Result := true
-  else //Converte Basic da Autenticação em Base64
-    Result := Executar('Basic ' + String(EncodeBase64(AnsiString(ClientID + ':' + ClientSecret))));
+begin
+  Result := False;
+  try
+    CarregaCertificados;
 
-  if (Assigned(FACBrBoleto.OnDepoisAutenticar)) then
-    FACBrBoleto.OnDepoisAutenticar(Token, Expire);
+    // Antes de autenticar
+    if Assigned(FACBrBoleto.OnAntesAutenticar) then
+    begin
+      FACBrBoleto.OnAntesAutenticar(LToken, LExpire);
+      FToken  := LToken;
+      FExpire := LExpire;
+    end;
+
+    // Forçar novo token
+    if FForceNewToken then
+    begin
+      FToken  := '';
+      FExpire := 0;
+    end;
+
+    // Verificar se precisa autenticar
+    if Assigned(FACBrBoleto.OnPrecisaAutenticar) and not TokenValido and not FForceNewToken then
+    begin
+      FACBrBoleto.OnPrecisaAutenticar(LToken, LExpire);
+      FToken  := LToken;
+      FExpire := LExpire;
+    end;
+
+    // Se já possui token válido, só retorna sucesso
+    if TokenValido then
+      Result := True
+    else if (not Assigned(FACBrBoleto.OnPrecisaAutenticar)) or FForceNewToken then
+    begin
+      // Converte ClientID/Secret para Basic Auth em Base64
+      Result := Executar('Basic ' + String(EncodeBase64(AnsiString(ClientID + ':' + ClientSecret))));
+    end;
+
+    // Depois de autenticar
+    if Assigned(FACBrBoleto.OnDepoisAutenticar) then
+      FACBrBoleto.OnDepoisAutenticar(FToken, FExpire);
+  finally
+    FForceNewToken := False;
+  end;
 end;
+
 
 end.

@@ -74,19 +74,19 @@
         <UnitName Value="ACBrUtilTest"/>
       </Unit1>
       <Unit2>
-        <Filename Value="..\..\..\Fontes\ACBrComum\ACBrCompress.pas"/>
+        <Filename Value="..\..\ACBrTests.Util.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
       <Unit3>
-        <Filename Value="..\..\ACBrTests.Util.pas"/>
+        <Filename Value="ACBrUtil.StringsTests.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit3>
       <Unit4>
-        <Filename Value="ACBrUtil.StringsTests.pas"/>
+        <Filename Value="ACBrUtil.DateTimeTests.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit4>
       <Unit5>
-        <Filename Value="ACBrUtil.DateTimeTests.pas"/>
+        <Filename Value="ACBrUtil.FilesIOTests.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit5>
     </Units>

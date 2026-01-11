@@ -38,6 +38,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
+  ACBrXmlBase,
+  ACBrXmlDocument,
   ACBrNFSeXGravarXml_ABRASFv2;
 
 type
@@ -55,13 +57,15 @@ type
   protected
     procedure Configuracao; override;
 
+    function GerarServico: TACBrXmlNode; override;
+    function GerarInfDeclaracaoPrestacaoServico: TACBrXmlNode; override;
   end;
 
 implementation
 
 uses
   ACBrNFSeXConversao,
-  ACBrXmlBase;
+  ACBrDFe.Conversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -83,6 +87,7 @@ end;
 procedure TNFSeW_Etherium204.Configuracao;
 begin
   inherited Configuracao;
+
   FormatoEmissao := tcDat;
   FormatoCompetencia := tcDat;
   FormatoAliq := tcDe2;
@@ -91,8 +96,24 @@ begin
   NrOcorrCepTomador := 1;
   NrOcorrAliquota := 1;
   NrOcorrCodigoPaisTomador := -1;
+  NrOcorrCodigoNBS := -1;
 
   TagTomador := 'TomadorServico';
+end;
+
+function TNFSeW_Etherium204.GerarInfDeclaracaoPrestacaoServico: TACBrXmlNode;
+begin
+  Result := inherited GerarInfDeclaracaoPrestacaoServico;
+
+  Result.AppendChild(GerarXMLIBSCBSNFSe);
+end;
+
+function TNFSeW_Etherium204.GerarServico: TACBrXmlNode;
+begin
+  Result := inherited GerarServico;
+
+  Result.AppendChild(AddNode(tcStr, '#32', 'cNBS', 1, 9, 1,
+                                                   NFSe.Servico.CodigoNBS, ''));
 end;
 
 end.

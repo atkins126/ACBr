@@ -38,7 +38,9 @@ interface
 
 uses
   SysUtils, Classes,
-  ACBrXmlBase, ACBrXmlDocument,
+  ACBrDFe.Conversao,
+  ACBrXmlBase,
+  ACBrXmlDocument,
   ACBrNFSeXProviderBase, ACBrNFSeXWebservicesResponse;
 
 type
@@ -127,6 +129,10 @@ type
     procedure PrepararConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
     procedure GerarMsgDadosConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
     procedure TratarRetornoConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
+
+    procedure PrepararObterDANFSE(Response: TNFSeObterDANFSEResponse); override;
+    procedure GerarMsgDadosObterDANFSE(Response: TNFSeObterDANFSEResponse); override;
+    procedure TratarRetornoObterDANFSE(Response: TNFSeObterDANFSEResponse); override;
 
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
@@ -1501,7 +1507,7 @@ var
   Document: TACBrXmlDocument;
   ANode, AuxNode, ANodePed, ANodeInfCon: TACBrXmlNode;
   Ret: TRetCancelamento;
-  IdAttr, xCancelamento, xXMLNS: string;
+  IdAttr, xCancelamento, xXMLNS, nomeArq: string;
   Inicio, Fim: Integer;
 begin
   Document := TACBrXmlDocument.Create;
@@ -1596,19 +1602,21 @@ begin
           Ret.Situacao := 'Cancelado';
 
           Inicio := Pos('CancelarNfseEnvio', Response.ArquivoEnvio) + 16;
-          Fim := Pos('>', Response.ArquivoEnvio) - 1;
+          Fim := Pos('>', Response.ArquivoEnvio);
 
           if Inicio = Fim then
             xXMLNS := ''
           else
-            xXMLNS := ' ' + Copy(Response.ArquivoEnvio, Inicio + 1, Fim - (Inicio + 1));
+            xXMLNS := trim(Copy(Response.ArquivoEnvio, Inicio + 1, Fim - (Inicio + 1)));
 
-          xCancelamento := '<Cancelamento' + xXMLNS + '>' +
+          xCancelamento := '<Cancelamento ' + xXMLNS + '>' +
                               SeparaDados(Response.ArquivoEnvio, 'Pedido', True) +
                               SepararDados(Response.ArquivoRetorno, 'InfConfirmacaoCancelamento', True) +
                            '</Cancelamento>';
 
-          SalvarXmlCancelamento(Ret.Pedido.InfID.ID + '-procCancNFSe', xCancelamento);
+          nomeArq := '';
+          SalvarXmlCancelamento(Ret.Pedido.InfID.ID + '-procCancNFSe', xCancelamento, nomeArq);
+          Response.PathNome := nomeArq;
         end
         else
           Ret.Situacao := '';
@@ -1830,6 +1838,25 @@ begin
 end;
 
 procedure TACBrNFSeProviderABRASFv1.TratarRetornoConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+procedure TACBrNFSeProviderABRASFv1.PrepararObterDANFSE(Response: TNFSeObterDANFSEResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv1.GerarMsgDadosObterDANFSE(Response: TNFSeObterDANFSEResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv1.TratarRetornoObterDANFSE(Response: TNFSeObterDANFSEResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;

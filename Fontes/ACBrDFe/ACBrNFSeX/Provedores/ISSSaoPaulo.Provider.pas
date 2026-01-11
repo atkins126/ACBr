@@ -50,6 +50,7 @@ type
   TACBrNFSeXWebserviceISSSaoPaulo = class(TACBrNFSeXWebserviceSoap11)
   public
     function Recepcionar(const ACabecalho, AMSG: string): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: string): string; override;
     function GerarNFSe(const ACabecalho, AMSG: string): string; override;
     function TesteEnvio(const ACabecalho, AMSG: string): string; override;
     function ConsultarSituacao(const ACabecalho, AMSG: string): string; override;
@@ -64,6 +65,8 @@ type
   end;
 
   TACBrNFSeProviderISSSaoPaulo = class(TACBrNFSeProviderProprio)
+  private
+    FPVersaoDFe: string;
   protected
     procedure Configuracao; override;
 
@@ -113,6 +116,7 @@ type
 implementation
 
 uses
+  ACBrDFe.Conversao,
   ACBrDFeException,
   ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.XMLHTML,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
@@ -123,7 +127,8 @@ uses
 procedure TACBrNFSeProviderISSSaoPaulo.AssinaturaAdicional(Nota: TNotaFiscal);
 var
   sSituacao, sISSRetido, sCPFCNPJTomador, sIndTomador, sTomador,
-  sCPFCNPJInter, sIndInter, sISSRetidoInter, sInter, sAssinatura: string;
+  sCPFCNPJInter, sIndInter, sISSRetidoInter, sInter, sAssinatura, sNIF, sValorServicos: string;
+  iTamanhoIM: Integer;
 begin
   with Nota do
   begin
@@ -135,43 +140,71 @@ begin
     // Tomador do Serviço
     sCPFCNPJTomador := OnlyNumber(NFSe.Tomador.IdentificacaoTomador.CpfCnpj);
 
-    if Length(sCPFCNPJTomador) = 11 then
-      sIndTomador := '1'
+    if sCPFCNPJTomador = '' then
+      sIndTomador := '3'
     else
-      if Length(sCPFCNPJTomador) = 14 then
-        sIndTomador := '2'
+      if Length(sCPFCNPJTomador) <= 11 then
+        sIndTomador := '1'
       else
-        sIndTomador := '3';
+        if Length(sCPFCNPJTomador) <= 14 then
+          sIndTomador := '2';
 
     sTomador := sIndTomador + Poem_Zeros(sCPFCNPJTomador, 14);
 
     // Prestador Intermediario
     sCPFCNPJInter := OnlyNumber(NFSe.Intermediario.Identificacao.CpfCnpj);
 
-    if Length(sCPFCNPJInter) = 11 then
-      sIndInter := '1'
+    if sCPFCNPJInter = '' then
+      sIndInter := '3'
     else
-      if Length(sCPFCNPJInter) = 14 then
-        sIndInter := '2'
+      if Length(sCPFCNPJInter) <= 11 then
+        sIndInter := '1'
       else
-        sIndInter := '3';
+        if Length(sCPFCNPJInter) <= 14 then
+          sIndInter := '2';
 
     sISSRetidoInter := EnumeradoToStr(NFSe.Intermediario.IssRetido,
                                       ['N', 'S'], [stNormal, stRetencao]);
 
-    if sIndInter <> '3' then
-      sInter := sIndInter + Poem_Zeros(sCPFCNPJInter, 14) + sISSRetidoInter
-    else
-      sInter := '';
+    sNIF := trim(NFSe.Intermediario.Identificacao.Nif);
 
-    sAssinatura := Poem_Zeros(NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, 8) +
+    if sIndInter = '3' then
+      sNIF := NaoNIFToStr(NFSe.Intermediario.Identificacao.cNaoNIF);
+
+    if FPVersaoDFe = '2' then
+    begin
+      if (sCPFCNPJInter <> '') then
+        sInter := sIndInter + Poem_Zeros(sCPFCNPJInter, 14) + sISSRetidoInter + sNIF
+      else
+        sInter := '';
+
+      iTamanhoIM := 12;
+
+      if NFSe.Servico.Valores.ValorInicialCobrado > 0 then
+        sValorServicos := Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorInicialCobrado)), 15)
+      else
+        sValorServicos := Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorFinalCobrado)), 15);
+    end
+    else
+    begin
+      if sIndInter <> '3' then
+        sInter := sIndInter + Poem_Zeros(sCPFCNPJInter, 14) + sISSRetidoInter
+      else
+        sInter := '';
+
+      iTamanhoIM := 8;
+
+      sValorServicos := Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorServicos)), 15);
+    end;
+
+    sAssinatura := Poem_Zeros(NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, iTamanhoIM) +
                    PadRight(NFSe.IdentificacaoRps.Serie, 5, ' ') +
                    Poem_Zeros(NFSe.IdentificacaoRps.Numero, 12) +
                    FormatDateTime('yyyymmdd', NFse.DataEmissao) +
                    TipoTributacaoRPSToStr(NFSe.TipoTributacaoRPS) +
                    sSituacao +
                    sISSRetido +
-                   Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorServicos)), 15) +
+                   sValorServicos +
                    Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorDeducoes)), 15) +
                    Poem_Zeros(OnlyNumber(NFSe.Servico.ItemListaServico), 5) +
                    sTomador +
@@ -184,6 +217,15 @@ end;
 procedure TACBrNFSeProviderISSSaoPaulo.Configuracao;
 begin
   inherited Configuracao;
+
+  FPVersaoDFe := '1';
+
+  if TACBrNFSeX(FAOwner).Configuracoes.Geral.Versao = ve200 then
+  begin
+    FPVersaoDFe := '2';
+
+    ConfigGeral.Particularidades.AtendeReformaTributaria := True;
+  end;
 
   with ConfigGeral do
   begin
@@ -201,6 +243,7 @@ begin
     ServicosDisponibilizados.ConsultarServicoPrestado := True;
     ServicosDisponibilizados.ConsultarServicoTomado := True;
     ServicosDisponibilizados.CancelarNfse := True;
+    ServicosDisponibilizados.EnviarLoteSincrono := True;
   end;
 
   with ConfigAssinar do
@@ -254,23 +297,27 @@ begin
     CancelarNFSe.InfElemento := '';
     CancelarNFSe.DocElemento := 'PedidoCancelamentoNFe';
 
-    DadosCabecalho := '1';
+    LoteRpsSincrono.InfElemento := 'RPS';
+    LoteRpsSincrono.DocElemento := 'PedidoEnvioLoteRPS';
+
+    DadosCabecalho := FPVersaoDFe;
   end;
 
   SetNomeXSD('***');
 
   with ConfigSchemas do
   begin
-    Teste := 'PedidoEnvioLoteRPS_v01.xsd';
-    Recepcionar := 'PedidoEnvioLoteRPS_v01.xsd';
-    GerarNFSe := 'PedidoEnvioRPS_v01.xsd';
-    ConsultarSituacao := 'PedidoInformacoesLote_v01.xsd';
-    ConsultarLote := 'PedidoConsultaLote_v01.xsd';
-    ConsultarNFSeRps := 'PedidoConsultaNFe_v01.xsd';
-    ConsultarNFSe := 'PedidoConsultaNFe_v01.xsd';
-    ConsultarNFSeServicoPrestado := 'PedidoConsultaNFePeriodo_v01.xsd';
-    ConsultarNFSeServicoTomado := 'PedidoConsultaNFePeriodo_v01.xsd';
-    CancelarNFSe := 'PedidoCancelamentoNFe_v01.xsd';
+    Teste := 'PedidoEnvioLoteRPS_v0' + FPVersaoDFe + '.xsd';
+    Recepcionar := 'PedidoEnvioLoteRPS_v0' + FPVersaoDFe + '.xsd';
+    GerarNFSe := 'PedidoEnvioRPS_v0' + FPVersaoDFe + '.xsd';
+    ConsultarSituacao := 'PedidoInformacoesLote_v0' + FPVersaoDFe + '.xsd';
+    ConsultarLote := 'PedidoConsultaLote_v0' + FPVersaoDFe + '.xsd';
+    ConsultarNFSeRps := 'PedidoConsultaNFe_v0' + FPVersaoDFe + '.xsd';
+    ConsultarNFSe := 'PedidoConsultaNFe_v0' + FPVersaoDFe + '.xsd';
+    ConsultarNFSeServicoPrestado := 'PedidoConsultaNFePeriodo_v0' + FPVersaoDFe + '.xsd';
+    ConsultarNFSeServicoTomado := 'PedidoConsultaNFePeriodo_v0' + FPVersaoDFe + '.xsd';
+    CancelarNFSe := 'PedidoCancelamentoNFe_v0' + FPVersaoDFe + '.xsd';
+    RecepcionarSincrono := 'PedidoEnvioLoteRPS_v0' + FPVersaoDFe + '.xsd';
   end;
 end;
 
@@ -417,19 +464,21 @@ var
   Nota: TNotaFiscal;
   IdAttr, NameSpace, ListaRps, xRps,
   TagEnvio, xCabecalho, xDataI, xDataF, xTotServicos, xTotDeducoes,
-  xCNPJCPF, xDoc: string;
+  xCNPJCPF, xDoc, xValores: string;
   I: Integer;
   DataInicial, DataFinal: TDateTime;
   vTotServicos, vTotDeducoes: Double;
   wAno, wMes, wDia: Word;
+  Transacao: Boolean;
 begin
+  {
   if Response.ModoEnvio = meLoteSincrono then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod001;
     AErro.Descricao := ACBrStr(Desc001);
   end;
-
+  }
   if TACBrNFSeX(FAOwner).NotasFiscais.Count <= 0 then
   begin
     AErro := Response.Erros.New;
@@ -461,6 +510,7 @@ begin
   DataFinal := 0;
   vTotServicos := 0;
   vTotDeducoes := 0;
+  Transacao := True;
 
   for I := 0 to TACBrNFSeX(FAOwner).NotasFiscais.Count - 1 do
   begin
@@ -486,6 +536,8 @@ begin
     begin
       DataInicial := Nota.NFSe.DataEmissao;
       DataFinal := DataInicial;
+
+      Transacao := (Nota.NFSe.Transacao = snSim);
     end;
 
     if Nota.NFSe.DataEmissao < DataInicial then
@@ -520,7 +572,7 @@ begin
       begin
         TagEnvio := 'PedidoEnvioRPS';
 
-        xCabecalho := '<Cabecalho xmlns="" Versao="1">' +
+        xCabecalho := '<Cabecalho xmlns="" Versao="' + FPVersaoDFe + '">' +
                         '<CPFCNPJRemetente>' +
                           xCNPJCPF +
                         '</CPFCNPJRemetente>' +
@@ -560,24 +612,29 @@ begin
       xTotDeducoes := FloatToString(vTotDeducoes, '.', FloatMask(2, False));
       xTotDeducoes := StringReplace(xTotDeducoes, '.00', '', []);
 
-      xCabecalho := '<Cabecalho xmlns="" Versao="1">' +
+      if FPVersaoDFe = '1' then
+        xValores := '<ValorTotalServicos>' +
+                      xTotServicos +
+                    '</ValorTotalServicos>' +
+                    '<ValorTotalDeducoes>' +
+                      xTotDeducoes +
+                    '</ValorTotalDeducoes>'
+      else
+        xValores := '';
+
+      xCabecalho := '<Cabecalho xmlns="" Versao="' + FPVersaoDFe + '">' +
                       '<CPFCNPJRemetente>' +
                         xCNPJCPF +
                       '</CPFCNPJRemetente>' +
                       '<transacao>' +
-                        LowerCase(BoolToStr(TACBrNFSeX(FAOwner).NotasFiscais.Transacao, True)) +
+                        LowerCase(BoolToStr(Transacao, True)) +
                       '</transacao>' +
                       '<dtInicio>' + xDataI + '</dtInicio>' +
                       '<dtFim>' + xDataF + '</dtFim>' +
                       '<QtdRPS>' +
                         IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count) +
                       '</QtdRPS>' +
-                      '<ValorTotalServicos>' +
-                        xTotServicos +
-                      '</ValorTotalServicos>' +
-                      '<ValorTotalDeducoes>' +
-                        xTotDeducoes +
-                      '</ValorTotalDeducoes>' +
+                      xValores +
                     '</Cabecalho>';
 
       if EstaVazio(ConfigMsgDados.LoteRps.xmlns) then
@@ -729,7 +786,7 @@ begin
     xCNPJCPF := '<CPF>' + xDoc + '</CPF>';
 
   Response.ArquivoEnvio := '<PedidoInformacoesLote' + NameSpace + '>' +
-                             '<Cabecalho xmlns="" Versao="1">' +
+                             '<Cabecalho xmlns="" Versao="' + FPVersaoDFe + '">' +
                                '<CPFCNPJRemetente>' +
                                  xCNPJCPF +
                                '</CPFCNPJRemetente>' +
@@ -855,7 +912,7 @@ begin
     xCNPJCPF := '<CPF>' + xDoc + '</CPF>';
 
   Response.ArquivoEnvio := '<PedidoConsultaLote' + NameSpace + '>' +
-                             '<Cabecalho xmlns="" Versao="1">' +
+                             '<Cabecalho xmlns="" Versao="' + FPVersaoDFe + '">' +
                                '<CPFCNPJRemetente>' +
                                  xCNPJCPF +
                                '</CPFCNPJRemetente>' +
@@ -982,7 +1039,7 @@ begin
     xCNPJCPF := '<CPF>' + xDoc + '</CPF>';
 
   Response.ArquivoEnvio := '<PedidoConsultaNFe' + NameSpace + '>' +
-                             '<Cabecalho xmlns="" Versao="1">' +
+                             '<Cabecalho xmlns="" Versao="' + FPVersaoDFe + '">' +
                                '<CPFCNPJRemetente>' +
                                  xCNPJCPF +
                                '</CPFCNPJRemetente>' +
@@ -1125,7 +1182,7 @@ begin
     xCNPJCPF := '<CPF>' + xDoc + '</CPF>';
 
   Response.ArquivoEnvio := '<PedidoConsultaNFe' + NameSpace + '>' +
-                             '<Cabecalho xmlns="" Versao="1">' +
+                             '<Cabecalho xmlns="" Versao="' + FPVersaoDFe + '">' +
                                '<CPFCNPJRemetente>' +
                                  xCNPJCPF +
                                '</CPFCNPJRemetente>' +
@@ -1228,13 +1285,13 @@ procedure TACBrNFSeProviderISSSaoPaulo.PrepararConsultaNFSeServicoPrestado(
 var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
-  NameSpace, xCNPJCPF, xDoc, xCNPJCPFTomador, xDocTomador: string;
+  NameSpace, xCNPJCPF, xDoc, xCNPJCPFPrestador, xDocPrestador: string;
 begin
-  if EstaVazio(Response.InfConsultaNFSe.CNPJTomador) then
+  if EstaVazio(Response.InfConsultaNFSe.CNPJPrestador) then
   begin
     AErro := Response.Erros.New;
-    AErro.Codigo := Cod127;
-    AErro.Descricao := ACBrStr(Desc127);
+    AErro.Codigo := Cod137;
+    AErro.Descricao := ACBrStr(Desc137);
     Exit;
   end;
 
@@ -1270,20 +1327,20 @@ begin
   else
     xCNPJCPF := '<CPF>' + xDoc + '</CPF>';
 
-  xDocTomador := OnlyNumber(Response.InfConsultaNFSe.CNPJTomador);
+  xDocPrestador := OnlyNumber(Response.InfConsultaNFSe.CNPJPrestador);
 
-  if Length(xDocTomador) = 14 then
-    xCNPJCPFTomador := '<CNPJ>' + xDocTomador + '</CNPJ>'
+  if Length(xDocPrestador) = 14 then
+    xCNPJCPFPrestador := '<CNPJ>' + xDocPrestador + '</CNPJ>'
   else
-    xCNPJCPFTomador := '<CPF>' + xDocTomador + '</CPF>';
+    xCNPJCPFPrestador := '<CPF>' + xDocPrestador + '</CPF>';
 
   Response.ArquivoEnvio := '<PedidoConsultaNFePeriodo' + NameSpace + '>' +
-                              '<Cabecalho xmlns="" Versao="1">' +
+                              '<Cabecalho xmlns="" Versao="' + FPVersaoDFe + '">' +
                                 '<CPFCNPJRemetente>' +
                                   xCNPJCPF +
                                 '</CPFCNPJRemetente>' +
                                 '<CPFCNPJ>' +
-                                  xCNPJCPFTomador +
+                                  xCNPJCPFPrestador +
                                 '</CPFCNPJ>' +
                                 '<dtInicio>' +
                                   FormatDateTime('yyyy-mm-dd', Response.InfConsultaNFSe.DataInicial) +
@@ -1433,7 +1490,7 @@ begin
     xCNPJCPFTomador := '<CPF>' + xDocTomador + '</CPF>';
 
   Response.ArquivoEnvio := '<PedidoConsultaNFePeriodo' + NameSpace + '>' +
-                              '<Cabecalho xmlns="" Versao="1">' +
+                              '<Cabecalho xmlns="" Versao="' + FPVersaoDFe + '">' +
                                 '<CPFCNPJRemetente>' +
                                   xCNPJCPF +
                                 '</CPFCNPJRemetente>' +
@@ -1583,7 +1640,7 @@ begin
     xCNPJCPF := '<CPF>' + xDoc + '</CPF>';
 
   Response.ArquivoEnvio := '<PedidoCancelamentoNFe' + NameSpace + '>' +
-                             '<Cabecalho xmlns="" Versao="1">' +
+                             '<Cabecalho xmlns="" Versao="' + FPVersaoDFe + '">' +
                                '<CPFCNPJRemetente>' +
                                  xCNPJCPF +
                                '</CPFCNPJRemetente>' +
@@ -1821,6 +1878,23 @@ begin
 
   Result := Executar('http://www.prefeitura.sp.gov.br/nfe/ws/cancelamentoNFe', Request,
                      ['RetornoXML', 'RetornoCancelamentoNFe'],
+                     ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
+end;
+
+function TACBrNFSeXWebserviceISSSaoPaulo.RecepcionarSincrono(
+  const ACabecalho, AMSG: string): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfe:EnvioLoteRPSRequest>';
+  Request := Request + '<nfe:VersaoSchema>' + ACabecalho + '</nfe:VersaoSchema>';
+  Request := Request + '<nfe:MensagemXML>' + XmlToStr(AMSG) + '</nfe:MensagemXML>';
+  Request := Request + '</nfe:EnvioLoteRPSRequest>';
+
+  Result := Executar('http://www.prefeitura.sp.gov.br/nfe/ws/envioLoteRPS', Request,
+                     ['RetornoXML', 'RetornoEnvioLoteRPS'],
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 

@@ -39,10 +39,12 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase,
+  ACBrDFe.Conversao,
   ACBrXmlDocument,
   ACBrNFSeXGravarXml,
   ACBrNFSeXGravarXml_ABRASFv2,
-  ACBrNFSeXConversao;
+  ACBrNFSeXConversao,
+  PadraoNacional.GravarXml;
 
 type
   { TNFSeW_Infisc }
@@ -106,6 +108,13 @@ type
   TNFSeW_Infisc203 = class(TNFSeW_ABRASFv2)
   protected
     procedure Configuracao; override;
+
+  end;
+
+  { TNFSeW_InfiscAPIPropria }
+
+  TNFSeW_InfiscAPIPropria = class(TNFSeW_PadraoNacional)
+  protected
 
   end;
 
@@ -307,6 +316,12 @@ begin
       xmlNode := GerarISSST(i);
       Result[i].AppendChild(xmlNode);
     end;
+
+    // Reforma Tributária
+    if (NFSe.IBSCBS.dest.xNome <> '') or (NFSe.IBSCBS.cIndOp <> '')  or
+       (NFSe.IBSCBS.imovel.cCIB <> '') or (NFSe.IBSCBS.imovel.ender.CEP <> '') or
+       (NFSe.IBSCBS.imovel.ender.endExt.cEndPost <> '') then
+      Result[i].AppendChild(GerarXMLIBSCBS(NFSe.IBSCBS));
   end;
 
   if NFSe.Servico.ItemServico.Count > 999 then
@@ -494,14 +509,6 @@ function TNFSeW_Infisc.GerarID: TACBrXmlNode;
 var
   cUF, CNPJ, Modelo, aSerie, Numero, Codigo, sChave: string;
 
-const
-  DFeUF: array[0..26] of String =
-  ('AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA',
-   'PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO');
-
-  DFeUFCodigo: array[0..26] of Integer =
-  (12,27,16,13,29,23,53,32,52,21,51,50,31,15,25,41,26,22,33,24,43,11,14,42,35,28,17);
-
 function UFtoCUF(const UF: String): Integer;
 var
   i: Integer;
@@ -599,6 +606,34 @@ begin
 
     Result.AppendChild(AddNode(tcStr, '#1', 'empreitadaGlobal', 1, 1, 1,
                              EmpreitadaGlobalToStr(NFSe.EmpreitadaGlobal), ''));
+
+    Result.AppendChild(AddNode(tcInt, '#1', 'codRPS', 0, 1, 0,
+                                                       NFSe.id_sis_legado, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'rps', 0, 1, 0,
+                                             NFSe.IdentificacaoRps.Numero, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'serierps', 0, 1, 0,
+                                              NFSe.IdentificacaoRps.Serie, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'dataEmissaoRpsPapel', 0, 1, 0,
+                        FormatDateTime('yyyy-mm-dd', NFSe.DataEmissaoRps), ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'enviarEmail', 0, 1, 0, 'N', ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'chaveAcessoSubstituida', 0, 1, 0,
+                                                                       '', ''));
+
+    if ((NFSe.Producao = snSim) and (Now >= EncodeDate(2026, 1, 1))) or
+       (NFSe.Producao <> snSim) then
+    begin
+      if NFSe.Prestador.Endereco.CodigoMunicipio <> '' then
+         Result.AppendChild(AddNode(tcStr, '#1', 'cLocPrestacao', 1, 15, 1,
+                                  NFSe.Prestador.Endereco.CodigoMunicipio, ''));
+
+      Result.AppendChild(AddNode(tcInt, '#1', 'cPaisPrestacao', 1, 4, 1,
+                                       NFSe.Prestador.Endereco.CodigoPais, ''));
+    end;
   end;
 end;
 
@@ -1018,6 +1053,13 @@ begin
 
   Result.AppendChild(AddNode(tcDe2, '#1', 'totalAproxTribServ', 1, 15, 1,
                         NFSe.Servico.ItemServico[Item].totalAproxTribServ, ''));
+
+  if (FPVersao = ve101) and ((NFSe.Servico.ItemServico[Item].ValorPIS > 0) or
+     (NFSe.Servico.ItemServico[Item].ValorCOFINS > 0)) then
+    Result.AppendChild(AddNode(tcStr, '#1', 'tpRetPisCofins', 1, 1, 1, '1', ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'cNBS', 9, 9, 0,
+                                                   NFSe.Servico.CodigoNBS, ''));
 end;
 
 function TNFSeW_Infisc.GerarTomador: TACBrXmlNode;

@@ -39,6 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase,
+  ACBrXmlDocument,
   ACBrNFSeXGravarXml_ABRASFv2;
 
 type
@@ -56,9 +57,14 @@ type
   protected
     procedure Configuracao; override;
 
+    function GerarServico: TACBrXmlNode; override;
+    function GerarInfDeclaracaoPrestacaoServico: TACBrXmlNode; override;
   end;
 
 implementation
+
+uses
+  ACBrDFe.Conversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -95,8 +101,24 @@ begin
   NrOcorrCepTomador := 1;
   NrOcorrAliquota := 1;
   NrOcorrCodigoPaisTomador := -1;
+  NrOcorrCodigoNBS := -1;
 
   TagTomador := 'TomadorServico';
+end;
+
+function TNFSeW_SigCorp204.GerarInfDeclaracaoPrestacaoServico: TACBrXmlNode;
+begin
+  Result := inherited GerarInfDeclaracaoPrestacaoServico;
+
+  Result.AppendChild(GerarXMLIBSCBSNFSe);
+end;
+
+function TNFSeW_SigCorp204.GerarServico: TACBrXmlNode;
+begin
+  Result := inherited GerarServico;
+
+  Result.AppendChild(AddNode(tcStr, '#32', 'cNBS', 1, 9, 1,
+                                                   NFSe.Servico.CodigoNBS, ''));
 end;
 
 end.

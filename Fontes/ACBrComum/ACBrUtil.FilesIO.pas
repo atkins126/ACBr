@@ -147,9 +147,13 @@ function Zip(AStream: TStream): AnsiString; overload;
 function Zip(const ABinaryString: AnsiString): AnsiString; overload;
 
 procedure LerIniArquivoOuString(const IniArquivoOuString: String; AMemIni: TMemIniFile);
+function LerArquivoOuString(const AJSONArquivoOuString: String): String;
 function StringIsINI(const AString: String): Boolean;
 function StringIsAFile(const AString: String): Boolean;
 function StringIsXML(const AString: String): Boolean;
+function StringIsJSONObject(const AString: String): Boolean;
+function StringIsJSONArray(const AString: String): Boolean;
+function StringIsJSON(const AString: String): Boolean;
 function StrIsIP(const AValue: String): Boolean;
 function StringIsPDF(const AString: String): Boolean;
 
@@ -160,6 +164,8 @@ function DefinirNomeArquivo(const APath, ANomePadraoComponente: string;
 
 function FileToBytes(const AName: string; out Bytes: TBytes): Boolean;
 function SetGlobalEnvironment(const AName, AValue: string; const UserEnvironment: Boolean = True): Boolean;
+
+function CarregarArquivo(const APathNome: string): string;
 
 {$IFDEF MSWINDOWS}
 var xInp32 : function (wAddr: word): byte; stdcall;
@@ -1346,6 +1352,31 @@ begin
 end;
 
 {------------------------------------------------------------------------------
+   Se passou o caminho, faz o Load em uma StringList, do contrário só devolve a
+   string.
+ ------------------------------------------------------------------------------}
+function LerArquivoOuString(const AJSONArquivoOuString: String): String;
+var
+  SL: TStringList;
+begin
+  Result := '';
+  if StringIsAFile(AJSONArquivoOuString) then
+  begin
+    if FileExists(AJSONArquivoOuString) then
+    begin
+      SL := TStringList.Create;
+      try
+        SL.LoadFromFile(AJSONArquivoOuString);
+        Result := SL.Text;
+      finally
+        SL.Free;
+      end;
+    end;
+  end else
+    Result := AJSONArquivoOuString;
+end;
+
+{------------------------------------------------------------------------------
    Valida se é um arquivo contém caracteres existentes em um ini
  ------------------------------------------------------------------------------}
 function StringIsINI(const AString: String): Boolean;
@@ -1361,6 +1392,7 @@ begin
   Result := (AString <> '') and
             (not StringIsXML(AString)) and
             (not StringIsINI(AString)) and
+            (not StringIsJSON(AString)) and
             (Length(AString) < 255) ;
 end;
 
@@ -1370,6 +1402,42 @@ end;
 function StringIsXML(const AString: String): Boolean;
 begin
   Result :=(pos('<', AString) > 0) and (pos('>', AString) > 0);
+end;
+
+function StringIsJSONObject(const AString: String): Boolean;
+var
+  LJsonTrimming: String;
+begin
+  Result := False;
+
+  LJsonTrimming := Trim(AString);
+
+  if Length(LJsonTrimming) = 0 then
+    Exit;
+
+  Result := (LJsonTrimming[1] = '{') and (LJsonTrimming[Length(LJsonTrimming)] = '}');
+end;
+
+function StringIsJSONArray(const AString: String): Boolean;
+var
+  LJsonTrimming: String;
+begin
+  Result := False;
+
+  LJsonTrimming := Trim(AString);
+
+  if Length(LJsonTrimming) = 0 then
+    Exit;
+
+  Result := (LJsonTrimming[1] = '[') and (LJsonTrimming[Length(LJsonTrimming)] = ']');
+end;
+
+{------------------------------------------------------------------------------
+   Valida se é um arquivo com caracteres existentes em um JSON
+ ------------------------------------------------------------------------------}
+function StringIsJSON(const AString: String): Boolean;
+begin
+  Result := StringIsJSONObject(AString) or StringIsJSONArray(AString);
 end;
 
 {-----------------------------------------------------------------------------
@@ -1597,6 +1665,32 @@ begin
   Result := True;
 end;
 {$EndIf}
+
+function CarregarArquivo(const APathNome: string): string;
+var
+  SL: TStringList;
+  sArq: string;
+begin
+  SL := TStringList.Create;
+  try
+    if FileExists(APathNome) then
+      SL.LoadFromFile(APathNome)
+    else
+      raise Exception.CreateFmt(ACBrStr('Arquivo: %s não encontrado.'), [APathNome] );
+
+    sArq := SL.Text;
+  finally
+    SL.Free;
+  end;
+
+  //remove o linebreak que fica no final da string por ter vindo do "TStringList.Text"
+  if Length(sArq) >= Length(sLineBreak) then
+  begin
+    sArq := Copy(sArq, 0, Length(sArq) - Length(sLineBreak));
+  end;
+
+  Result := sArq;
+end;
 
 initialization
 {$IfDef MSWINDOWS}

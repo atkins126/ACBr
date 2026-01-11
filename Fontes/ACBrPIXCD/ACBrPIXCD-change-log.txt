@@ -47,6 +47,136 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+08/12/2025
+-- ACBrPIXPSPPixPDV --
+[*] Ajuste para validar tamanho do campo qrcodeId para no máximo 36 caracteres. Alteração solicitada
+    por José Nilton, devido a envios constantes de conteúdo inválido.
+    por: Elias Cesar
+
+02/12/2025
+-- ACBrPIXPSPPagSeguro --
+[*] Alteração no método 'SolicitarCertificado' para retornar corretamente os arquivos Certificado 
+    e Chave Privada através de parâmetros out.
+    por: Elias Cesar
+
+02/12/2025
+-- ACBrPIXSchemasCob, ACBrPIXSchemasCobV, ACBrPIXSchemasCobR, ACBrPIXSchemasDevolucao --
+[*] Ajustes para não ocorrer AV, pois verifica se propriedades tipo objeto estão instanciadas 
+    antes de utilizar método Clear.
+    por: Elias Cesar
+
+02/12/2025
+-- ACBrPIXSchemasCob, ACBrPIXSchemasCobV, ACBrPIXSchemasCobR, ACBrPIXSchemasDevolucao --
+[-] Correção na maneira que os métodos 'Clear' são sobreescritos nas classes filhas de TACBrPIXSchema.
+    por: Elias Cesar
+
+28/11/2025
+-- ACBrPIXPSPPagSeguro --
+[-] Correção no header 'X_CHALLENGE' da função SolicitarCertificado().
+    por: Elias Cesar
+
+27/11/2025
+-- ACBrPIXPSPPagSeguro --
+[-] Correção na função SolicitarDesafioCertificado().
+    por: Elias Cesar
+
+25/11/2025
+-- ACBrPIXPSPBancoDoBrasil --
+[*] Ajuste para SEMPRE alterar a string 'textoImagemQRcode' por 'pixCopiaECola', caso ela exista na 
+    resposta da requisição.
+    por: Elias Cesar
+
+17/11/2025
+-- ACBrPIXPSPPagSeguro --
+[+] Inclusão dos métodos SolicitarCredenciais, SolicitarDesafioCertificado e SolicitarCertificado.
+    por: Elias Cesar 
+
+22/10/2025
+-- ACBrPIXPSPBradesco --
+[-] Correção do ResultCode (200 => 201) do Bradesco para POST /cob
+    por: Elias Cesar
+
+03/10/2025
+-- ACBrPIXCD --
+[-] Ajuste do parametro Validade para 'out' no momento de gerar o Token.
+    por: Julio Cavalcanti
+
+01/10/2025
+-- ACBrPixPSPBradesco --
+[+] Criada propriedade para definir as versões de URL do Bradesco.
+    por: Elias Cesar
+
+25/09/2025
+-- ACBrPIXCD --
+[*] Alteração do evento OnQuandoAlterarPSP para a classe ACBrPIXCD.
+    por: Elias Cesar
+
+24/09/2025
+-- ACBrPIXPSPItau --
+[*] Alteração para utilizar url v2 ao renovar o certificado.
+    por: João Adorivan
+
+18/09/2025
+-- ACBrPIXCD --
+[+] Inclusão dos eventos OnPrecisaAutenticar e OnQuandoAlterarPSP.
+    por: Elias Cesar
+
+19/08/2025
+-- ACBrSchemasAppLess --
+[-] Correção da propriedade customerSocialName.
+
+12/08/2025
+-- ACBrPIXPSPAppLess --
+[*] Alteração para preencher a propriedade correta ao informar um CNPJ na criação da cobrança.
+
+-- ACBrSchemasAppLess --
+[-] Correção da propriedade customerCPF;
+[+] Inclusão da propriedade customerCNPJ.
+    por: Julio Cavalcanti
+
+05/08/2025
+-- ACBrPIXPSPAppLess --
+[*] Alteração para disparar exception caso o PSP AppLess não esteja configurado em ambiente de produção.
+    por: Elias César
+
+31/07/2025
+-- ACBrPIXPSPAppLess --
+[*] Incluída validação do parâmetro E2Eid ao efetuar uma devolução com PSP AppLess.
+    por: Elias César
+
+30/07/2025
+-- ACBrPIXPSPAppLess --
+[*] Alterações para funcionar o endpoint /pix padrão Bacen com PSP AppLess.
+    por: Elias César
+
+30/07/2025
+-- ACBrPIXSchemasCobV --
+[*] Ajuste nas propriedades do devedor que faltavam ao ler as informações do INI.
+    por: Elias César
+
+29/07/2025
+-- ACBrPIXCD --
+[*] Inclusão do parâmetro 'txId' no método de consulta de uma recorrência.
+    por: Elias César
+
+25/07/2025
+-- ACBrPIXPSPAppLess -- 
+[*] Alteração para converter corretamente os pagamentos na consulta da cobrança.
+    por: Elias César 
+
+24/07/2025
+-- ACBrPIXSchemasRecBase, ACBrPIXSchemasRecAtualizacao --
+[-] Correção de AV, caso exista algum objeto 'null' no Json de resposta.
+
+-- ACBrPIXCD --
+[-] Correção da string do scope solicrec.read
+    por: Elias César
+
+15/07/2025
+-- ACBrPIXPSPSantander --
+[-] Correção de problemas na utilização do PSP Santander em ambiente de homologação.
+    por: Elias César
+
 03/07/2025
 -- ACBrPIXPSPPixPDV, ACBrPixSchemasPixPDV --
 [*] Ajustes referentes à migração do PSP Matera para PixNoPDV.

@@ -51,6 +51,9 @@ type
     function ConverterDigitoModuloFinal(): String; override;
     function DefineCampoLivreCodigoBarras(const ACBrTitulo: TACBrTitulo): String; override;
     function DefineEspecieDoc(const ACBrTitulo: TACBrTitulo): String; override;
+    function DefinePosicaoAgenciaRetorno:Integer; override;           //Define posição para leitura de Retorno campo: Agencia
+    function DefinePosicaoContaRetorno:Integer; override;             //Define posição para leitura de Retorno campo: Conta
+
 
   public
     Constructor create(AOwner: TACBrBanco);
@@ -278,6 +281,22 @@ begin
     end;
   end;
 
+end;
+
+function TACBrBancoBradescoMoneyPlus.DefinePosicaoAgenciaRetorno: Integer;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result := 53
+  else
+    Result := 24;
+end;
+
+function TACBrBancoBradescoMoneyPlus.DefinePosicaoContaRetorno: Integer;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result := 59
+  else
+    Result := 28;
 end;
 
 function TACBrBancoBradescoMoneyPlus.ConverterMultaPercentual(
@@ -644,7 +663,7 @@ begin
          aRemessa.Add(UpperCase(wLinha));
 
 
-       if (Sacado.SacadoAvalista.NomeAvalista <> '') and (LayoutVersaoArquivo = 003) then
+       if (DataProtesto > Vencimento) and (LayoutVersaoArquivo = 003) then
        begin
          wLinha := '2';                                                         // 001 a 001 - Tipo do Registro
             for J := 0 to 3 do

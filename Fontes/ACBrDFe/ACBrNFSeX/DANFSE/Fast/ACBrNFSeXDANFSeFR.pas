@@ -211,6 +211,7 @@ end;
 
 procedure TACBrNFSeXDANFSeFR.ImprimirDANFSe(NFSe: TNFSe);
 begin
+  RemoveExportFastReportPDFDuplicate;
   Provedor := TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor;
 
   DANFSeXClassOwner.FIndexImpressaoIndividual := -1;
@@ -369,14 +370,17 @@ begin
   else
     raise EACBrNFSeXDANFSeFR.Create('Caminho do arquivo de impressão do DANFSe não assinalado.');
 
-  frxReport.PrintOptions.Copies      := NumCopias;
-  frxReport.PrintOptions.ShowDialog  := MostraSetup;
   frxReport.ShowProgress             := MostraStatus;
   frxReport.PreviewOptions.AllowEdit := false;
 
     // Define a impressora
-  if NaoEstaVazio(frxReport.PrintOptions.Printer) then
+  if EstaVazio(Impressora) then
+    SetDefaultPrinter(frxReport)
+  else
     frxReport.PrintOptions.Printer := Impressora;
+
+  frxReport.PrintOptions.Copies      := NumCopias;
+  frxReport.PrintOptions.ShowDialog  := MostraSetup;
 
   if Assigned(ANFSe) then
   begin
@@ -419,7 +423,6 @@ begin
   frxReport.IniFile                   := '\Software\Fast Reports';
   frxReport.PreviewOptions.Buttons    := [ pbPrint, pbZoom, pbFind, pbNavigator, pbExportQuick ];
   frxReport.PreviewOptions.Zoom       := 1.000000000000000000;
-  frxReport.PrintOptions.Printer      := 'Padrão';
   frxReport.PrintOptions.PrintOnSheet := 0;
   frxReport.ScriptLanguage            := 'PascalScript';
   frxReport.StoreInDFM                := false;
@@ -502,7 +505,7 @@ begin
   cdsServicos.Close;
 
   cdsServicos.FieldDefs.Clear;
-  cdsServicos.FieldDefs.Add('ItemListaServico', ftString, 6);
+  cdsServicos.FieldDefs.Add('ItemListaServico', ftString, 8);
   cdsServicos.FieldDefs.Add('CodigoCnae', ftString, 15);
   cdsServicos.FieldDefs.Add('CodigoNbs', ftString, 9);
   cdsServicos.FieldDefs.Add('CodigoTributacaoMunicipio', ftString, 20);

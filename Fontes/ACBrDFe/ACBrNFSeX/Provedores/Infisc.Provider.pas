@@ -38,10 +38,17 @@ interface
 
 uses
   SysUtils, Classes,
-  ACBrXmlBase, ACBrXmlDocument, ACBrNFSeXClass, ACBrNFSeXConversao,
-  ACBrNFSeXGravarXml, ACBrNFSeXLerXml,
-  ACBrNFSeXProviderProprio, ACBrNFSeXProviderABRASFv2,
-  ACBrNFSeXWebserviceBase, ACBrNFSeXWebservicesResponse;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrNFSeXClass,
+  ACBrNFSeXConversao,
+  ACBrNFSeXGravarXml,
+  ACBrNFSeXLerXml,
+  ACBrNFSeXProviderProprio,
+  ACBrNFSeXProviderABRASFv2,
+  ACBrNFSeXWebserviceBase,
+  ACBrNFSeXWebservicesResponse,
+  PadraoNacional.Provider;
 
 type
 
@@ -141,13 +148,38 @@ type
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
   end;
 
+  TACBrNFSeXWebserviceInfiscAPIPropria = class(TACBrNFSeXWebservicePadraoNacional)
+  protected
+
+  public
+
+  end;
+
+  TACBrNFSeProviderInfiscAPIPropria = class(TACBrNFSeProviderPadraoNacional)
+  private
+
+  protected
+    function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; override;
+    function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
+    function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
+
+    procedure PrepararObterDANFSE(Response: TNFSeObterDANFSEResponse); override;
+  end;
+
 implementation
 
 uses
-  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.XMLHTML,
+  ACBrDFe.Conversao,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
   ACBrDFeException,
-  ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
-  ACBrNFSeXNotasFiscais, Infisc.GravarXml, Infisc.LerXml;
+  ACBrNFSeX,
+  ACBrNFSeXConfiguracoes,
+  ACBrNFSeXConsts,
+  ACBrNFSeXNotasFiscais,
+  Infisc.GravarXml,
+  Infisc.LerXml;
 
 { TACBrNFSeProviderInfisc }
 
@@ -1252,6 +1284,64 @@ begin
     else
       raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
   end;
+end;
+
+{ TACBrNFSeProviderInfiscAPIPropria }
+
+function TACBrNFSeProviderInfiscAPIPropria.CriarGeradorXml(
+  const ANFSe: TNFSe): TNFSeWClass;
+begin
+  Result := TNFSeW_InfiscAPIPropria.Create(Self);
+  Result.NFSe := ANFSe;
+end;
+
+function TACBrNFSeProviderInfiscAPIPropria.CriarLeitorXml(
+  const ANFSe: TNFSe): TNFSeRClass;
+begin
+  Result := TNFSeR_InfiscAPIPropria.Create(Self);
+  Result.NFSe := ANFSe;
+end;
+
+function TACBrNFSeProviderInfiscAPIPropria.CriarServiceClient(
+  const AMetodo: TMetodo): TACBrNFSeXWebservice;
+var
+  URL: string;
+begin
+  URL := GetWebServiceURL(AMetodo);
+
+  if URL <> '' then
+  begin
+    URL := URL + Path;
+
+    Result := TACBrNFSeXWebserviceInfiscAPIPropria.Create(FAOwner, AMetodo, URL, Method);
+  end
+  else
+  begin
+    if ConfigGeral.Ambiente = taProducao then
+      raise EACBrDFeException.Create(ERR_SEM_URL_PRO)
+    else
+      raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
+  end;
+end;
+
+procedure TACBrNFSeProviderInfiscAPIPropria.PrepararObterDANFSE(
+  Response: TNFSeObterDANFSEResponse);
+var
+  AErro: TNFSeEventoCollectionItem;
+begin
+  if EstaVazio(Response.ChaveNFSe) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod118;
+    AErro.Descricao := ACBrStr(Desc118);
+    Exit;
+  end;
+
+  Path := '/nfse/pdf/' + Response.ChaveNFSe;
+  Response.Metodo := tmObterDANFSE;
+
+  Response.ArquivoEnvio := Path;
+  Method := 'GET';
 end;
 
 end.
